@@ -1,0 +1,26 @@
+sudo: false
+
+language: python
+
+python: 3.5
+
+env:
+  - TOXENV=py35
+  - TOXENV=py27
+  - TOXENV=docs
+  - TOXENV=flake8
+
+cache: pip
+
+notifications:
+  email: false
+
+install:
+   - pip install -U tox
+   - pip install coveralls
+
+script:
+   - tox -e $TOXENV
+
+after_success:
+   - coveralls --rcfile=.coveragerc

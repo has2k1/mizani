@@ -1,0 +1,18 @@
+# Configuration for coverage.py
+
+[run]
+branch = True
+source = mizani
+include = mizani/*
+omit =
+    setup.py
+    mizani/_version.py
+    mizani/external/*
+    mizani/tests/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    ^def test_
+    if __name__ == .__main__.:
+precision = 1

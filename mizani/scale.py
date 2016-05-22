@@ -1,0 +1,240 @@
+"""
+According to *On the theory of scales of measurement* by **S.S. Stevens**,
+scales can be classified in four ways -- *norminal*, *ordinal*,
+*interval* and *ratio*. Using current(2016) terminology, *norminal* data
+is made up of unordered categories, *ordinal* data is made up of ordered
+categories and the two can be classified as *discrete*. On the other hand
+both *interval* and *ratio* data are *continuous*.
+
+The scale classes below show how the rest of the Mizani package can be
+used to implement the two categories of scales. The key tasks are
+*training* and *mapping* and these correspond to the **train** and
+**map** methods.
+
+To train a scale on data means, to make the scale learn the limits of
+the data. This is elaborate (or worthy of a dedicated method) for two
+reasons:
+
+    - Practical -- data may be split up across more than one object,
+      yet all will be represented by a single scale.
+    - Conceptual -- training is a key action that may need to be inserted
+      into multiple locations of the data processing pipeline before a
+      graphic can be created.
+
+To map data onto a scale means, to associate data values with
+values(potential readings) on a scale. This is perhaps the most important
+concept unpinning a scale.
+
+The **apply** methods are simple examples of how to put it all together.
+"""
+from __future__ import division
+
+import numpy as np
+import pandas as pd
+import pandas.core.common as com
+
+from .bounds import censor, rescale
+from .utils import CONTINUOUS_KINDS, DISCRETE_KINDS, min_max, match
+
+
+__all__ = ['scale_continuous', 'scale_discrete']
+
+
+class scale_continuous(object):
+    """
+    Continuous scale
+    """
+
+    @classmethod
+    def apply(cls, x, palette, nan_value=None, trans=None):
+        """
+        Scale data continuously
+
+        Parameters
+        ----------
+        x : array_like
+            Continuous values to scale
+        palette : function
+            Palette to use
+        nan_value : object
+            Value to use for missing values.
+        trans : trans
+            How to transform the data before scaling. If
+            ``None``, no transformation is done.
+
+        Returns
+        -------
+        out : array_like
+            Scaled values
+        """
+        if trans is not None:
+            x = trans.transform(x)
+
+        limits = cls.train(x)
+        return cls.map(x, palette, limits, nan_value)
+
+    @classmethod
+    def train(cls, new_data, old=None):
+        """
+        Train a continuous scale
+
+        Parameters
+        ----------
+        new_data : array_like
+            New values
+        old : array_like
+            Old range. Most likely a tuple of length 2.
+
+        Returns
+        -------
+        out : tuple
+            Limits(range) of the scale
+        """
+        if not len(new_data):
+            return old
+
+        if not hasattr(new_data, 'dtype'):
+            new_data = np.asarray(new_data)
+
+        if new_data.dtype.kind not in CONTINUOUS_KINDS:
+            raise TypeError(
+                "Discrete value supplied to continuous scale")
+
+        if old is not None:
+            new_data = np.hstack([new_data, old])
+
+        return min_max(new_data, nan_rm=True, finite=True)
+
+    @classmethod
+    def map(cls, x, palette, limits, nan_value=None, oob=censor):
+        """
+        Map values to a continuous palette
+
+        Parameters
+        ----------
+        x : array_like
+            Continuous values to scale
+        palette : function
+            palette to use
+        nan_value : object
+            Value to use for missing values.
+        oob : function
+            Function to deal with values that are
+            beyond the limits
+
+        Returns
+        -------
+        out : array_like
+            Values mapped onto a palette
+        """
+        x = oob(rescale(x, _from=limits))
+        pal = palette(x)
+        try:
+            pal[pd.isnull(x)] = nan_value
+        except TypeError:
+            pal = [v if not pd.isnull(v) else nan_value for v in pal]
+
+        return pal
+
+
+class scale_discrete(object):
+    """
+    Discrete scale
+    """
+
+    @classmethod
+    def apply(cls, x, palette, nan_value=None):
+        """
+        Scale data discretely
+
+        Parameters
+        ----------
+        x : array_like
+            Discrete values to scale
+        palette : palette
+            Palette to use
+        nan_value : object
+            Value to use for missing values.
+
+        Returns
+        -------
+        out : array_like
+            Scaled values
+        """
+        limits = cls.train(x)
+        return cls.map(x, palette, limits, nan_value)
+
+    @classmethod
+    def train(cls, new_data, old=None, drop=False):
+        """
+        Train a continuous scale
+
+        Parameters
+        ----------
+        new_data : array_like
+            New values
+        old : array_like
+            Old range. List of values known to the scale.
+        drop : bool
+            Whether to drop(not include) unused categories
+
+        Returns
+        -------
+        out : list
+            Values covered by the scale
+        """
+        if not len(new_data):
+            return old
+
+        if old is None:
+            old = []
+
+        if not hasattr(new_data, 'dtype'):
+            new_data = np.asarray(new_data)
+
+        if new_data.dtype.kind not in DISCRETE_KINDS:
+            raise TypeError(
+                "Continuous value supplied to discrete scale")
+
+        if com.is_categorical_dtype(new_data):
+            try:
+                new = list(new_data.cat.categories)  # series
+            except AttributeError:
+                new = list(new_data.categories)      # plain categorical
+            if drop:
+                present = set(new_data.drop_duplicates())
+                new = [i for i in new if i in present]
+        else:
+            new = np.unique(new_data)
+            new.sort()
+
+        # update old
+        return list(old) + [i for i in new if (i not in set(old))]
+
+    @classmethod
+    def map(cls, x, palette, limits, nan_value=None):
+        """
+        Map values to a discrete palette
+
+        Parameters
+        ----------
+        palette : palette
+            palette to use
+        x : array_like
+            Continuous values to scale
+        nan_value : object
+            Value to use for missing values.
+
+        Returns
+        -------
+        out : array_like
+            Values mapped onto a palette
+        """
+        n = len(limits)
+        pal = palette(n)[match(x, limits)]
+        try:
+            pal[pd.isnull(x)] = nan_value
+        except TypeError:
+            pal = [v if not pd.isnull(v) else nan_value for v in pal]
+
+        return pal

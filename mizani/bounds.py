@@ -1,0 +1,448 @@
+"""
+Continuous variables have values anywhere in the range minus
+infinite to plus infinite. However, when creating a visual
+representation of these values what usually matters is the
+relative difference between the values. This is where rescaling
+comes into play.
+
+The values are mapped onto a range that a scale can deal with. For
+graphical representation that range tends to be :math:`[0, 1]` or
+:math:`[0, n]`, where :math:`n` is some number that makes the
+plotted object overflow the plotting area.
+
+Although a scale may be able handle the :math:`[0, n]` range, it
+may be desirable to have a lower bound greater than zero. For
+example, if data values get mapped to zero on a scale whose
+graphical representation is the size/area/radius/length some data
+will be invisible. The solution is to restrict the lower bound
+e.g. :math:`[0.1, 1]`. Similarly you can restrict the upper bound
+-- using these functions.
+"""
+
+from __future__ import division
+import datetime
+
+import numpy as np
+import pandas as pd
+import pandas.core.common as com
+from matplotlib.dates import date2num
+
+
+__all__ = ['censor', 'expand_range', 'rescale', 'rescale_max',
+           'rescale_mid', 'squish_infinite', 'zero_range']
+
+
+def rescale(x, to=(0, 1), _from=None):
+    """
+    Rescale numeric vector to have specified minimum and maximum.
+
+    Parameters
+    ----------
+    x : array_like | numeric
+        1D vector of values to manipulate.
+    to : tuple
+        output range (numeric vector of length two)
+    _from : tuple
+        input range (numeric vector of length two).
+        If not given, is calculated from the range of x
+
+    Returns
+    -------
+    out : array_like
+        Rescaled values
+
+
+    >>> x = [0, 2, 4, 6, 8, 10]
+    >>> rescale(x)
+    array([ 0. ,  0.2,  0.4,  0.6,  0.8,  1. ])
+    >>> rescale(x, to=(0, 2))
+    array([ 0. ,  0.4,  0.8,  1.2,  1.6,  2. ])
+    >>> rescale(x, to=(0, 2), _from=(0, 20))
+    array([ 0. ,  0.2,  0.4,  0.6,  0.8,  1. ])
+    """
+    if not _from:
+        _from = np.min(x), np.max(x)
+    return np.interp(x, _from, to)
+
+
+def rescale_mid(x, to=(0, 1), _from=None, mid=0):
+    """
+    Rescale numeric vector to have specified minimum, midpoint,
+    and maximum.
+
+    Parameters
+    ----------
+    x : array_like | numeric
+        1D vector of values to manipulate.
+    to : tuple
+        output range (numeric vector of length two)
+    _from : tuple
+        input range (numeric vector of length two).
+        If not given, is calculated from the range of x
+    mid	: numeric
+        mid-point of input range
+
+    Returns
+    -------
+    out : array_like
+        Rescaled values
+
+
+    >>> rescale_mid([1, 2, 3], mid=1)
+    array([ 0.5 ,  0.75,  1.  ])
+    >>> rescale_mid([1, 2, 3], mid=2)
+    array([ 0. ,  0.5,  1. ])
+    """
+    array_like = True
+
+    try:
+        len(x)
+    except TypeError:
+        array_like = False
+        x = [x]
+
+    x = np.asarray(x)
+    if not _from:
+        _from = np.array([np.min(x), np.max(x)])
+    else:
+        _from = np.asarray(_from)
+
+    if (zero_range(_from) or zero_range(to)):
+        out = np.repeat(np.mean(to), len(x))
+    else:
+        extent = 2 * np.max(np.abs(_from - mid))
+        out = (x - mid) / extent * np.diff(to) + np.mean(to)
+
+    if not array_like:
+        out = out[0]
+    return out
+
+
+def rescale_max(x, to=(0, 1), _from=None):
+    """
+    Rescale numeric vector to have specified maximum.
+
+    Parameters
+    ----------
+    x : array_like | numeric
+        1D vector of values to manipulate.
+    to : tuple
+        output range (numeric vector of length two)
+    _from : tuple
+        input range (numeric vector of length two).
+        If not given, is calculated from the range of x.
+        Only the 2nd (max) element is essential to the
+        output.
+
+    Returns
+    -------
+    out : array_like
+        Rescaled values
+
+
+    >>> x = [0, 2, 4, 6, 8, 10]
+    >>> rescale_max(x, (0, 3))
+    array([ 0. ,  0.6,  1.2,  1.8,  2.4,  3. ])
+
+    Only the 2nd (max) element of the parameters ``to``
+    and ``_from`` are essential to the output.
+
+    >>> rescale_max(x, (1, 3))
+    array([ 0. ,  0.6,  1.2,  1.8,  2.4,  3. ])
+    >>> rescale_max(x, (0, 20))
+    array([  0.,   4.,   8.,  12.,  16.,  20.])
+
+    If :python:`max(x) < _from[1]` then values will be
+    scaled beyond the requested (:python:`to[1]`) maximum.
+
+    >>> rescale_max(x, to=(1, 3), _from=(-1, 6))
+    array([ 0.,  1.,  2.,  3.,  4.,  5.])
+
+    """
+    array_like = True
+
+    try:
+        len(x)
+    except TypeError:
+        array_like = False
+        x = [x]
+
+    x = np.asarray(x)
+    if not _from:
+        _from = np.array([np.min(x), np.max(x)])
+
+    out = x/_from[1] * to[1]
+
+    if not array_like:
+        out = out[0]
+    return out
+
+
+def squish_infinite(x, range=(0, 1)):
+    """
+    Truncate infinite values to a range
+
+    Parameters
+    ----------
+    x : array_like
+        Values that should have infinities squished.
+    range : tuple
+        The range onto which to squish the infinites.
+        Must be of size 2.
+
+    Returns
+    -------
+    out : array_like
+        Values with infinites squished.
+
+
+    >>> squish_infinite([0, .5, .25, np.inf, .44])
+    [0.0, 0.5, 0.25, 1.0, 0.44]
+    >>> squish_infinite([0, -np.inf, .5, .25, np.inf], (-10, 9))
+    [0.0, -10.0, 0.5, 0.25, 9.0]
+    """
+    xtype = None
+    if not hasattr(x, 'dtype'):
+        xtype = type(x)
+        x = np.array(x)
+
+    x[x == -np.inf] = range[0]
+    x[x == np.inf] = range[1]
+
+    if xtype:
+        x = xtype(x)
+    return x
+
+
+def censor(x, range=(0, 1), only_finite=True):
+    """
+    Convert any values outside of range to a **NULL** type object.
+
+    The **NULL** type object depends on the type of values in **x**.
+
+        - :class:`float` - :python:`float('nan')`
+        - :class:`int` - :python:`float('nan')`
+        - :class:`datetime.datetime` : :obj:`np.datetime64(NaT)`
+        - :class:`datetime.timedelta` : :obj:`np.timedelta64(NaT)`
+
+    Parameters
+    ----------
+    x : array_like
+        Values to manipulate
+    range : tuple
+        (min, max) giving desired output range
+    only_finite : bool
+        If True (the default), will only modify
+        finite values.
+
+    Returns
+    -------
+    x : array_like
+        Censored array
+
+
+    >>> a = [1, 2, np.inf, 3, 4, -np.inf, 5]
+    >>> censor(a, (0, 10))
+    [1, 2, inf, 3, 4, -inf, 5]
+    >>> censor(a, (0, 10), False)
+    [1, 2, nan, 3, 4, nan, 5]
+    >>> censor(a, (2, 4))
+    [nan, 2, inf, 3, 4, -inf, nan]
+
+    Note
+    ----
+    All values in ``x`` should be of the same type. ``only_finite`` parameter
+    is not considered for Datetime and Timedelta types.
+    """
+    if not len(x):
+        return x
+
+    py_time_types = (datetime.datetime, datetime.timedelta)
+    np_pd_time_types = (pd.Timestamp, pd.Timedelta,
+                        np.datetime64, np.timedelta64)
+
+    # Yes, we want type not isinstance
+    if type(x[0]) in py_time_types:
+        return _censor_with(x, range, 'NaT')
+
+    if not hasattr(x, 'dtype') and isinstance(x[0], np_pd_time_types):
+            return _censor_with(x, range, type(x[0])('NaT'))
+
+    x_array = np.asarray(x)
+    if com.is_number(x[0]) and not isinstance(x[0], np.timedelta64):
+        null = float('nan')
+    elif com.is_datetime_arraylike(x_array):
+        null = pd.Timestamp('NaT')
+    elif com.is_datetime64_dtype(x_array):
+        null = np.datetime64('NaT')
+    elif isinstance(x[0], pd.Timedelta):
+        null = pd.Timedelta('NaT')
+    elif com.is_timedelta64_dtype(x_array):
+        null = np.timedelta64('NaT')
+    else:
+        raise ValueError(
+            "Do not know how to censor values of type "
+            "{}".format(type(x[0])))
+
+    if only_finite:
+        try:
+            finite = np.isfinite(x)
+        except TypeError:
+            finite = np.repeat(True, len(x))
+    else:
+        finite = np.repeat(True, len(x))
+
+    if hasattr(x, 'dtype'):
+        outside = (x < range[0]) | (x > range[1])
+        bool_idx = finite & outside
+        x = x.copy()
+        x[bool_idx] = null
+    else:
+        x = [null if not range[0] <= val <= range[1] and f else val
+             for val, f in zip(x, finite)]
+
+    return x
+
+
+def _censor_with(x, range, value=None):
+    """
+    Censor any values outside of range with ``None``
+    """
+    return [val if range[0] <= val <= range[1] else value
+            for val in x]
+
+
+def zero_range(x, tol=np.finfo(float).eps * 100):
+    """
+    Determine if range of vector is close to zero.
+
+    Parameters
+    ----------
+    x : array_like | numeric
+        Value(s) to check. If it is an array_like, it
+        should be of length 2.
+    tol : float
+        Tolerance. Default tolerance is the `machine epsilon`_
+        times :math:`10^2`.
+
+    Returns
+    -------
+    out : bool
+        Whether ``x`` has zero range.
+
+
+    >>> zero_range([1, 1])
+    True
+    >>> zero_range([1, 2])
+    False
+    >>> zero_range([1, 2], tol=2)
+    True
+
+    .. _machine epsilon: https://en.wikipedia.org/wiki/Machine_epsilon
+    """
+    try:
+        if len(x) == 1:
+            return True
+    except TypeError:
+        return True
+
+    if len(x) != 2:
+        raise ValueError('x must be length 1 or 2')
+
+    # datetime - pandas, cpython
+    if isinstance(x[0], (pd.Timestamp, datetime.datetime)):
+        # date2num include timezone info, .toordinal() does not
+        x = date2num(x)
+    # datetime - numpy
+    elif isinstance(x[0], np.datetime64):
+        return x[0] == x[1]
+    # timedelta - pandas, cpython
+    elif isinstance(x[0], (pd.Timedelta, datetime.timedelta)):
+        x = x[0].total_seconds(), x[1].total_seconds()
+    # timedelta - numpy
+    elif isinstance(x[0], np.timedelta64):
+        return x[0] == x[1]
+    elif not isinstance(x[0], (float, int, np.number)):
+        raise TypeError(
+            "zero_range objects cannot work with objects "
+            "of type '{}'".format(type(x[0])))
+
+    if any(np.isnan(x)):
+        return np.nan
+
+    if x[0] == x[1]:
+        return True
+
+    if all(np.isinf(x)):
+        return False
+
+    m = np.abs(x).min()
+    if m == 0:
+        return False
+
+    return np.abs((x[0] - x[1]) / m) < tol
+
+
+def expand_range(range, mul=0, add=0, zero_width=1):
+    """
+    Expand a range with a multiplicative or additive constant
+
+    Parameters
+    ----------
+    range : tuple
+        Range of data. Size 2.
+    mul : int | float
+        Multiplicative constant
+    add : int | float | timedelta
+        Additive constant
+    zero_width : int | float | timedelta
+        Distance to use if range has zero width
+
+    Returns
+    -------
+    out : tuple
+        Expanded range
+
+
+    >>> expand_range((3, 8))
+    (3, 8)
+    >>> expand_range((0, 10), mul=0.1)
+    (-1.0, 11.0)
+    >>> expand_range((0, 10), add=2)
+    (-2, 12)
+    >>> expand_range((0, 10), mul=.1, add=2)
+    (-3.0, 13.0)
+    >>> expand_range((0, 1))
+    (0, 1)
+
+    When the range has zero width
+
+    >>> expand_range((5, 5))
+    (4.5, 5.5)
+
+    Note
+    ----
+    If expanding *datetime* or *timedelta* types, **add** and
+    **zero_width** must be suitable *timedeltas* i.e. You should
+    not mix types between **Numpy**, **Pandas** and the
+    :mod:`datetime` module.
+
+    In Python 2, you cannot multiplicative constant **mul** cannot be
+    a :class:`float`.
+    """
+    x = range
+
+    # Enforce tuple
+    try:
+        x[0]
+    except TypeError:
+        x = (x, x)
+
+    # The expansion cases
+    if zero_range(x):
+        new = x[0]-zero_width/2, x[0]+zero_width/2
+    else:
+        dx = (x[1] - x[0]) * mul + add
+        new = x[0]-dx, x[1]+dx
+
+    return new

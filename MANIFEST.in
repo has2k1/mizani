@@ -1,0 +1,3 @@
+include README.rst LICENSE
+include versioneer.py
+include mizani/_version.py

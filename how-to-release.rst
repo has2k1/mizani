@@ -31,6 +31,7 @@ release date, tag with the version number & push the tags
 
     git checkout master
     vim doc/changelog.rst
+    git add doc/changelog.rst
     git commit -m 'Prepare changelog for release'
     git tag -a v0.1.0 -m 'Version: 0.1.0'
     git push upstream --tags

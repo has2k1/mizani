@@ -15,15 +15,28 @@
 import sys
 import os
 
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('.'))
 
+if on_rtd:
+    import mock
+    sys.path.insert(0, os.path.abspath('..'))
+    MOCK_MODULES = [
+        'palettable',
+        'pandas',
+        'pandas.core',
+        'pandas.core.common']
+    for mod_name in MOCK_MODULES:
+        sys.modules[mod_name] = mock.Mock()
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.4.2'
+# needs_sphinx = '1.4.2'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -67,11 +80,9 @@ copyright = u'2016, Hassan Kibirige'
 
 try:
     import mizani
+    version = mizani.__version__
 except ImportError:
-    msg = "Error: mizani must be installed before building the documentation"
-    sys.exit(msg)
-
-version = mizani.__version__
+    version = 'unknown'
 
 # The full version, including alpha/beta/rc tags.
 release = version

@@ -340,6 +340,7 @@ def timedelta_format(units=None, add_units=True, usetex=False):
         timedelta values and returns a sequence of
         strings.
 
+
     >>> from datetime import timedelta
     >>> x = [timedelta(days=31*i) for i in range(5)]
     >>> timedelta_format()(x)

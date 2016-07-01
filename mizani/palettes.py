@@ -20,7 +20,7 @@ import colorsys
 import numpy as np
 import matplotlib.colors as mcolors
 from matplotlib.cm import get_cmap
-import palettable.colorbrewer as colorbrewer
+from palettable import colorbrewer
 
 from .external import husl
 from .bounds import rescale

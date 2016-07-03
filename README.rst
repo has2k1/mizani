@@ -44,6 +44,6 @@ Installation
 .. _coverage: https://coveralls.io/github/has2k1/mizani?branch=master
 
 .. |documentation| image:: https://readthedocs.org/projects/mizani/badge/?version=latest
-.. _documentation: https://readthedocs.org/projects/mizani/?badge=latest
+.. _documentation: https://mizani.readthedocs.io/en/latest/
 
 .. _Scales: https://github.com/hadley/scales

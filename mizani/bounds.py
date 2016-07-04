@@ -27,6 +27,8 @@ import pandas as pd
 import pandas.core.common as com
 from matplotlib.dates import date2num
 
+from .utils import first_element
+
 
 __all__ = ['censor', 'expand_range', 'rescale', 'rescale_max',
            'rescale_mid', 'squish_infinite', 'zero_range']
@@ -260,29 +262,30 @@ def censor(x, range=(0, 1), only_finite=True):
     py_time_types = (datetime.datetime, datetime.timedelta)
     np_pd_time_types = (pd.Timestamp, pd.Timedelta,
                         np.datetime64, np.timedelta64)
+    x0 = first_element(x)
 
     # Yes, we want type not isinstance
-    if type(x[0]) in py_time_types:
+    if type(x0) in py_time_types:
         return _censor_with(x, range, 'NaT')
 
-    if not hasattr(x, 'dtype') and isinstance(x[0], np_pd_time_types):
-            return _censor_with(x, range, type(x[0])('NaT'))
+    if not hasattr(x, 'dtype') and isinstance(x0, np_pd_time_types):
+            return _censor_with(x, range, type(x0)('NaT'))
 
     x_array = np.asarray(x)
-    if com.is_number(x[0]) and not isinstance(x[0], np.timedelta64):
+    if com.is_number(x0) and not isinstance(x0, np.timedelta64):
         null = float('nan')
     elif com.is_datetime_arraylike(x_array):
         null = pd.Timestamp('NaT')
     elif com.is_datetime64_dtype(x_array):
         null = np.datetime64('NaT')
-    elif isinstance(x[0], pd.Timedelta):
+    elif isinstance(x0, pd.Timedelta):
         null = pd.Timedelta('NaT')
     elif com.is_timedelta64_dtype(x_array):
         null = np.timedelta64('NaT')
     else:
         raise ValueError(
             "Do not know how to censor values of type "
-            "{}".format(type(x[0])))
+            "{}".format(type(x0)))
 
     if only_finite:
         try:
@@ -348,6 +351,9 @@ def zero_range(x, tol=np.finfo(float).eps * 100):
 
     if len(x) != 2:
         raise ValueError('x must be length 1 or 2')
+
+    # Deals with array_likes that have non-standard indices
+    x = tuple(x)
 
     # datetime - pandas, cpython
     if isinstance(x[0], (pd.Timestamp, datetime.datetime)):

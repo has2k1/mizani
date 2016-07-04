@@ -1,11 +1,13 @@
 from __future__ import division
 
+import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import pytest
 
 
 from ..utils import (seq, fullseq, round_any, min_max, match,
-                     precision)
+                     precision, first_element)
 
 
 def test_seq():
@@ -104,3 +106,21 @@ def test_precision():
     assert precision(24) == 10
     assert precision(784) == 100
     assert precision([0, 0]) == 1
+
+
+def test_first_element():
+    x = [3, 4, 5]
+    s = pd.Series(x)
+    a = np.array([3, 4, 5])
+
+    assert first_element(x) == 3
+    assert first_element(s) == 3
+    assert first_element(s[1:]) == 4
+    assert first_element(a) == 3
+    assert first_element(a[1:]) == 4
+
+    with pytest.raises(StopIteration):
+        first_element([])
+
+    with pytest.raises(RuntimeError):
+        first_element(iter(x))

@@ -1,12 +1,10 @@
 from __future__ import division
-from collections import OrderedDict
+from collections import OrderedDict, Iterator
 
 import numpy as np
 
-from .bounds import zero_range
-
 __all__ = ['seq', 'fullseq', 'round_any', 'min_max', 'match',
-           'precision']
+           'precision', 'first_element']
 
 DISCRETE_KINDS = 'ObUS'
 CONTINUOUS_KINDS = 'ifuc'
@@ -80,6 +78,8 @@ def fullseq(range, size, pad=False):
     size : numeric
         interval size
     """
+    from .bounds import zero_range
+
     range = np.asarray(range)
     if zero_range(range):
         return range + size * np.array([-1, 1])/2
@@ -201,6 +201,8 @@ def precision(x):
     >>> precision(16)
     10
     """
+    from .bounds import zero_range
+
     rng = min_max(x, nan_rm=True)
     if zero_range(rng):
         span = np.abs(rng[0])
@@ -211,3 +213,24 @@ def precision(x):
         return 1
     else:
         return 10 ** int(np.floor(np.log10(span)))
+
+
+def first_element(obj):
+    """
+    Return the first element of `obj`
+
+    Parameters
+    ----------
+    obj : iterable
+        Should not be an iterator
+
+    Returns
+    -------
+    out : object
+        First element of `obj`. Raise a class:`StopIteration`
+        exception if `obj` is empty.
+    """
+    if isinstance(obj, Iterator):
+        raise RuntimeError(
+            "Cannot get the first element of an iterator")
+    return next(iter(obj))

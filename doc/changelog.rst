@@ -8,6 +8,8 @@ v0.1.1
 - Fixed bug in :func:`~mizani.bounds.censor` where a sequence of
   values with an irregular index would lead to an exception.
 
+- Fixed boundary issues due internal loss of precision in ported
+  function :func:`~mizani.utils.seq`.
 
 
 v0.1.0

@@ -59,12 +59,10 @@ def seq(_from=1, to=1, by=1, length_out=None):
         if length_out <= 0:
             raise ValueError(
                 "length_out must be greater than zero")
-        by = (to - _from)/(np.ceil(length_out)-1)
+        return np.linspace(_from, to, np.ceil(length_out))
 
-    x = np.arange(_from, to+by, by)
-    if x[-1] > to:
-        x = x[:-1]
-    return x
+    epsilon = np.finfo(float).eps
+    return np.arange(_from, to*(1+epsilon), by)
 
 
 def fullseq(range, size, pad=False):

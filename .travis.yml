@@ -57,10 +57,10 @@ install:
   - if [[ "$JOB" == "PY27" ]] || [[ "$JOB" == "PY35" ]]; then
       conda install pytest-cov;
     elif [[ "$JOB" == "DOCS" ]]; then
-      conda install sphinx sphinx_rtd_theme;
+      pip install sphinx sphinx_rtd_theme;
       python setup.py install;
     elif [[ "$JOB" == "FLAKE8" ]]; then
-      conda install flake8;
+      pip install flake8;
     fi
   - pip install coveralls
   # List all conda and pip packages

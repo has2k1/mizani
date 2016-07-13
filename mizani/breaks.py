@@ -24,7 +24,8 @@ from .utils import min_max, SECONDS, NANOSECONDS
 
 __all__ = ['mpl_breaks', 'log_breaks', 'minor_breaks',
            'trans_minor_breaks', 'date_breaks',
-           'timedelta_breaks']
+           'timedelta_breaks', 'ExtendedWilkinson',
+           'extended_breaks']
 
 
 # The break calculations rely on MPL locators to do
@@ -350,12 +351,12 @@ def timedelta_breaks():
     >>> [val.total_seconds()/(365*24*60*60)for val in major]
     [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
     """
-    _mpl_breaks = mpl_breaks(nbins=7, steps=(1, 2, 5, 10))
+    _breaks_func = extended_breaks(n=5, Q=[1, 2, 5, 10])
 
     def _timedelta_breaks(limits):
         helper = timedelta_helper(limits)
         scaled_limits = helper.scaled_limits()
-        scaled_breaks = _mpl_breaks(scaled_limits)
+        scaled_breaks = _breaks_func(scaled_limits)
         breaks = helper.numeric_to_timedelta(scaled_breaks)
         return breaks
 
@@ -505,3 +506,205 @@ class timedelta_helper(object):
             return td.value/NANOSECONDS[self.units]
         else:
             return td.total_seconds()/SECONDS[self.units]
+
+
+class ExtendedWilkinson(object):
+    """
+    An extension of Wilkinson's tick position algorithm
+
+    Parameters
+    ----------
+    n : int
+        Desired number of ticks
+    Q : list
+        List of nice numbers
+    only_inside : bool
+        If ``True``, then all the ticks will be within the given
+        range.
+    w : list
+        Weights applied to the four optimization components
+        (simplicity, coverage, density, and legibility). They
+        should add up to 1.
+
+
+    References:
+        - Talbot, J., Lin, S., Hanrahan, P. (2010) An Extension of
+          Wilkinson's Algorithm for Positioning Tick Labels on Axes,
+          InfoVis 2010.
+
+    Additional Credit to Justin Talbot on whose code this
+    implementation is almost entirely based.
+    """
+    def __init__(self, n=5, Q=[1, 5, 2, 2.5, 4, 3],
+                 only_inside=False, w=[0.25, 0.2, 0.5, 0.05]):
+        self.Q = Q
+        self.only_inside = only_inside
+        self.w = w
+        self.n = n
+        # Used for lookups during the computations
+        self.Q_index = {q: i for i, q in enumerate(Q)}
+
+    def coverage(self, dmin, dmax, lmin, lmax):
+        p1 = (dmax-lmax)**2
+        p2 = (dmin-lmin)**2
+        p3 = (0.1*(dmax-dmin))**2
+        return 1 - 0.5*(p1+p2)/p3
+
+    def coverage_max(self, dmin, dmax, span):
+        range = dmax-dmin
+        if span > range:
+            half = (span-range)/2.0
+            return 1 - (half**2) / (0.1*range)**2
+        else:
+            return 1
+
+    def density(self, k, dmin, dmax, lmin, lmax):
+        r = (k-1.0) / (lmax-lmin)
+        rt = (self.n-1) / (max(lmax, dmax) - min(lmin, dmin))
+        return 2 - max(r/rt, rt/r)
+
+    def density_max(self, k):
+        if k >= self.n:
+            return 2 - (k-1.0)/(self.n-1.0)
+        else:
+            return 1
+
+    def simplicity(self, q, j, lmin, lmax, lstep):
+        eps = 1e-10
+        n = len(self.Q)
+        i = self.Q_index[q]+1
+
+        if ((lmin % lstep < eps or (lstep - lmin % lstep) < eps)
+                and lmin <= 0 and lmax >= 0):
+            v = 1
+        else:
+            v = 0
+        return (n-i)/(n-1.0) + v - j
+
+    def simplicity_max(self, q, j):
+        n = len(self.Q)
+        i = self.Q_index[q]+1
+        v = 1
+        return (n-i)/(n-1.0) + v - j
+
+    def legibility(self, lmin, lmax, lstep):
+        # Legibility depends on fontsize, rotation, overlap ... i.e.
+        # it requires drawing or simulating drawn breaks then calculating
+        # a score. Return 1 ignores all that.
+        return 1
+
+    def __call__(self, dmin, dmax):
+        """
+        Calculate the breaks
+
+        Parameters
+        ----------
+        dmin : float
+            Lower limit of the range.
+        dmax : float
+            Upper limit of the range.
+
+        Returns
+        -------
+        out : array_like
+            Sequence of break points.
+        """
+        Q = self.Q
+        w = self.w
+        only_inside = self.only_inside
+        simplicity_max = self.simplicity_max
+        density_max = self.density_max
+        coverage_max = self.coverage_max
+        simplicity = self.simplicity
+        coverage = self.coverage
+        density = self.density
+        legibility = self.legibility
+        log10 = np.log10
+        ceil = np.ceil
+        floor = np.floor
+
+        best_score = -2
+        j = 1
+
+        while j < float('inf'):
+            for q in Q:
+                sm = simplicity_max(q, j)
+
+                if w[0]*sm + w[1] + w[2] + w[3] < best_score:
+                    j = float('inf')
+                    break
+
+                k = 2
+                while k < float('inf'):
+                    dm = density_max(k)
+
+                    if w[0]*sm + w[1] + w[2]*dm + w[3] < best_score:
+                        break
+
+                    delta = (dmax-dmin)/(k+1)/j/q
+                    z = ceil(log10(delta))
+
+                    while z < float('inf'):
+                        step = j*q*(10**z)
+                        cm = coverage_max(dmin, dmax, step*(k-1))
+
+                        if w[0]*sm + w[1]*cm + w[2]*dm + w[3] < best_score:
+                            break
+
+                        min_start = int(floor(dmax/step)*j - (k-1)*j)
+                        max_start = int(ceil(dmin/step)*j)
+
+                        if min_start > max_start:
+                            z = z+1
+                            break
+
+                        for start in range(min_start, max_start+1):
+                            lmin = start * (step/j)
+                            lmax = lmin + step*(k-1)
+                            lstep = step
+
+                            s = simplicity(q, j, lmin, lmax, lstep)
+                            c = coverage(dmin, dmax, lmin, lmax)
+                            d = density(k, dmin, dmax, lmin, lmax)
+                            l = legibility(lmin, lmax, lstep)
+
+                            score = w[0]*s + w[1]*c + w[2]*d + w[3]*l
+
+                            if (score > best_score and
+                                    (not only_inside or
+                                     (lmin >= dmin and lmax <= dmax))):
+                                best_score = score
+                                best = (lmin, lmax, lstep, q, k)
+                        z = z+1
+                    k = k+1
+            j = j+1
+
+        locs = best[0] + np.arange(best[4])*best[2]
+        return locs
+
+
+def extended_breaks(*args, **kwargs):
+    """
+    Compute breaks using :class:`ExtendedWilkinson`
+
+    See :class:`~ExtendedWilkinson` for the parameter descriptions
+
+    Returns
+    -------
+    out : function
+        A function that takes a sequence of values and
+        returns a sequence of break points.
+
+
+    >>> limits = (0, 9)
+    >>> extended_breaks()(limits)
+    array([  0. ,   2.5,   5. ,   7.5,  10. ])
+    >>> extended_breaks(n=6)(limits)
+    array([  0.,   2.,   4.,   6.,   8.,  10.])
+    """
+    extended = ExtendedWilkinson(*args, **kwargs)
+
+    def _extended_breaks(limits):
+        return extended(*limits)
+
+    return _extended_breaks

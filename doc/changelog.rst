@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v0.1.1
+v0.2.0
 ------
 *(unreleased)*
 
@@ -10,6 +10,18 @@ v0.1.1
 
 - Fixed boundary issues due internal loss of precision in ported
   function :func:`~mizani.utils.seq`.
+
+- Added :func:`mizani.breaks.extended_breaks` which computes breaks
+  using a modified version of Wilkinson's tick algorithm.
+
+- Changed the default function :meth:`mizani.transforms.trans.breaks_`
+  used by :class:`mizani.transforms.trans` to compute breaks from
+  :func:`mizani.breaks.mpl_breaks` to
+  :func:`mizani.breaks.extended_breaks`.
+
+- :func:`mizani.breaks.timedelta_breaks` now uses
+  :func:`mizani.breaks.extended_breaks` internally instead of
+  :func:`mizani.breaks.mpl_breaks`.
 
 
 v0.1.0

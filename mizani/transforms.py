@@ -29,7 +29,7 @@ from dateutil import tz
 from matplotlib.dates import date2num, num2date
 
 from .external import six
-from .breaks import (mpl_breaks, log_breaks, minor_breaks,
+from .breaks import (extended_breaks, log_breaks, minor_breaks,
                      trans_minor_breaks, date_breaks,
                      timedelta_breaks)
 from .formatters import mpl_format, date_format, timedelta_format
@@ -66,8 +66,7 @@ class trans(object):
     domain = (-np.inf, np.inf)
 
     #: Function to calculate breaks
-    breaks_ = staticmethod(mpl_breaks(
-        nbins=7, steps=(1, 2, 5, 10)))
+    breaks_ = staticmethod(extended_breaks(n=5))
 
     #: Function to calculate minor_breaks
     minor_breaks = staticmethod(minor_breaks(1))
@@ -124,8 +123,9 @@ class trans(object):
         vmax = np.min([cls.domain[1], limits[1]])
         breaks = np.asarray(cls.breaks_([vmin, vmax]))
 
-        # Some methods(mpl_breaks) that calculate breaks take
-        # the limits as guide posts and not hard limits.
+        # Some methods(mpl_breaks, extended_breaks) that
+        # calculate breaks take the limits as guide posts and
+        # not hard limits.
         breaks = breaks.compress((breaks >= cls.domain[0]) &
                                  (breaks <= cls.domain[1]))
         return breaks

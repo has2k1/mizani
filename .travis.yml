@@ -72,7 +72,7 @@ script:
       py.test mizani/;
     elif [[ "$JOB" == "DOCS" ]]; then
       cd doc;
-      sphinx-build -W -b html -d {envtmpdir}/doctrees . {envtmpdir}/html;
+      sphinx-build -W -b html -d _build/doctrees . _build/html;
     elif [[ "$JOB" == "FLAKE8" ]]; then
       flake8 --exclude=mizani/external;
     fi

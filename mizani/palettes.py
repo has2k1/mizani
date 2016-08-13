@@ -29,7 +29,7 @@ from .bounds import rescale
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
            'area_pal', 'abs_area', 'grey_pal', 'hue_pal',
            'brewer_pal', 'gradient_n_pal', 'cmap_pal',
-           'desaturate_pal']
+           'desaturate_pal', 'manual_pal']
 
 
 def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
@@ -564,3 +564,36 @@ def desaturate_pal(color, prop, reverse=False):
     if reverse:
         colors = colors[::-1]
     return gradient_n_pal(colors, name='desaturated')
+
+
+def manual_pal(values):
+    """
+    Create a palette from a list of values
+
+    Parameters
+    ----------
+    values : sequence
+        Values that will be returned by the palette function.
+
+    Returns
+    -------
+    out : function
+        A function palette that takes a single
+        :class:`int` parameter ``n`` and returns ``n`` values.
+
+
+    >>> palette = manual_pal(['a', 'b', 'c', 'd', 'e'])
+    >>> palette(3)
+    ['a', 'b', 'c']
+    """
+    max_n = len(values)
+
+    def _manual_pal(n):
+        if n > max_n:
+            msg = ("Palette can return a maximum of {} values. "
+                   "{} were requested from it.")
+            warnings.warn(msg.format(max_n, n))
+
+        return values[:n]
+
+    return _manual_pal

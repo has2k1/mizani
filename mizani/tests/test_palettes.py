@@ -8,7 +8,7 @@ import numpy.testing as npt
 from ..palettes import (hls_palette, husl_palette, rescale_pal,
                         area_pal, abs_area, grey_pal, hue_pal,
                         brewer_pal, gradient_n_pal, cmap_pal,
-                        desaturate_pal)
+                        desaturate_pal, manual_pal)
 
 
 def test_hls_palette():
@@ -130,3 +130,15 @@ def test_desaturate_pal():
 
     with pytest.raises(ValueError):
         desaturate_pal('green', 2.3)
+
+
+def test_manual_pal():
+    size = 5
+    n = 3
+    values = list(range(size))
+    palette = manual_pal(values)
+    result = palette(n)
+    assert result == values[:n]
+
+    with pytest.warns(UserWarning):
+        result = palette(size+4)

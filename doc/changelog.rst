@@ -23,6 +23,8 @@ v0.2.0
   :func:`mizani.breaks.extended_breaks` internally instead of
   :func:`mizani.breaks.mpl_breaks`.
 
+- Added manual palette function :func:`mizani.palettes.manual_pal`.
+
 
 v0.1.0
 ------

@@ -623,6 +623,9 @@ class ExtendedWilkinson(object):
         ceil = np.ceil
         floor = np.floor
 
+        if dmin > dmax:
+            dmin, dmax = dmax, dmin
+
         best_score = -2
         j = 1
 

@@ -146,3 +146,7 @@ def test_extended_breaks():
     for n in (5, 7, 10, 13, 31):
         breaks = extended_breaks(n=n)
         assert len(breaks(limits)) <= n+1
+
+    # Reverse limits
+    breaks = extended_breaks(n=7)
+    npt.assert_array_equal(breaks((0, 6)), breaks((6, 0)))

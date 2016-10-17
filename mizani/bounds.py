@@ -24,7 +24,9 @@ import datetime
 
 import numpy as np
 import pandas as pd
+import pandas.api.types as pdtypes
 import pandas.core.common as com
+
 from matplotlib.dates import date2num
 
 from .utils import first_element
@@ -272,15 +274,15 @@ def censor(x, range=(0, 1), only_finite=True):
             return _censor_with(x, range, type(x0)('NaT'))
 
     x_array = np.asarray(x)
-    if com.is_number(x0) and not isinstance(x0, np.timedelta64):
+    if pdtypes.is_number(x0) and not isinstance(x0, np.timedelta64):
         null = float('nan')
     elif com.is_datetime_arraylike(x_array):
         null = pd.Timestamp('NaT')
-    elif com.is_datetime64_dtype(x_array):
+    elif pdtypes.is_datetime64_dtype(x_array):
         null = np.datetime64('NaT')
     elif isinstance(x0, pd.Timedelta):
         null = pd.Timedelta('NaT')
-    elif com.is_timedelta64_dtype(x_array):
+    elif pdtypes.is_timedelta64_dtype(x_array):
         null = np.timedelta64('NaT')
     else:
         raise ValueError(

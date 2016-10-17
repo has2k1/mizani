@@ -31,7 +31,7 @@ from __future__ import division
 
 import numpy as np
 import pandas as pd
-import pandas.core.common as com
+import pandas.api.types as pdtypes
 
 from .bounds import censor, rescale
 from .utils import CONTINUOUS_KINDS, DISCRETE_KINDS, min_max, match
@@ -196,7 +196,7 @@ class scale_discrete(object):
             raise TypeError(
                 "Continuous value supplied to discrete scale")
 
-        if com.is_categorical_dtype(new_data):
+        if pdtypes.is_categorical_dtype(new_data):
             try:
                 new = list(new_data.cat.categories)  # series
             except AttributeError:

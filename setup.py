@@ -31,7 +31,7 @@ def get_required_packages():
     Plus any version tests and warnings
     """
     install_requires = ['numpy',
-                        'pandas >= 0.18.1',
+                        'pandas >= 0.19.0',
                         'matplotlib',
                         'palettable']
     return install_requires

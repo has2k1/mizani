@@ -39,7 +39,7 @@ lint:
 	flake8 mizani tests
 
 test:
-	py.test
+	py.test --cov=mizani
 
 test-all:
 	tox

@@ -404,8 +404,17 @@ def brewer_pal(type='seq', palette=1):
         # Only draw the maximum allowable colors from the palette
         # and fill any remaining spots with None
         _n = n if n <= nmax else nmax
-        bmap = colorbrewer.get_map(palette_name, type, _n)
-        hex_colors = bmap.hex_colors
+        try:
+            bmap = colorbrewer.get_map(palette_name, type, _n)
+        except ValueError as err:
+            # Some palettes have a minimum no. of colors set at 3
+            # We get around that restriction.
+            if 0 <= _n < 3:
+                bmap = colorbrewer.get_map(palette_name, type, 3)
+            else:
+                raise err
+
+        hex_colors = bmap.hex_colors[:n]
         if n > nmax:
             msg = ("Warning message:"
                    "Brewer palette {} has a maximum of {} colors"

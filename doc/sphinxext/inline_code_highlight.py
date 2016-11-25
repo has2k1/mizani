@@ -15,6 +15,7 @@ def process_programmatic_settings(self, settings_spec,
                           config_section=config_section,
                           **defaults)
 
+
 Publisher.process_programmatic_settings = process_programmatic_settings
 
 

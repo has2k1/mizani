@@ -71,10 +71,11 @@ script:
       coverage erase;
       py.test mizani/;
     elif [[ "$JOB" == "DOCS" ]]; then
-      cd doc;
+      pushd doc;
       sphinx-build -W -b html -d _build/doctrees . _build/html;
+      popd;
     elif [[ "$JOB" == "FLAKE8" ]]; then
-      flake8 --exclude=mizani/external;
+      make lint;
     fi
 
 after_success:

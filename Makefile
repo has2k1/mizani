@@ -36,7 +36,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 mizani tests
+	flake8 --exclude=mizani/external mizani
 
 test:
 	py.test --cov=mizani

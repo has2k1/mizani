@@ -100,7 +100,7 @@ def test_gradient_n_pal():
     result = palette([0, .25, .5, .75, 1])
     assert result[0].lower() == '#ff0000'
     assert result[-1].lower() == '#0000ff'
-    assert palette(0).lower() == '#ff0000'
+    assert palette([0])[0].lower() == '#ff0000'
 
     # symmetric gradient
     palette = gradient_n_pal(['red', 'blue', 'red'], [0, 0.5, 1])

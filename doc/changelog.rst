@@ -1,9 +1,17 @@
 Changelog
 =========
 
-v0.2.0
+v0.2.1
 ------
 *(unreleased)*
+
+
+v0.2.0
+------
+*(2017-01-27)*
+
+.. image:: https://zenodo.org/badge/62319878.svg
+   :target: https://zenodo.org/badge/latestdoi/62319878
 
 - Fixed bug in :func:`~mizani.bounds.censor` where a sequence of
   values with an irregular index would lead to an exception.
@@ -25,6 +33,7 @@ v0.2.0
 
 - Added manual palette function :func:`mizani.palettes.manual_pal`.
 
+- Requires `pandas` version 0.19.0 or higher.
 
 v0.1.0
 ------

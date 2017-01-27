@@ -55,7 +55,7 @@ docs:
 	$(BROWSER) doc/_build/html/index.html
 
 release: clean
-	bash ./release.sh
+	bash ./tools/release.sh
 
 dist: clean
 	python setup.py sdist bdist_wheel

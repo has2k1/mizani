@@ -9,7 +9,7 @@ from ..palettes import (hls_palette, husl_palette, rescale_pal,
                         area_pal, abs_area, grey_pal, hue_pal,
                         brewer_pal, gradient_n_pal, cmap_pal,
                         desaturate_pal, manual_pal, xkcd_palette,
-                        crayon_palette)
+                        crayon_palette, cubehelix_pal)
 
 
 def test_hls_palette():
@@ -157,4 +157,11 @@ def test_xkcd_palette():
 def test_crayon_palette():
     values = crayon_palette(['banana mania', 'red', 'yellow'])
     assert len(values) == 3
+    assert all(s[0] == '#' and len(s) == 7 for s in values)
+
+
+def test_cubehelix_pal():
+    palette = cubehelix_pal()
+    values = palette(5)
+    assert len(values) == 5
     assert all(s[0] == '#' and len(s) == 7 for s in values)

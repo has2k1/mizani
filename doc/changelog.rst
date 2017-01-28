@@ -11,6 +11,9 @@ v0.2.1
 - Added :func:`~mizani.palettes.crayon_palette`, a palette that
   selects from 163 named colors.
 
+- Added :func:`cubehelix_pal`, a function that creates a continuous
+  palette from the cubehelix system.
+
 
 
 v0.2.0

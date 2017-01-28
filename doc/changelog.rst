@@ -8,6 +8,9 @@ v0.2.1
 - Added :func:`~mizani.palettes.xkcd_palette`, a palette that
   selects from 954 named colors.
 
+- Added :func:`~mizani.palettes.crayon_palette`, a palette that
+  selects from 163 named colors.
+
 
 
 v0.2.0

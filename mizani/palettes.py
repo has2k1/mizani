@@ -22,14 +22,15 @@ import matplotlib.colors as mcolors
 from matplotlib.cm import get_cmap
 from palettable import colorbrewer
 
-from .external import husl, xkcd_rgb
+from .external import husl, xkcd_rgb, crayon_rgb
 from .bounds import rescale
 
 
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
            'area_pal', 'abs_area', 'grey_pal', 'hue_pal',
            'brewer_pal', 'gradient_n_pal', 'cmap_pal',
-           'desaturate_pal', 'manual_pal', 'xkcd_palette']
+           'desaturate_pal', 'manual_pal', 'xkcd_palette',
+           'crayon_palette']
 
 
 def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
@@ -624,6 +625,7 @@ def xkcd_palette(colors):
     palette : list
         List of colors as RGB hex strings.
 
+
     >>> palette = xkcd_palette(['red', 'green', 'blue'])
     >>> palette
     ['#e50000', '#15b01a', '#0343df']
@@ -633,3 +635,32 @@ def xkcd_palette(colors):
     ['acid green', 'adobe', 'algae', 'algae green', 'almost black']
     """
     return [xkcd_rgb[name] for name in colors]
+
+
+def crayon_palette(colors):
+    """
+    Make a palette with color names from Crayola crayons.
+
+    The colors come from
+    http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors
+
+    Parameters
+    ----------
+    colors : list of strings
+        List of keys in the ``mizani.external.crayloax_rgb`` dictionary.
+
+    Returns
+    -------
+    palette : list
+        List of colors as RGB hex strings.
+
+
+    >>> palette = crayon_palette(['almond', 'silver', 'yellow'])
+    >>> palette
+    ['#eed9c4', '#c9c0bb', '#fbe870']
+
+    >>> from mizani.external import crayon_rgb
+    >>> list(sorted(crayon_rgb.keys()))[:5]
+    ['almond', 'antique brass', 'apricot', 'aquamarine', 'asparagus']
+    """
+    return [crayon_rgb[name] for name in colors]

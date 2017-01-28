@@ -5,6 +5,10 @@ v0.2.1
 ------
 *(unreleased)*
 
+- Added :func:`~mizani.palettes.xkcd_palette`, a palette that
+  selects from 954 named colors.
+
+
 
 v0.2.0
 ------

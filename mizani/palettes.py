@@ -22,14 +22,14 @@ import matplotlib.colors as mcolors
 from matplotlib.cm import get_cmap
 from palettable import colorbrewer
 
-from .external import husl
+from .external import husl, xkcd_rgb
 from .bounds import rescale
 
 
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
            'area_pal', 'abs_area', 'grey_pal', 'hue_pal',
            'brewer_pal', 'gradient_n_pal', 'cmap_pal',
-           'desaturate_pal', 'manual_pal']
+           'desaturate_pal', 'manual_pal', 'xkcd_palette']
 
 
 def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
@@ -52,8 +52,8 @@ def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
 
     Returns
     -------
-    palette : seaborn color palette
-        List-like object of colors as RGB tuples.
+    palette : list
+        List of colors as RGB hex strings.
 
     See Also
     --------
@@ -94,8 +94,8 @@ def husl_palette(n_colors=6, h=.01, s=.9, l=.65):
 
     Returns
     -------
-    palette : seaborn color palette
-        List-like object of colors as RGB tuples.
+    palette : list
+        List of colors as RGB hex strings.
 
     See Also
     --------
@@ -606,3 +606,30 @@ def manual_pal(values):
         return values[:n]
 
     return _manual_pal
+
+
+def xkcd_palette(colors):
+    """
+    Make a palette with color names from the xkcd color survey.
+
+    See xkcd for the full list of colors: http://xkcd.com/color/rgb/
+
+    Parameters
+    ----------
+    colors : list of strings
+        List of keys in the ``mizani.external.xkcd_rgb`` dictionary.
+
+    Returns
+    -------
+    palette : list
+        List of colors as RGB hex strings.
+
+    >>> palette = xkcd_palette(['red', 'green', 'blue'])
+    >>> palette
+    ['#e50000', '#15b01a', '#0343df']
+
+    >>> from mizani.external import xkcd_rgb
+    >>> list(sorted(xkcd_rgb.keys()))[:5]
+    ['acid green', 'adobe', 'algae', 'algae green', 'almost black']
+    """
+    return [xkcd_rgb[name] for name in colors]

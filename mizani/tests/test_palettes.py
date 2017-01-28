@@ -8,7 +8,7 @@ import numpy.testing as npt
 from ..palettes import (hls_palette, husl_palette, rescale_pal,
                         area_pal, abs_area, grey_pal, hue_pal,
                         brewer_pal, gradient_n_pal, cmap_pal,
-                        desaturate_pal, manual_pal)
+                        desaturate_pal, manual_pal, xkcd_palette)
 
 
 def test_hls_palette():
@@ -145,3 +145,9 @@ def test_manual_pal():
 
     with pytest.warns(UserWarning):
         result = palette(size+4)
+
+
+def test_xkcd_palette():
+    values = xkcd_palette(['apple green', 'red', 'tan brown'])
+    assert len(values) == 3
+    assert all(s[0] == '#' and len(s) == 7 for s in values)

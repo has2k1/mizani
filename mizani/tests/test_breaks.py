@@ -19,6 +19,10 @@ def test_mpl_breaks():
         breaks = mpl_breaks(nbins=nbins)
         assert len(breaks(limits)) <= nbins+1
 
+    limits = float('-inf'), float('inf')
+    breaks = mpl_breaks(n=5)
+    assert len(breaks(limits)) == 0
+
 
 def test_log_breaks():
     x = [2, 20, 2000]
@@ -31,6 +35,9 @@ def test_log_breaks():
 
     breaks = log_breaks()((10000, 10000))
     npt.assert_array_equal(breaks, [10000])
+
+    breaks = log_breaks()((float('-inf'), float('inf')))
+    assert len(breaks) == 0
 
 
 def test_minor_breaks():
@@ -106,6 +113,11 @@ def test_date_breaks():
     with pytest.raises(AttributeError):
         breaks(limits)
 
+    # NaT
+    limits = np.datetime64('NaT'), datetime(2017, 1, 1)
+    breaks = date_breaks('10 Years')
+    assert len(breaks(limits)) == 0
+
 
 def test_timedelta_breaks():
     breaks = timedelta_breaks()
@@ -139,6 +151,10 @@ def test_timedelta_breaks():
     with pytest.raises(ValueError):
         breaks(limits)
 
+    # NaT
+    limits = pd.NaT, pd.Timedelta(seconds=9*60)
+    assert len(breaks(limits)) == 0
+
 
 def test_extended_breaks():
     x = np.arange(100)
@@ -150,3 +166,8 @@ def test_extended_breaks():
     # Reverse limits
     breaks = extended_breaks(n=7)
     npt.assert_array_equal(breaks((0, 6)), breaks((6, 0)))
+
+    # Infinite limits
+    limits = float('-inf'), float('inf')
+    breaks = extended_breaks(n=5)
+    assert len(breaks(limits)) == 0

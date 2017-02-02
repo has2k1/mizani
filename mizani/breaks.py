@@ -13,6 +13,7 @@ provide ways to calculate good(hopefully) breaks.
 from __future__ import division
 
 import numpy as np
+import pandas as pd
 from matplotlib.dates import MinuteLocator, HourLocator, DayLocator
 from matplotlib.dates import WeekdayLocator, MonthLocator, YearLocator
 from matplotlib.dates import AutoDateLocator
@@ -69,6 +70,9 @@ def mpl_breaks(*args, **kwargs):
     locator = MaxNLocator(*args, **kwargs)
 
     def _mpl_breaks(x):
+        if any(np.isinf(x)):
+            return []
+
         return locator.tick_values(np.min(x), np.max(x))
 
     return _mpl_breaks
@@ -100,6 +104,9 @@ def log_breaks(n=5, base=10):
     array([   100, 100000])
     """
     def _log_breaks(limits):
+        if any(np.isinf(limits)):
+            return []
+
         rng = np.log(limits)/np.log(base)
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
@@ -322,6 +329,9 @@ def date_breaks(width=None):
         locator = LOCATORS[units](interval=interval)
 
     def _date_breaks(limits):
+        if any(pd.isnull(x) for x in limits):
+            return []
+
         ret = locator.tick_values(*limits)
         # MPL returns the tick_values in ordinal format,
         # but we return them in the same space as the
@@ -354,6 +364,9 @@ def timedelta_breaks():
     _breaks_func = extended_breaks(n=5, Q=[1, 2, 5, 10])
 
     def _timedelta_breaks(limits):
+        if any(pd.isnull(x) for x in limits):
+            return []
+
         helper = timedelta_helper(limits)
         scaled_limits = helper.scaled_limits()
         scaled_breaks = _breaks_func(scaled_limits)
@@ -682,7 +695,10 @@ class ExtendedWilkinson(object):
                     k = k+1
             j = j+1
 
-        locs = best[0] + np.arange(best[4])*best[2]
+        try:
+            locs = best[0] + np.arange(best[4])*best[2]
+        except UnboundLocalError:
+            locs = []
         return locs
 
 

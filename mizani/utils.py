@@ -128,7 +128,11 @@ def min_max(x, nan_rm=False, finite=True):
         x = x[~np.isnan(x)]
     elif finite:
         x = x[~np.isinf(x)]
-    return np.min(x), np.max(x)
+
+    if (len(x)):
+        return np.min(x), np.max(x)
+    else:
+        return float('-inf'), float('inf')
 
 
 def match(v1, v2, nomatch=-1, incomparables=None, start=0):

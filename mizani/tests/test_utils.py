@@ -77,6 +77,11 @@ def test_min_max():
     assert str(_min) == 'nan'
     assert str(_max) == 'nan'
 
+    x = [float('nan'), float('nan'), float('nan')]
+    _min, _max = min_max(x, nan_rm=True)
+    assert _min == float('-inf')
+    assert _max == float('inf')
+
 
 def test_match():
     v1 = [0, 1, 2, 3, 4, 5]

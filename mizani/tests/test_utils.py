@@ -7,7 +7,7 @@ import pytest
 
 
 from ..utils import (seq, fullseq, round_any, min_max, match,
-                     precision, first_element)
+                     precision, first_element, multitype_sort)
 
 
 def test_seq():
@@ -124,3 +124,18 @@ def test_first_element():
 
     with pytest.raises(RuntimeError):
         first_element(iter(x))
+
+
+def test_multitype_sort():
+    a = ['c', float('nan'), 1, 'b', 'a', 2.0, 0]
+    result = multitype_sort(a)
+    # Any consecutive elements of the sametype are
+    # sorted
+    for i, x in enumerate(result[1:], start=1):
+        x_prev = result[i-1]
+        if (type(x_prev) is type(x)):
+            # cannot compare nan with anything
+            if (isinstance(x, (float, np.float)) and
+                    (np.isnan(x_prev) or np.isnan(x))):
+                continue
+            assert x_prev <= x

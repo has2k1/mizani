@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pytest
 
-from ..formatters import (custom_format, comma_format,
-                          currency_format, percent_format,
-                          scientific_format, date_format,
-                          mpl_format, timedelta_format)
+from mizani.formatters import (custom_format, comma_format,
+                               currency_format, percent_format,
+                               scientific_format, date_format,
+                               mpl_format, timedelta_format)
 
 
 def test_custom_format():

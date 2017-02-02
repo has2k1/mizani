@@ -5,9 +5,9 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from ..bounds import rescale
-from ..scale import scale_continuous, scale_discrete
-from ..transforms import identity_trans
+from mizani.bounds import rescale
+from mizani.scale import scale_continuous, scale_discrete
+from mizani.transforms import identity_trans
 
 
 def test_scale_continuous():

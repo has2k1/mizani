@@ -6,10 +6,10 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from ..breaks import (mpl_breaks, log_breaks, minor_breaks,
-                      trans_minor_breaks, date_breaks,
-                      timedelta_breaks, extended_breaks)
-from ..transforms import trans
+from mizani.breaks import (mpl_breaks, log_breaks, minor_breaks,
+                           trans_minor_breaks, date_breaks,
+                           timedelta_breaks, extended_breaks)
+from mizani.transforms import trans
 
 
 def test_mpl_breaks():

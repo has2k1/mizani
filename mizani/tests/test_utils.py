@@ -6,8 +6,8 @@ import pandas as pd
 import pytest
 
 
-from ..utils import (seq, fullseq, round_any, min_max, match,
-                     precision, first_element, multitype_sort)
+from mizani.utils import (seq, fullseq, round_any, min_max, match,
+                          precision, first_element, multitype_sort)
 
 
 def test_seq():

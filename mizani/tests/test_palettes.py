@@ -5,11 +5,11 @@ import numpy as np
 import numpy.testing as npt
 
 
-from ..palettes import (hls_palette, husl_palette, rescale_pal,
-                        area_pal, abs_area, grey_pal, hue_pal,
-                        brewer_pal, gradient_n_pal, cmap_pal,
-                        desaturate_pal, manual_pal, xkcd_palette,
-                        crayon_palette, cubehelix_pal)
+from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
+                             area_pal, abs_area, grey_pal, hue_pal,
+                             brewer_pal, gradient_n_pal, cmap_pal,
+                             desaturate_pal, manual_pal, xkcd_palette,
+                             crayon_palette, cubehelix_pal)
 
 
 def test_hls_palette():

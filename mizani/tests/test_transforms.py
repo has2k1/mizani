@@ -8,13 +8,13 @@ import pandas as pd
 import pytest
 import six
 
-from ..breaks import mpl_breaks, minor_breaks
-from ..transforms import (asn_trans, atanh_trans, boxcox_trans,
-                          datetime_trans, exp_trans, identity_trans,
-                          log10_trans, log1p_trans, log2_trans,
-                          log_trans, probability_trans, reverse_trans,
-                          sqrt_trans, timedelta_trans,
-                          pd_timedelta_trans, trans_new, gettrans)
+from mizani.breaks import mpl_breaks, minor_breaks
+from mizani.transforms import (
+    asn_trans, atanh_trans, boxcox_trans, datetime_trans,
+    exp_trans, identity_trans, log10_trans, log1p_trans,
+    log2_trans, log_trans, probability_trans, reverse_trans,
+    sqrt_trans, timedelta_trans, pd_timedelta_trans, trans_new,
+    gettrans)
 
 arr = np.arange(1, 100)
 

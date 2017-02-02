@@ -8,8 +8,8 @@ import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
-from ..bounds import (censor, expand_range, rescale, rescale_max,
-                      rescale_mid, squish_infinite, zero_range)
+from mizani.bounds import (censor, expand_range, rescale, rescale_max,
+                           rescale_mid, squish_infinite, zero_range)
 
 
 def test_censor():

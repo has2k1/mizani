@@ -108,6 +108,10 @@ def test_gradient_n_pal():
     result = palette([0.2, 0.8])
     assert result[0] == result[1]
 
+    # single color
+    result = palette(.25)
+    assert result.lower().startswith('#')
+
 
 def test_cmap_pal():
     palette = cmap_pal('viridis')

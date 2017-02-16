@@ -14,6 +14,8 @@ v0.2.1
 - Added :func:`cubehelix_pal`, a function that creates a continuous
   palette from the cubehelix system.
 
+- Fixed bug where a color palette would raise an exception when
+  passed a single scalar value instead of a list-like.
 
 
 v0.2.0

@@ -56,8 +56,8 @@ def mpl_breaks(*args, **kwargs):
     Returns
     -------
     out : function
-        A function that takes a sequence of values and
-        returns a sequence of break points.
+        A function that takes a tuple with the minimum and
+        maximum values and returns a sequence of break points.
 
 
     >>> x = range(10)
@@ -69,11 +69,14 @@ def mpl_breaks(*args, **kwargs):
     """
     locator = MaxNLocator(*args, **kwargs)
 
-    def _mpl_breaks(x):
-        if any(np.isinf(x)):
+    def _mpl_breaks(limits):
+        if any(np.isinf(limits)):
             return []
 
-        return locator.tick_values(np.min(x), np.max(x))
+        if limits[0] == limits[1]:
+            return np.array([limits[0]])
+
+        return locator.tick_values(limits[0], limits[1])
 
     return _mpl_breaks
 
@@ -92,8 +95,8 @@ def log_breaks(n=5, base=10):
     Returns
     -------
     out : function
-        A function that takes a tuple with 2 limit
-        values and returns a sequence of break points.
+        A function that takes a tuple with the minimum and
+        maximum values and returns a sequence of break points.
 
 
     >>> x = np.logspace(3, 7)
@@ -711,8 +714,8 @@ def extended_breaks(*args, **kwargs):
     Returns
     -------
     out : function
-        A function that takes a sequence of values and
-        returns a sequence of break points.
+        A function that takes a tuple with the minimum and
+        maximum values and returns a sequence of break points.
 
 
     >>> limits = (0, 9)
@@ -724,6 +727,8 @@ def extended_breaks(*args, **kwargs):
     extended = ExtendedWilkinson(*args, **kwargs)
 
     def _extended_breaks(limits):
+        if limits[0] == limits[1]:
+            return np.array([limits[0]])
         return extended(*limits)
 
     return _extended_breaks

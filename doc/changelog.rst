@@ -17,6 +17,18 @@ v0.2.1
 - Fixed bug where a color palette would raise an exception when
   passed a single scalar value instead of a list-like.
 
+- :func:`~mizani.breaks.extended_breaks` and
+  :func:`~mizani.breaks.mpl_breaks` now return a single break if
+  the limits are equal. Previous, one run into an *Overflow* and
+  the other returned a sequence filled with *n* of the same limit.
+
+
+API Changes
+***********
+
+- :func:`~mizani.breaks.mpl_breaks` now returns a function
+  that (strictly) expects a tuple with the minimum and maximum values.
+
 
 v0.2.0
 ------

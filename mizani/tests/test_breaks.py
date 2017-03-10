@@ -23,6 +23,16 @@ def test_mpl_breaks():
     breaks = mpl_breaks(n=5)
     assert len(breaks(limits)) == 0
 
+    # Zero range discrete
+    limits = [1, 1]
+    assert len(breaks(limits)) == 1
+    assert breaks(limits)[0] == limits[1]
+
+    # Zero range continuous
+    limits = [np.pi, np.pi]
+    assert len(breaks(limits)) == 1
+    assert breaks(limits)[0] == limits[1]
+
 
 def test_log_breaks():
     x = [2, 20, 2000]
@@ -171,3 +181,13 @@ def test_extended_breaks():
     limits = float('-inf'), float('inf')
     breaks = extended_breaks(n=5)
     assert len(breaks(limits)) == 0
+
+    # Zero range discrete
+    limits = [1, 1]
+    assert len(breaks(limits)) == 1
+    assert breaks(limits)[0] == limits[1]
+
+    # Zero range continuous
+    limits = [np.pi, np.pi]
+    assert len(breaks(limits)) == 1
+    assert breaks(limits)[0] == limits[1]

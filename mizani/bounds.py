@@ -64,7 +64,7 @@ def rescale(x, to=(0, 1), _from=None):
     >>> rescale(x, to=(0, 2), _from=(0, 20))
     array([ 0. ,  0.2,  0.4,  0.6,  0.8,  1. ])
     """
-    if not _from:
+    if _from is None:
         _from = np.min(x), np.max(x)
     return np.interp(x, _from, to)
 
@@ -106,7 +106,7 @@ def rescale_mid(x, to=(0, 1), _from=None, mid=0):
         x = [x]
 
     x = np.asarray(x)
-    if not _from:
+    if _from is None:
         _from = np.array([np.min(x), np.max(x)])
     else:
         _from = np.asarray(_from)
@@ -172,7 +172,7 @@ def rescale_max(x, to=(0, 1), _from=None):
         x = [x]
 
     x = np.asarray(x)
-    if not _from:
+    if _from is None:
         _from = np.array([np.min(x), np.max(x)])
 
     out = x/_from[1] * to[1]

@@ -20,18 +20,22 @@ on_rtd = os.environ.get('READTHEDOCS') == 'True'
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('.'))
+CUR_PATH = os.path.dirname(os.path.abspath(__file__))
+PROJECT_PATH = os.path.abspath(CUR_PATH + '/../')
+sys.path.insert(0, CUR_PATH)
+sys.path.insert(0, PROJECT_PATH)
 
 if on_rtd:
     import mock
-    sys.path.insert(0, os.path.abspath('..'))
+    from pprint import pprint
     MOCK_MODULES = [
-        'palettable',
         'pandas',
         'pandas.core',
         'pandas.core.common']
     for mod_name in MOCK_MODULES:
         sys.modules[mod_name] = mock.Mock()
+    pprint(os.environ)
+    pprint(sys.path)
 
 # -- General configuration ------------------------------------------------
 
@@ -84,6 +88,13 @@ try:
 except ImportError:
     version = 'unknown'
 
+# readthedocs modifies the repository which messes up the version.
+if on_rtd:
+    import re
+    version = version.rstrip('.dirty')
+    version = re.sub('\+0\..+', '', version)
+    version
+
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -118,6 +129,7 @@ exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
+highlight_language = 'python3'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -134,16 +146,22 @@ suppress_warnings = ['image.nonlocal_uri']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-# html_theme = 'default'
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# html_theme_options = {}
+# https://github.com/ryan-roemer/sphinx-bootstrap-theme
+html_theme_options = {
+    'navbar_title': 'mizani',
+    'globaltoc_depth': 2,
+    'globaltoc_includehidden': 'true',
+    'source_link_position': 'footer',
+    'navbar_sidebarrel': False,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-# html_theme_path = []
+html_theme_path = ['.']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -164,7 +182,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -305,10 +323,10 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/', None),
+    'python': ('https://docs.python.org/3/', None),
     'matplotlib': ('http://matplotlib.org/', None),
-    'numpy': ('http://docs.scipy.org/doc/numpy', None),
-    'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
 }
 
 

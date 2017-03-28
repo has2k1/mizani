@@ -1,5 +1,5 @@
-``scale`` - Implementing a scale
-================================
+*scale* - Implementing a scale
+==============================
 .. _scale:
 
 .. automodule:: mizani.scale

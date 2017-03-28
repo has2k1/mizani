@@ -2,12 +2,12 @@
 *"The Grammar of Graphics (2005)"* by **Wilkinson**, **Anand** and
 **Grossman** describes three types of transformations.
 
-* ``Variable transformations`` - Used to make statistical operations on
+* *Variable transformations* - Used to make statistical operations on
   variables appropriate and meaningful. They are also used to new
   variables.
-* ``Scale transformations`` - Used to make statistical objects displayed
+* *Scale transformations* - Used to make statistical objects displayed
   on dimensions appropriate and meaningful.
-* ``Coordinate transformations`` - Used to manipulate the geometry of
+* *Coordinate transformations* - Used to manipulate the geometry of
   graphics to help perceive relationships and find meaningful structures
   for representing variations.
 

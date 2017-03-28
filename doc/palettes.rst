@@ -1,5 +1,5 @@
-``palettes`` - Mapping values onto the domain of a scale
-========================================================
+*palettes* - Mapping values onto the domain of a scale
+======================================================
 .. _palettes:
 
 .. automodule:: mizani.palettes

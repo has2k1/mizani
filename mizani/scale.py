@@ -15,9 +15,9 @@ To train a scale on data means, to make the scale learn the limits of
 the data. This is elaborate (or worthy of a dedicated method) for two
 reasons:
 
-    - Practical -- data may be split up across more than one object,
+    - *Practical* -- data may be split up across more than one object,
       yet all will be represented by a single scale.
-    - Conceptual -- training is a key action that may need to be inserted
+    - *Conceptual* -- training is a key action that may need to be inserted
       into multiple locations of the data processing pipeline before a
       graphic can be created.
 

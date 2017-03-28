@@ -1,5 +1,5 @@
-``formatters`` - Labelling breaks
-=================================
+*formatters* - Labelling breaks
+===============================
 .. _formatters:
 
 .. automodule:: mizani.formatters

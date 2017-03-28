@@ -1,5 +1,5 @@
-``bounds`` - Limiting data values for a palette
-===============================================
+*bounds* - Limiting data values for a palette
+=============================================
 .. _bounds:
 
 .. automodule:: mizani.bounds

@@ -224,10 +224,10 @@ def censor(x, range=(0, 1), only_finite=True):
 
     The **NULL** type object depends on the type of values in **x**.
 
-        - :class:`float` - :python:`float('nan')`
-        - :class:`int` - :python:`float('nan')`
-        - :class:`datetime.datetime` : :obj:`np.datetime64(NaT)`
-        - :class:`datetime.timedelta` : :obj:`np.timedelta64(NaT)`
+        - :class:`float` - :py:`float('nan')`
+        - :class:`int` - :py:`float('nan')`
+        - :class:`datetime.datetime` : :py:`np.datetime64(NaT)`
+        - :class:`datetime.timedelta` : :py:`np.timedelta64(NaT)`
 
     Parameters
     ----------

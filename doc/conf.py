@@ -31,7 +31,9 @@ if on_rtd:
     MOCK_MODULES = [
         'pandas',
         'pandas.core',
-        'pandas.core.common']
+        'pandas.core.common',
+        'pandas.api',
+        'pandas.api.types']
     for mod_name in MOCK_MODULES:
         sys.modules[mod_name] = mock.Mock()
     pprint(os.environ)

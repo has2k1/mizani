@@ -335,3 +335,7 @@ intersphinx_mapping = {
 # -- Extension configuration ----------------------------------------------
 autodoc_member_order = 'bysource'
 autosummary_generate = True
+
+
+def setup(app):
+    app.add_javascript('copybutton.js')

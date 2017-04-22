@@ -1,9 +1,13 @@
 Changelog
 =========
 
-v0.2.1
+v0.3.1
 ------
-*(unreleased)*
+*unreleased*
+
+v0.3.0
+------
+*24-04-2017*
 
 - Added :func:`~mizani.palettes.xkcd_palette`, a palette that
   selects from 954 named colors.
@@ -21,7 +25,6 @@ v0.2.1
   :func:`~mizani.breaks.mpl_breaks` now return a single break if
   the limits are equal. Previous, one run into an *Overflow* and
   the other returned a sequence filled with *n* of the same limit.
-
 
 API Changes
 ***********

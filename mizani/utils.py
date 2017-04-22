@@ -239,7 +239,6 @@ def first_element(obj):
     return next(iter(obj))
 
 
-
 def multitype_sort(a):
     """
     Sort elements of multiple types

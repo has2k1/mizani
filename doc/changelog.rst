@@ -7,7 +7,10 @@ v0.3.1
 
 v0.3.0
 ------
-*24-04-2017*
+*(2017-04-24)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.557096.svg
+   :target: https://doi.org/10.5281/zenodo.557096
 
 - Added :func:`~mizani.palettes.xkcd_palette`, a palette that
   selects from 954 named colors.
@@ -37,8 +40,8 @@ v0.2.0
 ------
 *(2017-01-27)*
 
-.. image:: https://zenodo.org/badge/62319878.svg
-   :target: https://zenodo.org/badge/latestdoi/62319878
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.260331.svg
+   :target: https://doi.org/10.5281/zenodo.260331
 
 - Fixed bug in :func:`~mizani.bounds.censor` where a sequence of
   values with an irregular index would lead to an exception.

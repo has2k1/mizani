@@ -9,20 +9,24 @@ matrix:
   include:
     - python: 2.7
       env:
-        - JOB: 'PY27'
-        - FULL_DEPS=true
+        - JOB: 'UNITTEST'
+        - FULL_DEPS: true
     - python: 3.5
       env:
-        - JOB: 'PY35'
-        - FULL_DEPS=true
-    - python: 3.5
+        - JOB: 'UNITTEST'
+        - FULL_DEPS: true
+    - python: 3.6
+      env:
+        - JOB: 'UNITTEST'
+        - FULL_DEPS: true
+    - python: 3.6
       env:
         - JOB: 'DOCS'
-        - FULL_DEPS=true
-    - python: 3.5
+        - FULL_DEPS: true
+    - python: 3.6
       env:
-        - JOB: 'FLAKE8'
-        - FULL_DEPS=false
+        - JOB: 'LINT'
+        - FULL_DEPS: false
 
 cache: pip
 
@@ -33,10 +37,11 @@ notifications:
 # miniconda recipe
 # http://conda.pydata.org/docs/travis.html#using-conda-with-travis-ci
 before_install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+  - |
+    if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
@@ -50,33 +55,39 @@ install:
   # Dependencies
   - conda create -q -n mizani-test python=$TRAVIS_PYTHON_VERSION
   - source activate mizani-test
-  - if [[ "$FULL_DEPS" ]]; then
-      conda install scipy pandas matplotlib;
-      pip install palettable;
+  - |
+    if [[ "$FULL_DEPS" ]]; then
+      conda install scipy pandas matplotlib
+      pip install palettable
     fi
-  - if [[ "$JOB" == "PY27" ]] || [[ "$JOB" == "PY35" ]]; then
-      conda install pytest-cov;
+  - |
+    if [[ "$JOB" == "UNITTEST" ]]; then
+      conda install pytest-cov
+      pip install coveralls
     elif [[ "$JOB" == "DOCS" ]]; then
-      pip install sphinx sphinx_rtd_theme;
-      python setup.py install;
-    elif [[ "$JOB" == "FLAKE8" ]]; then
-      pip install flake8;
+      pip install sphinx
+      python setup.py install
+    elif [[ "$JOB" == "LINT" ]]; then
+      pip install flake8
     fi
-  - pip install coveralls
   # List all conda and pip packages
   - conda list
 
 script:
-  - if [[ "$JOB" == "PY27" ]] || [[ "$JOB" == "PY35" ]]; then
-      coverage erase;
-      py.test mizani/;
+  - |
+    if [[ "$JOB" == "UNITTEST" ]]; then
+      coverage erase
+      make test
     elif [[ "$JOB" == "DOCS" ]]; then
-      pushd doc;
-      sphinx-build -W -b html -d _build/doctrees . _build/html;
-      popd;
-    elif [[ "$JOB" == "FLAKE8" ]]; then
-      make lint;
+      pushd doc
+      SPHINXOPTS=-W
+      make html && popd
+    elif [[ "$JOB" == "LINT" ]]; then
+      make lint
     fi
 
 after_success:
-  - coveralls --rcfile=.coveragerc
+  - |
+    if [[ "$JOB" == "UNITTEST" ]]; then
+      coveralls --rcfile=.coveragerc
+    fi

@@ -39,7 +39,7 @@ lint:
 	flake8 --exclude=mizani/external mizani
 
 test:
-	py.test --cov=mizani
+	pytest
 
 test-all:
 	tox

@@ -118,7 +118,8 @@ def log_breaks(n=5, base=10):
             return base ** _min
 
         step = (_max-_min)//n + 1
-        return base ** np.arange(_min, _max+1, step, dtype=float)
+        dtype = float if (_min < 0) else int
+        return base ** np.arange(_min, _max+1, step, dtype=dtype)
 
     return _log_breaks
 

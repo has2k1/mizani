@@ -3,7 +3,11 @@ Changelog
 
 v0.3.1
 ------
-*unreleased*
+*(2017-06-22)*
+
+- Fixed bug where using :func:`~mizani.breaks.log_breaks` with
+  Numpy 1.13.0 led to a ``ValueError``.
+
 
 v0.3.0
 ------

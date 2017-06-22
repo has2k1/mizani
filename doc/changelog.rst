@@ -1,9 +1,17 @@
 Changelog
 =========
 
+v0.3.2
+------
+*(unreleased)*
+
+
 v0.3.1
 ------
 *(2017-06-22)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.815721.svg
+   :target: https://doi.org/10.5281/zenodo.815721
 
 - Fixed bug where using :func:`~mizani.breaks.log_breaks` with
   Numpy 1.13.0 led to a ``ValueError``.

@@ -53,3 +53,15 @@ Release
  ::
 
     make release
+
+* Draft a `github release <https://github.com/has2k1/mizani/releases>`.
+
+* Add `zenodo badge <https://zenodo.org/account/settings/github/repository/has2k1/mizani>`
+  to the changelog.
+
+* Add a new version (unreleased) section at the top of the changelog.
+
+* Commit ::
+
+    git add doc/changelog.rst
+    git commit -m 'Add zenodo badge for previous release'

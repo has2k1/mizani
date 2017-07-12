@@ -1,9 +1,10 @@
 Changelog
 =========
 
-v0.3.2
+v0.3.1
 ------
 *(unreleased)*
+- Added :func:`~mizani.bounds.expand_range_distinct`
 
 
 v0.3.1

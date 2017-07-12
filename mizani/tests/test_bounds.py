@@ -9,7 +9,8 @@ import pandas.util.testing as pdt
 import pytest
 
 from mizani.bounds import (censor, expand_range, rescale, rescale_max,
-                           rescale_mid, squish_infinite, zero_range)
+                           rescale_mid, squish_infinite, zero_range,
+                           expand_range_distinct)
 
 
 def test_censor():
@@ -216,6 +217,16 @@ def test_expand_range():
     limits = np.timedelta64(1, 'D'),  np.timedelta64(1, 'D')
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 30*one_day
+
+
+def test_expand_range_distinct():
+    assert expand_range_distinct((0, 1)) == (0, 1)
+    assert expand_range_distinct((0, 1), (2, 0)) == (-2, 3)
+    assert expand_range_distinct((0, 1), (2, 0, 2, 0)) == (-2, 3)
+    assert expand_range_distinct((0, 1), (0, 2)) == (-2, 3)
+    assert expand_range_distinct((0, 1), (0, 2, 0, 2)) == (-2, 3)
+    assert expand_range_distinct((0, 1), (2, 2, 2, 2)) == (-4, 5)
+    assert expand_range_distinct((1, 1), (2, 2), zero_width=1) == (0.5, 1.5)
 
 
 def test_rescale():

@@ -81,7 +81,7 @@ def test_asn_trans():
 
 
 def test_atanh_trans():
-    _test_trans(atanh_trans, arr*0.01),
+    _test_trans(atanh_trans, arr*0.001),
 
 
 def test_boxcox_trans():
@@ -128,7 +128,7 @@ def test_logn_trans():
     log3_trans = log_trans(3)
     _test_trans(log3_trans, arr)
 
-    log4_trans = log_trans(4, domain=(-100, 100),
+    log4_trans = log_trans(4, domain=(0.1, 100),
                            breaks=mpl_breaks(),
                            minor_breaks=minor_breaks())
     _test_trans(log4_trans, arr)

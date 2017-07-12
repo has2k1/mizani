@@ -12,6 +12,8 @@ from mizani.bounds import (censor, expand_range, rescale, rescale_max,
                            rescale_mid, squish_infinite, zero_range,
                            expand_range_distinct)
 
+NaT_type = type(pd.NaT)
+
 
 def test_censor():
     x = list(range(10))
@@ -50,25 +52,25 @@ def test_censor():
     x = [pd.Timestamp(i*1e16) for i in range(198, 208)]
     result = censor(x, limits)
     assert result[2:-2] == x[2:-2]
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[:2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[-2:])
 
     x1 = np.array(x)
     result = censor(x1, limits)
     npt.assert_array_equal(result[2:-2], x1[2:-2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[:2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[-2:])
 
     x2 = pd.Series(x)
     result = censor(x2, limits)
     pdt.assert_series_equal(result[2:-2], x2[2:-2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[:2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[-2:])
 
     # np.datetime
@@ -88,17 +90,17 @@ def test_censor():
     result = censor(x, limits)
     assert isinstance(result, list)
     assert result[2:-2] == x[2:-2]
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[:2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[-2:])
 
     x4 = np.array(x)
     result = censor(x4, limits)
     npt.assert_array_equal(result[2:-2], x4[2:-2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[:2])
-    assert all(isinstance(val, pd.tslib.NaTType)
+    assert all(isinstance(val, NaT_type)
                for val in result[-2:])
 
     # np.timedelta64

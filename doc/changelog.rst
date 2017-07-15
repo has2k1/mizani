@@ -4,8 +4,11 @@ Changelog
 v0.3.2
 ------
 *(2017-07-14)*
-- Added :func:`~mizani.bounds.expand_range_distinct`
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
+   :target: https://doi.org/10.5281/zenodo.62319878
+
+- Added :func:`~mizani.bounds.expand_range_distinct`
 
 v0.3.1
 ------

@@ -42,7 +42,7 @@ if on_rtd:
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-# needs_sphinx = '1.4.2'
+needs_sphinx = '1.6.1'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -339,3 +339,4 @@ autosummary_generate = True
 
 def setup(app):
     app.add_javascript('copybutton.js')
+    app.add_stylesheet('custom.css')

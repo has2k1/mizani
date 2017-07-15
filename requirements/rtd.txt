@@ -1,1 +1,2 @@
 palettable
+sphinx>=1.6.1

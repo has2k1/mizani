@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.3.3
+------
+*(not released yet)*
+
+- Fixed *SettingWithCopyWarnings* in :func:`~mizani.bounds.squish_infinite`.
+
 v0.3.2
 ------
 *(2017-07-14)*

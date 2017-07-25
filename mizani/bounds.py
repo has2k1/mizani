@@ -206,15 +206,13 @@ def squish_infinite(x, range=(0, 1)):
     >>> squish_infinite([0, -np.inf, .5, .25, np.inf], (-10, 9))
     [0.0, -10.0, 0.5, 0.25, 9.0]
     """
-    xtype = None
-    if not hasattr(x, 'dtype'):
-        xtype = type(x)
-        x = np.array(x)
+    xtype = type(x)
+    x = np.asarray(x)
 
     x[x == -np.inf] = range[0]
     x[x == np.inf] = range[1]
 
-    if xtype:
+    if not isinstance(x, xtype):
         x = xtype(x)
     return x
 

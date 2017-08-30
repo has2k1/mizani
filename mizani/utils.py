@@ -5,7 +5,8 @@ from collections import OrderedDict, Iterator, defaultdict
 import numpy as np
 
 __all__ = ['seq', 'fullseq', 'round_any', 'min_max', 'match',
-           'precision', 'first_element', 'multitype_sort']
+           'precision', 'first_element', 'multitype_sort',
+           'is_close_to_int']
 
 DISCRETE_KINDS = 'ObUS'
 CONTINUOUS_KINDS = 'ifuc'
@@ -270,3 +271,33 @@ def multitype_sort(a):
         types[t] = np.sort(types[t])
 
     return list(chain(*(types[t] for t in types)))
+
+
+def nearest_int(x):
+    """
+    Return nearest long integer to x
+    """
+    if x == 0:
+        return np.int64(0)
+    elif x > 0:
+        return np.int64(x + 0.5)
+    else:
+        return np.int64(x - 0.5)
+
+
+def is_close_to_int(x):
+    """
+    Check if value is close to an integer
+
+    Parameter
+    ---------
+    x : float
+        Numeric value to check
+
+    Return
+    ------
+    out : bool
+    """
+    if not np.isfinite(x):
+        return False
+    return abs(x - nearest_int(x)) < 1e-10

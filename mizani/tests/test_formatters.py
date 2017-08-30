@@ -8,7 +8,7 @@ import pytest
 from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
                                scientific_format, date_format,
-                               mpl_format, timedelta_format)
+                               mpl_format, log_format, timedelta_format)
 
 
 def test_custom_format():
@@ -75,6 +75,14 @@ def test_mpl_format():
 
     # trigger the order of magnitude correction
     assert formatter([5, 10, 100, 150e8]) == ['0', '0', '0', '1.5e10']
+
+
+def test_log_format():
+    formatter = log_format()
+    assert formatter([0.001, 0.1, 100]) == ['0.001', '0.1', '100']
+
+    formatter = log_format()
+    assert formatter([0.001, 0.1, 1000]) == ['1e-3', '1e-1', '1e3']
 
 
 def test_date_format():

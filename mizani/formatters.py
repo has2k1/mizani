@@ -17,12 +17,12 @@ from matplotlib.dates import DateFormatter
 from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
-from .utils import round_any, precision
+from .utils import round_any, precision, is_close_to_int
 
 
 __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'percent_format', 'scientific_format', 'date_format',
-           'mpl_format', 'timedelta_format']
+           'mpl_format', 'log_format', 'timedelta_format']
 
 
 def custom_format(fmt, style='new'):
@@ -292,6 +292,105 @@ def mpl_format():
         return _format(formatter, x)
 
     return _mpl_format
+
+
+def log_format(base=10, exponent_threshold=5):
+    """
+    Log Formatter
+
+    Parameters
+    ----------
+    base : int
+        Base of the logarithm
+    exponent_threshold : int
+        Difference between the minimum and maximum values
+        of the data beyond which exponent notation will
+        be used.
+
+    Returns
+    -------
+    out : function
+        Formatting function. It takes a sequence of
+        values and returns a sequence of strings.
+
+
+    >>> log_format()([0.001, 0.1, 100])
+    ['0.001', '0.1', '100']
+
+    >>> log_format()([0.001, 0.1, 1000])
+    ['1e-3', '1e-1', '1e3']
+    """
+
+    def _num_to_string(x, use_exponent):
+        """
+        Parameters
+        ----------
+        x : float
+            Number to represent as string
+        use_exponent : bool
+            Difference in exponents between max and min.
+        """
+        if use_exponent:
+            fmt = '{:1.0e}'
+        else:
+            fmt = '{}'
+
+        s = fmt.format(x)
+
+        # Tidy up
+        if use_exponent:
+            tup = s.split('e')
+            if len(tup) == 2:
+                mantissa = tup[0].rstrip('0').rstrip('.')
+                exponent = int(tup[1])
+                if exponent:
+                    s = '%se%d' % (mantissa, exponent)
+                else:
+                    s = mantissa
+            else:
+                s = s.rstrip('0').rstrip('.')
+        return s
+
+    def _format_num(x, use_exponent):
+        """
+        Return the format for tick val `x`.
+
+        Pararm
+        """
+        if x == 0.0:  # Symlog
+            return '0'
+
+        x = abs(x)
+
+        # only label the decades
+        if base == 10:
+            fx = np.log(x) / np.log(base)
+            is_x_decade = is_close_to_int(fx)
+
+            if not is_x_decade:
+                return ''
+
+        s = _num_to_string(x, use_exponent)
+        return (s)
+
+    def _log_format(x):
+        # Order of magnitude of the minimum and maximum
+        dmin = np.log(np.min(x))/np.log(base)
+        dmax = np.log(np.max(x))/np.log(base)
+
+        # Decide on using exponents
+        if base == 10:
+            has_small_number = dmin < -3
+            has_large_number = dmax > 3
+            has_large_range = (dmax - dmin) > 5
+            use_exponent = (has_small_number or
+                            has_large_number or
+                            has_large_range)
+        else:
+            use_exponent = False
+        return [_format_num(num, use_exponent) for num in x]
+
+    return _log_format
 
 
 def date_format(fmt='%Y-%m-%d'):

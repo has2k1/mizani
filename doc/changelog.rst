@@ -6,6 +6,14 @@ v0.3.3
 *(not released yet)*
 
 - Fixed *SettingWithCopyWarnings* in :func:`~mizani.bounds.squish_infinite`.
+- Added :func:`~mizani.formatters.log_format`.
+
+API Changes
+***********
+
+- Added :class:`~mizani.transforms.log_trans` now uses
+  :func:`~mizani.formatters.log_format` as the formatting method.
+
 
 v0.3.2
 ------

@@ -33,6 +33,7 @@ from .breaks import (extended_breaks, log_breaks, minor_breaks,
                      trans_minor_breaks, date_breaks,
                      timedelta_breaks)
 from .formatters import mpl_format, date_format, timedelta_format
+from .formatters import log_format
 
 
 __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
@@ -245,6 +246,7 @@ def log_trans(base=None, **kwargs):
     if 'minor_breaks' not in kwargs:
         kwargs['minor_breaks'] = trans_minor_breaks(4)
 
+    kwargs['_format'] = log_format(base)
     return trans_new(name, transform, inverse,
                      **kwargs)
 

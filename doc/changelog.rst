@@ -1,9 +1,17 @@
 Changelog
 =========
 
+v0.3.4
+------
+*(not yet released)*
+
+
 v0.3.3
 ------
 *(2017-08-30)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.854777.svg
+   :target: https://doi.org/10.5281/zenodo.854777
 
 - Fixed *SettingWithCopyWarnings* in :func:`~mizani.bounds.squish_infinite`.
 - Added :func:`~mizani.formatters.log_format`.
@@ -19,8 +27,8 @@ v0.3.2
 ------
 *(2017-07-14)*
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
-   :target: https://doi.org/10.5281/zenodo.62319878
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.827406.svg
+   :target: https://doi.org/10.5281/zenodo.827406
 
 - Added :func:`~mizani.bounds.expand_range_distinct`
 

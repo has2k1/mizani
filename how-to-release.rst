@@ -65,3 +65,12 @@ Release
 
     git add doc/changelog.rst
     git commit -m 'Add zenodo badge for previous release'
+
+* Create conda release ::
+
+    sha256sum dist/*.tar.gz
+    # edit mizani-feedsock/recipe/meta.yml
+    # push feedstock changes and create a PR at conda-forge
+    # Wait for tests to pass and merge PR
+
+

@@ -3,7 +3,7 @@ Changelog
 
 v0.3.3
 ------
-*(not released yet)*
+*(2017-08-30)*
 
 - Fixed *SettingWithCopyWarnings* in :func:`~mizani.bounds.squish_infinite`.
 - Added :func:`~mizani.formatters.log_format`.

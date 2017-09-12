@@ -5,6 +5,9 @@ v0.3.4
 ------
 *(not yet released)*
 
+- Fixed issue where some formatters methods failed if passed empty
+  ``breaks`` argument.
+
 
 v0.3.3
 ------

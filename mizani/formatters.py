@@ -25,14 +25,15 @@ __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'mpl_format', 'log_format', 'timedelta_format']
 
 
-def custom_format(fmt, style='new'):
+def custom_format(fmt='{}', style='new'):
     """
     Return a function that formats a sequence of inputs
 
     Parameters
     ----------
-    fmt : str
-        Format string
+    fmt : str, optional
+        Format string. Default is the generic new style
+        format braces, `\{\}`.
     style : 'new' | 'old'
         Whether to use new style or old style formatting.
         New style uses the :meth:`str.format` while old
@@ -167,6 +168,9 @@ def percent_format(use_comma=False):
     big_mark = ',' if use_comma else ''
 
     def _percent_format(x):
+        if len(x) == 0:
+            return []
+
         _precision = precision(x)
         x = round_any(x, _precision / 100) * 100
 
@@ -231,6 +235,9 @@ def scientific_format(digits=3):
             return 0
 
     def _scientific_format(x):
+        if len(x) == 0:
+            return []
+
         # format and then remove superfluous zeros
         labels = formatter(x)
         n = min([count_zeros(val) for val in labels])
@@ -374,12 +381,15 @@ def log_format(base=10, exponent_threshold=5):
         return (s)
 
     def _log_format(x):
-        # Order of magnitude of the minimum and maximum
-        dmin = np.log(np.min(x))/np.log(base)
-        dmax = np.log(np.max(x))/np.log(base)
+        if len(x) == 0:
+            return []
 
         # Decide on using exponents
         if base == 10:
+            # Order of magnitude of the minimum and maximum
+            dmin = np.log(np.min(x))/np.log(base)
+            dmax = np.log(np.max(x))/np.log(base)
+
             has_small_number = dmin < -3
             has_large_number = dmax > 3
             has_large_range = (dmax - dmin) > 5
@@ -461,6 +471,9 @@ def timedelta_format(units=None, add_units=True, usetex=False):
     _mpl_format = mpl_format()
 
     def _timedelta_format(x):
+        if len(x) == 0:
+            return []
+
         labels = []
         values, _units = timedelta_helper.format_info(x, units)
         plural = '' if _units.endswith('s') else 's'

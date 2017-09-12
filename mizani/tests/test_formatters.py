@@ -111,3 +111,16 @@ def test_timedelta_format():
     assert labels == \
         ['0', '0.1667 hours', '0.3333 hours', '0.5000 hours',
          '0.6667 hours']
+
+
+def test_empty_breaks():
+    x = []
+    assert custom_format()(x) == []
+    assert comma_format()(x) == []
+    assert currency_format()(x) == []
+    assert percent_format()(x) == []
+    assert scientific_format()(x) == []
+    assert date_format()(x) == []
+    assert mpl_format()(x) == []
+    assert log_format()(x) == []
+    assert timedelta_format()(x) == []

@@ -6,7 +6,7 @@ import numpy as np
 
 __all__ = ['seq', 'fullseq', 'round_any', 'min_max', 'match',
            'precision', 'first_element', 'multitype_sort',
-           'is_close_to_int']
+           'is_close_to_int', 'same_log10_order_of_magnitude']
 
 DISCRETE_KINDS = 'ObUS'
 CONTINUOUS_KINDS = 'ifuc'
@@ -289,8 +289,8 @@ def is_close_to_int(x):
     """
     Check if value is close to an integer
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     x : float
         Numeric value to check
 
@@ -301,3 +301,26 @@ def is_close_to_int(x):
     if not np.isfinite(x):
         return False
     return abs(x - nearest_int(x)) < 1e-10
+
+
+def same_log10_order_of_magnitude(rng, delta=0.045):
+    """
+    Return true if range is approximately in same order of magnitude
+
+    For example these sequences are in the same order of magnitude:
+
+        - [log(1), log(8)]        # [1, 10)
+        - [log(35), log(80)]      # [10 100)
+        - [log(232), log(730)]    # [100, 1000)
+
+    Parameters
+    ----------
+    rng : array-like
+        Range of values in log base 10. Must be size 2 and
+        ``rng[0] <= rng[1]``.
+    delta : float
+        Fuzz factor for approximation. Since the ``rng`` is in
+        log form, this factor is additional.
+    """
+    rng_adjusted = np.array(rng) + [-delta, +delta]
+    return np.diff(rng_adjusted.astype(int))[0] == 0

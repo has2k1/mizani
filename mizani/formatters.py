@@ -18,6 +18,7 @@ from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
 from .utils import round_any, precision, is_close_to_int
+from .utils import same_log10_order_of_magnitude
 
 
 __all__ = ['custom_format', 'currency_format', 'dollar_format',
@@ -370,7 +371,7 @@ def log_format(base=10, exponent_threshold=5):
         x = abs(x)
 
         # only label the decades
-        if base == 10:
+        if base == 10 and use_exponent:
             fx = np.log(x) / np.log(base)
             is_x_decade = is_close_to_int(fx)
 
@@ -389,6 +390,8 @@ def log_format(base=10, exponent_threshold=5):
             # Order of magnitude of the minimum and maximum
             dmin = np.log(np.min(x))/np.log(base)
             dmax = np.log(np.max(x))/np.log(base)
+            if same_log10_order_of_magnitude((dmin, dmax)):
+                return mpl_format()(x)
 
             has_small_number = dmin < -3
             has_large_number = dmax > 3

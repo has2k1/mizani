@@ -21,6 +21,7 @@ from matplotlib.dates import num2date, YEARLY
 from matplotlib.ticker import MaxNLocator
 
 from .utils import min_max, SECONDS, NANOSECONDS
+from .utils import same_log10_order_of_magnitude
 
 
 __all__ = ['mpl_breaks', 'log_breaks', 'minor_breaks',
@@ -106,11 +107,16 @@ def log_breaks(n=5, base=10):
     >>> log_breaks(2)(limits)
     array([   100, 100000])
     """
+
     def _log_breaks(limits):
         if any(np.isinf(limits)):
             return []
 
         rng = np.log(limits)/np.log(base)
+
+        if base == 10 and same_log10_order_of_magnitude(rng):
+            return extended_breaks(n=4)(limits)
+
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
 

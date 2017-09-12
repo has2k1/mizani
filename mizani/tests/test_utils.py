@@ -7,7 +7,8 @@ import pytest
 
 
 from mizani.utils import (seq, fullseq, round_any, min_max, match,
-                          precision, first_element, multitype_sort)
+                          precision, first_element, multitype_sort,
+                          same_log10_order_of_magnitude)
 
 
 def test_seq():
@@ -144,3 +145,27 @@ def test_multitype_sort():
                     (np.isnan(x_prev) or np.isnan(x))):
                 continue
             assert x_prev <= x
+
+
+def test_same_log10_order_of_magnitude():
+    log = np.log10
+
+    # Default delta
+    assert same_log10_order_of_magnitude(log([1, 8]))
+    assert same_log10_order_of_magnitude(log([35, 80.8]))
+    assert same_log10_order_of_magnitude(log([232.3, 730]))
+
+    assert not same_log10_order_of_magnitude(log([1, 18]))
+    assert not same_log10_order_of_magnitude(log([35, 800]))
+    assert not same_log10_order_of_magnitude(log([32, 730]))
+
+    assert not same_log10_order_of_magnitude(log([1, 9.9]))
+    assert not same_log10_order_of_magnitude(log([35, 91]))
+    assert not same_log10_order_of_magnitude(log([232.3, 950]))
+
+    # delta = 0
+    assert same_log10_order_of_magnitude(log([1, 9.9]), delta=0)
+    assert same_log10_order_of_magnitude(log([35, 91]), delta=0)
+    assert same_log10_order_of_magnitude(log([232.3, 950]), delta=0)
+
+

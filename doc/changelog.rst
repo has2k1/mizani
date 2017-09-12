@@ -8,6 +8,13 @@ v0.3.4
 - Fixed issue where some formatters methods failed if passed empty
   ``breaks`` argument.
 
+- Fixed issue with :func:`~mizani.breaks.log_breaks` where if the
+  limits were with in the same order of magnitude the calculated
+  breaks were always the ends of the order of magnitude.
+
+  Now :python:`log_breaks()((35, 50))` returns ``[35,  40,  45,  50]``
+  as breaks instead of ``[1, 100]``.
+
 
 v0.3.3
 ------

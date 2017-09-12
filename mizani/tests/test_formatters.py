@@ -79,10 +79,13 @@ def test_mpl_format():
 
 def test_log_format():
     formatter = log_format()
-    assert formatter([0.001, 0.1, 100]) == ['0.001', '0.1', '100']
 
-    formatter = log_format()
+    assert formatter([0.001, 0.1, 100]) == ['0.001', '0.1', '100']
     assert formatter([0.001, 0.1, 1000]) == ['1e-3', '1e-1', '1e3']
+    assert formatter([35, 60]) == ['35', '60']
+    assert formatter([34.99999999999, 60.0000000001]) == ['35', '60']
+    assert formatter([1, 35, 60, 1000]) == ['1', '35', '60', '1000']
+    assert formatter([1, 35, 60, 10000]) == ['1', '', '', '1e4']
 
 
 def test_date_format():

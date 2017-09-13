@@ -3,7 +3,7 @@ Changelog
 
 v0.3.4
 ------
-*(not yet released)*
+*(2018-09-12)*
 
 - Fixed issue where some formatters methods failed if passed empty
   ``breaks`` argument.

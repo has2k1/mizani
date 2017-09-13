@@ -167,5 +167,3 @@ def test_same_log10_order_of_magnitude():
     assert same_log10_order_of_magnitude(log([1, 9.9]), delta=0)
     assert same_log10_order_of_magnitude(log([35, 91]), delta=0)
     assert same_log10_order_of_magnitude(log([232.3, 950]), delta=0)
-
-

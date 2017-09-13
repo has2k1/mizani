@@ -1,9 +1,17 @@
 Changelog
 =========
 
+v0.3.5
+------
+*(not-yet-released)*
+
+
 v0.3.4
 ------
 *(2018-09-12)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.890135.svg
+   :target: https://doi.org/10.5281/zenodo.890135
 
 - Fixed issue where some formatters methods failed if passed empty
   ``breaks`` argument.

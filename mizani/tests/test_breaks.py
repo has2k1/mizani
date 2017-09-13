@@ -49,6 +49,15 @@ def test_log_breaks():
     breaks = log_breaks()((float('-inf'), float('inf')))
     assert len(breaks) == 0
 
+    # When the limits are in the same order of magnitude
+    breaks = log_breaks()([35, 60])
+    assert len(breaks) > 0
+    assert all([1 < b < 100 for b in breaks])
+
+    breaks = log_breaks()([200, 800])
+    assert len(breaks) > 0
+    assert all([10 < b < 1000 for b in breaks])
+
 
 def test_minor_breaks():
     # equidistant breaks

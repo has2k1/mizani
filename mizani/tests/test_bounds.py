@@ -166,7 +166,7 @@ def test_expand_range():
 
     # np.datetime64
     one_day = np.datetime64(1, 'D') - np.datetime64(0, 'D')
-    limits = np.datetime64(14610, 'D'),  np.datetime64(14611, 'D')
+    limits = np.datetime64(14610, 'D'), np.datetime64(14611, 'D')
     result = expand_range(limits, add=one_day)
     diff(result) == diff(limits) + 2*one_day
 
@@ -174,7 +174,7 @@ def test_expand_range():
         result = expand_range(limits, mul=0.5, add=one_day)
         diff(result) == 2*diff(limits) + 2*one_day
 
-    limits = np.datetime64(14610, 'D'),  np.datetime64(14611, 'D')
+    limits = np.datetime64(14610, 'D'), np.datetime64(14611, 'D')
     result = expand_range(limits, zero_width=30*one_day)
     diff(result) == diff(limits) + 30*one_day
 
@@ -208,7 +208,7 @@ def test_expand_range():
 
     # timedelta64
     one_day = np.timedelta64(1, unit='D')
-    limits = np.timedelta64(1, 'D'),  np.timedelta64(10, 'D')
+    limits = np.timedelta64(1, 'D'), np.timedelta64(10, 'D')
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 2*one_day
 
@@ -216,7 +216,7 @@ def test_expand_range():
         result = expand_range(limits, mul=0.5, add=one_day)
         diff(result) == 2*diff(limits) + 2*one_day
 
-    limits = np.timedelta64(1, 'D'),  np.timedelta64(1, 'D')
+    limits = np.timedelta64(1, 'D'), np.timedelta64(1, 'D')
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 30*one_day
 

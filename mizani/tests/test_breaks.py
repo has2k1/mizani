@@ -106,7 +106,7 @@ def test_trans_minor_breaks():
     # Transform the input major breaks and check against
     # the inverse of the output minor breaks
     squared_input_minors = square_trans.minor_breaks(
-                np.square(major), np.square(limits))
+        np.square(major), np.square(limits))
     npt.assert_allclose(regular_minors,
                         np.sqrt(squared_input_minors))
 

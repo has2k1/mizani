@@ -12,29 +12,29 @@ DISCRETE_KINDS = 'ObUS'
 CONTINUOUS_KINDS = 'ifuc'
 
 SECONDS = OrderedDict([
-   ('ns', 1e-9),        # nanosecond
-   ('us', 1e-6),        # microsecond
-   ('ms', 1e-3),        # millisecond
-   ('s', 1),            # second
-   ('m', 60),           # month
-   ('h', 3600),         # hour
-   ('d', 24*3600),      # day
-   ('w', 7*24*3600),    # week
-   ('M', 31*24*3600),   # month
-   ('y', 365*24*3600),  # year
+    ('ns', 1e-9),        # nanosecond
+    ('us', 1e-6),        # microsecond
+    ('ms', 1e-3),        # millisecond
+    ('s', 1),            # second
+    ('m', 60),           # month
+    ('h', 3600),         # hour
+    ('d', 24*3600),      # day
+    ('w', 7*24*3600),    # week
+    ('M', 31*24*3600),   # month
+    ('y', 365*24*3600),  # year
 ])
 
 NANOSECONDS = OrderedDict([
-   ('ns', 1),             # nanosecond
-   ('us', 1e3),           # microsecond
-   ('ms', 1e6),           # millisecond
-   ('s', 1e9),            # second
-   ('m', 60e9),           # month
-   ('h', 3600e9),         # hour
-   ('d', 24*3600e9),      # day
-   ('w', 7*24*3600e9),    # week
-   ('M', 31*24*3600e9),   # month
-   ('y', 365*24*3600e9),  # year
+    ('ns', 1),             # nanosecond
+    ('us', 1e3),           # microsecond
+    ('ms', 1e6),           # millisecond
+    ('s', 1e9),            # second
+    ('m', 60e9),           # month
+    ('h', 3600e9),         # hour
+    ('d', 24*3600e9),      # day
+    ('w', 7*24*3600e9),    # week
+    ('M', 31*24*3600e9),   # month
+    ('y', 365*24*3600e9),  # year
 ])
 
 

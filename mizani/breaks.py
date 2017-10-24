@@ -650,8 +650,8 @@ class extended_breaks(object):
         n = len(self.Q)
         i = self.Q_index[q]+1
 
-        if ((lmin % lstep < eps or (lstep - lmin % lstep) < eps)
-                and lmin <= 0 and lmax >= 0):
+        if ((lmin % lstep < eps or (lstep - lmin % lstep) < eps) and
+                lmin <= 0 and lmax >= 0):
             v = 1
         else:
             v = 0

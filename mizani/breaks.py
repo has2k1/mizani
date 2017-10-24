@@ -26,8 +26,7 @@ from .utils import same_log10_order_of_magnitude
 
 __all__ = ['mpl_breaks', 'log_breaks', 'minor_breaks',
            'trans_minor_breaks', 'date_breaks',
-           'timedelta_breaks', 'ExtendedWilkinson',
-           'extended_breaks']
+           'timedelta_breaks', 'extended_breaks']
 
 
 # The break calculations rely on MPL locators to do
@@ -47,20 +46,15 @@ class DateLocator(AutoDateLocator):
         return ticks
 
 
-def mpl_breaks(*args, **kwargs):
+class mpl_breaks(object):
     """
     Compute breaks using MPL's default locator
 
     See :class:`~matplotlib.ticker.MaxNLocator` for the
     parameter descriptions
 
-    Returns
-    -------
-    out : function
-        A function that takes a tuple with the minimum and
-        maximum values and returns a sequence of break points.
-
-
+    Examples
+    --------
     >>> x = range(10)
     >>> limits = (0, 9)
     >>> mpl_breaks()(limits)
@@ -68,21 +62,33 @@ def mpl_breaks(*args, **kwargs):
     >>> mpl_breaks(nbins=2)(limits)
     array([  0.,   5.,  10.])
     """
-    locator = MaxNLocator(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self.locator = MaxNLocator(*args, **kwargs)
 
-    def _mpl_breaks(limits):
+    def __call__(self, limits):
+        """
+        Compute breaks
+
+        Parameters
+        ----------
+        limits : tuple
+            Minimum and maximum values
+
+        Returns
+        -------
+        out : array_like
+            Sequence of breaks points
+        """
         if any(np.isinf(limits)):
             return []
 
         if limits[0] == limits[1]:
             return np.array([limits[0]])
 
-        return locator.tick_values(limits[0], limits[1])
-
-    return _mpl_breaks
+        return self.locator.tick_values(limits[0], limits[1])
 
 
-def log_breaks(n=5, base=10):
+class log_breaks(object):
     """
     Integer breaks on log transformed scales
 
@@ -93,13 +99,8 @@ def log_breaks(n=5, base=10):
     base : int
         Base of logarithm
 
-    Returns
-    -------
-    out : function
-        A function that takes a tuple with the minimum and
-        maximum values and returns a sequence of break points.
-
-
+    Examples
+    --------
     >>> x = np.logspace(3, 7)
     >>> limits = min(x), max(x)
     >>> log_breaks()(limits)
@@ -108,7 +109,27 @@ def log_breaks(n=5, base=10):
     array([   100, 100000])
     """
 
-    def _log_breaks(limits):
+    def __init__(self, n=5, base=10):
+        self.n = n
+        self.base = base
+
+    def __call__(self, limits):
+        """
+        Compute breaks
+
+        Parameters
+        ----------
+        limits : tuple
+            Minimum and maximum values
+
+        Returns
+        -------
+        out : array_like
+            Sequence of breaks points
+        """
+        n = self.n
+        base = self.base
+
         if any(np.isinf(limits)):
             return []
 
@@ -127,10 +148,8 @@ def log_breaks(n=5, base=10):
         dtype = float if (_min < 0) else int
         return base ** np.arange(_min, _max+1, step, dtype=dtype)
 
-    return _log_breaks
 
-
-def minor_breaks(n=1):
+class minor_breaks(object):
     """
     Compute minor breaks
 
@@ -140,18 +159,17 @@ def minor_breaks(n=1):
         Number of minor breaks between the major
         breaks.
 
-    Returns
-    -------
-    out : function
-        Function that computes minor breaks.
-
-
+    Examples
+    --------
     >>> major = [1, 2, 3, 4]
     >>> limits = [0, 5]
     >>> minor_breaks()(major, limits)
     array([ 0.5,  1.5,  2.5,  3.5,  4.5])
     """
-    def _minor_breaks(major, limits=None):
+    def __init__(self, n=1):
+        self.n = n
+
+    def __call__(self, major, limits=None):
         """
         Minor breaks
 
@@ -163,8 +181,16 @@ def minor_breaks(n=1):
             Limits of the scale. If *array_like*, must be
             of size 2. If **None**, then the minimum and
             maximum of the major breaks are used.
+
+        Returns
+        -------
+        out : array_like
+            Minor beraks
         """
+        n = self.n
+
         if len(major) < 2:
+
             return np.array([])
 
         if limits is None:
@@ -191,10 +217,8 @@ def minor_breaks(n=1):
                                (minor <= limits[1]))
         return minor
 
-    return _minor_breaks
 
-
-def trans_minor_breaks(n=1):
+class trans_minor_breaks(object):
     """
     Compute minor breaks for transformed scales
 
@@ -206,31 +230,30 @@ def trans_minor_breaks(n=1):
 
     Parameters
     ----------
+    trans : trans or type
+        Trans object or trans class.
     n : int
         Number of minor breaks between the major
         breaks.
 
-    Returns
-    -------
-    out : classmethod
-        Method for the transform class that
-        computes minor breaks.
-
-
-    >>> from mizani.transforms import sqrt_trans
+    Examples
+    --------
+     >>> from mizani.transforms import sqrt_trans
     >>> major = [1, 2, 3, 4]
     >>> limits = [0, 5]
     >>> sqrt_trans.minor_breaks(major, limits)
     array([ 0.5,  1.5,  2.5,  3.5,  4.5])
     >>> class sqrt_trans2(sqrt_trans):
-    ...     minor_breaks = trans_minor_breaks()
+    ...     pass
+    >>> sqrt_trans2.minor_breaks = trans_minor_breaks(sqrt_trans2)
     >>> sqrt_trans2.minor_breaks(major, limits)
     array([ 1.58113883,  2.54950976,  3.53553391])
     """
-    _minor_breaks = minor_breaks(n)
+    def __init__(self, trans, n=1):
+        self.trans = trans
+        self.n = n
 
-    @classmethod
-    def _trans_minor_breaks(trans, major, limits=None):
+    def __call__(self, major, limits=None):
         """
         Minor breaks for transformed scales
 
@@ -242,43 +265,46 @@ def trans_minor_breaks(n=1):
             Limits of the scale. If *array_like*, must be
             of size 2. If **None**, then the minimum and
             maximum of the major breaks are used.
+
+        Returns
+        -------
+        out : array_like
+            Minor breaks
         """
-        if not trans.dataspace_is_numerical:
+        if not self.trans.dataspace_is_numerical:
             raise TypeError(
-                "trans_minor_breaks can only be used for data"
+                "trans_minor_breaks can only be used for data "
                 "whose format is numerical.")
 
         if limits is None:
             limits = min_max(major)
 
-        major = _extend_trans_breaks(trans, major)
-        major = trans.inverse(major)
-        limits = trans.inverse(limits)
-        minor = _minor_breaks(major, limits)
-        return trans.transform(minor)
+        major = self._extend_breaks(major)
+        major = self.trans.inverse(major)
+        limits = self.trans.inverse(limits)
+        minor = minor_breaks(self.n)(major, limits)
+        return self.trans.transform(minor)
 
-    return _trans_minor_breaks
+    def _extend_breaks(self, major):
+        """
+        Append 2 extra breaks at either end of major
 
-
-def _extend_trans_breaks(trans, major):
-    """
-    Append 2 extra breaks at either end of major
-
-    If breaks of transform space are non-equidistant,
-    :func:`minor_breaks` add minor breaks beyond the first
-    and last major breaks. The solutions is to extend those
-    breaks (in transformed space) before the minor break call
-    is made. How the breaks depends on the type of transform.
-    """
-    trans = trans if isinstance(trans, type) else trans.__class__
-    # so far we are only certain about this extending stuff
-    # making sense for log transform
-    is_log = trans.__name__.startswith('log')
-    diff = np.diff(major)
-    step = diff[0]
-    if is_log and all(diff == step):
-        major = np.hstack([major[0]-step, major, major[-1]+step])
-    return major
+        If breaks of transform space are non-equidistant,
+        :func:`minor_breaks` add minor breaks beyond the first
+        and last major breaks. The solutions is to extend those
+        breaks (in transformed space) before the minor break call
+        is made. How the breaks depends on the type of transform.
+        """
+        trans = self.trans
+        trans = trans if isinstance(trans, type) else trans.__class__
+        # so far we are only certain about this extending stuff
+        # making sense for log transform
+        is_log = trans.__name__.startswith('log')
+        diff = np.diff(major)
+        step = diff[0]
+        if is_log and all(diff == step):
+            major = np.hstack([major[0]-step, major, major[-1]+step])
+        return major
 
 
 # Matplotlib's YearLocator uses different named
@@ -293,7 +319,7 @@ LOCATORS = {
 }
 
 
-def date_breaks(width=None):
+class date_breaks(object):
     """
     Regularly spaced dates
 
@@ -304,14 +330,8 @@ def date_breaks(width=None):
         [minute, hour, day, week, month, year]
         If ``None``, the interval automatic.
 
-    Returns
-    -------
-    out : function
-        A function that takes a tuple of two
-        :class:`datetime.datetime` values and returns
-        a sequence of break points.
-
-
+    Examples
+    --------
     >>> from datetime import datetime
     >>> x = [datetime(year, 1, 1) for year in [2010, 2026, 2015]]
 
@@ -329,29 +349,42 @@ def date_breaks(width=None):
     >>> [d.year for d in breaks(limits)]
     [2008, 2012, 2016, 2020, 2024, 2028]
     """
-    if not width:
-        locator = DateLocator()
-    else:
-        # Parse the width specification
-        # e.g. '10 weeks' => (10, week)
-        _n, units = width.strip().lower().split()
-        interval, units = int(_n), units.rstrip('s')
-        locator = LOCATORS[units](interval=interval)
+    def __init__(self, width=None):
+        if not width:
+            locator = DateLocator()
+        else:
+            # Parse the width specification
+            # e.g. '10 weeks' => (10, week)
+            _n, units = width.strip().lower().split()
+            interval, units = int(_n), units.rstrip('s')
+            locator = LOCATORS[units](interval=interval)
+        self.locator = locator
 
-    def _date_breaks(limits):
+    def __call__(self, limits):
+        """
+        Compute breaks
+
+        Parameters
+        ----------
+        limits : tuple
+            Minimum and maximum :class:`datetime.datetime` values.
+
+        Returns
+        -------
+        out : array_like
+            Sequence of break points.
+        """
         if any(pd.isnull(x) for x in limits):
             return []
 
-        ret = locator.tick_values(*limits)
+        ret = self.locator.tick_values(*limits)
         # MPL returns the tick_values in ordinal format,
         # but we return them in the same space as the
         # inputs.
         return [num2date(val) for val in ret]
 
-    return _date_breaks
 
-
-def timedelta_breaks():
+class timedelta_breaks(object):
     """
     Timedelta breaks
 
@@ -362,7 +395,8 @@ def timedelta_breaks():
         :class:`datetime.timedelta` values and returns
         a sequence of break points.
 
-
+    Examples
+    --------
     >>> from datetime import timedelta
     >>> breaks = timedelta_breaks()
     >>> x = [timedelta(days=i*365) for i in range(25)]
@@ -371,19 +405,31 @@ def timedelta_breaks():
     >>> [val.total_seconds()/(365*24*60*60)for val in major]
     [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
     """
-    _breaks_func = extended_breaks(n=5, Q=[1, 2, 5, 10])
+    def __init__(self, n=5, Q=(1, 2, 5, 10)):
+        self._breaks_func = extended_breaks(n=n, Q=Q)
 
-    def _timedelta_breaks(limits):
+    def __call__(self, limits):
+        """
+        Compute breaks
+
+        Parameters
+        ----------
+        limits : tuple
+            Minimum and maximum :class:`datetime.timedelta` values.
+
+        Returns
+        -------
+        out : array_like
+            Sequence of break points.
+        """
         if any(pd.isnull(x) for x in limits):
             return []
 
         helper = timedelta_helper(limits)
         scaled_limits = helper.scaled_limits()
-        scaled_breaks = _breaks_func(scaled_limits)
+        scaled_breaks = self._breaks_func(scaled_limits)
         breaks = helper.numeric_to_timedelta(scaled_breaks)
         return breaks
-
-    return _timedelta_breaks
 
 
 # This could be cleaned up, state overload?
@@ -531,7 +577,7 @@ class timedelta_helper(object):
             return td.total_seconds()/SECONDS[self.units]
 
 
-class ExtendedWilkinson(object):
+class extended_breaks(object):
     """
     An extension of Wilkinson's tick position algorithm
 
@@ -549,6 +595,13 @@ class ExtendedWilkinson(object):
         (simplicity, coverage, density, and legibility). They
         should add up to 1.
 
+    Examples
+    --------
+    >>> limits = (0, 9)
+    >>> extended_breaks()(limits)
+    array([  0. ,   2.5,   5. ,   7.5,  10. ])
+    >>> extended_breaks(n=6)(limits)
+    array([  0.,   2.,   4.,   6.,   8.,  10.])
 
     References:
         - Talbot, J., Lin, S., Hanrahan, P. (2010) An Extension of
@@ -616,16 +669,14 @@ class ExtendedWilkinson(object):
         # a score. Return 1 ignores all that.
         return 1
 
-    def __call__(self, dmin, dmax):
+    def __call__(self, limits):
         """
         Calculate the breaks
 
         Parameters
         ----------
-        dmin : float
-            Lower limit of the range.
-        dmax : float
-            Upper limit of the range.
+        limits : array
+            Minimum and maximum values.
 
         Returns
         -------
@@ -645,9 +696,12 @@ class ExtendedWilkinson(object):
         log10 = np.log10
         ceil = np.ceil
         floor = np.floor
+        dmin, dmax = limits
 
         if dmin > dmax:
             dmin, dmax = dmax, dmin
+        elif dmin == dmax:
+            return np.array([dmin])
 
         best_score = -2
         j = 1
@@ -710,32 +764,3 @@ class ExtendedWilkinson(object):
         except UnboundLocalError:
             locs = []
         return locs
-
-
-def extended_breaks(*args, **kwargs):
-    """
-    Compute breaks using :class:`ExtendedWilkinson`
-
-    See :class:`~ExtendedWilkinson` for the parameter descriptions
-
-    Returns
-    -------
-    out : function
-        A function that takes a tuple with the minimum and
-        maximum values and returns a sequence of break points.
-
-
-    >>> limits = (0, 9)
-    >>> extended_breaks()(limits)
-    array([  0. ,   2.5,   5. ,   7.5,  10. ])
-    >>> extended_breaks(n=6)(limits)
-    array([  0.,   2.,   4.,   6.,   8.,  10.])
-    """
-    extended = ExtendedWilkinson(*args, **kwargs)
-
-    def _extended_breaks(limits):
-        if limits[0] == limits[1]:
-            return np.array([limits[0]])
-        return extended(*limits)
-
-    return _extended_breaks

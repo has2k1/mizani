@@ -4,3 +4,4 @@
 
 .. automodule:: mizani.breaks
    :members:
+   :special-members: __call__

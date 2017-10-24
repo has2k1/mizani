@@ -81,16 +81,20 @@ def test_minor_breaks():
 
 def test_trans_minor_breaks():
     class identity_trans(trans):
-        minor_breaks = trans_minor_breaks()
+        pass
+
+    identity_trans.minor_breaks = trans_minor_breaks(identity_trans)
 
     class square_trans(trans):
         transform = staticmethod(np.square)
         inverse = staticmethod(np.sqrt)
-        minor_breaks = trans_minor_breaks()
+
+    square_trans.minor_breaks = trans_minor_breaks(square_trans)
 
     class weird_trans(trans):
         dataspace_is_numerical = False
-        minor_breaks = trans_minor_breaks()
+
+    weird_trans.minor_breaks = trans_minor_breaks(weird_trans)
 
     major = [1, 2, 3, 4]
     limits = [0, 5]

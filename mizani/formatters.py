@@ -26,9 +26,9 @@ __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'mpl_format', 'log_format', 'timedelta_format']
 
 
-def custom_format(fmt='{}', style='new'):
+class custom_format(object):
     """
-    Return a function that formats a sequence of inputs
+    Custom format
 
     Parameters
     ----------
@@ -41,32 +41,41 @@ def custom_format(fmt='{}', style='new'):
         style uses ``%``. The format string must be written
         accordingly.
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        values and returns a sequence of strings.
-
-
+    Examples
+    --------
     >>> formatter = custom_format('{:.2f} USD')
     >>> formatter([3.987, 2, 42.42])
     ['3.99 USD', '2.00 USD', '42.42 USD']
     """
-    def _custom_format(x):
-        if style == 'new':
-            return [fmt.format(val) for val in x]
-        elif style == 'old':
-            return [fmt % val for val in x]
+    def __init__(self, fmt='{}', style='new'):
+        self.fmt = fmt
+        self.style = style
+
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
+        if self.style == 'new':
+            return [self.fmt.format(val) for val in x]
+        elif self.style == 'old':
+            return [self.fmt % val for val in x]
         else:
             raise ValueError(
                 "style should be either 'new' or 'old'")
 
-    return _custom_format
-
 
 # formatting functions
-def currency_format(prefix='$', suffix='',
-                    digits=2, big_mark=''):
+class currency_format(object):
     """
     Currency formatter
 
@@ -82,39 +91,51 @@ def currency_format(prefix='$', suffix='',
         The thousands separator. This is usually
         a comma or a dot.
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        numerical values and and returns a sequence
-        of strings.
-
-
+    Examples
+    --------
     >>> x = [1.232, 99.2334, 4.6, 9, 4500]
     >>> currency_format()(x)
     ['$1.23', '$99.23', '$4.60', '$9.00', '$4500.00']
     >>> currency_format('C$', digits=0, big_mark=',')(x)
     ['C$1', 'C$99', 'C$5', 'C$9', 'C$4,500']
     """
-    # create {:.2f} or {:,.2f}
-    bm = ',' if big_mark else ''
-    tpl = ''.join((prefix, '{:', bm, '.',
-                   str(digits), 'f}', suffix))
+    def __init__(self, prefix='$', suffix='', digits=2, big_mark=''):
+        self.prefix = prefix
+        self.suffix = suffix
+        self.digits = digits
+        self.big_mark = big_mark
 
-    def _currency_format(x):
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
+        # create {:.2f} or {:,.2f}
+        big_mark = self.big_mark
+        comma = ',' if big_mark else ''
+        tpl = ''.join((self.prefix, '{:', comma, '.',
+                       str(self.digits), 'f}', self.suffix))
+
         labels = [tpl.format(val) for val in x]
         if big_mark and big_mark != ',':
             labels = [val.replace(',', big_mark) for val in labels]
         return labels
-
-    return _currency_format
 
 
 dollar_format = currency_format
 dollar = dollar_format()
 
 
-def comma_format(digits=0):
+class comma_format(object):
     """
     Format number with commas separating thousands
 
@@ -123,52 +144,69 @@ def comma_format(digits=0):
     digits : int
         Number of digits after the decimal point.
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        numerical values and and returns a sequence
-        of strings.
-
-
+    Examples
+    --------
     >>> comma_format()([1000, 2, 33000, 400])
     ['1,000', '2', '33,000', '400']
     """
-    formatter = currency_format(prefix='',
-                                digits=digits,
-                                big_mark=',')
+    def __init__(self, digits=0):
+        self.formatter = currency_format(
+            prefix='', digits=digits, big_mark=',')
 
-    def _comma_format(x):
-        return formatter(x)
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
 
-    return _comma_format
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
+        return self.formatter(x)
 
 
-def percent_format(use_comma=False):
+class percent_format(object):
     """
     Percent formatter
 
     Multiply by one hundred and display percent sign
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        numerical values and and returns a sequence
-        of strings.
+    Parameters
+    ----------
+    use_comma : bool
+        If True, use a comma to separate the thousands.
+        Default is False.
 
-
+    Examples
+    --------
     >>> formatter = percent_format()
     >>> formatter([.45, 9.515, .01])
     ['45%', '952%', '1%']
     >>> formatter([.654, .8963, .1])
     ['65.4%', '89.6%', '10.0%']
     """
-    # unnecessary zeros
-    zeros_re = re.compile('\.0+%$')
-    big_mark = ',' if use_comma else ''
+    def __init__(self, use_comma=False):
+        self.big_mark = ',' if use_comma else ''
 
-    def _percent_format(x):
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
         if len(x) == 0:
             return []
 
@@ -184,20 +222,19 @@ def percent_format(use_comma=False):
         formatter = currency_format(prefix='',
                                     suffix='%',
                                     digits=digits,
-                                    big_mark=big_mark)
+                                    big_mark=self.big_mark)
         labels = formatter(x)
         # Remove unnecessary zeros after the decimal
-        if all(zeros_re.search(val) for val in labels):
-            labels = [zeros_re.sub('%', val) for val in labels]
+        pattern = re.compile(r'\.0+%$')
+        if all(pattern.search(val) for val in labels):
+            labels = [pattern.sub('%', val) for val in labels]
         return labels
-
-    return _percent_format
 
 
 percent = percent_format()
 
 
-def scientific_format(digits=3):
+class scientific_format(object):
     """
     Scientific formatter
 
@@ -206,13 +243,8 @@ def scientific_format(digits=3):
     digits : int
         Significant digits.
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        values and returns a sequence of strings.
-
-
+    Examples
+    --------
     >>> x = [.12, .23, .34, 45]
     >>> scientific_format()(x)
     ['1.2e-01', '2.3e-01', '3.4e-01', '4.5e+01']
@@ -224,29 +256,29 @@ def scientific_format(digits=3):
 
     .. _machine epsilon: https://en.wikipedia.org/wiki/Machine_epsilon
     """
-    zeros_re = re.compile(r'(0+)e')
-    tpl = ''.join(['{:.', str(digits), 'e}'])
-    formatter = custom_format(tpl)
+    def __init__(self, digits=3):
+        tpl = ''.join(['{:.', str(digits), 'e}'])
+        self.formatter = custom_format(tpl)
 
-    def count_zeros(s):
-        match = zeros_re.search(s)
-        if match:
-            return len(match.group(1))
-        else:
-            return 0
-
-    def _scientific_format(x):
+    def __call__(self, x):
         if len(x) == 0:
             return []
 
+        zeros_re = re.compile(r'(0+)e')
+
+        def count_zeros(s):
+            match = zeros_re.search(s)
+            if match:
+                return len(match.group(1))
+            else:
+                return 0
+
         # format and then remove superfluous zeros
-        labels = formatter(x)
+        labels = self.formatter(x)
         n = min([count_zeros(val) for val in labels])
         if n:
             labels = [val.replace('0'*n+'e', 'e') for val in labels]
         return labels
-
-    return _scientific_format
 
 
 scientific = scientific_format()
@@ -269,9 +301,9 @@ def _format(formatter, x):
     # Remove unnecessary decimals
     pattern = re.compile(r'\.0+$')
     for i, label in enumerate(labels):
-        match = re.search(pattern, label)
+        match = pattern.search(label)
         if match:
-            labels[i] = re.sub(pattern, '', label)
+            labels[i] = pattern.sub('', label)
 
     # MPL does not add the exponential component
     if oom:
@@ -280,56 +312,61 @@ def _format(formatter, x):
     return labels
 
 
-def mpl_format():
+class mpl_format(object):
     """
     Format using MPL formatter for scalars
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        values and returns a sequence of strings.
-
-
+    Examples
+    --------
     >>> mpl_format()([.654, .8963, .1])
     ['0.6540', '0.8963', '0.1000']
     """
-    formatter = ScalarFormatter(useOffset=False)
+    def __init__(self):
+        self.formatter = ScalarFormatter(useOffset=False)
 
-    def _mpl_format(x):
-        return _format(formatter, x)
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
 
-    return _mpl_format
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
+        return _format(self.formatter, x)
 
 
-def log_format(base=10, exponent_threshold=5):
+class log_format(object):
     """
     Log Formatter
 
     Parameters
     ----------
     base : int
-        Base of the logarithm
+        Base of the logarithm. Default is 10.
     exponent_threshold : int
         Difference between the minimum and maximum values
         of the data beyond which exponent notation will
-        be used.
+        be used. Default is 5.
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        values and returns a sequence of strings.
-
-
+    Examples
+    --------
     >>> log_format()([0.001, 0.1, 100])
     ['0.001', '0.1', '100']
 
     >>> log_format()([0.001, 0.1, 1000])
     ['1e-3', '1e-1', '1e3']
     """
+    def __init__(self, base=10, exponent_threshold=5):
+        self.base = base
+        self.exponent_threshold = exponent_threshold
 
-    def _num_to_string(x, use_exponent):
+    def _num_to_string(self, x, use_exponent):
         """
         Parameters
         ----------
@@ -345,7 +382,9 @@ def log_format(base=10, exponent_threshold=5):
 
         s = fmt.format(x)
 
-        # Tidy up
+        # Tidy up, remove unnecessary +ve signs
+        # e.g 1e+00 -> 1
+        #     1e+3 -> 1e3
         if use_exponent:
             tup = s.split('e')
             if len(tup) == 2:
@@ -355,15 +394,23 @@ def log_format(base=10, exponent_threshold=5):
                     s = '%se%d' % (mantissa, exponent)
                 else:
                     s = mantissa
-            else:
-                s = s.rstrip('0').rstrip('.')
         return s
 
-    def _format_num(x, use_exponent):
+    def _format_num(self, x, use_exponent):
         """
         Return the format for tick val `x`.
 
-        Pararm
+        Parameters
+        ----------
+        x : float
+            Number to format
+        use_exponent : bool
+            If True, used exponent notation.
+
+        Returns
+        -------
+        out : str
+            Formatted number.
         """
         if x == 0.0:  # Symlog
             return '0'
@@ -371,42 +418,53 @@ def log_format(base=10, exponent_threshold=5):
         x = abs(x)
 
         # only label the decades
-        if base == 10 and use_exponent:
-            fx = np.log(x) / np.log(base)
+        if self.base == 10 and use_exponent:
+            fx = np.log(x) / np.log(self.base)
             is_x_decade = is_close_to_int(fx)
 
             if not is_x_decade:
                 return ''
 
-        s = _num_to_string(x, use_exponent)
+        s = self._num_to_string(x, use_exponent)
         return (s)
 
-    def _log_format(x):
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
         if len(x) == 0:
             return []
 
         # Decide on using exponents
-        if base == 10:
+        if self.base == 10:
             # Order of magnitude of the minimum and maximum
-            dmin = np.log(np.min(x))/np.log(base)
-            dmax = np.log(np.max(x))/np.log(base)
+            dmin = np.log(np.min(x))/np.log(self.base)
+            dmax = np.log(np.max(x))/np.log(self.base)
             if same_log10_order_of_magnitude((dmin, dmax)):
                 return mpl_format()(x)
 
             has_small_number = dmin < -3
             has_large_number = dmax > 3
-            has_large_range = (dmax - dmin) > 5
+            has_large_range = (dmax - dmin) > self.exponent_threshold
             use_exponent = (has_small_number or
                             has_large_number or
                             has_large_range)
         else:
             use_exponent = False
-        return [_format_num(num, use_exponent) for num in x]
-
-    return _log_format
+        return [self._format_num(num, use_exponent) for num in x]
 
 
-def date_format(fmt='%Y-%m-%d'):
+class date_format(object):
     """
     Datetime formatter
 
@@ -416,13 +474,8 @@ def date_format(fmt='%Y-%m-%d'):
         Format string. See
         :ref:`strftime <strftime-strptime-behavior>`.
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        values and returns a sequence of strings.
-
-
+    Examples
+    --------
     >>> from datetime import datetime
     >>> x = [datetime(x, 1, 1) for x in [2010, 2014, 2018, 2022]]
     >>> date_format()(x)
@@ -430,39 +483,72 @@ def date_format(fmt='%Y-%m-%d'):
     >>> date_format('%Y')(x)
     ['2010', '2014', '2018', '2022']
     """
-    formatter = DateFormatter(fmt)
+    def __init__(self, fmt='%Y-%m-%d'):
+        self.formatter = DateFormatter(fmt)
 
-    def _date_format(x):
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Return
+        ------
+        out : list
+            List of strings.
+        """
         # The formatter is tied to axes and takes
         # breaks in ordinal format.
         x = [val.toordinal() for val in x]
-        return _format(formatter, x)
-
-    return _date_format
+        return _format(self.formatter, x)
 
 
-def timedelta_format(units=None, add_units=True, usetex=False):
+class timedelta_format(object):
     """
     Timedelta formatter
 
-    Returns
-    -------
-    out : function
-        Formatting function. It takes a sequence of
-        timedelta values and returns a sequence of
-        strings.
+    Parameters
+    ----------
+    units : str, optional
+        The units in which the breaks will be computed.
+        If None, they are decided automatically. Otherwise,
+        the value should be one of::
 
+            'ns'    # nanoseconds
+            'us'    # microseconds
+            'ms'    # milliseconds
+            's'     # secondss
+            'm'     # minute
+            'h'     # hour
+            'd'     # day
+            'w'     # week
+            'M'     # month
+            'y'     # year
 
+    add_units : bool
+        Whether to append the units identifier string
+        to the values.
+    usetext : bool
+        If True, they microseconds identifier string is
+        rendered with greek letter *mu*. Default is False.
+
+    Examples
+    --------
     >>> from datetime import timedelta
     >>> x = [timedelta(days=31*i) for i in range(5)]
     >>> timedelta_format()(x)
     ['0', '1 month', '2 months', '3 months', '4 months']
     >>> timedelta_format(units='d')(x)
     ['0', '31 days', '62 days', '93 days', '124 days']
+    >>> timedelta_format(units='d', add_units=False)(x)
+    ['0', '31', '62', '93', '124']
     """
     abbreviations = {
         'ns': 'ns',
-        'us': '$\mu s$' if usetex else 'us',
+        'us': 'us',
         'ms': 'ms',
         's': 's',
         'm': ' minute',
@@ -471,17 +557,27 @@ def timedelta_format(units=None, add_units=True, usetex=False):
         'w': ' week',
         'M': ' month',
         'y': ' year'}
-    _mpl_format = mpl_format()
 
-    def _timedelta_format(x):
+    def __init__(self, units=None, add_units=True, usetex=False):
+        self.units = units
+        self.add_units = add_units
+        self.usetex = usetex
+        self._mpl_format = mpl_format()
+
+    def __call__(self, x):
         if len(x) == 0:
             return []
 
         labels = []
-        values, _units = timedelta_helper.format_info(x, units)
+        values, _units = timedelta_helper.format_info(x, self.units)
         plural = '' if _units.endswith('s') else 's'
-        ulabel = abbreviations[_units]
-        _labels = _mpl_format(values)
+        ulabel = self.abbreviations[_units]
+        if ulabel == 'us' and self.usetex:
+            ulabel = '$\mu s$'
+        _labels = self._mpl_format(values)
+
+        if not self.add_units:
+            return _labels
 
         for num, num_label in zip(values, _labels):
             s = '' if num == 1 else plural
@@ -490,5 +586,3 @@ def timedelta_format(units=None, add_units=True, usetex=False):
             labels.append(''.join([num_label, _ulabel]))
 
         return labels
-
-    return _timedelta_format

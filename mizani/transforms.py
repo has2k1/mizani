@@ -20,7 +20,7 @@ plot. The :class:`trans` is aimed at being useful for *scale* and
 """
 from __future__ import division
 import sys
-from types import FunctionType
+from types import FunctionType, MethodType
 
 import numpy as np
 import pandas as pd
@@ -170,7 +170,7 @@ def trans_new(name, transform, inverse, breaks=None,
         Transform class
     """
     def _get(func):
-        if isinstance(func, (classmethod, staticmethod)):
+        if isinstance(func, (classmethod, staticmethod, MethodType)):
             return func
         else:
             return staticmethod(func)
@@ -243,12 +243,14 @@ def log_trans(base=None, **kwargs):
     if 'breaks' not in kwargs:
         kwargs['breaks'] = log_breaks(base=base)
 
-    if 'minor_breaks' not in kwargs:
-        kwargs['minor_breaks'] = trans_minor_breaks(4)
-
     kwargs['_format'] = log_format(base)
-    return trans_new(name, transform, inverse,
-                     **kwargs)
+
+    _trans = trans_new(name, transform, inverse, **kwargs)
+
+    if 'minor_breaks' not in kwargs:
+        _trans.minor_breaks = trans_minor_breaks(_trans, 4)
+
+    return _trans
 
 
 log10_trans = log_trans(10, doc='Log 10 Transformation')

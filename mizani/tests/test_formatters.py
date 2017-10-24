@@ -87,6 +87,12 @@ def test_log_format():
     assert formatter([1, 35, 60, 1000]) == ['1', '35', '60', '1000']
     assert formatter([1, 35, 60, 10000]) == ['1', '', '', '1e4']
 
+    formatter = log_format()
+    assert formatter([1, 35, 60, 10000]) == ['1', '', '', '1e4']
+
+    formatter = log_format(base=2)
+    assert formatter([1, 10, 11, 1011]) == ['1', '10', '11', '1011']
+
 
 def test_date_format():
     x = pd.date_range('1/1/2010', periods=4, freq='4AS')
@@ -114,6 +120,11 @@ def test_timedelta_format():
     assert labels == \
         ['0', '0.1667 hours', '0.3333 hours', '0.5000 hours',
          '0.6667 hours']
+    # usetex
+    x = [timedelta(microseconds=7*i) for i in range(5)]
+    labels = timedelta_format(units='us', usetex=True)(x)
+    assert labels == \
+        ['0', '7$\\mu s$', '14$\\mu s$', '21$\\mu s$', '28$\\mu s$']
 
 
 def test_empty_breaks():

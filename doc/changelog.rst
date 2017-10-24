@@ -1,9 +1,19 @@
 Changelog
 =========
 
-v0.3.5
+v0.4.0
 ------
 *(not-yet-released)*
+
+API Changes
+***********
+- Breaks and formatter generating functions have been converted to
+  classes, with a ``__call__`` method. How they are used has not
+  changed, but this makes them move flexible.
+
+- ``ExtendedWilkson`` class has been removed.
+  :func:`~mizani.breaks.extended_breaks` now contains the implementation
+  of the break calculating algorithm.
 
 
 v0.3.4

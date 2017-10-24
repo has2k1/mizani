@@ -52,6 +52,8 @@ def test_scale_discrete():
     assert limits == ['a', 'b', 'c', 'd']
     limits = scale_discrete.train([], limits)
     assert limits == ['a', 'b', 'c', 'd']
+    limits = scale_discrete.train([None, 'e'], limits)
+    assert limits == ['a', 'b', 'c', 'd', None, 'e']
 
     # branches #
 

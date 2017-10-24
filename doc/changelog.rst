@@ -1,9 +1,15 @@
 Changelog
 =========
 
+v0.4.1
+------
+*not-yet-released*
+
 v0.4.0
 ------
-*2017-10-24*
+*(2017-10-24)*
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1035809.svg
+   :target: https://doi.org/10.5281/zenodo.1035809
 
 API Changes
 ***********
@@ -18,7 +24,7 @@ API Changes
 
 v0.3.4
 ------
-*(2018-09-12)*
+*(2017-09-12)*
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.890135.svg
    :target: https://doi.org/10.5281/zenodo.890135

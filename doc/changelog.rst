@@ -1,9 +1,15 @@
 Changelog
 =========
 
+v0.4.2
+------
+*(not-yet-released)*
+
 v0.4.1
 ------
 *2017-11-04*
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1041981.svg
+   :target: https://doi.org/10.5281/zenodo.1041981
 
 - :class:`~mizani.transforms.trans` objects can now be instantiated
   with parameter to override attributes of the instance. And the

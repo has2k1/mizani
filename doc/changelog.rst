@@ -3,7 +3,7 @@ Changelog
 
 v0.4.1
 ------
-*not-yet-released*
+*2017-11-04*
 
 - :class:`~mizani.transforms.trans` objects can now be instantiated
   with parameter to override attributes of the instance. And the

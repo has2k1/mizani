@@ -56,6 +56,27 @@ class trans(object):
     and :meth:`trans.inverse`. Alternately, you can quickly
     create a transform class using the :func:`trans_new`
     function.
+
+    Parameters
+    ---------
+    kwargs : dict
+        Attributes of the class to set/override
+
+    Examples
+    --------
+    By default trans returns one minor break between every pair
+    of major break
+
+    >>> major = [0, 1, 2]
+    >>> t = trans()
+    >>> t.minor_breaks(major)
+    array([ 0.5,  1.5])
+
+    Create a trans that returns 4 minor breaks
+
+    >>> t = trans(minor_breaks=minor_breaks(4))
+    >>> t.minor_breaks(major)
+    array([ 0.2,  0.4,  0.6,  0.8,  1.2,  1.4,  1.6,  1.8])
     """
     #: Aesthetic that the transform works on
     aesthetic = None
@@ -66,14 +87,29 @@ class trans(object):
     #: Limits of the transformed data
     domain = (-np.inf, np.inf)
 
-    #: Function to calculate breaks
-    breaks_ = staticmethod(extended_breaks(n=5))
+    #: Callable to calculate breaks
+    breaks_ = None
 
-    #: Function to calculate minor_breaks
-    minor_breaks = staticmethod(minor_breaks(1))
+    #: Callable to calculate minor_breaks
+    minor_breaks = None
 
     #: Function to format breaks
     format = staticmethod(mpl_format())
+
+    def __init__(self, **kwargs):
+        for attr in kwargs:
+            if hasattr(self, attr):
+                setattr(self, attr, kwargs[attr])
+            else:
+                raise KeyError(
+                    "Unknown Parameter {!r}".format(attr))
+
+        # Defaults
+        if 'breaks_' not in kwargs:
+            self.breaks_ = extended_breaks(n=5)
+
+        if 'minor_breaks' not in kwargs:
+            self.minor_breaks = minor_breaks(1)
 
     @staticmethod
     def transform(x):
@@ -89,8 +125,7 @@ class trans(object):
         """
         return x
 
-    @classmethod
-    def breaks(cls, limits):
+    def breaks(self, limits):
         """
         Calculate breaks in data space and return them
         in transformed space.
@@ -120,15 +155,15 @@ class trans(object):
         """
         # clip the breaks to the domain,
         # e.g. probabilities will be in [0, 1] domain
-        vmin = np.max([cls.domain[0], limits[0]])
-        vmax = np.min([cls.domain[1], limits[1]])
-        breaks = np.asarray(cls.breaks_([vmin, vmax]))
+        vmin = np.max([self.domain[0], limits[0]])
+        vmax = np.min([self.domain[1], limits[1]])
+        breaks = np.asarray(self.breaks_([vmin, vmax]))
 
         # Some methods(mpl_breaks, extended_breaks) that
         # calculate breaks take the limits as guide posts and
         # not hard limits.
-        breaks = breaks.compress((breaks >= cls.domain[0]) &
-                                 (breaks <= cls.domain[1]))
+        breaks = breaks.compress((breaks >= self.domain[0]) &
+                                 (breaks <= self.domain[1]))
         return breaks
 
 

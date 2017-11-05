@@ -10,6 +10,7 @@ import six
 
 from mizani.breaks import mpl_breaks, minor_breaks
 from mizani.transforms import (
+    trans,
     asn_trans, atanh_trans, boxcox_trans, datetime_trans,
     exp_trans, identity_trans, log10_trans, log1p_trans,
     log2_trans, log_trans, probability_trans, reverse_trans,
@@ -17,6 +18,11 @@ from mizani.transforms import (
     gettrans)
 
 arr = np.arange(1, 100)
+
+
+def test_trans():
+    with pytest.raises(KeyError):
+        trans(universe=True)
 
 
 def test_trans_new():
@@ -36,7 +42,7 @@ def test_trans_new():
     assert t.__doc__ == 'Bounded Identity transform'
 
     # ticks do not go beyond the bounds
-    major = t.breaks((-1999, 1999))
+    major = t().breaks((-1999, 1999))
     assert min(major) >= -999
     assert max(major) <= 999
 

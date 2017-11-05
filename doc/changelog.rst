@@ -5,6 +5,12 @@ v0.4.1
 ------
 *not-yet-released*
 
+- :class:`~mizani.transforms.trans` objects can now be instantiated
+  with parameter to override attributes of the instance. And the
+  default methods for computing breaks and minor breaks on the
+  transform instance are not class attributes, so they can be
+  modified without global repercussions.
+
 v0.4.0
 ------
 *(2017-10-24)*

@@ -241,12 +241,12 @@ class trans_minor_breaks(object):
      >>> from mizani.transforms import sqrt_trans
     >>> major = [1, 2, 3, 4]
     >>> limits = [0, 5]
-    >>> sqrt_trans.minor_breaks(major, limits)
+    >>> sqrt_trans().minor_breaks(major, limits)
     array([ 0.5,  1.5,  2.5,  3.5,  4.5])
     >>> class sqrt_trans2(sqrt_trans):
-    ...     pass
-    >>> sqrt_trans2.minor_breaks = trans_minor_breaks(sqrt_trans2)
-    >>> sqrt_trans2.minor_breaks(major, limits)
+    ...     def __init__(self):
+    ...         self.minor_breaks = trans_minor_breaks(sqrt_trans2)
+    >>> sqrt_trans2().minor_breaks(major, limits)
     array([ 1.58113883,  2.54950976,  3.53553391])
     """
     def __init__(self, trans, n=1):

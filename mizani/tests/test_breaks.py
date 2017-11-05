@@ -81,31 +81,32 @@ def test_minor_breaks():
 
 def test_trans_minor_breaks():
     class identity_trans(trans):
-        pass
-
-    identity_trans.minor_breaks = trans_minor_breaks(identity_trans)
+        def __init__(self):
+            self.minor_breaks = trans_minor_breaks(identity_trans)
 
     class square_trans(trans):
         transform = staticmethod(np.square)
         inverse = staticmethod(np.sqrt)
 
-    square_trans.minor_breaks = trans_minor_breaks(square_trans)
+        def __init__(self):
+            self.minor_breaks = trans_minor_breaks(square_trans)
 
     class weird_trans(trans):
         dataspace_is_numerical = False
 
-    weird_trans.minor_breaks = trans_minor_breaks(weird_trans)
+        def __init__(self):
+            self.minor_breaks = trans_minor_breaks(weird_trans)
 
     major = [1, 2, 3, 4]
     limits = [0, 5]
-    regular_minors = trans.minor_breaks(major, limits)
+    regular_minors = trans().minor_breaks(major, limits)
     npt.assert_allclose(
         regular_minors,
-        identity_trans.minor_breaks(major, limits))
+        identity_trans().minor_breaks(major, limits))
 
     # Transform the input major breaks and check against
     # the inverse of the output minor breaks
-    squared_input_minors = square_trans.minor_breaks(
+    squared_input_minors = square_trans().minor_breaks(
         np.square(major), np.square(limits))
     npt.assert_allclose(regular_minors,
                         np.sqrt(squared_input_minors))

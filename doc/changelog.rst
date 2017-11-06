@@ -1,9 +1,15 @@
 Changelog
 =========
 
+v0.4.3
+------
+*(not-yet-released)*
+
 v0.4.2
 ------
 *(2017-11-06)*
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1042715.svg
+   :target: https://doi.org/10.5281/zenodo.1042715
 
 - Fixed (regression) break calculation for the non ordinal transforms.
 

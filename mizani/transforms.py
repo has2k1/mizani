@@ -41,7 +41,7 @@ __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
            'log10_trans', 'log1p_trans', 'log2_trans',
            'log_trans', 'logit_trans', 'probability_trans',
            'probit_trans', 'reverse_trans', 'sqrt_trans',
-           'timedelta_trans', 'timedelta_trans',
+           'timedelta_trans', 'pd_timedelta_trans',
            'trans', 'trans_new', 'gettrans']
 
 
@@ -105,10 +105,12 @@ class trans(object):
                     "Unknown Parameter {!r}".format(attr))
 
         # Defaults
-        if 'breaks_' not in kwargs:
+        if (self.breaks_ is None and
+                'breaks_' not in kwargs):
             self.breaks_ = extended_breaks(n=5)
 
-        if 'minor_breaks' not in kwargs:
+        if (self.minor_breaks is None and
+                'minor_breaks' not in kwargs):
             self.minor_breaks = minor_breaks(1)
 
     @staticmethod

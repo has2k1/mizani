@@ -8,6 +8,9 @@ v0.4.3
 - Changed :class:`~mizani.breaks.date_breaks` to have more variety
   in the spacing between the breaks.
 
+- Fixed :class:`~mizani.formatters.date_format` to respect time part
+  of the date (:issue:`7`).
+
 v0.4.2
 ------
 *(2017-11-06)*

@@ -13,7 +13,7 @@ from __future__ import division
 import re
 
 import numpy as np
-from matplotlib.dates import DateFormatter
+from matplotlib.dates import DateFormatter, date2num
 from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
@@ -482,6 +482,12 @@ class date_format(object):
     ['2010-01-01', '2014-01-01', '2018-01-01', '2022-01-01']
     >>> date_format('%Y')(x)
     ['2010', '2014', '2018', '2022']
+
+    Can format Time
+
+    >>> x = [datetime(2017, 12, 1, 16, 5, 7)]
+    >>> date_format("%Y-%m-%d %H:%M:%S")(x)
+    ['2017-12-01 16:05:07']
     """
     def __init__(self, fmt='%Y-%m-%d'):
         self.formatter = DateFormatter(fmt)
@@ -502,7 +508,7 @@ class date_format(object):
         """
         # The formatter is tied to axes and takes
         # breaks in ordinal format.
-        x = [val.toordinal() for val in x]
+        x = [date2num(val) for val in x]
         return _format(self.formatter, x)
 
 

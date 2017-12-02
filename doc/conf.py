@@ -50,6 +50,7 @@ needs_sphinx = '1.6.1'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
+    'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
@@ -336,6 +337,9 @@ intersphinx_mapping = {
 autodoc_member_order = 'bysource'
 autosummary_generate = True
 
+extlinks = {
+    'issue': ('https://github.com/has2k1/mizani/issues/%s', 'GH')
+}
 
 def setup(app):
     app.add_javascript('copybutton.js')

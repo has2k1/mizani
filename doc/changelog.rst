@@ -3,7 +3,7 @@ Changelog
 
 v0.4.3
 ------
-*(not-yet-released)*
+*(2017-12-01)*
 
 - Changed :class:`~mizani.breaks.date_breaks` to have more variety
   in the spacing between the breaks.
@@ -14,6 +14,7 @@ v0.4.3
 v0.4.2
 ------
 *(2017-11-06)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1042715.svg
    :target: https://doi.org/10.5281/zenodo.1042715
 
@@ -23,6 +24,7 @@ v0.4.2
 v0.4.1
 ------
 *(2017-11-04)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1041981.svg
    :target: https://doi.org/10.5281/zenodo.1041981
 
@@ -35,6 +37,7 @@ v0.4.1
 v0.4.0
 ------
 *(2017-10-24)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1035809.svg
    :target: https://doi.org/10.5281/zenodo.1035809
 

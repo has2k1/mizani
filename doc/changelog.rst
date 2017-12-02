@@ -1,9 +1,16 @@
 Changelog
 =========
 
+v0.4.4
+------
+*(not-yet-released)*
+
 v0.4.3
 ------
 *(2017-12-01)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1069571.svg
+   :target: https://doi.org/10.5281/zenodo.1069571
 
 - Changed :class:`~mizani.breaks.date_breaks` to have more variety
   in the spacing between the breaks.

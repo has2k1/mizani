@@ -38,10 +38,16 @@ class DateLocator(AutoDateLocator):
     def __init__(self):
         AutoDateLocator.__init__(self, minticks=5,
                                  interval_multiples=True)
-        self.intervald[YEARLY] = [5, 50]
+        # Remove 4 and 400
+        self.intervald[YEARLY] = [
+            1, 2, 5, 10, 20, 50, 100, 200, 500,
+            1000, 2000, 5000, 10000]
         self.create_dummy_axis()
 
     def tick_values(self, vmin, vmax):
+        # get locator
+        # if yearlocator
+        # change the vmin to turn of decade or half-decade
         ticks = AutoDateLocator.tick_values(self, vmin, vmax)
         return ticks
 
@@ -341,7 +347,7 @@ class date_breaks(object):
     >>> limits = min(x), max(x)
     >>> breaks = date_breaks()
     >>> [d.year for d in breaks(limits)]
-    [2014, 2019, 2024]
+    [2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
 
     Breaks at 4 year intervals
 

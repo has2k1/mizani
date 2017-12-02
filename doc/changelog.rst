@@ -5,6 +5,9 @@ v0.4.3
 ------
 *(not-yet-released)*
 
+- Changed :class:`~mizani.breaks.date_breaks` to have more variety
+  in the spacing between the breaks.
+
 v0.4.2
 ------
 *(2017-11-06)*

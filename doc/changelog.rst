@@ -5,6 +5,9 @@ v0.4.4
 ------
 *(not-yet-released)*
 
+- Fixed :class:`~mizani.formatters.date_format` to respect the timezones
+  of the dates (:issue:`8`).
+
 v0.4.3
 ------
 *(2017-12-01)*

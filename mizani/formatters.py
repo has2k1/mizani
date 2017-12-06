@@ -11,6 +11,7 @@ representation of a value helps improve readability of the guide.
 """
 from __future__ import division
 import re
+from warnings import warn
 
 import numpy as np
 from matplotlib.dates import DateFormatter, date2num
@@ -473,9 +474,15 @@ class date_format(object):
     fmt : str
         Format string. See
         :ref:`strftime <strftime-strptime-behavior>`.
+    tz : datetime.tzinfo, optional
+        Time zone information. If none is specified, the
+        time zone will be that of the first date. If the
+        first date has no time information then a time zone
+        is chosen by other means.
 
     Examples
     --------
+    >>> import pytz
     >>> from datetime import datetime
     >>> x = [datetime(x, 1, 1) for x in [2010, 2014, 2018, 2022]]
     >>> date_format()(x)
@@ -483,14 +490,31 @@ class date_format(object):
     >>> date_format('%Y')(x)
     ['2010', '2014', '2018', '2022']
 
-    Can format Time
+    Can format time
 
     >>> x = [datetime(2017, 12, 1, 16, 5, 7)]
     >>> date_format("%Y-%m-%d %H:%M:%S")(x)
     ['2017-12-01 16:05:07']
+
+    Time zones are respected
+
+    >>> utc = pytz.timezone('UTC')
+    >>> ug = pytz.timezone('Africa/Kampala')
+    >>> x = [datetime(2010, 1, 1, i) for i in [8, 15]]
+    >>> x_tz = [datetime(2010, 1, 1, i, tzinfo=ug) for i in [8, 15]]
+    >>> date_format('%Y-%m-%d %H:%M')(x)
+    ['2010-01-01 08:00', '2010-01-01 15:00']
+    >>> date_format('%Y-%m-%d %H:%M')(x_tz)
+    ['2010-01-01 08:33', '2010-01-01 15:33']
+
+    Format with a specific time zone
+
+    >>> date_format('%Y-%m-%d %H:%M', tz=utc)(x_tz)
+    ['2010-01-01 05:33', '2010-01-01 12:33']
     """
-    def __init__(self, fmt='%Y-%m-%d'):
-        self.formatter = DateFormatter(fmt)
+    def __init__(self, fmt='%Y-%m-%d', tz=None):
+        self.formatter = DateFormatter(fmt, tz=tz)
+        self.tz = tz
 
     def __call__(self, x):
         """
@@ -506,6 +530,17 @@ class date_format(object):
         out : list
             List of strings.
         """
+        # Formatter timezone
+        if self.tz is None and len(x):
+            tz = self.formatter.tz = x[0].tzinfo
+
+            if not all(value.tzinfo == tz for value in x):
+                msg = ("Dates have different time zones. "
+                       "Choosen `{}` the time zone of the first date. "
+                       "To use a different time zone, create a "
+                       "formatter and pass the time zone.")
+                warn(msg.format(tz.zone))
+
         # The formatter is tied to axes and takes
         # breaks in ordinal format.
         x = [date2num(val) for val in x]

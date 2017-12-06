@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 import pytest
+import pytz
 
 from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
@@ -103,6 +104,14 @@ def test_date_format():
     result = date_format('%Y:%m:%d')(x)
     assert result == \
         ['2006:01:01', '2007:02:02', '2008:03:03', '2009:04:04']
+
+    # Different timezones
+    pct = pytz.timezone('US/Pacific')
+    ug = pytz.timezone('Africa/Kampala')
+    x = [datetime(2010, 1, 1, tzinfo=ug),
+         datetime(2010, 1, 1, tzinfo=pct)]
+    with pytest.warns(UserWarning):
+        date_format()(x)
 
 
 def test_timedelta_format():

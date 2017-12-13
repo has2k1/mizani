@@ -3,7 +3,7 @@ Changelog
 
 v0.4.4
 ------
-*(not-yet-released)*
+*(2017-12-13)*
 
 - Fixed :class:`~mizani.formatters.date_format` to respect the timezones
   of the dates (:issue:`8`).

@@ -1,9 +1,16 @@
 Changelog
 =========
 
+v0.4.5
+------
+*(not-yet-released)*
+
 v0.4.4
 ------
 *(2017-12-13)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1115676.svg
+   :target: https://doi.org/10.5281/zenodo.1115676
 
 - Fixed :class:`~mizani.formatters.date_format` to respect the timezones
   of the dates (:issue:`8`).

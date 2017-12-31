@@ -55,7 +55,7 @@ class scale_continuous(object):
         ----------
         x : array_like
             Continuous values to scale
-        palette : function
+        palette : callable ``f(x)``
             Palette to use
         nan_value : object
             Value to use for missing values.
@@ -115,11 +115,11 @@ class scale_continuous(object):
         ----------
         x : array_like
             Continuous values to scale
-        palette : function
+        palette : callable ``f(x)``
             palette to use
         nan_value : object
             Value to use for missing values.
-        oob : function
+        oob : callable ``f(x)``
             Function to deal with values that are
             beyond the limits
 
@@ -152,7 +152,7 @@ class scale_discrete(object):
         ----------
         x : array_like
             Discrete values to scale
-        palette : palette
+        palette : callable ``f(x)``
             Palette to use
         nan_value : object
             Value to use for missing values.
@@ -224,7 +224,7 @@ class scale_discrete(object):
 
         Parameters
         ----------
-        palette : palette
+        palette : callable ``f(x)``
             palette to use
         x : array_like
             Continuous values to scale

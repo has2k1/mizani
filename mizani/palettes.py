@@ -62,7 +62,8 @@ def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
     husl_palette : Make a palette using evenly spaced circular
         hues in the HUSL system.
 
-
+    Examples
+    --------
     >>> len(hls_palette(2))
     2
     >>> len(hls_palette(9))
@@ -104,7 +105,8 @@ def husl_palette(n_colors=6, h=.01, s=.9, l=.65):
     hls_palette : Make a palette using evenly spaced circular
         hues in the HSL system.
 
-
+    Examples
+    --------
     >>> len(husl_palette(3))
     3
     >>> len(husl_palette(11))
@@ -138,7 +140,8 @@ def rescale_pal(range=(0.1, 1)):
         in the range ``[0, 1]`` and returns values in
         the specified range.
 
-
+    Examples
+    --------
     >>> palette = rescale_pal()
     >>> palette([0, .2, .4, .6, .8, 1])
     array([ 0.1 ,  0.28,  0.46,  0.64,  0.82,  1.  ])
@@ -172,7 +175,8 @@ def area_pal(range=(1, 6)):
         in the range ``[0, 1]`` and returns values in
         the specified range.
 
-
+    Examples
+    --------
     >>> x = np.arange(0, .6, .1)**2
     >>> palette = area_pal()
     >>> palette(x)
@@ -202,7 +206,8 @@ def abs_area(max):
         in the range ``[0, 1]`` and returns values in the range
         ``[0, max]``.
 
-
+    Examples
+    --------
     >>> x = np.arange(0, .8, .1)**2
     >>> palette = abs_area(5)
     >>> palette(x)
@@ -236,7 +241,8 @@ def grey_pal(start=0.2, end=0.8):
         :class:`int` parameter ``n`` and returns ``n``
         equally spaced colors.
 
-
+    Examples
+    --------
     >>> palette = grey_pal()
     >>> palette(5)
     ['#333333', '#737373', '#989898', '#b5b5b5', '#cccccc']
@@ -284,7 +290,8 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
         is good for categorical data. However if ``n``
         is large enough the colors show continuity.
 
-
+    Examples
+    --------
     >>> hue_pal()(5)
     ['#db5f57', '#b9db57', '#57db94', '#5784db', '#c957db']
     >>> hue_pal(color_space='husl')(5)
@@ -335,7 +342,8 @@ def brewer_pal(type='seq', palette=1):
         colors. The maximum value of ``n`` varies
         depending on the parameters.
 
-
+    Examples
+    --------
     >>> brewer_pal()(5)
     ['#EFF3FF', '#BDD7E7', '#6BAED6', '#3182BD', '#08519C']
     >>> brewer_pal('qual')(5)
@@ -484,7 +492,8 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
         and returns color(s). The float(s) must be
         in the range [0, 1].
 
-
+    Examples
+    --------
     >>> palette = gradient_n_pal(['red', 'blue'])
     >>> palette([0, .25, .5, .75, 1])
     ['#ff0000', '#bf0040', '#7f0080', '#3f00c0', '#0000ff']
@@ -526,7 +535,8 @@ def cmap_pal(name=None, lut=None):
         and returns color(s). The float(s) must be
         in the range [0, 1].
 
-
+    Examples
+    --------
     >>> palette = cmap_pal('viridis')
     >>> palette([.1, .2, .3, .4, .5])
     ['#482475', '#414487', '#355f8d', '#2a788e', '#21918c']
@@ -562,7 +572,8 @@ def desaturate_pal(color, prop, reverse=False):
         and returns color(s). The float(s) must be
         in the range [0, 1].
 
-
+    Examples
+    --------
     >>> palette = desaturate_pal('red', .1)
     >>> palette([0, .25, .5, .75, 1])
     ['#ff0000', '#e21d1d', '#c53a3a', '#a95656', '#8c7373']
@@ -599,7 +610,8 @@ def manual_pal(values):
         A function palette that takes a single
         :class:`int` parameter ``n`` and returns ``n`` values.
 
-
+    Examples
+    --------
     >>> palette = manual_pal(['a', 'b', 'c', 'd', 'e'])
     >>> palette(3)
     ['a', 'b', 'c']
@@ -633,7 +645,8 @@ def xkcd_palette(colors):
     palette : list
         List of colors as RGB hex strings.
 
-
+    Examples
+    --------
     >>> palette = xkcd_palette(['red', 'green', 'blue'])
     >>> palette
     ['#e50000', '#15b01a', '#0343df']
@@ -662,7 +675,8 @@ def crayon_palette(colors):
     palette : list
         List of colors as RGB hex strings.
 
-
+    Examples
+    --------
     >>> palette = crayon_palette(['almond', 'silver', 'yellow'])
     >>> palette
     ['#eed9c4', '#c9c0bb', '#fbe870']
@@ -685,18 +699,18 @@ def cubehelix_pal(start=0, rot=.4, gamma=1.0, hue=0.8,
 
     Parameters
     ----------
-    start : float, 0 <= start <= 3
+    start : float (0 <= start <= 3)
         The hue at the start of the helix.
     rot : float
         Rotations around the hue wheel over the range of the palette.
-    gamma : float 0 <= gamma
+    gamma : float (0 <= gamma)
         Gamma factor to emphasize darker (gamma < 1) or lighter (gamma > 1)
         colors.
-    hue : float, 0 <= hue <= 1
+    hue : float (0 <= hue <= 1)
         Saturation of the colors.
-    dark : float 0 <= dark <= 1
+    dark : float (0 <= dark <= 1)
         Intensity of the darkest color in the palette.
-    light : float 0 <= light <= 1
+    light : float (0 <= light <= 1)
         Intensity of the lightest color in the palette.
     reverse : bool
         If True, the palette will go from dark to light.
@@ -715,7 +729,8 @@ def cubehelix_pal(start=0, rot=.4, gamma=1.0, hue=0.8,
     intensity images". Bulletin of the Astromical Society of India, Vol. 39,
     p. 289-295.
 
-
+    Examples
+    --------
     >>> palette = cubehelix_pal()
     >>> palette(5)
     ['#edd1cb', '#d499a7', '#aa688f', '#6e4071', '#2d1e3e']

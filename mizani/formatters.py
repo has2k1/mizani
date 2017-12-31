@@ -61,8 +61,8 @@ class custom_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """
@@ -115,8 +115,8 @@ class currency_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """
@@ -163,8 +163,8 @@ class comma_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """
@@ -203,8 +203,8 @@ class percent_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """
@@ -250,8 +250,8 @@ class scientific_format(object):
     >>> scientific_format()(x)
     ['1.2e-01', '2.3e-01', '3.4e-01', '4.5e+01']
 
-    Note
-    ----
+    Notes
+    -----
     Be careful when using many digits (15+ on a 64
     bit computer). Consider of the `machine epsilon`_.
 
@@ -334,8 +334,8 @@ class mpl_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """
@@ -438,8 +438,8 @@ class log_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """
@@ -525,8 +525,8 @@ class date_format(object):
         x : array
             Input
 
-        Return
-        ------
+        Returns
+        -------
         out : list
             List of strings.
         """

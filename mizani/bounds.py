@@ -56,7 +56,8 @@ def rescale(x, to=(0, 1), _from=None):
     out : array_like
         Rescaled values
 
-
+    Examples
+    --------
     >>> x = [0, 2, 4, 6, 8, 10]
     >>> rescale(x)
     array([ 0. ,  0.2,  0.4,  0.6,  0.8,  1. ])
@@ -92,7 +93,8 @@ def rescale_mid(x, to=(0, 1), _from=None, mid=0):
     out : array_like
         Rescaled values
 
-
+    Examples
+    --------
     >>> rescale_mid([1, 2, 3], mid=1)
     array([ 0.5 ,  0.75,  1.  ])
     >>> rescale_mid([1, 2, 3], mid=2)
@@ -144,7 +146,8 @@ def rescale_max(x, to=(0, 1), _from=None):
     out : array_like
         Rescaled values
 
-
+    Examples
+    --------
     >>> x = [0, 2, 4, 6, 8, 10]
     >>> rescale_max(x, (0, 3))
     array([ 0. ,  0.6,  1.2,  1.8,  2.4,  3. ])
@@ -200,7 +203,8 @@ def squish_infinite(x, range=(0, 1)):
     out : array_like
         Values with infinites squished.
 
-
+    Examples
+    --------
     >>> squish_infinite([0, .5, .25, np.inf, .44])
     [0.0, 0.5, 0.25, 1.0, 0.44]
     >>> squish_infinite([0, -np.inf, .5, .25, np.inf], (-10, 9))
@@ -221,13 +225,6 @@ def censor(x, range=(0, 1), only_finite=True):
     """
     Convert any values outside of range to a **NULL** type object.
 
-    The **NULL** type object depends on the type of values in **x**.
-
-        - :class:`float` - :py:`float('nan')`
-        - :class:`int` - :py:`float('nan')`
-        - :class:`datetime.datetime` : :py:`np.datetime64(NaT)`
-        - :class:`datetime.timedelta` : :py:`np.timedelta64(NaT)`
-
     Parameters
     ----------
     x : array_like
@@ -243,7 +240,8 @@ def censor(x, range=(0, 1), only_finite=True):
     x : array_like
         Censored array
 
-
+    Examples
+    --------
     >>> a = [1, 2, np.inf, 3, 4, -np.inf, 5]
     >>> censor(a, (0, 10))
     [1, 2, inf, 3, 4, -inf, 5]
@@ -252,10 +250,18 @@ def censor(x, range=(0, 1), only_finite=True):
     >>> censor(a, (2, 4))
     [nan, 2, inf, 3, 4, -inf, nan]
 
-    Note
-    ----
+    Notes
+    -----
     All values in ``x`` should be of the same type. ``only_finite`` parameter
     is not considered for Datetime and Timedelta types.
+
+    The **NULL** type object depends on the type of values in **x**.
+
+    - :class:`float` - :py:`float('nan')`
+    - :class:`int` - :py:`float('nan')`
+    - :class:`datetime.datetime` : :py:`np.datetime64(NaT)`
+    - :class:`datetime.timedelta` : :py:`np.timedelta64(NaT)`
+
     """
     if not len(x):
         return x
@@ -334,7 +340,8 @@ def zero_range(x, tol=np.finfo(float).eps * 100):
     out : bool
         Whether ``x`` has zero range.
 
-
+    Examples
+    --------
     >>> zero_range([1, 1])
     True
     >>> zero_range([1, 2])
@@ -410,7 +417,8 @@ def expand_range(range, mul=0, add=0, zero_width=1):
     out : tuple
         Expanded range
 
-
+    Examples
+    --------
     >>> expand_range((3, 8))
     (3, 8)
     >>> expand_range((0, 10), mul=0.1)
@@ -427,8 +435,8 @@ def expand_range(range, mul=0, add=0, zero_width=1):
     >>> expand_range((5, 5))
     (4.5, 5.5)
 
-    Note
-    ----
+    Notes
+    -----
     If expanding *datetime* or *timedelta* types, **add** and
     **zero_width** must be suitable *timedeltas* i.e. You should
     not mix types between **Numpy**, **Pandas** and the
@@ -480,6 +488,8 @@ def expand_range_distinct(range, expand=(0, 0, 0, 0), zero_width=1):
     out : tuple
         Expanded range
 
+    Examples
+    --------
     >>> expand_range_distinct((3, 8))
     (3, 8)
     >>> expand_range_distinct((0, 10), (0.1, 0))

@@ -244,7 +244,7 @@ class trans_minor_breaks(object):
 
     Examples
     --------
-     >>> from mizani.transforms import sqrt_trans
+    >>> from mizani.transforms import sqrt_trans
     >>> major = [1, 2, 3, 4]
     >>> limits = [0, 5]
     >>> sqrt_trans().minor_breaks(major, limits)
@@ -331,7 +331,7 @@ class date_breaks(object):
 
     Parameters
     ----------
-    width: str | None
+    width : str | None
         An interval specification. Must be one of
         [minute, hour, day, week, month, year]
         If ``None``, the interval automatic.
@@ -396,7 +396,7 @@ class timedelta_breaks(object):
 
     Returns
     -------
-    out : function
+    out : callable ``f(limits)``
         A function that takes a sequence of two
         :class:`datetime.timedelta` values and returns
         a sequence of break points.
@@ -609,10 +609,11 @@ class extended_breaks(object):
     >>> extended_breaks(n=6)(limits)
     array([  0.,   2.,   4.,   6.,   8.,  10.])
 
-    References:
-        - Talbot, J., Lin, S., Hanrahan, P. (2010) An Extension of
-          Wilkinson's Algorithm for Positioning Tick Labels on Axes,
-          InfoVis 2010.
+    References
+    ----------
+    - Talbot, J., Lin, S., Hanrahan, P. (2010) An Extension of
+      Wilkinson's Algorithm for Positioning Tick Labels on Axes,
+      InfoVis 2010.
 
     Additional Credit to Justin Talbot on whose code this
     implementation is almost entirely based.

@@ -58,7 +58,7 @@ class trans(object):
     function.
 
     Parameters
-    ---------
+    ----------
     kwargs : dict
         Attributes of the class to set/override
 
@@ -179,21 +179,21 @@ def trans_new(name, transform, inverse, breaks=None,
     ----------
     name : str
         Name of the transformation
-    transform : function
+    transform : callable ``f(x)``
         A function (preferably a `ufunc`) that computes
         the transformation.
-    inverse : function
+    inverse : callable ``f(x)``
         A function (preferably a `ufunc`) that computes
         the inverse of the transformation.
-    breaks : function
+    breaks : callable ``f(limits)``
         Function to compute the breaks for this transform.
         If None, then a default good enough for a linear
         domain is used.
-    minor_breaks : function
+    minor_breaks : callable ``f(major, limits)``
         Function to compute the minor breaks for this
         transform. If None, then a default good enough for
         a linear domain is used.
-    _format : function
+    _format : callable ``f(breaks)``
         Function to format the generated breaks.
     domain : array_like
         Domain over which the transformation is valid.
@@ -429,8 +429,8 @@ def probability_trans(distribution, *args, **kwargs):
     kwargs : dict
         Keyword arguments passed to the distribution functions.
 
-    Note
-    ----
+    Notes
+    -----
     Make sure that the distribution is a good enough
     approximation for the data. When this is not the case,
     computations may run into errors. Absence of any errors
@@ -578,7 +578,7 @@ def gettrans(t):
 
     Parameters
     ----------
-    t : string | function | class | trans object
+    t : str | callable | type | trans
         name of transformation function
 
     Returns
@@ -590,7 +590,7 @@ def gettrans(t):
     if isinstance(obj, six.string_types):
         name = '{}_trans'.format(obj)
         obj = globals()[name]()
-    if isinstance(obj, FunctionType):
+    if callable(obj):
         obj = obj()
     if isinstance(obj, type):
         obj = obj()

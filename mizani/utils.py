@@ -193,11 +193,12 @@ def precision(x):
     out : numeric
         The precision of ``x`` or that the values in ``x``.
 
-    Note
-    ----
+    Notes
+    -----
     The precision is computed in base 10.
 
-
+    Examples
+    --------
     >>> precision(0.08)
     0.01
     >>> precision(9)
@@ -294,8 +295,8 @@ def is_close_to_int(x):
     x : float
         Numeric value to check
 
-    Return
-    ------
+    Returns
+    -------
     out : bool
     """
     if not np.isfinite(x):

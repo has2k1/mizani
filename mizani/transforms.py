@@ -70,13 +70,13 @@ class trans(object):
     >>> major = [0, 1, 2]
     >>> t = trans()
     >>> t.minor_breaks(major)
-    array([ 0.5,  1.5])
+    array([0.5, 1.5])
 
     Create a trans that returns 4 minor breaks
 
     >>> t = trans(minor_breaks=minor_breaks(4))
     >>> t.minor_breaks(major)
-    array([ 0.2,  0.4,  0.6,  0.8,  1.2,  1.4,  1.6,  1.8])
+    array([0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8])
     """
     #: Aesthetic that the transform works on
     aesthetic = None

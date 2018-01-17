@@ -60,11 +60,11 @@ def rescale(x, to=(0, 1), _from=None):
     --------
     >>> x = [0, 2, 4, 6, 8, 10]
     >>> rescale(x)
-    array([ 0. ,  0.2,  0.4,  0.6,  0.8,  1. ])
+    array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
     >>> rescale(x, to=(0, 2))
-    array([ 0. ,  0.4,  0.8,  1.2,  1.6,  2. ])
+    array([0. , 0.4, 0.8, 1.2, 1.6, 2. ])
     >>> rescale(x, to=(0, 2), _from=(0, 20))
-    array([ 0. ,  0.2,  0.4,  0.6,  0.8,  1. ])
+    array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
     """
     if _from is None:
         _from = np.min(x), np.max(x)
@@ -96,9 +96,9 @@ def rescale_mid(x, to=(0, 1), _from=None, mid=0):
     Examples
     --------
     >>> rescale_mid([1, 2, 3], mid=1)
-    array([ 0.5 ,  0.75,  1.  ])
+    array([0.5 , 0.75, 1.  ])
     >>> rescale_mid([1, 2, 3], mid=2)
-    array([ 0. ,  0.5,  1. ])
+    array([0. , 0.5, 1. ])
     """
     array_like = True
 
@@ -150,21 +150,21 @@ def rescale_max(x, to=(0, 1), _from=None):
     --------
     >>> x = [0, 2, 4, 6, 8, 10]
     >>> rescale_max(x, (0, 3))
-    array([ 0. ,  0.6,  1.2,  1.8,  2.4,  3. ])
+    array([0. , 0.6, 1.2, 1.8, 2.4, 3. ])
 
     Only the 2nd (max) element of the parameters ``to``
     and ``_from`` are essential to the output.
 
     >>> rescale_max(x, (1, 3))
-    array([ 0. ,  0.6,  1.2,  1.8,  2.4,  3. ])
+    array([0. , 0.6, 1.2, 1.8, 2.4, 3. ])
     >>> rescale_max(x, (0, 20))
-    array([  0.,   4.,   8.,  12.,  16.,  20.])
+    array([ 0.,  4.,  8., 12., 16., 20.])
 
     If :python:`max(x) < _from[1]` then values will be
     scaled beyond the requested (:python:`to[1]`) maximum.
 
     >>> rescale_max(x, to=(1, 3), _from=(-1, 6))
-    array([ 0.,  1.,  2.,  3.,  4.,  5.])
+    array([0., 1., 2., 3., 4., 5.])
 
     """
     array_like = True

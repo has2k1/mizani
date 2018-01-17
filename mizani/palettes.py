@@ -145,14 +145,14 @@ def rescale_pal(range=(0.1, 1)):
     --------
     >>> palette = rescale_pal()
     >>> palette([0, .2, .4, .6, .8, 1])
-    array([ 0.1 ,  0.28,  0.46,  0.64,  0.82,  1.  ])
+    array([0.1 , 0.28, 0.46, 0.64, 0.82, 1.  ])
 
     The returned palette expects inputs in the ``[0, 1]``
     range. Any value outside those limits is clipped to
     ``range[0]`` or ``range[1]``.
 
     >>> palette([-2, -1, 0.2, .4, .8, 2, 3])
-    array([ 0.1 ,  0.1 ,  0.28,  0.46,  0.82,  1.  ,  1.  ])
+    array([0.1 , 0.1 , 0.28, 0.46, 0.82, 1.  , 1.  ])
     """
     def _rescale(x):
         return rescale(x, range, _from=(0, 1))
@@ -181,7 +181,7 @@ def area_pal(range=(1, 6)):
     >>> x = np.arange(0, .6, .1)**2
     >>> palette = area_pal()
     >>> palette(x)
-    array([ 1. ,  1.5,  2. ,  2.5,  3. ,  3.5])
+    array([1. , 1.5, 2. , 2.5, 3. , 3.5])
 
     The results are equidistant because the input ``x`` is in
     area space, i.e it is squared.
@@ -212,7 +212,7 @@ def abs_area(max):
     >>> x = np.arange(0, .8, .1)**2
     >>> palette = abs_area(5)
     >>> palette(x)
-    array([ 0. ,  0.5,  1. ,  1.5,  2. ,  2.5,  3. ,  3.5])
+    array([0. , 0.5, 1. , 1.5, 2. , 2.5, 3. , 3.5])
 
     Compared to :func:`area_pal`, :func:`abs_area` will handle values
     in the range ``[-1, 0]`` without returning ``np.nan``. And values

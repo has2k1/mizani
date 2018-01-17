@@ -64,7 +64,7 @@ class mpl_breaks(object):
     >>> x = range(10)
     >>> limits = (0, 9)
     >>> mpl_breaks()(limits)
-    array([ 0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.])
+    array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])
     >>> mpl_breaks(nbins=2)(limits)
     array([  0.,   5.,  10.])
     """
@@ -170,7 +170,7 @@ class minor_breaks(object):
     >>> major = [1, 2, 3, 4]
     >>> limits = [0, 5]
     >>> minor_breaks()(major, limits)
-    array([ 0.5,  1.5,  2.5,  3.5,  4.5])
+    array([0.5, 1.5, 2.5, 3.5, 4.5])
     """
     def __init__(self, n=1):
         self.n = n
@@ -248,12 +248,12 @@ class trans_minor_breaks(object):
     >>> major = [1, 2, 3, 4]
     >>> limits = [0, 5]
     >>> sqrt_trans().minor_breaks(major, limits)
-    array([ 0.5,  1.5,  2.5,  3.5,  4.5])
+    array([0.5, 1.5, 2.5, 3.5, 4.5])
     >>> class sqrt_trans2(sqrt_trans):
     ...     def __init__(self):
     ...         self.minor_breaks = trans_minor_breaks(sqrt_trans2)
     >>> sqrt_trans2().minor_breaks(major, limits)
-    array([ 1.58113883,  2.54950976,  3.53553391])
+    array([1.58113883, 2.54950976, 3.53553391])
     """
     def __init__(self, trans, n=1):
         self.trans = trans

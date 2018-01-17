@@ -6,7 +6,9 @@ import numpy as np
 
 __all__ = ['seq', 'fullseq', 'round_any', 'min_max', 'match',
            'precision', 'first_element', 'multitype_sort',
-           'is_close_to_int', 'same_log10_order_of_magnitude']
+           'is_close_to_int', 'same_log10_order_of_magnitude',
+           'identity'
+           ]
 
 DISCRETE_KINDS = 'ObUS'
 CONTINUOUS_KINDS = 'ifuc'
@@ -325,3 +327,10 @@ def same_log10_order_of_magnitude(rng, delta=0.045):
     """
     rng_adjusted = np.array(rng) + [-delta, +delta]
     return np.diff(rng_adjusted.astype(int))[0] == 0
+
+
+def identity(*args):
+    """
+    Return whatever is passed in
+    """
+    return args if len(args) > 1 else args[0]

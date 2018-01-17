@@ -25,6 +25,7 @@ from palettable import colorbrewer
 
 from .external import husl, xkcd_rgb, crayon_rgb
 from .bounds import rescale
+from .utils import identity
 
 
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
@@ -743,3 +744,24 @@ def cubehelix_pal(start=0, rot=.4, gamma=1.0, hue=0.8,
         return [mcolors.rgb2hex(cubehelix_cmap(x)) for x in values]
 
     return cubehelix_palette
+
+
+def identity_pal():
+    """
+    Create palette that maps values onto themselves
+
+    Returns
+    -------
+    out : function
+        Palette function that takes a value or sequence of values
+        and returns the same values.
+
+    Examples
+    --------
+    >>> palette = identity_pal()
+    >>> palette(9)
+    9
+    >>> palette([2, 4, 6])
+    [2, 4, 6]
+    """
+    return identity

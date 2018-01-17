@@ -5,6 +5,8 @@ v0.4.5
 ------
 *(not-yet-released)*
 
+- Added :class:`~mizani.palettes.identity_pal`
+
 v0.4.4
 ------
 *(2017-12-13)*

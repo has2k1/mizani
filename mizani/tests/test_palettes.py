@@ -9,7 +9,7 @@ from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
                              area_pal, abs_area, grey_pal, hue_pal,
                              brewer_pal, gradient_n_pal, cmap_pal,
                              desaturate_pal, manual_pal, xkcd_palette,
-                             crayon_palette, cubehelix_pal)
+                             crayon_palette, cubehelix_pal, identity_pal)
 
 
 def test_hls_palette():
@@ -169,3 +169,14 @@ def test_cubehelix_pal():
     values = palette(5)
     assert len(values) == 5
     assert all(s[0] == '#' and len(s) == 7 for s in values)
+
+
+def test_identity_pal():
+    palette = identity_pal()
+
+    x = [1, 2, 3]
+    values = palette(x)
+    assert values == x
+
+    value = palette(10)
+    assert value == 10

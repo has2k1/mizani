@@ -4,7 +4,7 @@ from collections import OrderedDict, Iterator, defaultdict
 
 import numpy as np
 
-__all__ = ['seq', 'fullseq', 'round_any', 'min_max', 'match',
+__all__ = ['round_any', 'min_max', 'match',
            'precision', 'first_element', 'multitype_sort',
            'is_close_to_int', 'same_log10_order_of_magnitude',
            'identity'
@@ -38,64 +38,6 @@ NANOSECONDS = OrderedDict([
     ('M', 31*24*3600e9),   # month
     ('y', 365*24*3600e9),  # year
 ])
-
-
-def seq(_from=1, to=1, by=1, length_out=None):
-    """
-    Generate regular sequences
-
-    Parameters
-    ----------
-    _from : numeric
-        start of the sequence.
-    to : numeric
-        end of the sequence.
-    by : numeric
-        increment of the sequence.
-    length_out : int
-        length of the sequence. If a float is supplied, it
-        will be rounded up
-
-    Meant to be the same as Rs seq to prevent
-    discrepancies at the margins
-    """
-    if length_out is not None:
-        if length_out <= 0:
-            raise ValueError(
-                "length_out must be greater than zero")
-        return np.linspace(_from, to, np.ceil(length_out))
-
-    epsilon = np.finfo(float).eps
-    return np.arange(_from, to*(1+epsilon), by)
-
-
-def fullseq(range, size, pad=False):
-    """
-    Generate sequence of fixed size intervals covering range.
-
-    Parameters
-    ----------
-    range : array_like
-        Range of sequence. Must be of length 2
-    size : numeric
-        interval size
-    """
-    from .bounds import zero_range
-
-    range = np.asarray(range)
-    if zero_range(range):
-        return range + size * np.array([-1, 1])/2
-
-    x = seq(
-        round_any(range[0], size, np.floor),
-        round_any(range[1], size, np.ceil),
-        size)
-
-    # Add extra bin on bottom and on top, to guarantee that
-    # we cover complete range of data, whether right = True/False
-    if pad:
-        x = np.hstack([np.min(x) - size, x, np.max(x) + size])
-    return x
 
 
 def round_any(x, accuracy, f=np.round):

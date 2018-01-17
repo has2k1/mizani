@@ -20,7 +20,7 @@ plot. The :class:`trans` is aimed at being useful for *scale* and
 """
 from __future__ import division
 import sys
-from types import FunctionType, MethodType
+from types import MethodType
 
 import numpy as np
 import pandas as pd

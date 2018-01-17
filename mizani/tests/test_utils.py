@@ -1,42 +1,13 @@
 from __future__ import division
 
 import numpy as np
-import numpy.testing as npt
 import pandas as pd
 import pytest
 
 
-from mizani.utils import (seq, fullseq, round_any, min_max, match,
-                          precision, first_element, multitype_sort,
+from mizani.utils import (round_any, min_max, match, precision,
+                          first_element, multitype_sort,
                           same_log10_order_of_magnitude)
-
-
-def test_seq():
-    result = seq(4.1, 5.2, 0.1)
-    npt.assert_approx_equal(result[-1], 5.2)
-
-    result = seq(1, 10, length_out=10)
-    npt.assert_array_equal(result, range(1, 11))
-
-    with pytest.raises(ValueError):
-        seq(1, 10, length_out=0)
-
-
-def test_fullseq():
-    result = fullseq((1, 3), size=.5)
-    npt.assert_array_equal(result, [1, 1.5, 2, 2.5, 3])
-
-    result = fullseq((1, 3.2), size=.5)
-    npt.assert_array_equal(result, [1, 1.5, 2, 2.5, 3, 3.5])
-
-    result = fullseq((0.8, 3), size=.5)
-    npt.assert_array_equal(result, [0.5, 1, 1.5, 2, 2.5, 3])
-
-    result = fullseq((1, 3), size=.5, pad=True)
-    npt.assert_array_equal(result, [0.5, 1, 1.5, 2, 2.5, 3, 3.5])
-
-    result = fullseq((2, 2), size=1)
-    npt.assert_array_equal(result, [1.5, 2.5])
 
 
 def test_round_any():

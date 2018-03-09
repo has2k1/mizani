@@ -8,6 +8,7 @@ import numpy.testing as npt
 from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
                              area_pal, abs_area, grey_pal, hue_pal,
                              brewer_pal, gradient_n_pal, cmap_pal,
+                             cmap_d_pal,
                              desaturate_pal, manual_pal, xkcd_palette,
                              crayon_palette, cubehelix_pal, identity_pal)
 
@@ -117,6 +118,25 @@ def test_cmap_pal():
     palette = cmap_pal('viridis')
     result = palette([0, .25, .5, .75, 1])
     assert all(s[0] == '#' and len(s) == 7 for s in result)
+
+
+def test_cmap_d_pal():
+    palette = cmap_d_pal('viridis')
+    result = palette(6)
+    assert all(s[0] == '#' and len(s) == 7 for s in result)
+    assert len(result) == 6
+
+    # More colors than palette
+    palette = cmap_d_pal('Accent')
+    result = palette(5)
+    assert all(s[0] == '#' and len(s) == 7 for s in result)
+
+    with pytest.raises(ValueError):
+        result = palette(10)
+
+    # Bad palette
+    with pytest.raises(ValueError):
+        palette = cmap_d_pal('Greens')
 
 
 def test_desaturate_pal():

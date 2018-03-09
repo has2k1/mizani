@@ -31,6 +31,7 @@ from .utils import identity
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
            'area_pal', 'abs_area', 'grey_pal', 'hue_pal',
            'brewer_pal', 'gradient_n_pal', 'cmap_pal',
+           'cmap_d_pal',
            'desaturate_pal', 'manual_pal', 'xkcd_palette',
            'crayon_palette', 'cubehelix_pal']
 
@@ -284,7 +285,7 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
     Returns
     -------
     out : function
-        Continuous color palette that takes a single
+        A discrete color palette that takes a single
         :class:`int` parameter ``n`` and returns ``n``
         equally spaced colors. Though the palette
         is continuous, since it is varies the hue it
@@ -517,7 +518,7 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
 
 def cmap_pal(name=None, lut=None):
     """
-    Create a palette using an MPL colormap
+    Create a continuous palette using an MPL colormap
 
     Parameters
     ----------
@@ -548,6 +549,58 @@ def cmap_pal(name=None, lut=None):
         return ratios_to_colors(vals, colormap)
 
     return _cmap_pal
+
+
+def cmap_d_pal(name=None, lut=None):
+    """
+    Create a discrete palette using an MPL Listed colormap
+
+    Parameters
+    ----------
+    name : str
+        Name of colormap
+    lut : None | int
+        This is the number of entries desired in the lookup table.
+        Default is ``None``, leave it up Matplotlib.
+
+    Returns
+    -------
+    out : function
+        A discrete color palette that takes a single
+        :class:`int` parameter ``n`` and returns ``n``
+        colors. The maximum value of ``n`` varies
+        depending on the parameters.
+
+    Examples
+    --------
+    >>> palette = cmap_d_pal('viridis')
+    >>> palette(5)
+    ['#440154', '#3b528b', '#21918c', '#5cc863', '#fde725']
+    """
+    colormap = get_cmap(name, lut)
+
+    if not isinstance(colormap, mcolors.ListedColormap):
+        raise ValueError(
+            "For a discrete palette, cmap must be of type "
+            "matplotlib.colors.ListedColormap")
+
+    ncolors = len(colormap.colors)
+
+    def _cmap_d_pal(n):
+        if n > ncolors:
+            raise ValueError(
+                "cmap `{}` has {} colors you requested {} "
+                "colors.".format(name, ncolors, n))
+
+        if ncolors < 256:
+            return [mcolors.rgb2hex(c) for c in colormap.colors[:n]]
+        else:
+            # Assume these are continuous and get colors equally spaced
+            # intervals  e.g. viridis is defined with 256 colors
+            idx = np.linspace(0, ncolors-1, n).round().astype(int)
+            return [mcolors.rgb2hex(colormap.colors[i]) for i in idx]
+
+    return _cmap_d_pal
 
 
 def desaturate_pal(color, prop, reverse=False):

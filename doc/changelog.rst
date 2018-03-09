@@ -6,6 +6,7 @@ v0.4.5
 *(not-yet-released)*
 
 - Added :class:`~mizani.palettes.identity_pal`
+- Added :class:`~mizani.palettes.cmap_d_pal`
 
 v0.4.4
 ------

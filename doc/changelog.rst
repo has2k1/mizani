@@ -3,7 +3,7 @@ Changelog
 
 v0.4.5
 ------
-*(not-yet-released)*
+*(2018-03-09)*
 
 - Added :class:`~mizani.palettes.identity_pal`
 - Added :class:`~mizani.palettes.cmap_d_pal`

@@ -34,7 +34,7 @@ from .utils import first_element
 
 __all__ = ['censor', 'expand_range', 'rescale', 'rescale_max',
            'rescale_mid', 'squish_infinite', 'zero_range',
-           'expand_range_distinct']
+           'expand_range_distinct', 'squish']
 
 
 def rescale(x, to=(0, 1), _from=None):
@@ -188,7 +188,7 @@ def rescale_max(x, to=(0, 1), _from=None):
 
 def squish_infinite(x, range=(0, 1)):
     """
-    Truncate infinite values to a range
+    Truncate infinite values to a range.
 
     Parameters
     ----------
@@ -215,6 +215,45 @@ def squish_infinite(x, range=(0, 1)):
 
     x[x == -np.inf] = range[0]
     x[x == np.inf] = range[1]
+
+    if not isinstance(x, xtype):
+        x = xtype(x)
+    return x
+
+
+def squish(x, range=(0, 1), only_finite=True):
+    """
+    Squish values into range.
+
+    Parameters
+    ----------
+    x : array_like
+        Values that should have out of range values squished.
+    range : tuple
+        The range onto which to squish the values.
+    only_finite: boolean
+        When true, only squishes finite values.
+
+    Returns
+    -------
+    out : array_like
+        Values with out of range values squished.
+
+    Examples
+    --------
+    >>> squish([-1.5, 0.2, 0.5, 0.8, 1.0, 1.2])
+    [0.0, 0.2, 0.5, 0.8, 1.0, 1.0]
+
+    >>> squish([-np.inf, -1.5, 0.2, 0.5, 0.8, 1.0, np.inf], only_finite=False)
+    [0.0, 0.0, 0.2, 0.5, 0.8, 1.0, 1.0]
+    """
+    xtype = type(x)
+    x = np.asarray(x)
+
+    finite = np.isfinite(x) if only_finite else True
+
+    x[np.logical_and(x < range[0], finite)] = range[0]
+    x[np.logical_and(x > range[1], finite)] = range[1]
 
     if not isinstance(x, xtype):
         x = xtype(x)

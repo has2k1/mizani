@@ -10,7 +10,7 @@ import pytest
 
 from mizani.bounds import (censor, expand_range, rescale, rescale_max,
                            rescale_mid, squish_infinite, zero_range,
-                           expand_range_distinct)
+                           expand_range_distinct, squish)
 
 NaT_type = type(pd.NaT)
 
@@ -291,6 +291,23 @@ def test_squish_infinite():
     b = np.array([5, -np.inf, 2, 3, 6])
     npt.assert_allclose(squish_infinite(b, (1, 10)),
                         [5, 1, 2, 3, 6])
+
+
+def test_squish():
+    a = [-np.inf, np.inf, -np.inf, np.inf]
+    npt.assert_allclose(squish(a, only_finite=False), [0, 1, 0, 1])
+    npt.assert_allclose(squish(a, only_finite=True), a)
+    npt.assert_allclose(squish(a, (-100, 100), only_finite=False),
+                        [-100, 100, -100, 100])
+
+    b = np.array([5, 0, -2, 3, 10])
+    npt.assert_allclose(squish(b, (0, 5)),
+                        [5, 0, 0, 3, 5])
+
+    c = np.array([5, -np.inf, 2, 3, 6])
+    npt.assert_allclose(squish(c, (1, 10), only_finite=False),
+                        [5, 1, 2, 3, 6])
+    npt.assert_allclose(squish(c, (1, 10)), c)
 
 
 def test_zero_range():

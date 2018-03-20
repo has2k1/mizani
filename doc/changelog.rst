@@ -5,6 +5,9 @@ v0.4.6
 ------
 *(2018-03-20)*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1204282.svg
+   :target: https://doi.org/10.5281/zenodo.1204282
+
 - Added :class:`~mizani.bounds.squish`
 
 v0.4.5

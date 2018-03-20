@@ -1,9 +1,18 @@
 Changelog
 =========
 
+v0.4.6
+------
+*(2018-03-20)*
+
+- Added :class:`~mizani.bounds.squish`
+
 v0.4.5
 ------
 *(2018-03-09)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1204222.svg
+   :target: https://doi.org/10.5281/zenodo.1204222
 
 - Added :class:`~mizani.palettes.identity_pal`
 - Added :class:`~mizani.palettes.cmap_d_pal`

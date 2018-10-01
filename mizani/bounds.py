@@ -24,7 +24,7 @@ import datetime
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
-import pandas.core.common as com
+import pandas.core.dtypes.common as com
 
 from matplotlib.dates import date2num
 

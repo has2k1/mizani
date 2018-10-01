@@ -69,6 +69,8 @@ def min_max(x, nan_rm=False, finite=True):
     x = np.asarray(x)
     if nan_rm and finite:
         x = x[np.isfinite(x)]
+    elif not nan_rm and np.any(np.isnan(x)):
+        return np.nan, np.nan
     elif nan_rm:
         x = x[~np.isnan(x)]
     elif finite:

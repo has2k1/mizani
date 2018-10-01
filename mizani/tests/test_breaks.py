@@ -68,6 +68,14 @@ def test_minor_breaks():
     minor = minor_breaks(3)(major, [2, 3])
     npt.assert_array_equal(minor, [2.25, 2.5, 2.75])
 
+    # More than 1 minor breaks
+    breaks = minor_breaks()(major, limits, 3)
+    npt.assert_array_equal(breaks, [.25, .5, .75,
+                                    1.25, 1.5, 1.75,
+                                    2.25, 2.5, 2.75,
+                                    3.25, 3.5, 3.75,
+                                    4.25, 4.5, 4.75])
+
     # non-equidistant breaks
     major = [1, 2, 4, 8]
     limits = [0, 10]

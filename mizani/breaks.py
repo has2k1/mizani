@@ -171,11 +171,20 @@ class minor_breaks(object):
     >>> limits = [0, 5]
     >>> minor_breaks()(major, limits)
     array([0.5, 1.5, 2.5, 3.5, 4.5])
+    >>> minor_breaks()([1, 2], (1, 2))
+    array([1.5])
+
+    More than 1 minor break.
+
+    >>> minor_breaks(3)([1, 2], (1, 2))
+    array([1.25, 1.5 , 1.75])
+    >>> minor_breaks()([1, 2], (1, 2), 3)
+    array([1.25, 1.5 , 1.75])
     """
     def __init__(self, n=1):
         self.n = n
 
-    def __call__(self, major, limits=None):
+    def __call__(self, major, limits=None, n=None):
         """
         Minor breaks
 
@@ -187,20 +196,23 @@ class minor_breaks(object):
             Limits of the scale. If *array_like*, must be
             of size 2. If **None**, then the minimum and
             maximum of the major breaks are used.
+        n : int
+            Number of minor breaks between the major
+            breaks. If **None**, then *self.n* is used.
 
         Returns
         -------
         out : array_like
             Minor beraks
         """
-        n = self.n
-
         if len(major) < 2:
-
             return np.array([])
 
         if limits is None:
             limits = min_max(major)
+
+        if n is None:
+            n = self.n
 
         # Try to infer additional major breaks so that
         # minor breaks can be generated beyond the first
@@ -254,12 +266,19 @@ class trans_minor_breaks(object):
     ...         self.minor_breaks = trans_minor_breaks(sqrt_trans2)
     >>> sqrt_trans2().minor_breaks(major, limits)
     array([1.58113883, 2.54950976, 3.53553391])
+
+    More than 1 minor break
+
+    >>> major = [1, 10]
+    >>> limits = [1, 10]
+    >>> sqrt_trans().minor_breaks(major, limits, 4)
+    array([2.8, 4.6, 6.4, 8.2])
     """
     def __init__(self, trans, n=1):
         self.trans = trans
         self.n = n
 
-    def __call__(self, major, limits=None):
+    def __call__(self, major, limits=None, n=None):
         """
         Minor breaks for transformed scales
 
@@ -271,6 +290,9 @@ class trans_minor_breaks(object):
             Limits of the scale. If *array_like*, must be
             of size 2. If **None**, then the minimum and
             maximum of the major breaks are used.
+        n : int
+            Number of minor breaks between the major
+            breaks. If **None**, then *self.n* is used.
 
         Returns
         -------
@@ -285,10 +307,13 @@ class trans_minor_breaks(object):
         if limits is None:
             limits = min_max(major)
 
+        if n is None:
+            n = self.n
+
         major = self._extend_breaks(major)
         major = self.trans.inverse(major)
         limits = self.trans.inverse(limits)
-        minor = minor_breaks(self.n)(major, limits)
+        minor = minor_breaks(n)(major, limits)
         return self.trans.transform(minor)
 
     def _extend_breaks(self, major):

@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.5.0
+------
+*(not-yet-released)*
+
+API Changes
+-----------
+
+- :meth:`~mizani.breaks.minor_breaks.call` and
+   meth:`~mizani.breaks.trans_minor_breaks.call` now accept optional
+   parameter ``n`` which is the number of minor breaks between any two
+   major breaks.
+
+
 v0.4.6
 ------
 *(2018-03-20)*

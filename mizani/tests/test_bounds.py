@@ -1,7 +1,5 @@
-from __future__ import division
 from datetime import datetime, timedelta
 
-import six
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
@@ -144,11 +142,9 @@ def test_expand_range():
     result = expand_range(limits, add=one_day)
     diff(result) == diff(limits) + 2*one_day
 
-    # PY2 does not support *, / operations of timedeltas
-    if not six.PY2:
-        limits = datetime(2010, 1, 1), datetime(2010, 1, 1)  # zero range
-        result = expand_range(limits, zero_width=30*one_day)
-        diff(result) == diff(limits) + 30*one_day
+    limits = datetime(2010, 1, 1), datetime(2010, 1, 1)  # zero range
+    result = expand_range(limits, zero_width=30*one_day)
+    diff(result) == diff(limits) + 30*one_day
 
     # pd.Timestamp
     one_day = pd.Timestamp('2010-01-02') - pd.Timestamp('2010-01-01')
@@ -156,13 +152,12 @@ def test_expand_range():
     result = expand_range(limits, add=one_day)
     diff(result) == diff(limits) + 2*one_day
 
-    if not six.PY2:
-        result = expand_range(limits, mul=0.5, add=one_day)
-        diff(result) == 2*diff(limits) + 2*one_day
+    result = expand_range(limits, mul=0.5, add=one_day)
+    diff(result) == 2*diff(limits) + 2*one_day
 
-        limits = pd.Timestamp('2010-01-01'), pd.Timestamp('2010-01-01')
-        result = expand_range(limits, zero_width=30*one_day)
-        diff(result) == diff(limits) + 30*one_day
+    limits = pd.Timestamp('2010-01-01'), pd.Timestamp('2010-01-01')
+    result = expand_range(limits, zero_width=30*one_day)
+    diff(result) == diff(limits) + 30*one_day
 
     # np.datetime64
     one_day = np.datetime64(1, 'D') - np.datetime64(0, 'D')
@@ -170,9 +165,8 @@ def test_expand_range():
     result = expand_range(limits, add=one_day)
     diff(result) == diff(limits) + 2*one_day
 
-    if not six.PY2:
-        result = expand_range(limits, mul=0.5, add=one_day)
-        diff(result) == 2*diff(limits) + 2*one_day
+    result = expand_range(limits, mul=0.5, add=one_day)
+    diff(result) == 2*diff(limits) + 2*one_day
 
     limits = np.datetime64(14610, 'D'), np.datetime64(14611, 'D')
     result = expand_range(limits, zero_width=30*one_day)
@@ -184,13 +178,12 @@ def test_expand_range():
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 2*one_day
 
-    if not six.PY2:
-        result = expand_range(limits, mul=0.5, add=one_day)
-        diff(result) == 2*diff(limits) + 2*one_day
+    result = expand_range(limits, mul=0.5, add=one_day)
+    diff(result) == 2*diff(limits) + 2*one_day
 
-        limits = timedelta(days=10), timedelta(days=10)
-        result = expand_range(limits, add=one_day, zero_width=30*one_day)
-        diff(result) == diff(limits) + 30*one_day
+    limits = timedelta(days=10), timedelta(days=10)
+    result = expand_range(limits, add=one_day, zero_width=30*one_day)
+    diff(result) == diff(limits) + 30*one_day
 
     # pd.Timedelta
     one_day = pd.Timedelta(days=1)
@@ -198,9 +191,8 @@ def test_expand_range():
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 2*one_day
 
-    if not six.PY2:
-        result = expand_range(limits, mul=0.5, add=one_day)
-        diff(result) == 2*diff(limits) + 2*one_day
+    result = expand_range(limits, mul=0.5, add=one_day)
+    diff(result) == 2*diff(limits) + 2*one_day
 
     limits = pd.Timedelta(days=10), pd.Timedelta(days=10)
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
@@ -212,9 +204,8 @@ def test_expand_range():
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 2*one_day
 
-    if not six.PY2:
-        result = expand_range(limits, mul=0.5, add=one_day)
-        diff(result) == 2*diff(limits) + 2*one_day
+    result = expand_range(limits, mul=0.5, add=one_day)
+    diff(result) == 2*diff(limits) + 2*one_day
 
     limits = np.timedelta64(1, 'D'), np.timedelta64(1, 'D')
     result = expand_range(limits, add=one_day, zero_width=30*one_day)

@@ -18,7 +18,6 @@ cannot provide transformation specific guides & decorations for the
 plot. The :class:`trans` is aimed at being useful for *scale* and
 *coordinate* transformations.
 """
-from __future__ import division
 import sys
 from types import MethodType
 
@@ -28,7 +27,6 @@ import datetime
 from dateutil import tz
 from matplotlib.dates import date2num, num2date
 
-from .external import six
 from .breaks import (extended_breaks, log_breaks, minor_breaks,
                      trans_minor_breaks, date_breaks,
                      timedelta_breaks)
@@ -587,7 +585,7 @@ def gettrans(t):
     """
     obj = t
     # Make sure trans object is instantiated
-    if isinstance(obj, six.string_types):
+    if isinstance(obj, str):
         name = '{}_trans'.format(obj)
         obj = globals()[name]()
     if callable(obj):

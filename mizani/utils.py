@@ -1,6 +1,6 @@
-from __future__ import division
 from itertools import chain
-from collections import OrderedDict, Iterator, defaultdict
+from collections import OrderedDict, defaultdict
+from collections.abc import Iterator
 
 import numpy as np
 

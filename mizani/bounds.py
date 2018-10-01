@@ -19,7 +19,6 @@ e.g. :math:`[0.1, 1]`. Similarly you can restrict the upper bound
 -- using these functions.
 """
 
-from __future__ import division
 import datetime
 
 import numpy as np

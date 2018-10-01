@@ -13,7 +13,6 @@ two or more points. Therefore palettes must be created that
 enforce such restrictions. This is the reason for the ``*_pal``
 functions that create and return the actual palette functions.
 """
-from __future__ import division
 import warnings
 import colorsys
 

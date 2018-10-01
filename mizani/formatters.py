@@ -9,7 +9,6 @@ values as understood by a specific scale and return string
 representations of those values. Manipulating the string
 representation of a value helps improve readability of the guide.
 """
-from __future__ import division
 import re
 from warnings import warn
 
@@ -35,7 +34,7 @@ class custom_format(object):
     ----------
     fmt : str, optional
         Format string. Default is the generic new style
-        format braces, `\{\}`.
+        format braces, ``{}``.
     style : 'new' | 'old'
         Whether to use new style or old style formatting.
         New style uses the :meth:`str.format` while old
@@ -614,7 +613,7 @@ class timedelta_format(object):
         plural = '' if _units.endswith('s') else 's'
         ulabel = self.abbreviations[_units]
         if ulabel == 'us' and self.usetex:
-            ulabel = '$\mu s$'
+            ulabel = r'$\mu s$'
         _labels = self._mpl_format(values)
 
         if not self.add_units:

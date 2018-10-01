@@ -27,8 +27,6 @@ concept unpinning a scale.
 
 The **apply** methods are simple examples of how to put it all together.
 """
-from __future__ import division
-
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes

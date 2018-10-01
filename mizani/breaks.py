@@ -10,8 +10,6 @@ The named markers are what we call breaks. Properly calculated
 breaks make interpretation straight forward. These functions
 provide ways to calculate good(hopefully) breaks.
 """
-from __future__ import division
-
 import numpy as np
 import pandas as pd
 from matplotlib.dates import MinuteLocator, HourLocator, DayLocator

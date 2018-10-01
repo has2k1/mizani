@@ -1,4 +1,3 @@
-from __future__ import division
 from types import FunctionType, MethodType
 from datetime import datetime, timedelta
 
@@ -6,7 +5,6 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
-import six
 
 from mizani.breaks import mpl_breaks, minor_breaks
 from mizani.transforms import (
@@ -35,8 +33,7 @@ def test_trans_new():
 
     assert t.__name__ == 'bounded_identity_trans'
     assert isinstance(t.transform, FunctionType)
-    if six.PY3:
-        assert isinstance(t.inverse, MethodType)
+    assert isinstance(t.inverse, MethodType)
     assert isinstance(t.format, FunctionType)
     assert t.domain == (-999, 999)
     assert t.__doc__ == 'Bounded Identity transform'

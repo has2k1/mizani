@@ -45,7 +45,7 @@ class scale_continuous(object):
     """
 
     @classmethod
-    def apply(cls, x, palette, nan_value=None, trans=None):
+    def apply(cls, x, palette, na_value=None, trans=None):
         """
         Scale data continuously
 
@@ -55,7 +55,7 @@ class scale_continuous(object):
             Continuous values to scale
         palette : callable ``f(x)``
             Palette to use
-        nan_value : object
+        na_value : object
             Value to use for missing values.
         trans : trans
             How to transform the data before scaling. If
@@ -70,7 +70,7 @@ class scale_continuous(object):
             x = trans.transform(x)
 
         limits = cls.train(x)
-        return cls.map(x, palette, limits, nan_value)
+        return cls.map(x, palette, limits, na_value)
 
     @classmethod
     def train(cls, new_data, old=None):
@@ -102,10 +102,10 @@ class scale_continuous(object):
         if old is not None:
             new_data = np.hstack([new_data, old])
 
-        return min_max(new_data, nan_rm=True, finite=True)
+        return min_max(new_data, na_rm=True, finite=True)
 
     @classmethod
-    def map(cls, x, palette, limits, nan_value=None, oob=censor):
+    def map(cls, x, palette, limits, na_value=None, oob=censor):
         """
         Map values to a continuous palette
 
@@ -115,7 +115,7 @@ class scale_continuous(object):
             Continuous values to scale
         palette : callable ``f(x)``
             palette to use
-        nan_value : object
+        na_value : object
             Value to use for missing values.
         oob : callable ``f(x)``
             Function to deal with values that are
@@ -129,9 +129,9 @@ class scale_continuous(object):
         x = oob(rescale(x, _from=limits))
         pal = palette(x)
         try:
-            pal[pd.isnull(x)] = nan_value
+            pal[pd.isnull(x)] = na_value
         except TypeError:
-            pal = [v if not pd.isnull(v) else nan_value for v in pal]
+            pal = [v if not pd.isnull(v) else na_value for v in pal]
 
         return pal
 
@@ -142,7 +142,7 @@ class scale_discrete(object):
     """
 
     @classmethod
-    def apply(cls, x, palette, nan_value=None):
+    def apply(cls, x, palette, na_value=None):
         """
         Scale data discretely
 
@@ -152,7 +152,7 @@ class scale_discrete(object):
             Discrete values to scale
         palette : callable ``f(x)``
             Palette to use
-        nan_value : object
+        na_value : object
             Value to use for missing values.
 
         Returns
@@ -161,10 +161,10 @@ class scale_discrete(object):
             Scaled values
         """
         limits = cls.train(x)
-        return cls.map(x, palette, limits, nan_value)
+        return cls.map(x, palette, limits, na_value)
 
     @classmethod
-    def train(cls, new_data, old=None, drop=False):
+    def train(cls, new_data, old=None, drop=False, na_rm=False):
         """
         Train a continuous scale
 
@@ -176,6 +176,9 @@ class scale_discrete(object):
             Old range. List of values known to the scale.
         drop : bool
             Whether to drop(not include) unused categories
+        na_rm : bool
+            If ``True``, remove missing values. Missing values
+            are either ``NaN`` or ``None``.
 
         Returns
         -------
@@ -188,13 +191,18 @@ class scale_discrete(object):
         if old is None:
             old = []
 
+        # Get the missing values (NaN & Nones) locations and remove them
+        nan_bool_idx = pd.isnull(new_data)
+        has_na = np.any(nan_bool_idx)
         if not hasattr(new_data, 'dtype'):
             new_data = np.asarray(new_data)
+        new_data = new_data[~nan_bool_idx]
 
         if new_data.dtype.kind not in DISCRETE_KINDS:
             raise TypeError(
                 "Continuous value supplied to discrete scale")
 
+        # Train i.e. get the new values
         if pdtypes.is_categorical_dtype(new_data):
             try:
                 new = list(new_data.cat.categories)  # series
@@ -212,11 +220,16 @@ class scale_discrete(object):
                 new = list(set(new_data))
                 new = multitype_sort(new)
 
+        # Add nan if required
+        if has_na and not na_rm:
+            new = np.hstack([new, np.nan])
+
         # update old
-        return list(old) + [i for i in new if (i not in set(old))]
+        old_set = set(old)
+        return list(old) + [i for i in new if (i not in old_set)]
 
     @classmethod
-    def map(cls, x, palette, limits, nan_value=None):
+    def map(cls, x, palette, limits, na_value=None):
         """
         Map values to a discrete palette
 
@@ -226,7 +239,7 @@ class scale_discrete(object):
             palette to use
         x : array_like
             Continuous values to scale
-        nan_value : object
+        na_value : object
             Value to use for missing values.
 
         Returns
@@ -237,8 +250,8 @@ class scale_discrete(object):
         n = len(limits)
         pal = palette(n)[match(x, limits)]
         try:
-            pal[pd.isnull(x)] = nan_value
+            pal[pd.isnull(x)] = na_value
         except TypeError:
-            pal = [v if not pd.isnull(v) else nan_value for v in pal]
+            pal = [v if not pd.isnull(v) else na_value for v in pal]
 
         return pal

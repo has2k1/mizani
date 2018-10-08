@@ -6,13 +6,24 @@ v0.5.0
 *(not-yet-released)*
 
 API Changes
------------
+***********
+
+- Support for python 2 has been removed.
 
 - :meth:`~mizani.breaks.minor_breaks.call` and
    meth:`~mizani.breaks.trans_minor_breaks.call` now accept optional
    parameter ``n`` which is the number of minor breaks between any two
    major breaks.
 
+- The parameter `nan_value` has be renamed to `na_value`.
+
+- The parameter `nan_rm` has be renamed to `na_rm`.
+
+Enhancements
+************
+
+- Better support for handling missing values when training discrete
+  scales.
 
 v0.4.6
 ------

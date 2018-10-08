@@ -34,12 +34,12 @@ def test_min_max():
     assert _max == 5
 
     x = [1, 2, float('nan'), 4, 5]
-    _min, _max = min_max(x, nan_rm=True)
+    _min, _max = min_max(x, na_rm=True)
     assert _min == 1
     assert _max == 5
 
     x = [1, 2, float('nan'), 4, 5, float('inf')]
-    _min, _max = min_max(x, nan_rm=True, finite=False)
+    _min, _max = min_max(x, na_rm=True, finite=False)
     assert _min == 1
     assert _max == float('inf')
 
@@ -48,7 +48,7 @@ def test_min_max():
     assert str(_max) == 'nan'
 
     x = [float('nan'), float('nan'), float('nan')]
-    _min, _max = min_max(x, nan_rm=True)
+    _min, _max = min_max(x, na_rm=True)
     assert _min == float('-inf')
     assert _max == float('inf')
 

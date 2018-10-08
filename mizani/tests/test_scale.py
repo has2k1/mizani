@@ -36,6 +36,9 @@ def test_scale_continuous():
 
 
 def test_scale_discrete():
+    def assert_equal_with_nan(lst1, lst2):
+        assert lst1[:-1] == lst2[:-1] and np.isnan(lst2[-1])
+
     x = ['a', 'b', 'c', 'a']
     # apply
     scaled = scale_discrete.apply(x, np.arange)
@@ -51,7 +54,22 @@ def test_scale_discrete():
     limits = scale_discrete.train([], limits)
     assert limits == ['a', 'b', 'c', 'd']
     limits = scale_discrete.train([None, 'e'], limits)
-    assert set(limits) == set(['a', 'b', 'c', 'd', None, 'e'])
+    assert_equal_with_nan(limits, ['a', 'b', 'c', 'd', 'e', np.nan])
+
+    # Train (Deal with missing values)
+    x1 = ['a', 'b', np.nan, 'c']
+    x2 = pd.Categorical([1, 2, 3, np.nan])
+    limits = scale_discrete.train(x1, na_rm=True)
+    assert limits == ['a', 'b', 'c']
+
+    limits = scale_discrete.train(x1, na_rm=False)
+    assert_equal_with_nan(limits, ['a', 'b', 'c', np.nan])
+
+    limits = scale_discrete.train(x2, na_rm=True)
+    assert limits == [1, 2, 3]
+
+    limits = scale_discrete.train(x2, na_rm=False)
+    assert_equal_with_nan(limits, [1, 2, 3, np.nan])
 
     # branches #
 

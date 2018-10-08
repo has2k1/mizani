@@ -48,7 +48,7 @@ def round_any(x, accuracy, f=np.round):
     return f(x / accuracy) * accuracy
 
 
-def min_max(x, nan_rm=False, finite=True):
+def min_max(x, na_rm=False, finite=True):
     """
     Return the minimum and maximum of x
 
@@ -56,7 +56,7 @@ def min_max(x, nan_rm=False, finite=True):
     ----------
     x : array_like
         Sequence
-    nan_rm : bool
+    na_rm : bool
         Whether to remove ``nan`` values.
     finite : bool
         Whether to consider only finite values.
@@ -67,11 +67,11 @@ def min_max(x, nan_rm=False, finite=True):
         (minimum, maximum) of x
     """
     x = np.asarray(x)
-    if nan_rm and finite:
+    if na_rm and finite:
         x = x[np.isfinite(x)]
-    elif not nan_rm and np.any(np.isnan(x)):
+    elif not na_rm and np.any(np.isnan(x)):
         return np.nan, np.nan
-    elif nan_rm:
+    elif na_rm:
         x = x[~np.isnan(x)]
     elif finite:
         x = x[~np.isinf(x)]
@@ -154,7 +154,7 @@ def precision(x):
     """
     from .bounds import zero_range
 
-    rng = min_max(x, nan_rm=True)
+    rng = min_max(x, na_rm=True)
     if zero_range(rng):
         span = np.abs(rng[0])
     else:

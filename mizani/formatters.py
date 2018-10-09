@@ -26,7 +26,7 @@ __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'mpl_format', 'log_format', 'timedelta_format']
 
 
-class custom_format(object):
+class custom_format:
     """
     Custom format
 
@@ -75,7 +75,7 @@ class custom_format(object):
 
 
 # formatting functions
-class currency_format(object):
+class currency_format:
     """
     Currency formatter
 
@@ -135,7 +135,7 @@ dollar_format = currency_format
 dollar = dollar_format()
 
 
-class comma_format(object):
+class comma_format:
     """
     Format number with commas separating thousands
 
@@ -170,7 +170,7 @@ class comma_format(object):
         return self.formatter(x)
 
 
-class percent_format(object):
+class percent_format:
     """
     Percent formatter
 
@@ -234,7 +234,7 @@ class percent_format(object):
 percent = percent_format()
 
 
-class scientific_format(object):
+class scientific_format:
     """
     Scientific formatter
 
@@ -312,7 +312,7 @@ def _format(formatter, x):
     return labels
 
 
-class mpl_format(object):
+class mpl_format:
     """
     Format using MPL formatter for scalars
 
@@ -341,7 +341,7 @@ class mpl_format(object):
         return _format(self.formatter, x)
 
 
-class log_format(object):
+class log_format:
     """
     Log Formatter
 
@@ -464,7 +464,7 @@ class log_format(object):
         return [self._format_num(num, use_exponent) for num in x]
 
 
-class date_format(object):
+class date_format:
     """
     Datetime formatter
 
@@ -546,7 +546,7 @@ class date_format(object):
         return _format(self.formatter, x)
 
 
-class timedelta_format(object):
+class timedelta_format:
     """
     Timedelta formatter
 

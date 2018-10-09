@@ -39,7 +39,7 @@ from .utils import multitype_sort
 __all__ = ['scale_continuous', 'scale_discrete']
 
 
-class scale_continuous(object):
+class scale_continuous:
     """
     Continuous scale
     """
@@ -136,7 +136,7 @@ class scale_continuous(object):
         return pal
 
 
-class scale_discrete(object):
+class scale_discrete:
     """
     Discrete scale
     """

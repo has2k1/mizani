@@ -43,7 +43,7 @@ __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
            'trans', 'trans_new', 'gettrans']
 
 
-class trans(object):
+class trans:
     """
     Base class for all transforms
 

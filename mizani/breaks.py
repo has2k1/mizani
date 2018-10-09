@@ -50,7 +50,7 @@ class DateLocator(AutoDateLocator):
         return ticks
 
 
-class mpl_breaks(object):
+class mpl_breaks:
     """
     Compute breaks using MPL's default locator
 
@@ -92,7 +92,7 @@ class mpl_breaks(object):
         return self.locator.tick_values(limits[0], limits[1])
 
 
-class log_breaks(object):
+class log_breaks:
     """
     Integer breaks on log transformed scales
 
@@ -153,7 +153,7 @@ class log_breaks(object):
         return base ** np.arange(_min, _max+1, step, dtype=dtype)
 
 
-class minor_breaks(object):
+class minor_breaks:
     """
     Compute minor breaks
 
@@ -234,7 +234,7 @@ class minor_breaks(object):
         return minor
 
 
-class trans_minor_breaks(object):
+class trans_minor_breaks:
     """
     Compute minor breaks for transformed scales
 
@@ -348,7 +348,7 @@ LOCATORS = {
 }
 
 
-class date_breaks(object):
+class date_breaks:
     """
     Regularly spaced dates
 
@@ -413,7 +413,7 @@ class date_breaks(object):
         return [num2date(val) for val in ret]
 
 
-class timedelta_breaks(object):
+class timedelta_breaks:
     """
     Timedelta breaks
 
@@ -462,7 +462,7 @@ class timedelta_breaks(object):
 
 
 # This could be cleaned up, state overload?
-class timedelta_helper(object):
+class timedelta_helper:
     """
     Helper for computing timedelta breaks
     and labels.
@@ -606,7 +606,7 @@ class timedelta_helper(object):
             return td.total_seconds()/SECONDS[self.units]
 
 
-class extended_breaks(object):
+class extended_breaks:
     """
     An extension of Wilkinson's tick position algorithm
 

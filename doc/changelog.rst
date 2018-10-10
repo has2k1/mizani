@@ -25,6 +25,9 @@ Enhancements
 - Better support for handling missing values when training discrete
   scales.
 
+- Changed the algorithm for :class:`~mizani.breaks.log_breaks`, it can
+  now return breaks that do not fall on the integer powers of the base.
+
 v0.4.6
 ------
 *(2018-03-20)*

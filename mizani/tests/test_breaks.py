@@ -54,8 +54,16 @@ def test_log_breaks():
     assert all([1 < b < 100 for b in breaks])
 
     breaks = log_breaks()([200, 800])
-    assert len(breaks) > 0
-    assert all([10 < b < 1000 for b in breaks])
+    npt.assert_array_equal(breaks, [100,  200,  300,  500, 1000])
+
+    breaks = log_breaks()((1664, 14008))
+    npt.assert_array_equal(breaks, [1000, 3000, 5000, 10000, 30000])
+
+    breaks = log_breaks()([407, 3430])
+    npt.assert_array_equal(breaks, [300,  500, 1000, 3000, 5000])
+
+    breaks = log_breaks()([1761, 8557])
+    npt.assert_array_equal(breaks, [1000, 2000, 3000, 5000, 10000])
 
 
 def test_minor_breaks():

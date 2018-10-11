@@ -3,7 +3,7 @@ Changelog
 
 v0.5.0
 ------
-*(not-yet-released)*
+*(2018-11-10)*
 
 API Changes
 ***********

@@ -148,7 +148,7 @@ class log_breaks:
         # _log_sub_breaks
         by = int(np.floor((_max-_min)/n)) + 1
         for step in range(by, 0, -1):
-            breaks = base ** np.arange(_min, _max+1, step=step)
+            breaks = base ** np.arange(_min, _max+1, step=step, dtype='float')
             relevant_breaks = (
                 (limits[0] <= breaks) &
                 (breaks <= limits[1])
@@ -204,7 +204,7 @@ class _log_sub_breaks:
             return np.min(np.diff(log_arr))
 
         if self.base == 2:
-            return base ** np.arange(_min, _max+1)
+            return base ** np.arange(_min, _max+1, dtype='float')
 
         candidate = np.arange(base+1)
         candidate = np.compress(
@@ -216,7 +216,7 @@ class _log_sub_breaks:
             candidate = np.delete(candidate, best)
 
             breaks = np.outer(
-                base ** np.arange(_min, _max+1), steps).ravel()
+                base ** np.arange(_min, _max+1, dtype='float'), steps).ravel()
             relevant_breaks = (
                 (limits[0] <= breaks) & (breaks <= limits[1]))
 

@@ -110,6 +110,8 @@ class log_breaks:
     array([     100,     1000,    10000,   100000,  1000000])
     >>> log_breaks(2)(limits)
     array([   100, 100000])
+    >>> log_breaks()([0.1, 1])
+    array([0.1, 0.3, 1. , 3. ])
     """
 
     def __init__(self, n=5, base=10):
@@ -139,6 +141,10 @@ class log_breaks:
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
 
+        # numpy arrays with -ve number(s) and of dtype=int
+        # cannot be powers i.e. base ** arr fails
+        dtype = float if _min < 0 or _max < 0 else int
+
         if _max == _min:
             return base ** _min
 
@@ -148,7 +154,7 @@ class log_breaks:
         # _log_sub_breaks
         by = int(np.floor((_max-_min)/n)) + 1
         for step in range(by, 0, -1):
-            breaks = base ** np.arange(_min, _max+1, step=step)
+            breaks = base ** np.arange(_min, _max+1, step=step, dtype=dtype)
             relevant_breaks = (
                 (limits[0] <= breaks) &
                 (breaks <= limits[1])
@@ -189,6 +195,7 @@ class _log_sub_breaks:
         rng = np.log(limits)/np.log(base)
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
+        dtype = float if _min < 0 or _max < 0 else int
         steps = [1]
 
         def delta(x):
@@ -216,7 +223,7 @@ class _log_sub_breaks:
             candidate = np.delete(candidate, best)
 
             breaks = np.outer(
-                base ** np.arange(_min, _max+1), steps).ravel()
+                base ** np.arange(_min, _max+1, dtype=dtype), steps).ravel()
             relevant_breaks = (
                 (limits[0] <= breaks) & (breaks <= limits[1]))
 

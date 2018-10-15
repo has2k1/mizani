@@ -442,8 +442,19 @@ class log_format:
         out : list
             List of strings.
         """
+        def _as_integers(x):
+            """
+            Try converting all numbers to integers
+            """
+            nums = [np.round(i, 11) for i in x]
+            if np.all([float(i).is_integer() for i in nums]):
+                return [int(i) for i in nums]
+            return x
+
         if len(x) == 0:
             return []
+
+        x = _as_integers(x)
 
         # Decide on using exponents
         if self.base == 10:
@@ -452,13 +463,15 @@ class log_format:
             dmax = np.log(np.max(x))/np.log(self.base)
             if same_log10_order_of_magnitude((dmin, dmax)):
                 return mpl_format()(x)
-
+            all_multiples = np.all(
+                [np.log10(num).is_integer() for num in x])
             has_small_number = dmin < -3
             has_large_number = dmax > 3
             has_large_range = (dmax - dmin) > self.exponent_threshold
-            use_exponent = (has_small_number or
-                            has_large_number or
-                            has_large_range)
+            use_exponent = (all_multiples and
+                            (has_small_number or
+                             has_large_number or
+                             has_large_range))
         else:
             use_exponent = False
         return [self._format_num(num, use_exponent) for num in x]

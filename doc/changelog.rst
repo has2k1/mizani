@@ -1,9 +1,28 @@
 Changelog
 =========
 
+v0.5.1
+------
+*(2018-15-10)*
+
+Bug Fixes
+*********
+
+- Fixed issue with :class:`~mizani.breaks.log_breaks`, so that it does
+  not fail needlessly when the limits in the (0, 1) range.
+
+Enhancements
+************
+
+- Changed :class:`~mizani.formatters.log_format` to return better
+  formatted breaks.
+
 v0.5.0
 ------
 *(2018-11-10)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
+   :target: https://doi.org/10.5281/zenodo.62319878
 
 API Changes
 ***********

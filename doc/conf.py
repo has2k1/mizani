@@ -32,6 +32,7 @@ if on_rtd:
         'pandas',
         'pandas.core',
         'pandas.core.common',
+        'pandas.core.dtypes.common',
         'pandas.api',
         'pandas.api.types']
     for mod_name in MOCK_MODULES:

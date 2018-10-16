@@ -5,6 +5,9 @@ v0.5.1
 ------
 *(2018-15-10)*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1464266.svg
+   :target: https://doi.org/10.5281/zenodo.1464266
+
 Bug Fixes
 *********
 
@@ -21,8 +24,8 @@ v0.5.0
 ------
 *(2018-11-10)*
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
-   :target: https://doi.org/10.5281/zenodo.62319878
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1461621.svg
+   :target: https://doi.org/10.5281/zenodo.1461621
 
 API Changes
 ***********

@@ -254,6 +254,11 @@ def test_rescale_max():
     # branches #
     assert rescale_max(2, _from=(0, 10)) == 0.2
 
+    # Maintains the same index
+    s = pd.Series([1, 2, 3], index=[3, 2, 1])
+    result = rescale_max(s)
+    assert s.index.equals(result.index)
+
 
 def test_rescale_mid():
     a = [1, 2, 3]
@@ -272,6 +277,11 @@ def test_rescale_mid():
         rescale_mid([2], _from=(2, 2), to=(2, 2), mid=2),
         [2])
 
+    # Maintains the same index
+    s = pd.Series([1, 2, 3], index=[3, 2, 1])
+    result = rescale_mid(s, mid=1)
+    assert s.index.equals(result.index)
+
 
 def test_squish_infinite():
     a = [-np.inf, np.inf, -np.inf, np.inf]
@@ -282,6 +292,11 @@ def test_squish_infinite():
     b = np.array([5, -np.inf, 2, 3, 6])
     npt.assert_allclose(squish_infinite(b, (1, 10)),
                         [5, 1, 2, 3, 6])
+
+    # Maintains the same index
+    s = pd.Series([1, 2, 3, 4], index=[4, 3, 2, 1])
+    result = squish_infinite(s)
+    assert s.index.equals(result.index)
 
 
 def test_squish():
@@ -299,6 +314,11 @@ def test_squish():
     npt.assert_allclose(squish(c, (1, 10), only_finite=False),
                         [5, 1, 2, 3, 6])
     npt.assert_allclose(squish(c, (1, 10)), c)
+
+    # Maintains the same index
+    s = pd.Series([.1, .2, .3, 9], index=[4, 3, 2, 1])
+    result = squish(s)
+    assert s.index.equals(result.index)
 
 
 def test_zero_range():

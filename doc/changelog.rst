@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v0.5.2
+------
+*(2018-17-10)*
+
+Bug Fixes
+*********
+
+- Fixed issue where some functions that took pandas series
+  would return output where the index did not match that of the input.
+
 v0.5.1
 ------
 *(2018-15-10)*

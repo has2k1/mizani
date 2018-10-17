@@ -107,7 +107,9 @@ def rescale_mid(x, to=(0, 1), _from=None, mid=0):
         array_like = False
         x = [x]
 
-    x = np.asarray(x)
+    if not hasattr(x, 'dtype'):
+        x = np.asarray(x)
+
     if _from is None:
         _from = np.array([np.min(x), np.max(x)])
     else:
@@ -174,7 +176,9 @@ def rescale_max(x, to=(0, 1), _from=None):
         array_like = False
         x = [x]
 
-    x = np.asarray(x)
+    if not hasattr(x, 'dtype'):
+        x = np.asarray(x)
+
     if _from is None:
         _from = np.array([np.min(x), np.max(x)])
 
@@ -210,7 +214,9 @@ def squish_infinite(x, range=(0, 1)):
     [0.0, -10.0, 0.5, 0.25, 9.0]
     """
     xtype = type(x)
-    x = np.asarray(x)
+
+    if not hasattr(x, 'dtype'):
+        x = np.asarray(x)
 
     x[x == -np.inf] = range[0]
     x[x == np.inf] = range[1]
@@ -247,7 +253,9 @@ def squish(x, range=(0, 1), only_finite=True):
     [0.0, 0.0, 0.2, 0.5, 0.8, 1.0, 1.0]
     """
     xtype = type(x)
-    x = np.asarray(x)
+
+    if not hasattr(x, 'dtype'):
+        x = np.asarray(x)
 
     finite = np.isfinite(x) if only_finite else True
 

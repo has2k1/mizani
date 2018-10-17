@@ -44,7 +44,9 @@ def round_any(x, accuracy, f=np.round):
     """
     Round to multiple of any number.
     """
-    x = np.asarray(x)
+    if not hasattr(x, 'dtype'):
+        x = np.asarray(x)
+
     return f(x / accuracy) * accuracy
 
 
@@ -66,7 +68,9 @@ def min_max(x, na_rm=False, finite=True):
     out : tuple
         (minimum, maximum) of x
     """
-    x = np.asarray(x)
+    if not hasattr(x, 'dtype'):
+        x = np.asarray(x)
+
     if na_rm and finite:
         x = x[np.isfinite(x)]
     elif not na_rm and np.any(np.isnan(x)):

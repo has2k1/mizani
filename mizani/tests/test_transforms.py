@@ -63,13 +63,19 @@ def _test_trans(trans, x):
     t = gettrans(trans())
     xt = t.transform(x)
     x2 = t.inverse(xt)
+    is_log_trans = (t.__class__.__name__.startswith('log') and
+                    hasattr(t, 'base'))
     # round trip
     npt.assert_allclose(x, x2)
     major = t.breaks([min(x), max(x)])
     minor = t.minor_breaks(t.transform(major))
     # Breaks and they are finite
     assert len(major)
-    assert len(minor)
+    if is_log_trans and int(t.base) == 2:
+        # Minor breaks for base == 2
+        assert len(minor) == 0
+    else:
+        assert len(minor)
     assert all(np.isfinite(major))
     assert all(np.isfinite(minor))
     # Not breaks outside the domain

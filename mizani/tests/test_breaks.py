@@ -8,7 +8,7 @@ import pytest
 from mizani.breaks import (mpl_breaks, log_breaks, minor_breaks,
                            trans_minor_breaks, date_breaks,
                            timedelta_breaks, extended_breaks)
-from mizani.transforms import trans
+from mizani.transforms import trans, log_trans
 
 
 def test_mpl_breaks():
@@ -129,6 +129,19 @@ def test_trans_minor_breaks():
     t = weird_trans()
     with pytest.raises(TypeError):
         t.minor_breaks(major)
+
+    # Test minor_breaks for log scales are 2 less than the base
+    base = 10
+    breaks = np.arange(1, 3)
+    limits = [breaks[0], breaks[-1]]
+    t = log_trans(base)
+    assert len(t.minor_breaks(breaks, limits)) == base - 2
+
+    base = 5  # Odd base
+    breaks = np.arange(1, 3)
+    limits = [breaks[0], breaks[-1]]
+    t = log_trans(base)
+    assert len(t.minor_breaks(breaks, limits)) == base - 2
 
 
 def test_date_breaks():

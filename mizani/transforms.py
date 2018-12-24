@@ -169,7 +169,7 @@ class trans:
 
 def trans_new(name, transform, inverse, breaks=None,
               minor_breaks=None, _format=None,
-              domain=(-np.inf, np.inf), doc=''):
+              domain=(-np.inf, np.inf), doc='', **kwargs):
     """
     Create a transformation class object
 
@@ -198,6 +198,9 @@ def trans_new(name, transform, inverse, breaks=None,
         It should be of length 2.
     doc : str
         Docstring for the class.
+    **kwargs : dict
+        Attributes of the transform, e.g if base is passed
+        in kwargs, then `t.base` would be a valied attribute.
 
     Returns
     -------
@@ -215,7 +218,8 @@ def trans_new(name, transform, inverse, breaks=None,
     d = {'transform': _get(transform),
          'inverse': _get(inverse),
          'domain': domain,
-         '__doc__': doc}
+         '__doc__': doc,
+         **kwargs}
 
     if breaks:
         d['breaks_'] = _get(breaks)
@@ -278,12 +282,14 @@ def log_trans(base=None, **kwargs):
     if 'breaks' not in kwargs:
         kwargs['breaks'] = log_breaks(base=base)
 
+    kwargs['base'] = base
     kwargs['_format'] = log_format(base)
 
     _trans = trans_new(name, transform, inverse, **kwargs)
 
     if 'minor_breaks' not in kwargs:
-        _trans.minor_breaks = trans_minor_breaks(_trans, 4)
+        n = int(base) - 2
+        _trans.minor_breaks = trans_minor_breaks(_trans, n=n)
 
     return _trans
 
@@ -327,6 +333,7 @@ def exp_trans(base=None, **kwargs):
     def inverse(x):
         return np.log(x)/np.log(base)
 
+    kwargs['base'] = base
     return trans_new(name, transform, inverse, **kwargs)
 
 
@@ -406,6 +413,7 @@ def boxcox_trans(p, **kwargs):
     def inverse(x):
         return (np.abs(x) * p + np.sign(x)) ** (1 / p)
 
+    kwargs['p'] = p
     kwargs['name'] = kwargs.get('name', 'pow_{}'.format(p))
     kwargs['transform'] = transform
     kwargs['inverse'] = inverse

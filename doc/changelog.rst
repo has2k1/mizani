@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.5.3
+------
+*(not-yet-released)*
+
+API Changes
+-----------
+- Log transforms now default to ``base - 2`` minor breaks.
+  So base 10 has 8 minor breaks and 9 partitions,
+  base 8 has 6 minor breaks and 7 partitions, ...,
+  base 2 has 0 minor breaks and a single partition.
+
+
 v0.5.2
 ------
 *(2018-17-10)*

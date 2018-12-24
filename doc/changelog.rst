@@ -3,7 +3,7 @@ Changelog
 
 v0.5.3
 ------
-*(not-yet-released)*
+*(2018-12-24)*
 
 API Changes
 -----------
@@ -15,7 +15,10 @@ API Changes
 
 v0.5.2
 ------
-*(2018-17-10)*
+*(2018-10-17)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2525577.svg
+   :target: https://doi.org/10.5281/zenodo.2525577
 
 Bug Fixes
 *********
@@ -25,7 +28,7 @@ Bug Fixes
 
 v0.5.1
 ------
-*(2018-15-10)*
+*(2018-10-15)*
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1464266.svg
    :target: https://doi.org/10.5281/zenodo.1464266

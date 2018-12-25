@@ -5,6 +5,10 @@ v0.5.3
 ------
 *(2018-12-24)*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2526010.svg
+   :target: https://doi.org/10.5281/zenodo.2526010
+
+
 API Changes
 -----------
 - Log transforms now default to ``base - 2`` minor breaks.

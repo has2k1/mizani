@@ -17,7 +17,7 @@ from matplotlib.dates import DateFormatter, date2num
 from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
-from .utils import round_any, precision, is_close_to_int
+from .utils import round_any, precision
 from .utils import same_log10_order_of_magnitude
 
 
@@ -349,43 +349,49 @@ class log_format:
     ----------
     base : int
         Base of the logarithm. Default is 10.
-    exponent_threshold : int
-        Difference between the minimum and maximum values
-        of the data beyond which exponent notation will
-        be used. Default is 5.
+    exponent_limits : tuple
+        limits (int, int) where if the any of the powers of the
+        numbers falls outside, then the labels will be in
+        exponent form. This only applies for base 10.
 
     Examples
     --------
     >>> log_format()([0.001, 0.1, 100])
     ['0.001', '0.1', '100']
 
-    >>> log_format()([0.001, 0.1, 1000])
-    ['1e-3', '1e-1', '1e3']
+    >>> log_format()([0.0001, 0.1, 10000])
+    ['1e-4', '1e-1', '1e4']
     """
-    def __init__(self, base=10, exponent_threshold=5):
-        self.base = base
-        self.exponent_threshold = exponent_threshold
 
-    def _num_to_string(self, x, use_exponent):
+    def __init__(self, base=10, exponent_limits=(-4, 4), **kwargs):
+        self.base = base
+        self.exponent_limits = exponent_limits
+
+        if 'exponent_threshold' in kwargs:
+            warn(
+                 "`exponent_threshold` parameter has been deprecated ",
+                 "Use exponent_limits instead",
+                 DeprecationWarning)
+
+    def _tidyup_labels(self, labels):
         """
+        Make all labels uniform in format and remove redundant zeros
+        for labels in exponential format.
+
         Parameters
         ----------
-        x : float
-            Number to represent as string
-        use_exponent : bool
-            Difference in exponents between max and min.
+        labels : list-like
+            Labels to be tidied.
+
+        Returns
+        -------
+        out : list-like
+            Labels
         """
-        if use_exponent:
-            fmt = '{:1.0e}'
-        else:
-            fmt = '{}'
-
-        s = fmt.format(x)
-
-        # Tidy up, remove unnecessary +ve signs
-        # e.g 1e+00 -> 1
-        #     1e+3 -> 1e3
-        if use_exponent:
+        def remove_zeroes(s):
+            """
+            Remove unnecessary zeros for float string s
+            """
             tup = s.split('e')
             if len(tup) == 2:
                 mantissa = tup[0].rstrip('0').rstrip('.')
@@ -394,39 +400,22 @@ class log_format:
                     s = '%se%d' % (mantissa, exponent)
                 else:
                     s = mantissa
-        return s
+            return s
 
-    def _format_num(self, x, use_exponent):
-        """
-        Return the format for tick val `x`.
+        def as_exp(s):
+            """
+            Float string s as in exponential format
+            """
+            return s if 'e' in s else '{:1.0e}'.format(float(s))
 
-        Parameters
-        ----------
-        x : float
-            Number to format
-        use_exponent : bool
-            If True, used exponent notation.
+        # If any are in exponential format, make all of
+        # them expontential
+        has_e = np.array(['e' in x for x in labels])
+        if not np.all(has_e) and not np.all(~has_e):
+            labels = [as_exp(x) for x in labels]
 
-        Returns
-        -------
-        out : str
-            Formatted number.
-        """
-        if x == 0.0:  # Symlog
-            return '0'
-
-        x = abs(x)
-
-        # only label the decades
-        if self.base == 10 and use_exponent:
-            fx = np.log(x) / np.log(self.base)
-            is_x_decade = is_close_to_int(fx)
-
-            if not is_x_decade:
-                return ''
-
-        s = self._num_to_string(x, use_exponent)
-        return (s)
+        labels = [remove_zeroes(x) for x in labels]
+        return labels
 
     def __call__(self, x):
         """
@@ -442,39 +431,30 @@ class log_format:
         out : list
             List of strings.
         """
-        def _as_integers(x):
-            """
-            Try converting all numbers to integers
-            """
-            nums = [np.round(i, 11) for i in x]
-            if np.all([float(i).is_integer() for i in nums]):
-                return [int(i) for i in nums]
-            return x
-
         if len(x) == 0:
             return []
 
-        x = _as_integers(x)
-
         # Decide on using exponents
         if self.base == 10:
-            # Order of magnitude of the minimum and maximum
-            dmin = np.log(np.min(x))/np.log(self.base)
-            dmax = np.log(np.max(x))/np.log(self.base)
-            if same_log10_order_of_magnitude((dmin, dmax)):
-                return mpl_format()(x)
+            xmin = int(np.floor(np.log10(np.min(x))))
+            xmax = int(np.ceil(np.log10(np.max(x))))
+            emin, emax = self.exponent_limits
             all_multiples = np.all(
                 [np.log10(num).is_integer() for num in x])
-            has_small_number = dmin < -3
-            has_large_number = dmax > 3
-            has_large_range = (dmax - dmin) > self.exponent_threshold
-            use_exponent = (all_multiples and
-                            (has_small_number or
-                             has_large_number or
-                             has_large_range))
+            # Order of magnitude of the minimum and maximum
+            if same_log10_order_of_magnitude(x):
+                f = mpl_format()
+                f.formatter.set_powerlimits((emin, emax))
+                return f(x)
+            elif all_multiples and (xmin <= emin or xmax >= emax):
+                fmt = '{:1.0e}'
+            else:
+                fmt = '{:g}'
         else:
-            use_exponent = False
-        return [self._format_num(num, use_exponent) for num in x]
+            fmt = '{:g}'
+
+        labels = [fmt.format(num) for num in x]
+        return self._tidyup_labels(labels)
 
 
 class date_format:

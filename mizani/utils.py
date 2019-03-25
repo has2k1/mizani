@@ -254,27 +254,27 @@ def is_close_to_int(x):
     return abs(x - nearest_int(x)) < 1e-10
 
 
-def same_log10_order_of_magnitude(rng, delta=0.045):
+def same_log10_order_of_magnitude(x, delta=0.1):
     """
     Return true if range is approximately in same order of magnitude
 
     For example these sequences are in the same order of magnitude:
 
-        - [log(1), log(8)]        # [1, 10)
-        - [log(35), log(80)]      # [10 100)
-        - [log(232), log(730)]    # [100, 1000)
+        - [1, 8, 5]     # [1, 10)
+        - [35, 20, 80]  # [10 100)
+        - [232, 730]    # [100, 1000)
 
     Parameters
     ----------
-    rng : array-like
-        Range of values in log base 10. Must be size 2 and
+    x : array-like
+         Values in base 10. Must be size 2 and
         ``rng[0] <= rng[1]``.
     delta : float
-        Fuzz factor for approximation. Since the ``rng`` is in
-        log form, this factor is additional.
+        Fuzz factor for approximation. It is multiplicative.
     """
-    rng_adjusted = np.array(rng) + [-delta, +delta]
-    return np.diff(rng_adjusted.astype(int))[0] == 0
+    dmin = np.log10(np.min(x)*(1-delta))
+    dmax = np.log10(np.max(x)*(1+delta))
+    return np.floor(dmin) == np.floor(dmax)
 
 
 def identity(*args):

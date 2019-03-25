@@ -81,13 +81,14 @@ def test_log_format():
     formatter = log_format()
 
     assert formatter([0.001, 0.1, 100]) == ['0.001', '0.1', '100']
-    assert formatter([0.001, 0.1, 1000]) == ['1e-3', '1e-1', '1e3']
+    assert formatter([0.001, 0.1, 10000]) == ['1e-3', '1e-1', '1e4']
     assert formatter([35, 60]) == ['35', '60']
     assert formatter([34.99999999999, 60.0000000001]) == ['35', '60']
     assert formatter([3000.0000000000014, 4999.999999999999]) == \
         ['3000', '5000']
     assert formatter([1, 35, 60, 1000]) == ['1', '35', '60', '1000']
     assert formatter([1, 35, 60, 10000]) == ['1', '35', '60', '10000']
+    assert formatter([3.000000000000001e-05]) == ['3e-5']
 
     formatter = log_format(base=2)
     assert formatter([1, 10, 11, 1011]) == ['1', '10', '11', '1011']

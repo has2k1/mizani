@@ -122,22 +122,20 @@ def test_multitype_sort():
 
 
 def test_same_log10_order_of_magnitude():
-    log = np.log10
-
     # Default delta
-    assert same_log10_order_of_magnitude(log([1, 8]))
-    assert same_log10_order_of_magnitude(log([35, 80.8]))
-    assert same_log10_order_of_magnitude(log([232.3, 730]))
+    assert same_log10_order_of_magnitude((2, 8))
+    assert same_log10_order_of_magnitude((35, 80.8))
+    assert same_log10_order_of_magnitude((232.3, 730))
 
-    assert not same_log10_order_of_magnitude(log([1, 18]))
-    assert not same_log10_order_of_magnitude(log([35, 800]))
-    assert not same_log10_order_of_magnitude(log([32, 730]))
+    assert not same_log10_order_of_magnitude((1, 18))
+    assert not same_log10_order_of_magnitude((35, 800))
+    assert not same_log10_order_of_magnitude((32, 730))
 
-    assert not same_log10_order_of_magnitude(log([1, 9.9]))
-    assert not same_log10_order_of_magnitude(log([35, 91]))
-    assert not same_log10_order_of_magnitude(log([232.3, 950]))
+    assert not same_log10_order_of_magnitude((1, 9.9))
+    assert not same_log10_order_of_magnitude((35, 91))
+    assert not same_log10_order_of_magnitude((232.3, 950))
 
     # delta = 0
-    assert same_log10_order_of_magnitude(log([1, 9.9]), delta=0)
-    assert same_log10_order_of_magnitude(log([35, 91]), delta=0)
-    assert same_log10_order_of_magnitude(log([232.3, 950]), delta=0)
+    assert same_log10_order_of_magnitude((1, 9.9), delta=0)
+    assert same_log10_order_of_magnitude((35, 91), delta=0)
+    assert same_log10_order_of_magnitude((232.3, 950), delta=0)

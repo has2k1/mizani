@@ -1,6 +1,22 @@
 Changelog
 =========
 
+v0.5.4
+------
+
+*(not-yet-released)*
+
+Enhancements
+************
+- :class:`mizani.formatters.log_format` now does a better job of
+  approximating labels for numbers like ``3.000000000000001e-05``.
+
+API Changes
+-----------
+
+- ``exponent_threshold`` parameter of :class:`mizani.formatters.log_format` has
+  been deprecated.
+
 v0.5.3
 ------
 *(2018-12-24)*

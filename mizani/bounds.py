@@ -322,7 +322,7 @@ def censor(x, range=(0, 1), only_finite=True):
         return _censor_with(x, range, 'NaT')
 
     if not hasattr(x, 'dtype') and isinstance(x0, np_pd_time_types):
-            return _censor_with(x, range, type(x0)('NaT'))
+        return _censor_with(x, range, type(x0)('NaT'))
 
     x_array = np.asarray(x)
     if pdtypes.is_number(x0) and not isinstance(x0, np.timedelta64):

@@ -4,7 +4,7 @@ Changelog
 v0.5.4
 ------
 
-*(not-yet-released)*
+*(2018-03-26)*
 
 Enhancements
 ************

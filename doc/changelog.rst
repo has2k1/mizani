@@ -3,8 +3,9 @@ Changelog
 
 v0.5.4
 ------
-
 *(2018-03-26)*
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
+   :target: https://doi.org/10.5281/zenodo.62319878
 
 Enhancements
 ************

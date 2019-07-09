@@ -73,8 +73,8 @@ def test_mpl_format():
     formatter = mpl_format()
     assert formatter([5, 10, 100, 150]) == ['5', '10', '100', '150']
 
-    # trigger the order of magnitude correction
-    assert formatter([5, 10, 100, 150e8]) == ['0', '0', '0', '1.5e10']
+    # trigger the order of magnitude correction (not any more)
+    assert formatter([5, 10, 100, 150e8]) == ['5', '10', '100', '15000000000']
 
 
 def test_log_format():

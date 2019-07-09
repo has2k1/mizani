@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.dates import MinuteLocator, HourLocator, DayLocator
 from matplotlib.dates import WeekdayLocator, MonthLocator, YearLocator
-from matplotlib.dates import AutoDateLocator
+from matplotlib.dates import AutoDateLocator, SecondLocator
 from matplotlib.dates import num2date, YEARLY
 from matplotlib.ticker import MaxNLocator
 
@@ -428,6 +428,7 @@ class trans_minor_breaks:
 # Matplotlib's YearLocator uses different named
 # arguments than the others
 LOCATORS = {
+    'second': SecondLocator,
     'minute': MinuteLocator,
     'hour': HourLocator,
     'day': DayLocator,
@@ -445,7 +446,7 @@ class date_breaks:
     ----------
     width : str | None
         An interval specification. Must be one of
-        [minute, hour, day, week, month, year]
+        [second, minute, hour, day, week, month, year]
         If ``None``, the interval automatic.
 
     Examples

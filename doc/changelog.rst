@@ -1,9 +1,19 @@
 Changelog
 =========
 
+v0.5.5
+------
+*Not yet released*
+
+Enhancements
+************
+- :class:`mizani.breaks.date_breaks` now supports intervals in the
+   order of seconds.
+
+
 v0.5.4
 ------
-*(2018-03-26)*
+*(2019-03-26)*
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
    :target: https://doi.org/10.5281/zenodo.62319878
 

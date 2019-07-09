@@ -19,7 +19,7 @@ def test_mpl_breaks():
         assert len(breaks(limits)) <= nbins+1
 
     limits = float('-inf'), float('inf')
-    breaks = mpl_breaks(n=5)
+    breaks = mpl_breaks(nbins=5)
     assert len(breaks(limits)) == 0
 
     # Zero range discrete

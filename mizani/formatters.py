@@ -23,7 +23,8 @@ from .utils import same_log10_order_of_magnitude
 
 __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'percent_format', 'scientific_format', 'date_format',
-           'mpl_format', 'log_format', 'timedelta_format']
+           'mpl_format', 'log_format', 'timedelta_format',
+           'pvalue_format']
 
 
 class custom_format:
@@ -618,4 +619,59 @@ class timedelta_format:
             _ulabel = '' if num == 0 else ulabel+s
             labels.append(''.join([num_label, _ulabel]))
 
+        return labels
+
+
+class pvalue_format:
+    """
+    p-values Formatter
+
+    Parameters
+    ----------
+    accuracy : float
+        Number to round to
+    add_p : bool
+        Whether to prepend "p=" or "p<" to the output
+
+    Examples
+    --------
+    >>> x = [.90, .15, .015, .009, 0.0005]
+    >>> pvalue_format()(x)
+    ['0.9', '0.15', '0.015', '0.009', '<0.001']
+    >>> pvalue_format(0.1)(x)
+    ['0.9', '0.1', '<0.1', '<0.1', '<0.1']
+    >>> pvalue_format(0.1, True)(x)
+    ['p=0.9', 'p=0.1', 'p<0.1', 'p<0.1', 'p<0.1']
+    """
+
+    def __init__(self, accuracy=0.001, add_p=False):
+        self.accuracy = accuracy
+        self.add_p = add_p
+
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Returns
+        -------
+        out : list
+            List of strings.
+        """
+        x = round_any(x, self.accuracy)
+        below = [num < self.accuracy for num in x]
+
+        if self.add_p:
+            eq_fmt = 'p={:g}'.format
+            below_label = 'p<{:g}'.format(self.accuracy)
+        else:
+            eq_fmt = '{:g}'.format
+            below_label = '<{:g}'.format(self.accuracy)
+
+        labels = [below_label if b else eq_fmt(i)
+                  for i, b in zip(x, below)]
         return labels

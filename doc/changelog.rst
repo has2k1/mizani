@@ -5,6 +5,10 @@ v0.5.5
 ------
 *Not yet released*
 
+New
+***
+- Added :class:`~mizani.formatters.pvalue_format`
+
 Enhancements
 ************
 - :class:`mizani.breaks.date_breaks` now supports intervals in the

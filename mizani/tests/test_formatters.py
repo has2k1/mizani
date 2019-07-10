@@ -2,13 +2,15 @@
 from datetime import datetime, timedelta
 
 import pandas as pd
+import numpy as np
 import pytest
 import pytz
 
 from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
                                scientific_format, date_format,
-                               mpl_format, log_format, timedelta_format)
+                               mpl_format, log_format, timedelta_format,
+                               pvalue_format)
 
 
 def test_custom_format():
@@ -135,6 +137,23 @@ def test_timedelta_format():
         ['0', '7$\\mu s$', '14$\\mu s$', '21$\\mu s$', '28$\\mu s$']
 
 
+def test_pvalue_format():
+    x = [.90, .15, .015, .009, 0.0005]
+    labels = pvalue_format()(x)
+    assert labels == ['0.9', '0.15', '0.015', '0.009', '<0.001']
+
+    labels = pvalue_format(add_p=True)(x)
+    assert labels == ['p=0.9', 'p=0.15', 'p=0.015', 'p=0.009', 'p<0.001']
+
+    with pytest.warns(None) as record:
+        x = [.90, .15, np.nan, .015, .009, 0.0005]
+        labels = pvalue_format()(x)
+        assert labels == ['0.9', '0.15', 'nan', '0.015', '0.009', '<0.001']
+
+    # NaN is handled without any warning
+    assert len(record) == 0
+
+
 def test_empty_breaks():
     x = []
     assert custom_format()(x) == []
@@ -146,3 +165,4 @@ def test_empty_breaks():
     assert mpl_format()(x) == []
     assert log_format()(x) == []
     assert timedelta_format()(x) == []
+    assert pvalue_format()(x) == []

@@ -24,7 +24,7 @@ from .utils import same_log10_order_of_magnitude
 __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'percent_format', 'scientific_format', 'date_format',
            'mpl_format', 'log_format', 'timedelta_format',
-           'pvalue_format']
+           'pvalue_format', 'ordinal_format']
 
 
 class custom_format:
@@ -674,4 +674,55 @@ class pvalue_format:
 
         labels = [below_label if b else eq_fmt(i)
                   for i, b in zip(x, below)]
+        return labels
+
+
+def ordinal(n, prefix='', suffix='', big_mark=''):
+    # General Case: 0th, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th
+    # Special Case: 10th, 11th, 12th, 13th
+    n = int(n)
+    idx = np.min((n % 10, 4))
+    _suffix = ['th', 'st', 'nd', 'rd', 'th'][idx]
+    if 11 <= (n % 100) <= 13:
+        _suffix = 'th'
+
+    if big_mark:
+        s = '{:,}'.format(n)
+        if big_mark != ',':
+            s = s.replace(',', big_mark)
+    else:
+        s = '{}'.format(n)
+
+    return '{}{}{}{}'.format(prefix, s, _suffix, suffix)
+
+
+class ordinal_format:
+    """
+    Ordinal Formatter
+
+    Parameters
+    ----------
+    prefix : str
+        What to put before the value.
+    suffix : str
+        What to put after the value.
+    big_mark : str
+        The thousands separator. This is usually
+        a comma or a dot.
+
+    Examples
+    --------
+    >>> ordinal_format()(range(8))
+    ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th']
+    >>> ordinal_format(suffix=' Number')(range(11, 15))
+    ['11th Number', '12th Number', '13th Number', '14th Number']
+    """
+    def __init__(self, prefix='', suffix='', big_mark=''):
+        self.prefix = prefix
+        self.suffix = suffix
+        self.big_mark = big_mark
+
+    def __call__(self, x):
+        labels = [ordinal(num, self.prefix, self.suffix, self.big_mark)
+                  for num in x]
         return labels

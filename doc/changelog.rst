@@ -8,6 +8,7 @@ v0.5.5
 New
 ***
 - Added :class:`~mizani.formatters.pvalue_format`
+- Added :class:`~mizani.formatters.ordinal_format`
 
 Enhancements
 ************

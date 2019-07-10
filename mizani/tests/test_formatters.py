@@ -10,7 +10,7 @@ from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
                                scientific_format, date_format,
                                mpl_format, log_format, timedelta_format,
-                               pvalue_format)
+                               pvalue_format, ordinal_format)
 
 
 def test_custom_format():
@@ -154,6 +154,20 @@ def test_pvalue_format():
     assert len(record) == 0
 
 
+def test_ordinal_format():
+    labels = ordinal_format()(range(110, 115))
+    assert labels == ['110th', '111th', '112th', '113th', '114th']
+
+    labels = ordinal_format()(range(120, 125))
+    assert labels == ['120th', '121st', '122nd', '123rd', '124th']
+
+    labels = ordinal_format(big_mark=',')(range(1200, 1205))
+    assert labels == ['1,200th', '1,201st', '1,202nd', '1,203rd', '1,204th']
+
+    labels = ordinal_format(big_mark='.')(range(1200, 1205))
+    assert labels == ['1.200th', '1.201st', '1.202nd', '1.203rd', '1.204th']
+
+
 def test_empty_breaks():
     x = []
     assert custom_format()(x) == []
@@ -166,3 +180,4 @@ def test_empty_breaks():
     assert log_format()(x) == []
     assert timedelta_format()(x) == []
     assert pvalue_format()(x) == []
+    assert ordinal_format()(x) == []

@@ -9,7 +9,8 @@ import pytest
 from mizani.breaks import mpl_breaks, minor_breaks
 from mizani.transforms import (
     trans,
-    asn_trans, atanh_trans, boxcox_trans, datetime_trans,
+    asn_trans, atanh_trans, boxcox_trans, modulus_trans,
+    datetime_trans,
     exp_trans, identity_trans, log10_trans, log1p_trans,
     log2_trans, log_trans, probability_trans, reverse_trans,
     sqrt_trans, timedelta_trans, pd_timedelta_trans,
@@ -97,6 +98,14 @@ def test_atanh_trans():
 def test_boxcox_trans():
     _test_trans(boxcox_trans(0), arr)
     _test_trans(boxcox_trans(0.5), arr*10)
+    with pytest.raises(ValueError):
+        x = np.arange(-4, 4)
+        _test_trans(boxcox_trans(0.5), x)
+
+
+def test_modulus_trans():
+    _test_trans(modulus_trans(0), arr)
+    _test_trans(modulus_trans(0.5), arr*10)
 
 
 def test_exp_trans():

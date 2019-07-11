@@ -9,14 +9,20 @@ New
 ***
 - Added :class:`~mizani.formatters.pvalue_format`
 - Added :class:`~mizani.formatters.ordinal_format`
-- Added :class:`~mizani.transforms.pseudo_log_trans`
+- Added :func:`~mizani.transforms.pseudo_log_trans`
 - Added :class:`~mizani.transforms.reciprocal_trans`
+- Added :func:`~mizani.transforms.modulus_trans`
 
 Enhancements
 ************
 - :class:`mizani.breaks.date_breaks` now supports intervals in the
    order of seconds.
 
+API Changes
+***********
+- :func:`~mizani.transforms.boxcox_trans` now only accepts positive
+  values. For both positive and negative values,
+  :func:`~mizani.transforms.modulus_trans` has been added.
 
 v0.5.4
 ------

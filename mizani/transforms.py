@@ -35,6 +35,7 @@ from .formatters import log_format
 
 
 __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
+           'modulus_trans',
            'datetime_trans', 'exp_trans', 'identity_trans',
            'log10_trans', 'log1p_trans', 'log2_trans',
            'log_trans', 'logit_trans', 'probability_trans',
@@ -391,31 +392,144 @@ class atanh_trans(trans):
     inverse = staticmethod(np.tanh)
 
 
-def boxcox_trans(p, **kwargs):
-    """
+def boxcox_trans(p, offset=0, **kwargs):
+    r"""
     Boxcox Transformation
+
+    The Box-Cox transformation is a flexible transformation, often
+    used to transform data towards normality.
+
+    The Box-Cox power transformation (type 1) requires strictly positive
+    values and takes the following form for :math:`y \gt 0`:
+
+    .. math::
+
+        y^{(\lambda)} = \frac{y^\lambda - 1}{\lambda}
+
+    When :math:`y = 0`, the natural log transform is used.
 
     Parameters
     ----------
     p : float
-        Power parameter, commonly denoted by
-        lower-case lambda in formulae
+        Transformation exponent :math:`\lambda`.
+    offset : int
+        Constant offset. 0 for Box-Cox type 1, otherwise any
+        non-negative constant (Box-Cox type 2).
+        The default is 0. :func:`~mizani.transforms.modulus_trans`
+        sets the default to 1.
     kwargs : dict
-        Keyword arguments passed onto
-        :func:`trans_new`. Should not include
-        the `transform` or `inverse`.
+        Keyword arguments passed onto :func:`trans_new`. Should not
+        include the `transform` or `inverse`.
+
+    References
+    ----------
+    - Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
+      Journal of the Royal Statistical Society. Series B (Methodological),
+      211-252. `<https://www.jstor.org/stable/2984418>`_
+    - John, J. A., & Draper, N. R. (1980). An alternative family of
+      transformations. Applied Statistics, 190-197.
+      `<http://www.jstor.org/stable/2986305>`_
+
+    See Also
+    --------
+    :func:`~mizani.transforms.modulus_trans`
+
     """
     if np.abs(p) < 1e-7:
         return log_trans()
 
     def transform(x):
-        return (x**p - 1) / (p * np.sign(x-1))
+        x = np.asarray(x)
+        if np.any((x + offset) < 0):
+            raise ValueError(
+                "boxcox_trans must be given only positive values. "
+                "Consider using modulus_trans instead?"
+            )
+        if np.abs(p) < 1e-7:
+            return np.log(x + offset)
+        else:
+            return ((x + offset)**p - 1)/p
 
     def inverse(x):
-        return (np.abs(x) * p + np.sign(x)) ** (1 / p)
+        x = np.asarray(x)
+        if np.abs(p) < 1e-7:
+            return np.exp(x) - offset
+        else:
+            return (x*p + 1) ** (1/p) - offset
 
     kwargs['p'] = p
+    kwargs['offset'] = offset
     kwargs['name'] = kwargs.get('name', 'pow_{}'.format(p))
+    kwargs['transform'] = transform
+    kwargs['inverse'] = inverse
+    return trans_new(**kwargs)
+
+
+def modulus_trans(p, offset=1, **kwargs):
+    r"""
+    Modulus Transformation
+
+    The modulus transformation generalises Box-Cox to work with
+    both positive and negative values.
+
+    When :math:`y \neq 0`
+
+    .. math::
+
+        y^{(\lambda)} = sign(y) * \frac{(|y| + 1)^\lambda - 1}{\lambda}
+
+    and when :math:`y = 0`
+
+    .. math::
+
+        y^{(\lambda)} =  sign(y) * \ln{(|y| + 1)}
+
+    Parameters
+    ----------
+    p : float
+        Transformation exponent :math:`\lambda`.
+    offset : int
+        Constant offset. 0 for Box-Cox type 1, otherwise any
+        non-negative constant (Box-Cox type 2).
+        The default is 1. :func:`~mizani.transforms.boxcox_trans`
+        sets the default to 0.
+    kwargs : dict
+        Keyword arguments passed onto :func:`trans_new`.
+        Should not include the `transform` or `inverse`.
+
+    References
+    ----------
+    - Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
+      Journal of the Royal Statistical Society. Series B (Methodological),
+      211-252. `<https://www.jstor.org/stable/2984418>`_
+    - John, J. A., & Draper, N. R. (1980). An alternative family of
+      transformations. Applied Statistics, 190-197.
+      `<http://www.jstor.org/stable/2986305>`_
+
+    See Also
+    --------
+    :func:`~mizani.transforms.boxcox_trans`
+    """
+    if np.abs(p) < 1e-7:
+        def transform(x):
+            x = np.asarray(x)
+            return np.sign(x) * np.log(np.abs(x) + offset)
+
+        def inverse(x):
+            x = np.asarray(x)
+            return np.sign(x) * (np.exp(np.abs(x)) - offset)
+    else:
+        def transform(x):
+            x = np.asarray(x)
+            return np.sign(x) * ((np.abs(x) + offset)**p - 1) / p
+
+        def inverse(x):
+            x = np.asarray(x)
+            return np.sign(x) * ((np.abs(x) * p + 1)**(1 / p) - offset)
+
+    kwargs['p'] = p
+    kwargs['offset'] = offset
+    kwargs['name'] = kwargs.get('name', 'mt_pow_{}'.format(p))
     kwargs['transform'] = transform
     kwargs['inverse'] = inverse
     return trans_new(**kwargs)

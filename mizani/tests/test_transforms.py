@@ -13,7 +13,7 @@ from mizani.transforms import (
     exp_trans, identity_trans, log10_trans, log1p_trans,
     log2_trans, log_trans, probability_trans, reverse_trans,
     sqrt_trans, timedelta_trans, pd_timedelta_trans,
-    pseudo_log_trans,
+    pseudo_log_trans, reciprocal_trans,
     trans_new, gettrans)
 
 arr = np.arange(1, 100)
@@ -142,6 +142,11 @@ def test_logn_trans():
                            breaks=mpl_breaks(),
                            minor_breaks=minor_breaks())
     _test_trans(log4_trans, arr)
+
+
+def test_reciprocal_trans():
+    x = np.arange(10, 21)
+    _test_trans(reciprocal_trans, x)
 
 
 def test_pseudo_log_trans():

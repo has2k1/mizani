@@ -10,6 +10,7 @@ New
 - Added :class:`~mizani.formatters.pvalue_format`
 - Added :class:`~mizani.formatters.ordinal_format`
 - Added :class:`~mizani.transforms.pseudo_log_trans`
+- Added :class:`~mizani.transforms.reciprocal_trans`
 
 Enhancements
 ************

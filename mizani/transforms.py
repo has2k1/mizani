@@ -40,7 +40,7 @@ __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
            'log_trans', 'logit_trans', 'probability_trans',
            'probit_trans', 'reverse_trans', 'sqrt_trans',
            'timedelta_trans', 'pd_timedelta_trans',
-           'pseudo_log_trans',
+           'pseudo_log_trans', 'reciprocal_trans',
            'trans', 'trans_new', 'gettrans']
 
 
@@ -577,6 +577,22 @@ class pd_timedelta_trans(trans):
         except TypeError:
             x = pd.Timedelta(int(x))
         return x
+
+
+class reciprocal_trans(trans):
+    """
+    Reciprocal Transformation
+    """
+
+    @staticmethod
+    def transform(x):
+        x = np.asarray(x)
+        return 1 / x
+
+    @staticmethod
+    def inverse(x):
+        x = np.asarray(x)
+        return 1 / x
 
 
 def pseudo_log_trans(sigma=1, base=None, **kwargs):

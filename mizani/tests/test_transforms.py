@@ -12,8 +12,9 @@ from mizani.transforms import (
     asn_trans, atanh_trans, boxcox_trans, datetime_trans,
     exp_trans, identity_trans, log10_trans, log1p_trans,
     log2_trans, log_trans, probability_trans, reverse_trans,
-    sqrt_trans, timedelta_trans, pd_timedelta_trans, trans_new,
-    gettrans)
+    sqrt_trans, timedelta_trans, pd_timedelta_trans,
+    pseudo_log_trans,
+    trans_new, gettrans)
 
 arr = np.arange(1, 100)
 
@@ -63,7 +64,7 @@ def _test_trans(trans, x):
     t = gettrans(trans())
     xt = t.transform(x)
     x2 = t.inverse(xt)
-    is_log_trans = (t.__class__.__name__.startswith('log') and
+    is_log_trans = ('log' in t.__class__.__name__ and
                     hasattr(t, 'base'))
     # round trip
     npt.assert_allclose(x, x2)
@@ -141,6 +142,13 @@ def test_logn_trans():
                            breaks=mpl_breaks(),
                            minor_breaks=minor_breaks())
     _test_trans(log4_trans, arr)
+
+
+def test_pseudo_log_trans():
+    p = np.arange(-4, 4)
+    pos = [10 ** int(x) for x in p]
+    arr = np.hstack([-np.array(pos[::-1]), pos])
+    _test_trans(pseudo_log_trans, arr)
 
 
 def test_probability_trans():

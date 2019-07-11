@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v0.5.5
+v0.6.0
 ------
 *Not yet released*
 
@@ -9,6 +9,7 @@ New
 ***
 - Added :class:`~mizani.formatters.pvalue_format`
 - Added :class:`~mizani.formatters.ordinal_format`
+- Added :class:`~mizani.transforms.pseudo_log_trans`
 
 Enhancements
 ************

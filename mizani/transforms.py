@@ -40,6 +40,7 @@ __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
            'log_trans', 'logit_trans', 'probability_trans',
            'probit_trans', 'reverse_trans', 'sqrt_trans',
            'timedelta_trans', 'pd_timedelta_trans',
+           'pseudo_log_trans',
            'trans', 'trans_new', 'gettrans']
 
 
@@ -576,6 +577,47 @@ class pd_timedelta_trans(trans):
         except TypeError:
             x = pd.Timedelta(int(x))
         return x
+
+
+def pseudo_log_trans(sigma=1, base=None, **kwargs):
+    """
+    Pseudo-log transformation
+
+    A transformation mapping numbers to a signed logarithmic
+    scale with a smooth transition to linear scale around 0.
+
+    Parameters
+    ----------
+    sigma : float
+        Scaling factor for the linear part.
+    base : int
+        Approximate logarithm used. If None, then
+        the natural log is used.
+    kwargs : dict
+        Keyword arguments passed onto
+        :func:`trans_new`. Should not include
+        the `transform` or `inverse`.
+    """
+    if base is None:
+        base = np.exp(1)
+
+    def transform(x):
+        x = np.asarray(x)
+        return np.arcsinh(x/(2*sigma)) / np.log(base)
+
+    def inverse(x):
+        x = np.asarray(x)
+        return 2 * sigma * np.sinh(x * np.log(base))
+
+    kwargs['base'] = base
+    kwargs['sigma'] = sigma
+    _trans = trans_new('pseudo_log', transform, inverse, **kwargs)
+
+    if 'minor_breaks' not in kwargs:
+        n = int(base) - 2
+        _trans.minor_breaks = trans_minor_breaks(_trans, n=n)
+
+    return _trans
 
 
 def gettrans(t):

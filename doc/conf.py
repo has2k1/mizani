@@ -59,9 +59,10 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon',
 
     'sphinxext.inline_code_highlight',
+
+    'numpydoc',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -328,7 +329,7 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    'matplotlib': ('http://matplotlib.org/', None),
+    'matplotlib': ('https://matplotlib.org/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
 }
@@ -341,6 +342,32 @@ autosummary_generate = True
 extlinks = {
     'issue': ('https://github.com/has2k1/mizani/issues/%s', 'GH')
 }
+
+# numpydoc
+numpydoc_show_class_members = False
+numpydoc_class_members_toctree = False
+numpydoc_xref_param_type = True
+numpydoc_xref_aliases = {
+    # python
+    'sequence': ':term:`python:sequence`',
+    'iterable': ':term:`python:iterable`',
+    'string': 'str',
+    'tuples': 'tuple',
+    'boolean': 'bool',
+    # numpy
+    'array': 'numpy.ndarray',
+    'np.array': 'numpy.ndarray',
+    'ndarray': 'numpy.ndarray',
+    'array-like': ':term:`array-like<numpy:array_like>`',
+    'array_like': ':term:`numpy:array_like`',
+    # pandas
+    'dataframe': 'pandas.DataFrame',
+    'DataFrame': 'pandas.DataFrame',
+    'Series': 'pandas.Series',
+    'series': 'pandas.Series',
+}
+numpydoc_xref_ignore = {'type', 'optional', 'default'}
+
 
 def setup(app):
     app.add_javascript('copybutton.js')

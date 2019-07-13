@@ -58,8 +58,7 @@ install:
       conda install pytest-cov
       pip install coveralls
     elif [[ "$JOB" == "DOCS" ]]; then
-      pip install sphinx
-      python setup.py install
+      pip install -r requirements/doc.txt
     elif [[ "$JOB" == "LINT" ]]; then
       pip install flake8
     fi

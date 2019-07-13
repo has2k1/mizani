@@ -9,7 +9,6 @@ BUILDDIR      = _build
 
 # For make theme
 BOOTSWATCHTHEME = united
-# PRIMARY = \#145FCE
 brand-primary = \#145FCE
 headings-font-weight = bold
 font-family-sans-serif = '"Lato", "proxima-nova", "Helvetica Neue", Arial, sans-serif'

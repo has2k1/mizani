@@ -27,6 +27,7 @@ API Changes
 v0.5.4
 ------
 *(2019-03-26)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
    :target: https://doi.org/10.5281/zenodo.62319878
 

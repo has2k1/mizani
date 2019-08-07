@@ -94,6 +94,13 @@ def test_brewer_pal():
     result = brewer_pal('seq', 'Blues')(2)
     assert all(s[0] == '#' and len(s) == 7 for s in result)
 
+    result1 = brewer_pal('seq', 'Blues', direction=1)(2)
+    result2 = brewer_pal('seq', 'Blues', direction=-1)(2)
+    assert result1 == result2[::-1]
+
+    with pytest.raises(ValueError):
+        brewer_pal(direction=-2)(100)
+
 
 def test_gradient_n_pal():
     palette = gradient_n_pal(['red', 'blue'])

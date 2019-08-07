@@ -317,7 +317,7 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
     return _hue_pal
 
 
-def brewer_pal(type='seq', palette=1):
+def brewer_pal(type='seq', palette=1, direction=1):
     """
     Utility for making a brewer palette
 
@@ -327,13 +327,15 @@ def brewer_pal(type='seq', palette=1):
         Type of palette. Sequential, Qualitative or
         Diverging. The following abbreviations may
         be used, ``seq``, ``qual`` or ``div``.
-
     palette : int | str
         Which palette to choose from. If is an integer,
         it must be in the range ``[0, m]``, where ``m``
         depends on the number sequential, qualitative or
         diverging palettes. If it is a string, then it
         is the name of the palette.
+    direction : int
+        The order of colours in the scale. If -1 the order
+        of colors is reversed. The default is 1.
 
     Returns
     -------
@@ -363,6 +365,9 @@ def brewer_pal(type='seq', palette=1):
         print([k for k in brewer.COLOR_MAPS['Qualitative'].keys()])
         print([k for k in brewer.COLOR_MAPS['Diverging'].keys()])
     """
+    if direction != 1 and direction != -1:
+        raise ValueError("direction should be 1 or -1.")
+
     def full_type_name(text):
         abbrevs = {
             'seq': 'Sequential',
@@ -433,7 +438,7 @@ def brewer_pal(type='seq', palette=1):
                    "that many colors".format(palette_name, nmax))
             warnings.warn(msg)
             hex_colors = hex_colors + [None] * (n - nmax)
-        return hex_colors
+        return hex_colors[::direction]
 
     return _brewer_pal
 

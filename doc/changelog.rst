@@ -18,6 +18,9 @@ Enhancements
 - :class:`mizani.breaks.date_breaks` now supports intervals in the
    order of seconds.
 
+- :class:`mizani.palettes.brewer_pal` now supports a direction argument
+  to control the order of the returned colors.
+
 API Changes
 ***********
 - :func:`~mizani.transforms.boxcox_trans` now only accepts positive

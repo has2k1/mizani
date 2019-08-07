@@ -10,6 +10,7 @@ representations of those values. Manipulating the string
 representation of a value helps improve readability of the guide.
 """
 import re
+from bisect import bisect_right
 from warnings import warn
 
 import numpy as np
@@ -17,14 +18,14 @@ from matplotlib.dates import DateFormatter, date2num
 from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
-from .utils import round_any, precision
+from .utils import round_any, precision, match
 from .utils import same_log10_order_of_magnitude
 
 
 __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'percent_format', 'scientific_format', 'date_format',
            'mpl_format', 'log_format', 'timedelta_format',
-           'pvalue_format', 'ordinal_format']
+           'pvalue_format', 'ordinal_format', 'number_bytes_format']
 
 
 class custom_format:
@@ -726,3 +727,71 @@ class ordinal_format:
         labels = [ordinal(num, self.prefix, self.suffix, self.big_mark)
                   for num in x]
         return labels
+
+
+class number_bytes_format:
+    """
+    Bytes Formatter
+
+    Parameters
+    ----------
+    symbol : str
+        Valid symbols are "B", "kB", "MB", "GB", "TB", "PB", "EB",
+        "ZB", and "YB" for SI units, and the "iB" variants for
+        binary units. Default is "auto" where the symbol to be
+        used is determined separately for each value of 1x.
+    units : "binary" | "si"
+        Which unit base to use, 1024 for "binary" or 1000 for "si".
+    fmt : str, optional
+        Format sting. Default is ``{:.0f}``.
+
+    Examples
+    --------
+    >>> x = [1000, 1000000, 4e5]
+    >>> number_bytes_format()(x)
+    ['1000 B', '977 KiB', '391 KiB']
+    >>> number_bytes_format(units='si')(x)
+    ['1 kB', '1 MB', '400 kB']
+    """
+    def __init__(self, symbol='auto', units='binary', fmt='{:.0f} '):
+        self.symbol = symbol
+        self.units = units
+        self.fmt = fmt
+
+        if units == 'si':
+            self.base = 1000
+            self._all_symbols = [
+                'B', 'kB', 'MB', 'GB', 'TB',
+                'PB', 'EB', 'ZB', 'YB']
+        else:
+            self.base = 1024
+            self._all_symbols = [
+                'B', 'KiB', 'MiB', 'GiB', 'TiB',
+                'PiB', 'EiB', 'ZiB', 'YiB']
+
+        # possible exponents of base: eg 1000^1, 1000^2, 1000^3, ...
+        exponents = np.arange(1, len(self._all_symbols)+1, dtype=float)
+        self._powers = self.base ** exponents
+        self._validate_symbol(symbol, ['auto'] + self._all_symbols)
+
+    def __call__(self, x):
+        _all_symbols = self._all_symbols
+        symbol = self.symbol
+        if symbol == 'auto':
+            power = [bisect_right(self._powers, val) for val in x]
+            symbols = [_all_symbols[p] for p in power]
+        else:
+            power = np.array(match([symbol], _all_symbols))
+            symbols = [symbol] * len(x)
+
+        x = np.asarray(x)
+        power = np.asarray(power, dtype=float)
+        values = x / self.base**power
+        fmt = (self.fmt + '{}').format
+        labels = [fmt(v, s) for v, s in zip(values, symbols)]
+        return labels
+
+    def _validate_symbol(self, symbol, allowed_symbols):
+        if symbol not in allowed_symbols:
+            raise ValueError(
+                "Symbol must be one of {}".format(allowed_symbols))

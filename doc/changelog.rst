@@ -9,6 +9,7 @@ New
 ***
 - Added :class:`~mizani.formatters.pvalue_format`
 - Added :class:`~mizani.formatters.ordinal_format`
+- Added :class:`~mizani.formatters.number_bytes_format`
 - Added :func:`~mizani.transforms.pseudo_log_trans`
 - Added :class:`~mizani.transforms.reciprocal_trans`
 - Added :func:`~mizani.transforms.modulus_trans`

@@ -10,7 +10,8 @@ from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
                                scientific_format, date_format,
                                mpl_format, log_format, timedelta_format,
-                               pvalue_format, ordinal_format)
+                               pvalue_format, ordinal_format,
+                               number_bytes_format)
 
 
 def test_custom_format():
@@ -168,6 +169,18 @@ def test_ordinal_format():
     assert labels == ['1.200th', '1.201st', '1.202nd', '1.203rd', '1.204th']
 
 
+def test_number_bytes_format():
+    x = [1000, 1000000, 4e5]
+    labels = number_bytes_format(symbol='MiB')(x)
+    assert labels == ['0 MiB', '1 MiB', '0 MiB']
+
+    labels = number_bytes_format(symbol='MiB', fmt='{:.2f} ')(x)
+    assert labels == ['0.00 MiB', '0.95 MiB', '0.38 MiB']
+
+    with pytest.raises(ValueError):
+        number_bytes_format(symbol='Bad')(x)
+
+
 def test_empty_breaks():
     x = []
     assert custom_format()(x) == []
@@ -181,3 +194,4 @@ def test_empty_breaks():
     assert timedelta_format()(x) == []
     assert pvalue_format()(x) == []
     assert ordinal_format()(x) == []
+    assert number_bytes_format()(x) == []

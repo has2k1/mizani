@@ -31,8 +31,8 @@ def get_required_packages():
     Plus any version tests and warnings
     """
     install_requires = ['numpy',
-                        'pandas >= 0.23.4',
-                        'matplotlib',
+                        'pandas >= 0.25.0',
+                        'matplotlib >= 3.1.1',
                         'palettable']
     return install_requires
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
           version=versioneer.get_version(),
           cmdclass=versioneer.get_cmdclass(),
           url=__url__,
-          python_requires='>=3.5',
+          python_requires='>=3.6',
           install_requires=get_required_packages(),
           packages=find_packages(),
           package_data=get_package_data(),

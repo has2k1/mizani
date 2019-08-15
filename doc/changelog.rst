@@ -5,6 +5,9 @@ v0.6.0
 ------
 *(2019-08-15)*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3369191.svg
+   :target: https://doi.org/10.5281/zenodo.3369191
+
 New
 ***
 - Added :class:`~mizani.formatters.pvalue_format`

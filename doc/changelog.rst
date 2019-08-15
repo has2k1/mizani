@@ -3,7 +3,7 @@ Changelog
 
 v0.6.0
 ------
-*Not yet released*
+*(2019-08-15)*
 
 New
 ***

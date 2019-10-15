@@ -10,6 +10,8 @@ The named markers are what we call breaks. Properly calculated
 breaks make interpretation straight forward. These functions
 provide ways to calculate good(hopefully) breaks.
 """
+import sys
+
 import numpy as np
 import pandas as pd
 from matplotlib.dates import MinuteLocator, HourLocator, DayLocator
@@ -141,6 +143,10 @@ class log_breaks:
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
 
+        # Prevent overflow
+        if float(base) ** _max > sys.maxsize:
+            base = float(base)
+
         # numpy arrays with -ve number(s) and of dtype=int
         # cannot be powers i.e. base ** arr fails
         dtype = float if _min < 0 or _max < 0 else int
@@ -197,6 +203,10 @@ class _log_sub_breaks:
         _max = int(np.ceil(rng[1]))
         dtype = float if _min < 0 or _max < 0 else int
         steps = [1]
+
+        # Prevent overflow
+        if float(base) ** _max > sys.maxsize:
+            base = float(base)
 
         def delta(x):
             """

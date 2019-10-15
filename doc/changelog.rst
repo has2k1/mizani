@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v0.6.1
+------
+*(not-yet-released)*
+
+Bug Fixes
+*********
+- Fixed issue with :class:`mizani.formatters.log_breaks` where non-linear
+  breaks could not be generated if the limits where greater than the
+  largest integer ``sys.maxsize``.
+
 v0.6.0
 ------
 *(2019-08-15)*

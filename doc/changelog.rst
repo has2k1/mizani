@@ -11,6 +11,9 @@ Bug Fixes
   breaks could not be generated if the limits where greater than the
   largest integer ``sys.maxsize``.
 
+- Fixed :func:`mizani.palettes.gradient_n_pal` to return ``nan`` for
+  ``nan`` values.
+
 v0.6.0
 ------
 *(2019-08-15)*

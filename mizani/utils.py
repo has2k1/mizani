@@ -282,3 +282,27 @@ def identity(*args):
     Return whatever is passed in
     """
     return args if len(args) > 1 else args[0]
+
+
+def isinf(x):
+    """
+    Test if positive or negative infinite
+
+    Unlike :func:`numpy.isinf`, this method does not fail if x
+    has items that are not ints or floats.
+
+    Parameters
+    ----------
+    x : array_like
+        Input Values
+
+    Returns
+    -------
+    output : array_like
+        True where `x` is positive or negative infinity.
+    """
+    try:
+        result = np.isinf(x)
+    except TypeError:
+        result = np.asarray([np.isinf(val) for val in x])
+    return result

@@ -17,6 +17,7 @@ import warnings
 import colorsys
 
 import numpy as np
+import pandas as pd
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 from matplotlib.cm import get_cmap
@@ -24,7 +25,7 @@ from palettable import colorbrewer
 
 from .external import husl, xkcd_rgb, crayon_rgb
 from .bounds import rescale
-from .utils import identity
+from .utils import identity, isinf
 
 
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
@@ -471,6 +472,13 @@ def ratios_to_colors(values, colormap):
         hex_colors = [mcolors.rgb2hex(t) for t in color_tuples]
     except IndexError:
         hex_colors = mcolors.rgb2hex(color_tuples)
+
+    nan_bool_idx = pd.isnull(values) | isinf(values)
+    if any(nan_bool_idx):
+        hex_colors = [
+            np.nan if is_nan else color
+            for color, is_nan in zip(hex_colors, nan_bool_idx)
+        ]
     return hex_colors if iterable else hex_colors[0]
 
 
@@ -503,6 +511,8 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
     >>> palette = gradient_n_pal(['red', 'blue'])
     >>> palette([0, .25, .5, .75, 1])
     ['#ff0000', '#bf0040', '#7f0080', '#3f00c0', '#0000ff']
+    >>> palette([-np.inf, 0, np.nan, 1, np.inf])
+    [nan, '#ff0000', nan, '#0000ff', nan]
     """
     # Note: For better results across devices and media types,
     # it would be better to do the interpolation in

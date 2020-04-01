@@ -15,6 +15,12 @@ __email__ = 'has2k1@gmail.com'
 __description__ = "Scales for Python"
 __license__ = 'BSD (3-clause)'
 __url__ = 'https://github.com/has2k1/mizani'
+__classifiers__ = [
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: BSD License',
+    'Programming Language :: Python :: 3',
+    'Topic :: Scientific/Engineering :: Visualization',
+]
 
 
 def check_dependencies():
@@ -31,7 +37,7 @@ def get_required_packages():
     Plus any version tests and warnings
     """
     install_requires = ['numpy',
-                        'pandas >= 0.25.0',
+                        'pandas >= 1.0.0',
                         'matplotlib >= 3.1.1',
                         'palettable']
     return install_requires
@@ -72,10 +78,5 @@ if __name__ == '__main__':
           install_requires=get_required_packages(),
           packages=find_packages(),
           package_data=get_package_data(),
-          classifiers=[
-              'Intended Audience :: Science/Research',
-              'License :: OSI Approved :: BSD License',
-              'Programming Language :: Python :: 3',
-              'Topic :: Scientific/Engineering :: Visualization',
-          ],
+          classifiers=__classifiers__
           )

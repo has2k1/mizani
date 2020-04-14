@@ -5,7 +5,7 @@ import pytest
 
 from mizani.utils import (round_any, min_max, match, precision,
                           first_element, multitype_sort,
-                          same_log10_order_of_magnitude)
+                          same_log10_order_of_magnitude, get_categories)
 
 
 def test_round_any():
@@ -139,3 +139,20 @@ def test_same_log10_order_of_magnitude():
     assert same_log10_order_of_magnitude((1, 9.9), delta=0)
     assert same_log10_order_of_magnitude((35, 91), delta=0)
     assert same_log10_order_of_magnitude((232.3, 950), delta=0)
+
+
+def test_get_categories():
+    lst = list('abcd')
+    s = pd.Series(lst)
+    c = pd.Categorical(lst)
+    sc = pd.Series(c)
+
+    categories = pd.Index(lst)
+    assert categories.equals(get_categories(c))
+    assert categories.equals(get_categories(sc))
+
+    with pytest.raises(TypeError):
+        assert categories.equals(get_categories(lst))
+
+    with pytest.raises(TypeError):
+        assert categories.equals(get_categories(s))

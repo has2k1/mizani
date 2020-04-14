@@ -7,7 +7,7 @@ import numpy as np
 __all__ = ['round_any', 'min_max', 'match',
            'precision', 'first_element', 'multitype_sort',
            'is_close_to_int', 'same_log10_order_of_magnitude',
-           'identity'
+           'identity', 'get_categories'
            ]
 
 DISCRETE_KINDS = 'ObUS'
@@ -306,3 +306,26 @@ def isinf(x):
     except TypeError:
         result = np.asarray([np.isinf(val) for val in x])
     return result
+
+
+def get_categories(x):
+    """
+    Return the categories of x
+
+    Parameters
+    ----------
+    x : category_like
+        Input Values
+
+    Returns
+    -------
+    out : Index
+        Categories of x
+    """
+    try:
+        return x.cat.categories  # series
+    except AttributeError:
+        try:
+            return x.categories   # plain categorical
+        except AttributeError:
+            raise TypeError("x is the wrong type, it has no categories")

@@ -14,6 +14,10 @@ Bug Fixes
 - Fixed :func:`mizani.palettes.gradient_n_pal` to return ``nan`` for
   ``nan`` values.
 
+- Fixed :func:`mizani.scales.scale_discrete.train` when training categoricals
+  to maintain the order.
+  `(plotnine #381) <https://github.com/has2k1/plotnine/issues/381>`_
+
 v0.6.0
 ------
 *(2019-08-15)*

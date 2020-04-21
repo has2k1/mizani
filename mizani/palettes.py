@@ -255,14 +255,12 @@ def grey_pal(start=0.2, end=0.8):
     grey_cmap = mcolors.LinearSegmentedColormap('grey', cdict)
 
     def continuous_grey_palette(n):
-        colors = []
         # The grey scale points are linearly separated in
         # gamma encoded space
-        for x in np.linspace(start**gamma, end**gamma, n):
-            # Map points onto the [0, 1] palette domain
-            x = (x ** (1./gamma) - start) / (end - start)
-            colors.append(mcolors.rgb2hex(grey_cmap(x)))
-        return colors
+        x = np.linspace(start**gamma, end**gamma, n)
+        # Map points onto the [0, 1] palette domain
+        vals = (x ** (1./gamma) - start) / (end - start)
+        return ratios_to_colors(vals, grey_cmap)
 
     return continuous_grey_palette
 

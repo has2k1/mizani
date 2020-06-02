@@ -687,7 +687,7 @@ def manual_pal(values):
     def _manual_pal(n):
         if n > max_n:
             msg = ("Palette can return a maximum of {} values. "
-                   "{} were requested from it.")
+                   "{} values requested.")
             warnings.warn(msg.format(max_n, n))
 
         return values[:n]

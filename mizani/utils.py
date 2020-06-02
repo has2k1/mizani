@@ -6,7 +6,7 @@ import numpy as np
 
 __all__ = ['round_any', 'min_max', 'match',
            'precision', 'first_element', 'multitype_sort',
-           'is_close_to_int', 'same_log10_order_of_magnitude',
+           'same_log10_order_of_magnitude',
            'identity', 'get_categories'
            ]
 
@@ -222,36 +222,6 @@ def multitype_sort(a):
         types[t] = np.sort(types[t])
 
     return list(chain(*(types[t] for t in types)))
-
-
-def nearest_int(x):
-    """
-    Return nearest long integer to x
-    """
-    if x == 0:
-        return np.int64(0)
-    elif x > 0:
-        return np.int64(x + 0.5)
-    else:
-        return np.int64(x - 0.5)
-
-
-def is_close_to_int(x):
-    """
-    Check if value is close to an integer
-
-    Parameters
-    ----------
-    x : float
-        Numeric value to check
-
-    Returns
-    -------
-    out : bool
-    """
-    if not np.isfinite(x):
-        return False
-    return abs(x - nearest_int(x)) < 1e-10
 
 
 def same_log10_order_of_magnitude(x, delta=0.1):

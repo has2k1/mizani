@@ -72,6 +72,26 @@ def test_log_breaks():
         [1e25, 1e26, 1e27, 1e28, 1e29, 1e30]
     )
 
+    # No overflow effects in _log_sub_breaks
+    breaks = log_breaks()([2e19, 8e19])
+    npt.assert_array_almost_equal(
+        breaks,
+        [1.e+19, 2.e+19, 3.e+19, 5.e+19, 1.e+20]
+    )
+
+    # _log_sub_breaks for base != 10
+    breaks = log_breaks(n=5, base=60)([2e5, 8e5])
+    npt.assert_array_almost_equal(
+        breaks,
+        [129600, 216000, 432000, 648000, 1080000]
+    )
+
+    breaks = log_breaks(n=5, base=2)([20, 80])
+    npt.assert_array_almost_equal(
+        breaks,
+        [16, 32, 64, 128]
+    )
+
 
 def test_minor_breaks():
     # equidistant breaks

@@ -349,7 +349,9 @@ def censor(x, range=(0, 1), only_finite=True):
         finite = np.repeat(True, len(x))
 
     if hasattr(x, 'dtype'):
-        outside = (x < range[0]) | (x > range[1])
+        # Ignore RuntimeWarning when x contains nans
+        with np.errstate(invalid='ignore'):
+            outside = (x < range[0]) | (x > range[1])
         bool_idx = finite & outside
         x = x.copy()
         x[bool_idx] = null

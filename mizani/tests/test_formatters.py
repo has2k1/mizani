@@ -82,7 +82,6 @@ def test_mpl_format():
 
 def test_log_format():
     formatter = log_format()
-
     assert formatter([0.001, 0.1, 100]) == ['0.001', '0.1', '100']
     assert formatter([0.001, 0.1, 10000]) == ['1e-3', '1e-1', '1e4']
     assert formatter([35, 60]) == ['35', '60']
@@ -92,6 +91,8 @@ def test_log_format():
     assert formatter([1, 35, 60, 1000]) == ['1', '35', '60', '1000']
     assert formatter([1, 35, 60, 10000]) == ['1', '35', '60', '10000']
     assert formatter([3.000000000000001e-05]) == ['3e-5']
+    assert formatter([1, 1e4]) == ['1', '1e4']
+    assert formatter([1, 35, 60, 1e6]) == ['1', '4e1', '6e1', '1e6']
 
     formatter = log_format(base=2)
     assert formatter([1, 10, 11, 1011]) == ['1', '10', '11', '1011']

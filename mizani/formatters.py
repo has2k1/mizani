@@ -369,12 +369,6 @@ class log_format:
         self.base = base
         self.exponent_limits = exponent_limits
 
-        if 'exponent_threshold' in kwargs:
-            warn(
-                 "`exponent_threshold` parameter has been deprecated ",
-                 "Use exponent_limits instead",
-                 DeprecationWarning)
-
     def _tidyup_labels(self, labels):
         """
         Make all labels uniform in format and remove redundant zeros

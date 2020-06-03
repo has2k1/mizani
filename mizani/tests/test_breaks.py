@@ -65,6 +65,13 @@ def test_log_breaks():
     breaks = log_breaks()([1761, 8557])
     npt.assert_array_equal(breaks, [1000, 2000, 3000, 5000, 10000])
 
+    # log_breaks -> _log_sub_breaks -> extended_breaks
+    breaks = log_breaks(13)([1, 10])
+    npt.assert_array_almost_equal(
+        breaks,
+        np.arange(0, 11)
+    )
+
     # No overflow effects
     breaks = log_breaks(n=6)([1e25, 1e30])
     npt.assert_array_almost_equal(

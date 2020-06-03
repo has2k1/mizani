@@ -25,7 +25,7 @@ from palettable import colorbrewer
 
 from .external import husl, xkcd_rgb, crayon_rgb
 from .bounds import rescale
-from .utils import identity, isinf
+from .utils import identity
 
 
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
@@ -430,7 +430,7 @@ def ratios_to_colors(values, colormap):
     except IndexError:
         hex_colors = mcolors.rgb2hex(color_tuples)
 
-    nan_bool_idx = pd.isnull(values) | isinf(values)
+    nan_bool_idx = pd.isnull(values) | np.isinf(values)
     if any(nan_bool_idx):
         hex_colors = [
             np.nan if is_nan else color

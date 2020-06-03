@@ -96,11 +96,24 @@ def test_atanh_trans():
 
 
 def test_boxcox_trans():
-    _test_trans(boxcox_trans(0), arr)
     _test_trans(boxcox_trans(0.5), arr*10)
+    _test_trans(boxcox_trans(1), arr)
     with pytest.raises(ValueError):
         x = np.arange(-4, 4)
         _test_trans(boxcox_trans(0.5), x)
+
+    # Special case, small p and p = 0
+    with pytest.warns(RuntimeWarning):
+        _test_trans(boxcox_trans(1e-8), arr)
+        _test_trans(boxcox_trans(0), arr)
+
+    x = [0, 1, 2, 3]
+    t = boxcox_trans(0)
+    with pytest.warns(RuntimeWarning):
+        xt = t.transform(x)
+    xti = t.inverse(xt)
+    assert np.isneginf(xt[0])
+    npt.assert_array_almost_equal(x, xti)
 
 
 def test_modulus_trans():

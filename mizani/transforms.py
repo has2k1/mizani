@@ -435,9 +435,6 @@ def boxcox_trans(p, offset=0, **kwargs):
     :func:`~mizani.transforms.modulus_trans`
 
     """
-    if np.abs(p) < 1e-7:
-        return log_trans()
-
     def transform(x):
         x = np.asarray(x)
         if np.any((x + offset) < 0):

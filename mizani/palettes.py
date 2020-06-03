@@ -425,10 +425,7 @@ def ratios_to_colors(values, colormap):
         values = [values]
 
     color_tuples = colormap(values)
-    try:
-        hex_colors = [mcolors.rgb2hex(t) for t in color_tuples]
-    except IndexError:
-        hex_colors = mcolors.rgb2hex(color_tuples)
+    hex_colors = [mcolors.rgb2hex(t) for t in color_tuples]
 
     nan_bool_idx = pd.isnull(values) | np.isinf(values)
     if any(nan_bool_idx):

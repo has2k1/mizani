@@ -33,7 +33,7 @@ import pandas.api.types as pdtypes
 
 from .bounds import censor, rescale
 from .utils import CONTINUOUS_KINDS, DISCRETE_KINDS, min_max, match
-from .utils import multitype_sort, get_categories
+from .utils import get_categories
 
 
 __all__ = ['scale_continuous', 'scale_discrete']
@@ -211,13 +211,8 @@ class scale_discrete:
             else:
                 new = list(categories)
         else:
-            try:
-                new = np.unique(new_data)
-                new.sort()
-            except TypeError:
-                # new_data probably has nans and other types
-                new = list(set(new_data))
-                new = multitype_sort(new)
+            new = np.unique(new_data)
+            new.sort()
 
         # update old
         old_set = set(old)

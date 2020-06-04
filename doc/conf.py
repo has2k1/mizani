@@ -43,7 +43,7 @@ if on_rtd:
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.6.1'
+needs_sphinx = '3.0.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -61,7 +61,6 @@ extensions = [
     'sphinx.ext.autosummary',
 
     'sphinxext.inline_code_highlight',
-
     'numpydoc',
 ]
 
@@ -79,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Mizani'
-copyright = '2016, Hassan Kibirige'
+copyright = '2020, Hassan Kibirige'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -115,7 +114,9 @@ release = version
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = [
+    '_build'
+]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -330,7 +331,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'matplotlib': ('https://matplotlib.org/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy', None),
+    'numpy': ('https://numpy.org/doc/stable', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
 }
 
@@ -370,5 +371,5 @@ numpydoc_xref_ignore = {'type', 'optional', 'default'}
 
 
 def setup(app):
-    app.add_javascript('copybutton.js')
-    app.add_stylesheet('custom.css')
+    app.add_js_file('copybutton.js')
+    app.add_css_file('custom.css')

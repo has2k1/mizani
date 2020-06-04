@@ -176,6 +176,11 @@ def test_pseudo_log_trans():
     pos = [10 ** int(x) for x in p]
     arr = np.hstack([-np.array(pos[::-1]), pos])
     _test_trans(pseudo_log_trans, arr)
+    _test_trans(pseudo_log_trans(base=16), arr)
+    _test_trans(
+        pseudo_log_trans(base=10, minor_breaks=minor_breaks(n=5)),
+        arr
+    )
 
 
 def test_probability_trans():

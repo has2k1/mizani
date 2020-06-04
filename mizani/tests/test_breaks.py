@@ -177,6 +177,16 @@ def test_trans_minor_breaks():
     t = log_trans(base)
     assert len(t.minor_breaks(breaks, limits)) == base - 2
 
+    t = log_trans()
+    major = t.transform([1, 10, 100])
+    limits = t.transform([1, 100])
+    result = trans_minor_breaks(t)(major, limits, n=4)
+    npt.assert_allclose(
+        result,
+        [1.02961942, 1.5260563, 1.85629799, 2.10413415,
+         3.33220451, 3.8286414, 4.15888308, 4.40671925]
+    )
+
 
 def test_date_breaks():
     # cpython

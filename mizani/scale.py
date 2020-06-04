@@ -190,6 +190,8 @@ class scale_discrete:
 
         if old is None:
             old = []
+        else:
+            old = list(old)
 
         # Get the missing values (NaN & Nones) locations and remove them
         nan_bool_idx = pd.isnull(new_data)
@@ -218,10 +220,11 @@ class scale_discrete:
         old_set = set(old)
         if pdtypes.is_categorical_dtype(new_data):
             # The limits are in the order of the categories
-            final = old_set | set(new)
-            limits = [c for c in categories if c in final]
+            all_set = old_set | set(new)
+            ordered_cats = categories.union(old, sort=False)
+            limits = [c for c in ordered_cats if c in all_set]
         else:
-            limits = list(old) + [i for i in new if (i not in old_set)]
+            limits = old + [i for i in new if (i not in old_set)]
 
         # Add nan if required
         if has_na and not na_rm:

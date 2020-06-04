@@ -98,3 +98,13 @@ def test_scale_discrete():
     limits = scale_discrete.train(s1, drop=True)
     limits = scale_discrete.train(s2, limits, drop=True)
     assert limits == ['x0', 'x1', 'x2']
+
+    # Trainning on mixed categories, the last data determines
+    # the location of a value that is in two categoricals
+    # eg. a & e are ordered right!
+    x1 = pd.Categorical(['a', 'b', 'c', 'e'])
+    x2 = pd.Categorical(['d', 'f', 'e', 'a'])
+    limits = scale_discrete.train(x1)
+    limits = scale_discrete.train(x2, old=limits)
+    # assert limits == list('abcedf')
+    assert limits == list('adefbc')

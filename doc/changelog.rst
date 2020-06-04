@@ -7,6 +7,15 @@ v0.7.0
 
 Bug Fixes
 *********
+- Fixed regression in :func:`mizani.scales.scale_discrete.train` when
+  trainning on values with some categoricals that have common elements.
+
+v0.7.0
+------
+*(2020-06-04)*
+
+Bug Fixes
+*********
 - Fixed issue with :class:`mizani.formatters.log_breaks` where non-linear
   breaks could not be generated if the limits where greater than the
   largest integer ``sys.maxsize``.

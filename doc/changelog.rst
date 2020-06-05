@@ -1,9 +1,12 @@
 Changelog
 =========
 
-v0.7.0
+v0.7.1
 ------
 *(2020-06-05)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3877546.svg
+   :target: https://doi.org/10.5281/zenodo.3877546
 
 Bug Fixes
 *********
@@ -13,6 +16,9 @@ Bug Fixes
 v0.7.0
 ------
 *(2020-06-04)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3876327.svg
+   :target: https://doi.org/10.5281/zenodo.3876327
 
 Bug Fixes
 *********

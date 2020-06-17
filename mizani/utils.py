@@ -221,7 +221,7 @@ def multitype_sort(a):
     for t in types:
         types[t] = np.sort(types[t])
 
-    return list(chain(*(types[t] for t in types)))
+    return list(chain.from_iterable(types[t] for t in types))
 
 
 def same_log10_order_of_magnitude(x, delta=0.1):

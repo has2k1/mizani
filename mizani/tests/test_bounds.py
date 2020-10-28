@@ -200,7 +200,7 @@ def test_expand_range():
     diff(result) == diff(limits) + 30*one_day
 
     # timedelta64
-    one_day = np.timedelta64(1, unit='D')
+    one_day = np.timedelta64(1, 'D')
     limits = np.timedelta64(1, 'D'), np.timedelta64(10, 'D')
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 2*one_day

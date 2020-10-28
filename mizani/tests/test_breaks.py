@@ -242,7 +242,7 @@ def test_timedelta_breaks():
         minutes, [0, 2, 4, 6, 8])
 
     # numpy
-    x = [np.timedelta64(i*10, unit='D') for i in range(1, 10)]
+    x = [np.timedelta64(i*10, 'D') for i in range(1, 10)]
     limits = min(x), max(x)
     with pytest.raises(ValueError):
         breaks(limits)

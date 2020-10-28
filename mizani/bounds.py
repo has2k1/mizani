@@ -24,7 +24,6 @@ import datetime
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
-import pandas.core.dtypes.common as com
 
 from matplotlib.dates import date2num
 
@@ -339,7 +338,7 @@ def censor(x, range=(0, 1), only_finite=True):
     x_array = np.asarray(x)
     if pdtypes.is_number(x0) and not isinstance(x0, np.timedelta64):
         null = float('nan')
-    elif com.is_datetime_arraylike(x_array):
+    elif isinstance(x0, pd.Timestamp):
         null = pd.Timestamp('NaT')
     elif pdtypes.is_datetime64_dtype(x_array):
         null = np.datetime64('NaT')

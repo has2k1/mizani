@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v0.7.2
+------
+*(not-yet-released)*
+
+Bug Fixes
+*********
+- Fixed bug in :func:`~mizani.bounds.rescale_max` to properly handle
+  values whose maximum is zero (:issue:`16`).
+
 v0.7.1
 ------
 *(2020-06-05)*

@@ -99,6 +99,13 @@ def test_log_breaks():
         [16, 32, 64, 128]
     )
 
+    # bases & negative breaks
+    breaks = log_breaks(base=2)([0.9, 2.9])
+    npt.assert_array_almost_equal(
+        breaks,
+        [0.5, 1., 2., 4.]
+    )
+
 
 def test_minor_breaks():
     # equidistant breaks

@@ -221,7 +221,7 @@ class _log_sub_breaks:
             return np.min(np.diff(log_arr))
 
         if self.base == 2:
-            return base ** np.arange(_min, _max+1)
+            return base ** np.arange(_min, _max+1, dtype=dtype)
 
         candidate = np.arange(base+1)
         candidate = np.compress(

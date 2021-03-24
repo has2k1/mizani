@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v0.7.3
+------
+*(2020-10-29)*
+
+
+Bug Fixes
+*********
+- Fixed log_breaks for narrow range if base=2 (:issue:`76`).
+
+
 v0.7.2
 ------
 *(2020-10-29)*

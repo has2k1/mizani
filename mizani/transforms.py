@@ -554,7 +554,13 @@ def probability_trans(distribution, *args, **kwargs):
     computations may run into errors. Absence of any errors
     does not imply that the distribution fits the data.
     """
-    import scipy.stats as stats
+    try:
+        import scipy.stats as stats
+    except ImportError:
+        raise ImportError(
+            "Please install scipy so you can use a probability transform"
+        )
+
     cdists = {k for k in dir(stats)
               if hasattr(getattr(stats, k), 'cdf')}
     if distribution not in cdists:

@@ -588,10 +588,13 @@ def probability_trans(distribution, *args, **kwargs):
                      doc=doc)
 
 
-logit_trans = probability_trans('logistic', _name='logit',
-                                _doc='Logit Transformation')
-probit_trans = probability_trans('norm', _name='norm',
-                                 _doc='Probit Transformation')
+try:
+    logit_trans = probability_trans('logistic', _name='logit',
+                                    _doc='Logit Transformation')
+    probit_trans = probability_trans('norm', _name='norm',
+                                     _doc='Probit Transformation')
+except ImportError:
+    pass
 
 
 class datetime_trans(trans):

@@ -6,8 +6,8 @@ import numpy as np
 
 __all__ = ['round_any', 'min_max', 'match',
            'precision', 'first_element', 'multitype_sort',
-           'is_close_to_int', 'same_log10_order_of_magnitude',
-           'identity'
+           'same_log10_order_of_magnitude',
+           'identity', 'get_categories'
            ]
 
 DISCRETE_KINDS = 'ObUS'
@@ -221,37 +221,7 @@ def multitype_sort(a):
     for t in types:
         types[t] = np.sort(types[t])
 
-    return list(chain(*(types[t] for t in types)))
-
-
-def nearest_int(x):
-    """
-    Return nearest long integer to x
-    """
-    if x == 0:
-        return np.int64(0)
-    elif x > 0:
-        return np.int64(x + 0.5)
-    else:
-        return np.int64(x - 0.5)
-
-
-def is_close_to_int(x):
-    """
-    Check if value is close to an integer
-
-    Parameters
-    ----------
-    x : float
-        Numeric value to check
-
-    Returns
-    -------
-    out : bool
-    """
-    if not np.isfinite(x):
-        return False
-    return abs(x - nearest_int(x)) < 1e-10
+    return list(chain.from_iterable(types[t] for t in types))
 
 
 def same_log10_order_of_magnitude(x, delta=0.1):
@@ -282,3 +252,26 @@ def identity(*args):
     Return whatever is passed in
     """
     return args if len(args) > 1 else args[0]
+
+
+def get_categories(x):
+    """
+    Return the categories of x
+
+    Parameters
+    ----------
+    x : category_like
+        Input Values
+
+    Returns
+    -------
+    out : Index
+        Categories of x
+    """
+    try:
+        return x.cat.categories  # series
+    except AttributeError:
+        try:
+            return x.categories   # plain categorical
+        except AttributeError:
+            raise TypeError("x is the wrong type, it has no categories")

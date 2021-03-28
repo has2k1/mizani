@@ -24,7 +24,6 @@ import datetime
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
-import pandas.core.dtypes.common as com
 
 from matplotlib.dates import date2num
 
@@ -162,11 +161,18 @@ def rescale_max(x, to=(0, 1), _from=None):
     array([ 0.,  4.,  8., 12., 16., 20.])
 
     If :python:`max(x) < _from[1]` then values will be
-    scaled beyond the requested (:python:`to[1]`) maximum.
+    scaled beyond the requested maximum (:python:`to[1]`).
 
     >>> rescale_max(x, to=(1, 3), _from=(-1, 6))
     array([0., 1., 2., 3., 4., 5.])
 
+    If the values are the same, they taken on the requested maximum.
+    This includes an array of all zeros.
+
+    >>> rescale_max([5, 5, 5])
+    array([1., 1., 1.])
+    >>> rescale_max([0, 0, 0])
+    array([1, 1, 1])
     """
     array_like = True
 
@@ -180,9 +186,14 @@ def rescale_max(x, to=(0, 1), _from=None):
         x = np.asarray(x)
 
     if _from is None:
-        _from = np.array([np.min(x), np.max(x)])
+        _from = (np.min(x), np.max(x))
 
-    out = x/_from[1] * to[1]
+    if np.any(x < 0):
+        out = rescale(x, (0, to[1]), _from)
+    elif np.all(x == 0) and _from[1] == 0:
+        out = np.repeat(to[1], len(x))
+    else:
+        out = x/_from[1] * to[1]
 
     if not array_like:
         out = out[0]
@@ -327,7 +338,7 @@ def censor(x, range=(0, 1), only_finite=True):
     x_array = np.asarray(x)
     if pdtypes.is_number(x0) and not isinstance(x0, np.timedelta64):
         null = float('nan')
-    elif com.is_datetime_arraylike(x_array):
+    elif isinstance(x0, pd.Timestamp):
         null = pd.Timestamp('NaT')
     elif pdtypes.is_datetime64_dtype(x_array):
         null = np.datetime64('NaT')
@@ -349,7 +360,9 @@ def censor(x, range=(0, 1), only_finite=True):
         finite = np.repeat(True, len(x))
 
     if hasattr(x, 'dtype'):
-        outside = (x < range[0]) | (x > range[1])
+        # Ignore RuntimeWarning when x contains nans
+        with np.errstate(invalid='ignore'):
+            outside = (x < range[0]) | (x > range[1])
         bool_idx = finite & outside
         x = x.copy()
         x[bool_idx] = null

@@ -33,7 +33,7 @@ import pandas.api.types as pdtypes
 
 from .bounds import censor, rescale
 from .utils import CONTINUOUS_KINDS, DISCRETE_KINDS, min_max, match
-from .utils import multitype_sort
+from .utils import get_categories
 
 
 __all__ = ['scale_continuous', 'scale_discrete']
@@ -190,6 +190,8 @@ class scale_discrete:
 
         if old is None:
             old = []
+        else:
+            old = list(old)
 
         # Get the missing values (NaN & Nones) locations and remove them
         nan_bool_idx = pd.isnull(new_data)
@@ -204,29 +206,30 @@ class scale_discrete:
 
         # Train i.e. get the new values
         if pdtypes.is_categorical_dtype(new_data):
-            try:
-                new = list(new_data.cat.categories)  # series
-            except AttributeError:
-                new = list(new_data.categories)      # plain categorical
+            categories = get_categories(new_data)
             if drop:
                 present = set(new_data.drop_duplicates())
-                new = [i for i in new if i in present]
+                new = [i for i in categories if i in present]
+            else:
+                new = list(categories)
         else:
-            try:
-                new = np.unique(new_data)
-                new.sort()
-            except TypeError:
-                # new_data probably has nans and other types
-                new = list(set(new_data))
-                new = multitype_sort(new)
-
-        # Add nan if required
-        if has_na and not na_rm:
-            new = np.hstack([new, np.nan])
+            new = np.unique(new_data)
+            new.sort()
 
         # update old
         old_set = set(old)
-        return list(old) + [i for i in new if (i not in old_set)]
+        if pdtypes.is_categorical_dtype(new_data):
+            # The limits are in the order of the categories
+            all_set = old_set | set(new)
+            ordered_cats = categories.union(old, sort=False)
+            limits = [c for c in ordered_cats if c in all_set]
+        else:
+            limits = old + [i for i in new if (i not in old_set)]
+
+        # Add nan if required
+        if has_na and not na_rm:
+            limits.append(np.nan)
+        return limits
 
     @classmethod
     def map(cls, x, palette, limits, na_value=None):

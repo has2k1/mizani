@@ -37,11 +37,11 @@ Installation
 .. |license| image:: https://img.shields.io/pypi/l/mizani.svg
 .. _license: https://pypi.python.org/pypi/mizani
 
-.. |buildstatus| image:: https://api.travis-ci.org/has2k1/mizani.svg?branch=master
-.. _buildstatus: https://travis-ci.org/has2k1/mizani
+.. |buildstatus| image:: https://github.com/has2k1/mizani/workflows/build/badge.svg?branch=master
+.. _buildstatus: https://github.com/has2k1/mizani/actions?query=branch%3Amaster+workflow%3A%22build%22
 
-.. |coverage| image:: https://coveralls.io/repos/github/has2k1/mizani/badge.svg?branch=master
-.. _coverage: https://coveralls.io/github/has2k1/mizani?branch=master
+.. |coverage| image:: https://codecov.io /github/has2k1/mizani/coverage.svg?branch=master
+.. _coverage: https://codecov.io/github/has2k1/mizani?branch=master
 
 .. |documentation| image:: https://readthedocs.org/projects/mizani/badge/?version=latest
 .. _documentation: https://mizani.readthedocs.io/en/latest/

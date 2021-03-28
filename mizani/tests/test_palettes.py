@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import numpy.testing as npt
-
+from matplotlib.cm import get_cmap
 
 from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
                              area_pal, abs_area, grey_pal, hue_pal,
@@ -9,6 +9,7 @@ from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
                              cmap_d_pal,
                              desaturate_pal, manual_pal, xkcd_palette,
                              crayon_palette, cubehelix_pal, identity_pal)
+from mizani.palettes import ratios_to_colors
 
 
 def test_hls_palette():
@@ -93,6 +94,13 @@ def test_brewer_pal():
 
     result = brewer_pal('seq', 'Blues')(2)
     assert all(s[0] == '#' and len(s) == 7 for s in result)
+
+    result1 = brewer_pal('seq', 'Blues', direction=1)(2)
+    result2 = brewer_pal('seq', 'Blues', direction=-1)(2)
+    assert result1 == result2[::-1]
+
+    with pytest.raises(ValueError):
+        brewer_pal(direction=-2)(100)
 
 
 def test_gradient_n_pal():
@@ -198,3 +206,9 @@ def test_identity_pal():
 
     value = palette(10)
     assert value == 10
+
+
+def test_ratios_to_colors():
+    x = 0.5
+    result = ratios_to_colors(x, get_cmap('viridis'))
+    assert result[0] == '#'

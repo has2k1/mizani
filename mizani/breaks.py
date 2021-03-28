@@ -10,11 +10,13 @@ The named markers are what we call breaks. Properly calculated
 breaks make interpretation straight forward. These functions
 provide ways to calculate good(hopefully) breaks.
 """
+import sys
+
 import numpy as np
 import pandas as pd
 from matplotlib.dates import MinuteLocator, HourLocator, DayLocator
 from matplotlib.dates import WeekdayLocator, MonthLocator, YearLocator
-from matplotlib.dates import AutoDateLocator
+from matplotlib.dates import AutoDateLocator, SecondLocator
 from matplotlib.dates import num2date, YEARLY
 from matplotlib.ticker import MaxNLocator
 
@@ -141,6 +143,10 @@ class log_breaks:
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
 
+        # Prevent overflow
+        if float(base) ** _max > sys.maxsize:
+            base = float(base)
+
         # numpy arrays with -ve number(s) and of dtype=int
         # cannot be powers i.e. base ** arr fails
         dtype = float if _min < 0 or _max < 0 else int
@@ -198,6 +204,10 @@ class _log_sub_breaks:
         dtype = float if _min < 0 or _max < 0 else int
         steps = [1]
 
+        # Prevent overflow
+        if float(base) ** _max > sys.maxsize:
+            base = float(base)
+
         def delta(x):
             """
             Calculates the smallest distance in the log scale between the
@@ -211,7 +221,7 @@ class _log_sub_breaks:
             return np.min(np.diff(log_arr))
 
         if self.base == 2:
-            return base ** np.arange(_min, _max+1)
+            return base ** np.arange(_min, _max+1, dtype=dtype)
 
         candidate = np.arange(base+1)
         candidate = np.compress(
@@ -428,6 +438,7 @@ class trans_minor_breaks:
 # Matplotlib's YearLocator uses different named
 # arguments than the others
 LOCATORS = {
+    'second': SecondLocator,
     'minute': MinuteLocator,
     'hour': HourLocator,
     'day': DayLocator,
@@ -445,7 +456,7 @@ class date_breaks:
     ----------
     width : str | None
         An interval specification. Must be one of
-        [minute, hour, day, week, month, year]
+        [second, minute, hour, day, week, month, year]
         If ``None``, the interval automatic.
 
     Examples

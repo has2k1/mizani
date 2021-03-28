@@ -2,13 +2,16 @@
 from datetime import datetime, timedelta
 
 import pandas as pd
+import numpy as np
 import pytest
 import pytz
 
 from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
                                scientific_format, date_format,
-                               mpl_format, log_format, timedelta_format)
+                               mpl_format, log_format, timedelta_format,
+                               pvalue_format, ordinal_format,
+                               number_bytes_format)
 
 
 def test_custom_format():
@@ -73,13 +76,12 @@ def test_mpl_format():
     formatter = mpl_format()
     assert formatter([5, 10, 100, 150]) == ['5', '10', '100', '150']
 
-    # trigger the order of magnitude correction
-    assert formatter([5, 10, 100, 150e8]) == ['0', '0', '0', '1.5e10']
+    # trigger the order of magnitude correction (not any more)
+    assert formatter([5, 10, 100, 150e8]) == ['5', '10', '100', '15000000000']
 
 
 def test_log_format():
     formatter = log_format()
-
     assert formatter([0.001, 0.1, 100]) == ['0.001', '0.1', '100']
     assert formatter([0.001, 0.1, 10000]) == ['1e-3', '1e-1', '1e4']
     assert formatter([35, 60]) == ['35', '60']
@@ -89,6 +91,8 @@ def test_log_format():
     assert formatter([1, 35, 60, 1000]) == ['1', '35', '60', '1000']
     assert formatter([1, 35, 60, 10000]) == ['1', '35', '60', '10000']
     assert formatter([3.000000000000001e-05]) == ['3e-5']
+    assert formatter([1, 1e4]) == ['1', '1e4']
+    assert formatter([1, 35, 60, 1e6]) == ['1', '4e1', '6e1', '1e6']
 
     formatter = log_format(base=2)
     assert formatter([1, 10, 11, 1011]) == ['1', '10', '11', '1011']
@@ -135,6 +139,49 @@ def test_timedelta_format():
         ['0', '7$\\mu s$', '14$\\mu s$', '21$\\mu s$', '28$\\mu s$']
 
 
+def test_pvalue_format():
+    x = [.90, .15, .015, .009, 0.0005]
+    labels = pvalue_format()(x)
+    assert labels == ['0.9', '0.15', '0.015', '0.009', '<0.001']
+
+    labels = pvalue_format(add_p=True)(x)
+    assert labels == ['p=0.9', 'p=0.15', 'p=0.015', 'p=0.009', 'p<0.001']
+
+    with pytest.warns(None) as record:
+        x = [.90, .15, np.nan, .015, .009, 0.0005]
+        labels = pvalue_format()(x)
+        assert labels == ['0.9', '0.15', 'nan', '0.015', '0.009', '<0.001']
+
+    # NaN is handled without any warning
+    assert len(record) == 0
+
+
+def test_ordinal_format():
+    labels = ordinal_format()(range(110, 115))
+    assert labels == ['110th', '111th', '112th', '113th', '114th']
+
+    labels = ordinal_format()(range(120, 125))
+    assert labels == ['120th', '121st', '122nd', '123rd', '124th']
+
+    labels = ordinal_format(big_mark=',')(range(1200, 1205))
+    assert labels == ['1,200th', '1,201st', '1,202nd', '1,203rd', '1,204th']
+
+    labels = ordinal_format(big_mark='.')(range(1200, 1205))
+    assert labels == ['1.200th', '1.201st', '1.202nd', '1.203rd', '1.204th']
+
+
+def test_number_bytes_format():
+    x = [1000, 1000000, 4e5]
+    labels = number_bytes_format(symbol='MiB')(x)
+    assert labels == ['0 MiB', '1 MiB', '0 MiB']
+
+    labels = number_bytes_format(symbol='MiB', fmt='{:.2f} ')(x)
+    assert labels == ['0.00 MiB', '0.95 MiB', '0.38 MiB']
+
+    with pytest.raises(ValueError):
+        number_bytes_format(symbol='Bad')(x)
+
+
 def test_empty_breaks():
     x = []
     assert custom_format()(x) == []
@@ -146,3 +193,6 @@ def test_empty_breaks():
     assert mpl_format()(x) == []
     assert log_format()(x) == []
     assert timedelta_format()(x) == []
+    assert pvalue_format()(x) == []
+    assert ordinal_format()(x) == []
+    assert number_bytes_format()(x) == []

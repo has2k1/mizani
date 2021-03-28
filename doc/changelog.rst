@@ -1,9 +1,91 @@
 Changelog
 =========
 
+v0.7.3
+------
+*(2020-10-29)*
+
+
+Bug Fixes
+*********
+- Fixed log_breaks for narrow range if base=2 (:issue:`76`).
+
+
+v0.7.2
+------
+*(2020-10-29)*
+
+Bug Fixes
+*********
+- Fixed bug in :func:`~mizani.bounds.rescale_max` to properly handle
+  values whose maximum is zero (:issue:`16`).
+
+v0.7.1
+------
+*(2020-06-05)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3877546.svg
+   :target: https://doi.org/10.5281/zenodo.3877546
+
+Bug Fixes
+*********
+- Fixed regression in :func:`mizani.scales.scale_discrete.train` when
+  trainning on values with some categoricals that have common elements.
+
+v0.7.0
+------
+*(2020-06-04)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3876327.svg
+   :target: https://doi.org/10.5281/zenodo.3876327
+
+Bug Fixes
+*********
+- Fixed issue with :class:`mizani.formatters.log_breaks` where non-linear
+  breaks could not be generated if the limits where greater than the
+  largest integer ``sys.maxsize``.
+
+- Fixed :func:`mizani.palettes.gradient_n_pal` to return ``nan`` for
+  ``nan`` values.
+
+- Fixed :func:`mizani.scales.scale_discrete.train` when training categoricals
+  to maintain the order.
+  `(plotnine #381) <https://github.com/has2k1/plotnine/issues/381>`_
+
+v0.6.0
+------
+*(2019-08-15)*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3369191.svg
+   :target: https://doi.org/10.5281/zenodo.3369191
+
+New
+***
+- Added :class:`~mizani.formatters.pvalue_format`
+- Added :class:`~mizani.formatters.ordinal_format`
+- Added :class:`~mizani.formatters.number_bytes_format`
+- Added :func:`~mizani.transforms.pseudo_log_trans`
+- Added :class:`~mizani.transforms.reciprocal_trans`
+- Added :func:`~mizani.transforms.modulus_trans`
+
+Enhancements
+************
+- :class:`mizani.breaks.date_breaks` now supports intervals in the
+   order of seconds.
+
+- :class:`mizani.palettes.brewer_pal` now supports a direction argument
+  to control the order of the returned colors.
+
+API Changes
+***********
+- :func:`~mizani.transforms.boxcox_trans` now only accepts positive
+  values. For both positive and negative values,
+  :func:`~mizani.transforms.modulus_trans` has been added.
+
 v0.5.4
 ------
-*(2018-03-26)*
+*(2019-03-26)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg
    :target: https://doi.org/10.5281/zenodo.62319878
 

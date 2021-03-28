@@ -33,6 +33,7 @@ clean-pyc:
 clean-test:
 	rm -fr .tox/
 	rm -f .coverage
+	rm -f coverage.xml
 	rm -fr htmlcov/
 
 lint:

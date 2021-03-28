@@ -10,6 +10,7 @@ representations of those values. Manipulating the string
 representation of a value helps improve readability of the guide.
 """
 import re
+from bisect import bisect_right
 from warnings import warn
 
 import numpy as np
@@ -17,13 +18,14 @@ from matplotlib.dates import DateFormatter, date2num
 from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
-from .utils import round_any, precision
+from .utils import round_any, precision, match
 from .utils import same_log10_order_of_magnitude
 
 
 __all__ = ['custom_format', 'currency_format', 'dollar_format',
            'percent_format', 'scientific_format', 'date_format',
-           'mpl_format', 'log_format', 'timedelta_format']
+           'mpl_format', 'log_format', 'timedelta_format',
+           'pvalue_format', 'ordinal_format', 'number_bytes_format']
 
 
 class custom_format:
@@ -367,12 +369,6 @@ class log_format:
         self.base = base
         self.exponent_limits = exponent_limits
 
-        if 'exponent_threshold' in kwargs:
-            warn(
-                 "`exponent_threshold` parameter has been deprecated ",
-                 "Use exponent_limits instead",
-                 DeprecationWarning)
-
     def _tidyup_labels(self, labels):
         """
         Make all labels uniform in format and remove redundant zeros
@@ -619,3 +615,177 @@ class timedelta_format:
             labels.append(''.join([num_label, _ulabel]))
 
         return labels
+
+
+class pvalue_format:
+    """
+    p-values Formatter
+
+    Parameters
+    ----------
+    accuracy : float
+        Number to round to
+    add_p : bool
+        Whether to prepend "p=" or "p<" to the output
+
+    Examples
+    --------
+    >>> x = [.90, .15, .015, .009, 0.0005]
+    >>> pvalue_format()(x)
+    ['0.9', '0.15', '0.015', '0.009', '<0.001']
+    >>> pvalue_format(0.1)(x)
+    ['0.9', '0.1', '<0.1', '<0.1', '<0.1']
+    >>> pvalue_format(0.1, True)(x)
+    ['p=0.9', 'p=0.1', 'p<0.1', 'p<0.1', 'p<0.1']
+    """
+
+    def __init__(self, accuracy=0.001, add_p=False):
+        self.accuracy = accuracy
+        self.add_p = add_p
+
+    def __call__(self, x):
+        """
+        Format a sequence of inputs
+
+        Parameters
+        ----------
+        x : array
+            Input
+
+        Returns
+        -------
+        out : list
+            List of strings.
+        """
+        x = round_any(x, self.accuracy)
+        below = [num < self.accuracy for num in x]
+
+        if self.add_p:
+            eq_fmt = 'p={:g}'.format
+            below_label = 'p<{:g}'.format(self.accuracy)
+        else:
+            eq_fmt = '{:g}'.format
+            below_label = '<{:g}'.format(self.accuracy)
+
+        labels = [below_label if b else eq_fmt(i)
+                  for i, b in zip(x, below)]
+        return labels
+
+
+def ordinal(n, prefix='', suffix='', big_mark=''):
+    # General Case: 0th, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th
+    # Special Case: 10th, 11th, 12th, 13th
+    n = int(n)
+    idx = np.min((n % 10, 4))
+    _suffix = ['th', 'st', 'nd', 'rd', 'th'][idx]
+    if 11 <= (n % 100) <= 13:
+        _suffix = 'th'
+
+    if big_mark:
+        s = '{:,}'.format(n)
+        if big_mark != ',':
+            s = s.replace(',', big_mark)
+    else:
+        s = '{}'.format(n)
+
+    return '{}{}{}{}'.format(prefix, s, _suffix, suffix)
+
+
+class ordinal_format:
+    """
+    Ordinal Formatter
+
+    Parameters
+    ----------
+    prefix : str
+        What to put before the value.
+    suffix : str
+        What to put after the value.
+    big_mark : str
+        The thousands separator. This is usually
+        a comma or a dot.
+
+    Examples
+    --------
+    >>> ordinal_format()(range(8))
+    ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th']
+    >>> ordinal_format(suffix=' Number')(range(11, 15))
+    ['11th Number', '12th Number', '13th Number', '14th Number']
+    """
+    def __init__(self, prefix='', suffix='', big_mark=''):
+        self.prefix = prefix
+        self.suffix = suffix
+        self.big_mark = big_mark
+
+    def __call__(self, x):
+        labels = [ordinal(num, self.prefix, self.suffix, self.big_mark)
+                  for num in x]
+        return labels
+
+
+class number_bytes_format:
+    """
+    Bytes Formatter
+
+    Parameters
+    ----------
+    symbol : str
+        Valid symbols are "B", "kB", "MB", "GB", "TB", "PB", "EB",
+        "ZB", and "YB" for SI units, and the "iB" variants for
+        binary units. Default is "auto" where the symbol to be
+        used is determined separately for each value of 1x.
+    units : "binary" | "si"
+        Which unit base to use, 1024 for "binary" or 1000 for "si".
+    fmt : str, optional
+        Format sting. Default is ``{:.0f}``.
+
+    Examples
+    --------
+    >>> x = [1000, 1000000, 4e5]
+    >>> number_bytes_format()(x)
+    ['1000 B', '977 KiB', '391 KiB']
+    >>> number_bytes_format(units='si')(x)
+    ['1 kB', '1 MB', '400 kB']
+    """
+    def __init__(self, symbol='auto', units='binary', fmt='{:.0f} '):
+        self.symbol = symbol
+        self.units = units
+        self.fmt = fmt
+
+        if units == 'si':
+            self.base = 1000
+            self._all_symbols = [
+                'B', 'kB', 'MB', 'GB', 'TB',
+                'PB', 'EB', 'ZB', 'YB']
+        else:
+            self.base = 1024
+            self._all_symbols = [
+                'B', 'KiB', 'MiB', 'GiB', 'TiB',
+                'PiB', 'EiB', 'ZiB', 'YiB']
+
+        # possible exponents of base: eg 1000^1, 1000^2, 1000^3, ...
+        exponents = np.arange(1, len(self._all_symbols)+1, dtype=float)
+        self._powers = self.base ** exponents
+        self._validate_symbol(symbol, ['auto'] + self._all_symbols)
+
+    def __call__(self, x):
+        _all_symbols = self._all_symbols
+        symbol = self.symbol
+        if symbol == 'auto':
+            power = [bisect_right(self._powers, val) for val in x]
+            symbols = [_all_symbols[p] for p in power]
+        else:
+            power = np.array(match([symbol], _all_symbols))
+            symbols = [symbol] * len(x)
+
+        x = np.asarray(x)
+        power = np.asarray(power, dtype=float)
+        values = x / self.base**power
+        fmt = (self.fmt + '{}').format
+        labels = [fmt(v, s) for v, s in zip(values, symbols)]
+        return labels
+
+    def _validate_symbol(self, symbol, allowed_symbols):
+        if symbol not in allowed_symbols:
+            raise ValueError(
+                "Symbol must be one of {}".format(allowed_symbols))

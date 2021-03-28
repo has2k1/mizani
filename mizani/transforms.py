@@ -35,11 +35,13 @@ from .formatters import log_format
 
 
 __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
+           'modulus_trans',
            'datetime_trans', 'exp_trans', 'identity_trans',
            'log10_trans', 'log1p_trans', 'log2_trans',
            'log_trans', 'logit_trans', 'probability_trans',
            'probit_trans', 'reverse_trans', 'sqrt_trans',
            'timedelta_trans', 'pd_timedelta_trans',
+           'pseudo_log_trans', 'reciprocal_trans',
            'trans', 'trans_new', 'gettrans']
 
 
@@ -390,31 +392,141 @@ class atanh_trans(trans):
     inverse = staticmethod(np.tanh)
 
 
-def boxcox_trans(p, **kwargs):
-    """
+def boxcox_trans(p, offset=0, **kwargs):
+    r"""
     Boxcox Transformation
+
+    The Box-Cox transformation is a flexible transformation, often
+    used to transform data towards normality.
+
+    The Box-Cox power transformation (type 1) requires strictly positive
+    values and takes the following form for :math:`y \gt 0`:
+
+    .. math::
+
+        y^{(\lambda)} = \frac{y^\lambda - 1}{\lambda}
+
+    When :math:`y = 0`, the natural log transform is used.
 
     Parameters
     ----------
     p : float
-        Power parameter, commonly denoted by
-        lower-case lambda in formulae
+        Transformation exponent :math:`\lambda`.
+    offset : int
+        Constant offset. 0 for Box-Cox type 1, otherwise any
+        non-negative constant (Box-Cox type 2).
+        The default is 0. :func:`~mizani.transforms.modulus_trans`
+        sets the default to 1.
     kwargs : dict
-        Keyword arguments passed onto
-        :func:`trans_new`. Should not include
-        the `transform` or `inverse`.
-    """
-    if np.abs(p) < 1e-7:
-        return log_trans()
+        Keyword arguments passed onto :func:`trans_new`. Should not
+        include the `transform` or `inverse`.
 
+    References
+    ----------
+    - Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
+      Journal of the Royal Statistical Society. Series B (Methodological),
+      211-252. `<https://www.jstor.org/stable/2984418>`_
+    - John, J. A., & Draper, N. R. (1980). An alternative family of
+      transformations. Applied Statistics, 190-197.
+      `<http://www.jstor.org/stable/2986305>`_
+
+    See Also
+    --------
+    :func:`~mizani.transforms.modulus_trans`
+
+    """
     def transform(x):
-        return (x**p - 1) / (p * np.sign(x-1))
+        x = np.asarray(x)
+        if np.any((x + offset) < 0):
+            raise ValueError(
+                "boxcox_trans must be given only positive values. "
+                "Consider using modulus_trans instead?"
+            )
+        if np.abs(p) < 1e-7:
+            return np.log(x + offset)
+        else:
+            return ((x + offset)**p - 1)/p
 
     def inverse(x):
-        return (np.abs(x) * p + np.sign(x)) ** (1 / p)
+        x = np.asarray(x)
+        if np.abs(p) < 1e-7:
+            return np.exp(x) - offset
+        else:
+            return (x*p + 1) ** (1/p) - offset
 
     kwargs['p'] = p
+    kwargs['offset'] = offset
     kwargs['name'] = kwargs.get('name', 'pow_{}'.format(p))
+    kwargs['transform'] = transform
+    kwargs['inverse'] = inverse
+    return trans_new(**kwargs)
+
+
+def modulus_trans(p, offset=1, **kwargs):
+    r"""
+    Modulus Transformation
+
+    The modulus transformation generalises Box-Cox to work with
+    both positive and negative values.
+
+    When :math:`y \neq 0`
+
+    .. math::
+
+        y^{(\lambda)} = sign(y) * \frac{(|y| + 1)^\lambda - 1}{\lambda}
+
+    and when :math:`y = 0`
+
+    .. math::
+
+        y^{(\lambda)} =  sign(y) * \ln{(|y| + 1)}
+
+    Parameters
+    ----------
+    p : float
+        Transformation exponent :math:`\lambda`.
+    offset : int
+        Constant offset. 0 for Box-Cox type 1, otherwise any
+        non-negative constant (Box-Cox type 2).
+        The default is 1. :func:`~mizani.transforms.boxcox_trans`
+        sets the default to 0.
+    kwargs : dict
+        Keyword arguments passed onto :func:`trans_new`.
+        Should not include the `transform` or `inverse`.
+
+    References
+    ----------
+    - Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
+      Journal of the Royal Statistical Society. Series B (Methodological),
+      211-252. `<https://www.jstor.org/stable/2984418>`_
+    - John, J. A., & Draper, N. R. (1980). An alternative family of
+      transformations. Applied Statistics, 190-197.
+      `<http://www.jstor.org/stable/2986305>`_
+
+    See Also
+    --------
+    :func:`~mizani.transforms.boxcox_trans`
+    """
+    if np.abs(p) < 1e-7:
+        def transform(x):
+            x = np.asarray(x)
+            return np.sign(x) * np.log(np.abs(x) + offset)
+
+        def inverse(x):
+            x = np.asarray(x)
+            return np.sign(x) * (np.exp(np.abs(x)) - offset)
+    else:
+        def transform(x):
+            x = np.asarray(x)
+            return np.sign(x) * ((np.abs(x) + offset)**p - 1) / p
+
+        def inverse(x):
+            x = np.asarray(x)
+            return np.sign(x) * ((np.abs(x) * p + 1)**(1 / p) - offset)
+
+    kwargs['p'] = p
+    kwargs['offset'] = offset
+    kwargs['name'] = kwargs.get('name', 'mt_pow_{}'.format(p))
     kwargs['transform'] = transform
     kwargs['inverse'] = inverse
     return trans_new(**kwargs)
@@ -442,7 +554,13 @@ def probability_trans(distribution, *args, **kwargs):
     computations may run into errors. Absence of any errors
     does not imply that the distribution fits the data.
     """
-    import scipy.stats as stats
+    try:
+        import scipy.stats as stats
+    except ImportError:
+        raise ImportError(
+            "Please install scipy so you can use a probability transform"
+        )
+
     cdists = {k for k in dir(stats)
               if hasattr(getattr(stats, k), 'cdf')}
     if distribution not in cdists:
@@ -493,16 +611,7 @@ class datetime_trans(trans):
         """
         Transform from date to a numerical format
         """
-        try:
-            x = date2num(x)
-        except AttributeError:
-            # numpy datetime64
-            # This is not ideal because the operations do not
-            # preserve the np.datetime64 type. May be need
-            # a datetime64_trans
-            x = [pd.Timestamp(item) for item in x]
-            x = date2num(x)
-        return x
+        return date2num(x)
 
     @staticmethod
     def inverse(x):
@@ -576,6 +685,63 @@ class pd_timedelta_trans(trans):
         except TypeError:
             x = pd.Timedelta(int(x))
         return x
+
+
+class reciprocal_trans(trans):
+    """
+    Reciprocal Transformation
+    """
+
+    @staticmethod
+    def transform(x):
+        x = np.asarray(x)
+        return 1 / x
+
+    @staticmethod
+    def inverse(x):
+        x = np.asarray(x)
+        return 1 / x
+
+
+def pseudo_log_trans(sigma=1, base=None, **kwargs):
+    """
+    Pseudo-log transformation
+
+    A transformation mapping numbers to a signed logarithmic
+    scale with a smooth transition to linear scale around 0.
+
+    Parameters
+    ----------
+    sigma : float
+        Scaling factor for the linear part.
+    base : int
+        Approximate logarithm used. If None, then
+        the natural log is used.
+    kwargs : dict
+        Keyword arguments passed onto
+        :func:`trans_new`. Should not include
+        the `transform` or `inverse`.
+    """
+    if base is None:
+        base = np.exp(1)
+
+    def transform(x):
+        x = np.asarray(x)
+        return np.arcsinh(x/(2*sigma)) / np.log(base)
+
+    def inverse(x):
+        x = np.asarray(x)
+        return 2 * sigma * np.sinh(x * np.log(base))
+
+    kwargs['base'] = base
+    kwargs['sigma'] = sigma
+    _trans = trans_new('pseudo_log', transform, inverse, **kwargs)
+
+    if 'minor_breaks' not in kwargs:
+        n = int(base) - 2
+        _trans.minor_breaks = trans_minor_breaks(_trans, n=n)
+
+    return _trans
 
 
 def gettrans(t):

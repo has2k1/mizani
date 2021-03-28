@@ -3,8 +3,9 @@ from datetime import datetime, timedelta
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 import pytest
+from pytest import approx
 
 from mizani.bounds import (censor, expand_range, rescale, rescale_max,
                            rescale_mid, squish_infinite, zero_range,
@@ -199,7 +200,7 @@ def test_expand_range():
     diff(result) == diff(limits) + 30*one_day
 
     # timedelta64
-    one_day = np.timedelta64(1, unit='D')
+    one_day = np.timedelta64(1, 'D')
     limits = np.timedelta64(1, 'D'), np.timedelta64(10, 'D')
     result = expand_range(limits, add=one_day, zero_width=30*one_day)
     diff(result) == diff(limits) + 2*one_day
@@ -258,6 +259,13 @@ def test_rescale_max():
     s = pd.Series([1, 2, 3], index=[3, 2, 1])
     result = rescale_max(s)
     assert s.index.equals(result.index)
+
+    x = [-5, -4, -3, -2, -1, 0]
+    result = rescale_max(x)
+    assert result == approx([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+
+    result = rescale_max(x, to=(0, 5))
+    assert result == approx([0, 1, 2, 3, 4, 5])
 
 
 def test_rescale_mid():

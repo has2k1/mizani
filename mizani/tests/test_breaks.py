@@ -19,7 +19,7 @@ def test_mpl_breaks():
         assert len(breaks(limits)) <= nbins+1
 
     limits = float('-inf'), float('inf')
-    breaks = mpl_breaks(n=5)
+    breaks = mpl_breaks(nbins=5)
     assert len(breaks(limits)) == 0
 
     # Zero range discrete
@@ -64,6 +64,47 @@ def test_log_breaks():
 
     breaks = log_breaks()([1761, 8557])
     npt.assert_array_equal(breaks, [1000, 2000, 3000, 5000, 10000])
+
+    # log_breaks -> _log_sub_breaks -> extended_breaks
+    breaks = log_breaks(13)([1, 10])
+    npt.assert_array_almost_equal(
+        breaks,
+        np.arange(0, 11)
+    )
+
+    # No overflow effects
+    breaks = log_breaks(n=6)([1e25, 1e30])
+    npt.assert_array_almost_equal(
+        breaks,
+        [1e25, 1e26, 1e27, 1e28, 1e29, 1e30]
+    )
+
+    # No overflow effects in _log_sub_breaks
+    breaks = log_breaks()([2e19, 8e19])
+    npt.assert_array_almost_equal(
+        breaks,
+        [1.e+19, 2.e+19, 3.e+19, 5.e+19, 1.e+20]
+    )
+
+    # _log_sub_breaks for base != 10
+    breaks = log_breaks(n=5, base=60)([2e5, 8e5])
+    npt.assert_array_almost_equal(
+        breaks,
+        [129600, 216000, 432000, 648000, 1080000]
+    )
+
+    breaks = log_breaks(n=5, base=2)([20, 80])
+    npt.assert_array_almost_equal(
+        breaks,
+        [16, 32, 64, 128]
+    )
+
+    # bases & negative breaks
+    breaks = log_breaks(base=2)([0.9, 2.9])
+    npt.assert_array_almost_equal(
+        breaks,
+        [0.5, 1., 2., 4.]
+    )
 
 
 def test_minor_breaks():
@@ -143,6 +184,16 @@ def test_trans_minor_breaks():
     t = log_trans(base)
     assert len(t.minor_breaks(breaks, limits)) == base - 2
 
+    t = log_trans()
+    major = t.transform([1, 10, 100])
+    limits = t.transform([1, 100])
+    result = trans_minor_breaks(t)(major, limits, n=4)
+    npt.assert_allclose(
+        result,
+        [1.02961942, 1.5260563, 1.85629799, 2.10413415,
+         3.33220451, 3.8286414, 4.15888308, 4.40671925]
+    )
+
 
 def test_date_breaks():
     # cpython
@@ -198,7 +249,7 @@ def test_timedelta_breaks():
         minutes, [0, 2, 4, 6, 8])
 
     # numpy
-    x = [np.timedelta64(i*10, unit='D') for i in range(1, 10)]
+    x = [np.timedelta64(i*10, 'D') for i in range(1, 10)]
     limits = min(x), max(x)
     with pytest.raises(ValueError):
         breaks(limits)

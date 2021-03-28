@@ -17,6 +17,7 @@ import warnings
 import colorsys
 
 import numpy as np
+import pandas as pd
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 from matplotlib.cm import get_cmap
@@ -254,14 +255,12 @@ def grey_pal(start=0.2, end=0.8):
     grey_cmap = mcolors.LinearSegmentedColormap('grey', cdict)
 
     def continuous_grey_palette(n):
-        colors = []
         # The grey scale points are linearly separated in
         # gamma encoded space
-        for x in np.linspace(start**gamma, end**gamma, n):
-            # Map points onto the [0, 1] palette domain
-            x = (x ** (1./gamma) - start) / (end - start)
-            colors.append(mcolors.rgb2hex(grey_cmap(x)))
-        return colors
+        x = np.linspace(start**gamma, end**gamma, n)
+        # Map points onto the [0, 1] palette domain
+        vals = (x ** (1./gamma) - start) / (end - start)
+        return ratios_to_colors(vals, grey_cmap)
 
     return continuous_grey_palette
 
@@ -317,7 +316,7 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
     return _hue_pal
 
 
-def brewer_pal(type='seq', palette=1):
+def brewer_pal(type='seq', palette=1, direction=1):
     """
     Utility for making a brewer palette
 
@@ -327,13 +326,15 @@ def brewer_pal(type='seq', palette=1):
         Type of palette. Sequential, Qualitative or
         Diverging. The following abbreviations may
         be used, ``seq``, ``qual`` or ``div``.
-
     palette : int | str
         Which palette to choose from. If is an integer,
         it must be in the range ``[0, m]``, where ``m``
         depends on the number sequential, qualitative or
         diverging palettes. If it is a string, then it
         is the name of the palette.
+    direction : int
+        The order of colours in the scale. If -1 the order
+        of colors is reversed. The default is 1.
 
     Returns
     -------
@@ -363,77 +364,39 @@ def brewer_pal(type='seq', palette=1):
         print([k for k in brewer.COLOR_MAPS['Qualitative'].keys()])
         print([k for k in brewer.COLOR_MAPS['Diverging'].keys()])
     """
-    def full_type_name(text):
-        abbrevs = {
-            'seq': 'Sequential',
-            'qual': 'Qualitative',
-            'div': 'Diverging'
-        }
-        text = abbrevs.get(text, text)
-        return text.title()
+    if direction != 1 and direction != -1:
+        raise ValueError("direction should be 1 or -1.")
 
-    def number_to_palette_name(ctype, n):
-        """
-        Return palette name that corresponds to a given number
-
-        Uses alphabetical ordering
-        """
-        n -= 1
-        palettes = sorted(colorbrewer.COLOR_MAPS[ctype].keys())
-        if n < len(palettes):
-            return palettes[n]
-
-        raise ValueError(
-            "There are only '{}' palettes of type {}. "
-            "You requested palette no. {}".format(len(palettes),
-                                                  ctype, n+1))
-
-    def max_palette_colors(type, palette_name):
-        """
-        Return the number of colors in the brewer palette
-        """
-        if type == 'Sequential':
-            return 9
-        elif type == 'Diverging':
-            return 11
-        else:
-            # Qualitative palettes have different limits
-            qlimit = {'Accent': 8, 'Dark2': 8, 'Paired': 12,
-                      'Pastel1': 9, 'Pastel2': 8, 'Set1': 9,
-                      'Set2': 8, 'Set3': 12}
-            return qlimit[palette_name]
-
-    type = full_type_name(type)
+    type = brewer_helper.full_type_name(type)
     if isinstance(palette, int):
-        palette_name = number_to_palette_name(type, palette)
+        palette_name = brewer_helper.number_to_name(type, palette)
     else:
         palette_name = palette
 
-    nmax = max_palette_colors(type, palette_name)
+    # Get the number of colors in the palette
+    n_max = brewer_helper.num_colors(type, palette_name)
 
     def _brewer_pal(n):
         # Only draw the maximum allowable colors from the palette
         # and fill any remaining spots with None
-        _n = n if n <= nmax else nmax
+        _n = n if n <= n_max else n_max
         try:
             bmap = colorbrewer.get_map(palette_name, type, _n)
-        except ValueError as err:
-            # Some palettes have a minimum no. of colors set at 3
+        except ValueError:
+            # Some palettes have a minimum no. of colors
             # We get around that restriction.
-            if 0 <= _n < 3:
-                bmap = colorbrewer.get_map(palette_name, type, 3)
-            else:
-                raise err
+            n_min = brewer_helper.min_num_colors(type, palette_name)
+            bmap = colorbrewer.get_map(palette_name, type, n_min)
 
         hex_colors = bmap.hex_colors[:n]
-        if n > nmax:
+        if n > n_max:
             msg = ("Warning message:"
-                   "Brewer palette {} has a maximum of {} colors"
-                   "Returning the palette you asked for with"
-                   "that many colors".format(palette_name, nmax))
+                   f"Brewer palette {palette_name} has a maximum "
+                   f"of {n_max} colors Returning the palette you "
+                   "asked for with that many colors")
             warnings.warn(msg)
-            hex_colors = hex_colors + [None] * (n - nmax)
-        return hex_colors
+            hex_colors = hex_colors + [None] * (n - n_max)
+        return hex_colors[::direction]
 
     return _brewer_pal
 
@@ -462,10 +425,14 @@ def ratios_to_colors(values, colormap):
         values = [values]
 
     color_tuples = colormap(values)
-    try:
-        hex_colors = [mcolors.rgb2hex(t) for t in color_tuples]
-    except IndexError:
-        hex_colors = mcolors.rgb2hex(color_tuples)
+    hex_colors = [mcolors.rgb2hex(t) for t in color_tuples]
+
+    nan_bool_idx = pd.isnull(values) | np.isinf(values)
+    if any(nan_bool_idx):
+        hex_colors = [
+            np.nan if is_nan else color
+            for color, is_nan in zip(hex_colors, nan_bool_idx)
+        ]
     return hex_colors if iterable else hex_colors[0]
 
 
@@ -498,6 +465,8 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
     >>> palette = gradient_n_pal(['red', 'blue'])
     >>> palette([0, .25, .5, .75, 1])
     ['#ff0000', '#bf0040', '#7f0080', '#3f00c0', '#0000ff']
+    >>> palette([-np.inf, 0, np.nan, 1, np.inf])
+    [nan, '#ff0000', nan, '#0000ff', nan]
     """
     # Note: For better results across devices and media types,
     # it would be better to do the interpolation in
@@ -674,7 +643,7 @@ def manual_pal(values):
     def _manual_pal(n):
         if n > max_n:
             msg = ("Palette can return a maximum of {} values. "
-                   "{} were requested from it.")
+                   "{} values requested.")
             warnings.warn(msg.format(max_n, n))
 
         return values[:n]
@@ -817,3 +786,60 @@ def identity_pal():
     [2, 4, 6]
     """
     return identity
+
+
+def _first_last(it):
+    """
+    First and Last value of iterator as integers
+    """
+    lst = list(it)
+    return int(lst[0]), int(lst[-1])
+
+
+class brewer_helper:
+    """
+    Helper function for useing colorbrewer
+    """
+    _ncolor_range = {
+        t: {
+            palette: _first_last(info.keys())
+            for palette, info in colorbrewer.COLOR_MAPS[t].items()
+           }
+        for t in colorbrewer.COLOR_MAPS
+    }
+
+    @classmethod
+    def num_colors(cls, type, palette):
+        return cls._ncolor_range[type][palette][1]
+
+    @classmethod
+    def min_num_colors(cls, type, palette):
+        return cls._ncolor_range[type][palette][0]
+
+    @staticmethod
+    def full_type_name(text):
+        abbrevs = {
+            'seq': 'Sequential',
+            'qual': 'Qualitative',
+            'div': 'Diverging'
+        }
+        text = abbrevs.get(text, text)
+        return text.title()
+
+    @staticmethod
+    def number_to_name(ctype, n):
+        """
+        Return palette name that corresponds to a given number
+
+        Uses alphabetical ordering
+        """
+        _n = n - 1
+        palettes = sorted(colorbrewer.COLOR_MAPS[ctype].keys())
+        if _n < len(palettes):
+            return palettes[_n]
+
+        npalettes = len(palettes)
+        raise ValueError(
+            f"There are only '{npalettes}' palettes of type {ctype}. "
+            f"You requested palette no. {n}"
+        )

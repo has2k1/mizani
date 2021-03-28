@@ -39,6 +39,9 @@ def test_scale_discrete():
     def assert_equal_with_nan(lst1, lst2):
         assert lst1[:-1] == lst2[:-1] and np.isnan(lst2[-1])
 
+    def SCategorical(*args, **kwargs):
+        return pd.Series(pd.Categorical(*args, **kwargs))
+
     x = ['a', 'b', 'c', 'a']
     # apply
     scaled = scale_discrete.apply(x, np.arange)
@@ -87,3 +90,21 @@ def test_scale_discrete():
 
     limits = scale_discrete.train(x[:2], drop=False)
     assert limits == ['a', 'b', 'c']
+
+    # Disrete Scale training maintains order of categoricals
+    cats = ['x0', 'x1', 'x2', 'x3', 'x4']
+    s1 = SCategorical(['x1', 'x2'], categories=cats)
+    s2 = SCategorical(['x0', 'x2'], categories=cats)
+    limits = scale_discrete.train(s1, drop=True)
+    limits = scale_discrete.train(s2, limits, drop=True)
+    assert limits == ['x0', 'x1', 'x2']
+
+    # Trainning on mixed categories, the last data determines
+    # the location of a value that is in two categoricals
+    # eg. a & e are ordered right!
+    x1 = pd.Categorical(['a', 'b', 'c', 'e'])
+    x2 = pd.Categorical(['d', 'f', 'e', 'a'])
+    limits = scale_discrete.train(x1)
+    limits = scale_discrete.train(x2, old=limits)
+    # assert limits == list('abcedf')
+    assert limits == list('adefbc')

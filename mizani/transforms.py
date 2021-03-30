@@ -23,6 +23,7 @@ from types import MethodType
 
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 import datetime
 from dateutil import tz
 from matplotlib.dates import date2num, num2date
@@ -554,13 +555,6 @@ def probability_trans(distribution, *args, **kwargs):
     computations may run into errors. Absence of any errors
     does not imply that the distribution fits the data.
     """
-    try:
-        import scipy.stats as stats
-    except ImportError:
-        raise ImportError(
-            "Please install scipy so you can use a probability transform"
-        )
-
     cdists = {k for k in dir(stats)
               if hasattr(getattr(stats, k), 'cdf')}
     if distribution not in cdists:

@@ -22,10 +22,21 @@ from .utils import round_any, precision, match
 from .utils import same_log10_order_of_magnitude
 
 
-__all__ = ['custom_format', 'currency_format', 'dollar_format',
-           'percent_format', 'scientific_format', 'date_format',
-           'mpl_format', 'log_format', 'timedelta_format',
-           'pvalue_format', 'ordinal_format', 'number_bytes_format']
+__all__ = [
+    'comma_format',
+    'custom_format',
+    'currency_format',
+    'dollar_format',
+    'percent_format',
+    'scientific_format',
+    'date_format',
+    'mpl_format',
+    'log_format',
+    'timedelta_format',
+    'pvalue_format',
+    'ordinal_format',
+    'number_bytes_format'
+]
 
 
 class custom_format:

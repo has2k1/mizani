@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v0.7.4
+------
+*not-yet-released*
+
+API Changes
+***********
+
+- :class:`~mizani.formatters.comma_format` is now imported
+  automatically when using ``*``.
+
 v0.7.3
 ------
 *(2020-10-29)*

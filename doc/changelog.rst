@@ -1,9 +1,21 @@
 Changelog
 =========
 
+v0.7.4
+------
+*not-yet-released*
+
+API Changes
+***********
+
+- :class:`~mizani.formatters.comma_format` is now imported
+  automatically when using ``*``.
+
 v0.7.3
 ------
 *(2020-10-29)*
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4633364.svg
+   :target: https://doi.org/10.5281/zenodo.4633364
 
 
 Bug Fixes
@@ -14,6 +26,8 @@ Bug Fixes
 v0.7.2
 ------
 *(2020-10-29)*
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4633357.svg
+   :target: https://doi.org/10.5281/zenodo.4633357
 
 Bug Fixes
 *********

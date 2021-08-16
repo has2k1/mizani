@@ -274,10 +274,7 @@ def log_trans(base=None, **kwargs):
 
     # inverse function
     def inverse(x):
-        try:
-            return base ** x
-        except TypeError:
-            return [base**val for val in x]
+        return np.power(base, x)
 
     if 'domain' not in kwargs:
         kwargs['domain'] = (sys.float_info.min, np.inf)
@@ -330,7 +327,7 @@ def exp_trans(base=None, **kwargs):
 
     # transform function
     def transform(x):
-        return base ** x
+        return np.power(base, x)
 
     # inverse function
     def inverse(x):

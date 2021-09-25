@@ -227,7 +227,8 @@ class scale_discrete:
             limits = old + [i for i in new if (i not in old_set)]
 
         # Add nan if required
-        if has_na and not na_rm:
+        has_na_limits = any(pd.isnull(limits))
+        if not has_na_limits and not na_rm and has_na:
             limits.append(np.nan)
         return limits
 

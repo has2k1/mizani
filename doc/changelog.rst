@@ -11,6 +11,10 @@ API Changes
 - :class:`~mizani.formatters.comma_format` is now imported
   automatically when using ``*``.
 
+- Fixed issue with :class:`~mizani.scales.scale_discrete` so that if
+  you train on data with ``Nan`` and specify and old range that also
+  has ``NaN``, the result range does not include two ``NaN`` values.
+
 v0.7.3
 ------
 *(2020-10-29)*

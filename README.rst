@@ -27,7 +27,7 @@ Installation
 
 .. code-block:: console
 
-   $ pip install git+https://github.com/has2k1/mizani.git@master
+   $ pip install git+https://github.com/has2k1/mizani.git@main
 
 
 
@@ -37,11 +37,11 @@ Installation
 .. |license| image:: https://img.shields.io/pypi/l/mizani.svg
 .. _license: https://pypi.python.org/pypi/mizani
 
-.. |buildstatus| image:: https://github.com/has2k1/mizani/workflows/build/badge.svg?branch=master
-.. _buildstatus: https://github.com/has2k1/mizani/actions?query=branch%3Amaster+workflow%3A%22build%22
+.. |buildstatus| image:: https://github.com/has2k1/mizani/workflows/build/badge.svg?branch=main
+.. _buildstatus: https://github.com/has2k1/mizani/actions?query=branch%3Amain+workflow%3A%22build%22
 
-.. |coverage| image:: https://codecov.io /github/has2k1/mizani/coverage.svg?branch=master
-.. _coverage: https://codecov.io/github/has2k1/mizani?branch=master
+.. |coverage| image:: https://codecov.io /github/has2k1/mizani/coverage.svg?branch=main
+.. _coverage: https://codecov.io/github/has2k1/mizani?branch=main
 
 .. |documentation| image:: https://readthedocs.org/projects/mizani/badge/?version=latest
 .. _documentation: https://mizani.readthedocs.io/en/latest/

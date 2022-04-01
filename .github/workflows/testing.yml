@@ -13,45 +13,25 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.6, 3.9]
+        python-version: ["3.8", "3.10"]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # Ref: https://github.com/marketplace/actions/setup-miniconda
-      - name: Cache conda
-        uses: actions/cache@v1
-        env:
-          # Increase this value to reset cache if etc/example-environment.yml
-          # has not changed
-          CACHE_NUMBER: 0
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          path: ~/conda_pkgs_dir
-          key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('etc/example-environment.yml') }}
-
-      - name: Install Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          activate-environment: mizani-ci-unittests
 
       - name: Install Packages
         shell: bash -l {0}
         run: |
-          conda install scipy pandas matplotlib
-          conda install pytest-cov
-          pip install palettable
-          pip install -e .
+          pip install -e ".[testing]"
 
       - name: Environment Information
         shell: bash -l {0}
         run: |
-          conda info
-          conda list
           pip list
 
       - name: Run Tests
@@ -59,7 +39,6 @@ jobs:
         run: |
           coverage erase
           make test
-          ls -la
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
@@ -77,27 +56,15 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
-      # Ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/building-and-testing-python#caching-dependencies
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          # This path is specific to Ubuntu
-          path: ~/.cache/pip
-          # Look to see if there is a cache hit for the corresponding requirements file
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
 
       - name: Install Packages
         shell: bash -l {0}
@@ -121,37 +88,21 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      # Ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/building-and-testing-python#caching-dependencies
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          # This path is specific to Ubuntu
-          path: ~/.cache/pip
-          # Look to see if there is a cache hit for the corresponding requirements file
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
-
       - name: Install Packages
         shell: bash -l {0}
         run: |
-          conda install scipy pandas matplotlib
-          pip install palettable
-          pip install -r requirements/doc.txt
-          pip install -e .
-          python setup.py install
+          pip install -e ".[doc]"
 
       - name: Environment Information
         shell: bash -l {0}
@@ -161,5 +112,5 @@ jobs:
         shell: bash -l {0}
         run: |
           pushd doc
-          SPHINXOPTS=-W fails
+          SPHINXOPTS=-W
           make html && popd

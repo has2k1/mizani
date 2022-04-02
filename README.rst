@@ -11,8 +11,8 @@ Documentation        |documentation|_
 =================    =================
 
 Mizani is a scales package for graphics. It is written in Python and is
-based on Hadley Wickham's `Scales`_. For how to use it in a graphics
-system, see the `documentation`_.
+based on Hadley Wickham's `Scales`_. See the `documentation`_ for how
+to use it in a graphics system.
 
 Installation
 ============
@@ -46,4 +46,4 @@ Installation
 .. |documentation| image:: https://readthedocs.org/projects/mizani/badge/?version=latest
 .. _documentation: https://mizani.readthedocs.io/en/latest/
 
-.. _Scales: https://github.com/hadley/scales
+.. _Scales: https://github.com/r-lib/scales

@@ -3,7 +3,7 @@ Changelog
 
 v0.7.4
 ------
-*not-yet-released*
+*2022-04-02*
 
 API Changes
 ***********

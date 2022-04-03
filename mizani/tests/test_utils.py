@@ -115,7 +115,7 @@ def test_multitype_sort():
         x_prev = result[i-1]
         if (type(x_prev) is type(x)):
             # cannot compare nan with anything
-            if (isinstance(x, (float, np.float)) and
+            if (isinstance(x, float) and
                     (np.isnan(x_prev) or np.isnan(x))):
                 continue
             assert x_prev <= x

@@ -2,8 +2,8 @@
 
 # This script makes it easy to recompile install and tryout
 # a theme in case of any changes. It assumes the
-# sphinx-bootstrap-theme-customizer package is in the same directory
-# as the package, i.e one up the git toplevel.
+# sphinx-bootstrap-theme-customizer and the package are in
+# the same directory i.e one directory above the git toplevel.
 
 color5=$(tput setaf 5)
 reset=$(tput sgr0)      # reset color codes

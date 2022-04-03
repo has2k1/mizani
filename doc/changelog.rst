@@ -3,7 +3,7 @@ Changelog
 
 v0.7.4
 ------
-*not-yet-released*
+*2022-04-02*
 
 API Changes
 ***********
@@ -11,9 +11,14 @@ API Changes
 - :class:`~mizani.formatters.comma_format` is now imported
   automatically when using ``*``.
 
+- Fixed issue with :class:`~mizani.scales.scale_discrete` so that if
+  you train on data with ``Nan`` and specify and old range that also
+  has ``NaN``, the result range does not include two ``NaN`` values.
+
 v0.7.3
 ------
 *(2020-10-29)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4633364.svg
    :target: https://doi.org/10.5281/zenodo.4633364
 
@@ -26,6 +31,7 @@ Bug Fixes
 v0.7.2
 ------
 *(2020-10-29)*
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4633357.svg
    :target: https://doi.org/10.5281/zenodo.4633357
 

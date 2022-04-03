@@ -74,6 +74,10 @@ def test_scale_discrete():
     limits = scale_discrete.train(x2, na_rm=False)
     assert_equal_with_nan(limits, [1, 2, 3, np.nan])
 
+    # Double trainning with nan does not add another nan
+    limits2 = scale_discrete.train(x2, limits, na_rm=False)
+    assert_equal_with_nan(limits2, [1, 2, 3, np.nan])
+
     # branches #
 
     with pytest.raises(TypeError):

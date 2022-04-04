@@ -26,5 +26,6 @@ exclude_lines = [
    "pragma: no cover",
    "^def test_",
    "if __name__ == .__main__.:",
+   "while k < float\\('inf'\\):"
 ]
 precision = 1

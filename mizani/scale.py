@@ -1,7 +1,7 @@
 """
 According to *On the theory of scales of measurement* by **S.S. Stevens**,
-scales can be classified in four ways -- *norminal*, *ordinal*,
-*interval* and *ratio*. Using current(2016) terminology, *norminal* data
+scales can be classified in four ways -- *nominal*, *ordinal*,
+*interval* and *ratio*. Using current(2016) terminology, *nominal* data
 is made up of unordered categories, *ordinal* data is made up of ordered
 categories and the two can be classified as *discrete*. On the other hand
 both *interval* and *ratio* data are *continuous*.

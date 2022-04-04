@@ -5,6 +5,12 @@ Current Development Version
 ---------------------------
 *future date*
 
+API Changes
+***********
+
+- The ``lut`` parameter of :class:`~mizani.palettes.cmap_pal` and
+ :class:`~mizani.palettes.cmap_d_pal` has been deprecated and will
+ removed in a future version.
 
 v0.7.4
 ------

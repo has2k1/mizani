@@ -13,14 +13,13 @@ two or more points. Therefore palettes must be created that
 enforce such restrictions. This is the reason for the ``*_pal``
 functions that create and return the actual palette functions.
 """
-import warnings
 import colorsys
+from warnings import warn
 
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.colors as mcolors
-from matplotlib.cm import get_cmap
 from palettable import colorbrewer
 
 from .external import husl, xkcd_rgb, crayon_rgb
@@ -394,7 +393,7 @@ def brewer_pal(type='seq', palette=1, direction=1):
                    f"Brewer palette {palette_name} has a maximum "
                    f"of {n_max} colors Returning the palette you "
                    "asked for with that many colors")
-            warnings.warn(msg)
+            warn(msg)
             hex_colors = hex_colors + [None] * (n - n_max)
         return hex_colors[::direction]
 
@@ -511,7 +510,15 @@ def cmap_pal(name=None, lut=None):
     >>> palette([.1, .2, .3, .4, .5])
     ['#482475', '#414487', '#355f8d', '#2a788e', '#21918c']
     """
-    colormap = get_cmap(name, lut)
+    colormap = mpl.colormaps[name]
+
+    if lut is not None:
+        warn(
+            "The lut parameter has been deprecated and will "
+            "be removed in a future version.",
+            FutureWarning
+        )
+        colormap = colormap._resample(lut)
 
     def _cmap_pal(vals):
         return ratios_to_colors(vals, colormap)
@@ -545,7 +552,15 @@ def cmap_d_pal(name=None, lut=None):
     >>> palette(5)
     ['#440154', '#3b528b', '#21918c', '#5cc863', '#fde725']
     """
-    colormap = get_cmap(name, lut)
+    colormap = mpl.colormaps[name]
+
+    if lut is not None:
+        warn(
+            "The lut parameter has been deprecated and will "
+            "be removed in a future version.",
+            FutureWarning
+        )
+        colormap = colormap._resample(lut)
 
     if not isinstance(colormap, mcolors.ListedColormap):
         raise ValueError(
@@ -644,7 +659,7 @@ def manual_pal(values):
         if n > max_n:
             msg = ("Palette can return a maximum of {} values. "
                    "{} values requested.")
-            warnings.warn(msg.format(max_n, n))
+            warn(msg.format(max_n, n))
 
         return values[:n]
 

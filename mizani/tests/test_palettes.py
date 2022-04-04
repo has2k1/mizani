@@ -125,6 +125,9 @@ def test_cmap_pal():
     result = palette([0, .25, .5, .75, 1])
     assert all(s[0] == '#' and len(s) == 7 for s in result)
 
+    with pytest.warns(FutureWarning):
+        cmap_pal('viridis', 5)
+
 
 def test_cmap_d_pal():
     palette = cmap_d_pal('viridis')
@@ -143,6 +146,9 @@ def test_cmap_d_pal():
     # Bad palette
     with pytest.raises(ValueError):
         palette = cmap_d_pal('Greens')
+
+    with pytest.warns(FutureWarning):
+        cmap_d_pal('viridis', 5)
 
 
 def test_desaturate_pal():

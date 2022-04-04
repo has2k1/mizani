@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import warnings
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -147,10 +148,11 @@ def test_pvalue_format():
     labels = pvalue_format(add_p=True)(x)
     assert labels == ['p=0.9', 'p=0.15', 'p=0.015', 'p=0.009', 'p<0.001']
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings(record=True) as record:
         x = [.90, .15, np.nan, .015, .009, 0.0005]
         labels = pvalue_format()(x)
         assert labels == ['0.9', '0.15', 'nan', '0.015', '0.009', '<0.001']
+        assert not record, "Issued an unexpected warning"
 
     # NaN is handled without any warning
     assert len(record) == 0

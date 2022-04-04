@@ -1,9 +1,17 @@
 Changelog
 =========
 
+Current Development Version
+---------------------------
+*future date*
+
+
 v0.7.4
 ------
 *2022-04-02*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6408007.svg
+   :target: https://doi.org/10.5281/zenodo.6408007
 
 API Changes
 ***********

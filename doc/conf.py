@@ -15,15 +15,18 @@
 import sys
 import os
 
+from pathlib import Path
+
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-CUR_PATH = os.path.dirname(os.path.abspath(__file__))
-PROJECT_PATH = os.path.abspath(CUR_PATH + '/../')
-sys.path.insert(0, CUR_PATH)
-sys.path.insert(0, PROJECT_PATH)
+CUR_PATH = Path(__file__).parent
+PROJECT_PATH = CUR_PATH.parent
+
+sys.path.insert(0, str(CUR_PATH))
+sys.path.insert(0, str(PROJECT_PATH))
 
 if on_rtd:
     import mock

@@ -1,6 +1,12 @@
 from types import FunctionType, MethodType
 from datetime import datetime, timedelta
 
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # python < 3.9
+    from backports.zoneinfo import ZoneInfo
+
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
@@ -199,21 +205,56 @@ def test_probability_trans():
 
 
 def test_datetime_trans():
-    x = [datetime(year, 1, 1) for year in [2010, 2015, 2020, 2026]]
+    UTC = ZoneInfo('UTC')
+
+    x = [datetime(year, 1, 1, tzinfo=UTC) for year in [2010, 2015, 2020, 2026]]
     t = datetime_trans()
     xt = t.transform(x)
     x2 = t.inverse(xt)
-    # inverse adds a UTC timezone so direct comparison fails
-    assert all(a.year == b.year and
-               a.month == b.month and
-               a.day == b.day
-               for a, b in zip(x, x2))
+    assert all(a == b for a, b in zip(x, x2))
 
     # numpy datetime64
     x = [np.datetime64(i, 'D') for i in range(1, 11)]
+    t = datetime_trans()
     xt = t.transform(x)
     x2 = t.inverse(xt)
     assert all(isinstance(val, datetime) for val in x2)
+
+    # pandas timestamp
+    x = pd.date_range(start='1/1/2022', end='1/2/2022', freq='3H', tz='EST')
+    t = datetime_trans()
+    xt = t.transform(x)
+    x2 = t.inverse(xt)
+    assert all(x == x2)
+
+    # Scalar
+    x = datetime(2022, 1, 20, tzinfo=UTC)
+    t = datetime_trans()
+    xt = t.transform(x)
+    x2 = t.inverse(xt)
+    assert x == x2
+
+
+def test_datetime_trans_tz():
+    EST = ZoneInfo('EST')
+    UTC = ZoneInfo('UTC')
+
+    x = [
+        datetime(2022, 1, 1, 0 + 3 * i, 0, 0, tzinfo=EST)
+        for i in range(8)
+    ]
+
+    # Same trans as data
+    t = datetime_trans()
+    x2 = t.inverse(t.transform(x))
+    assert x == x2
+    assert all(val.tzinfo == EST for val in x2)
+
+    # UTC trans
+    t = datetime_trans(UTC)
+    x2 = t.inverse(t.transform(x))
+    assert x == x2
+    assert all(val.tzinfo == UTC for val in x2)
 
 
 def test_timedelta_trans():

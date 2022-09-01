@@ -13,6 +13,13 @@ import re
 from bisect import bisect_right
 from warnings import warn
 
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # python < 3.9
+    from backports.zoneinfo import ZoneInfo
+
+
 import numpy as np
 from matplotlib.dates import DateFormatter, date2num
 from matplotlib.ticker import ScalarFormatter
@@ -512,6 +519,8 @@ class date_format:
     ['2010-01-01 05:33', '2010-01-01 12:33']
     """
     def __init__(self, fmt='%Y-%m-%d', tz=None):
+        if isinstance(tz, str):
+            tz = ZoneInfo(tz)
         self.formatter = DateFormatter(fmt, tz=tz)
         self.tz = tz
 

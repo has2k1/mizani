@@ -19,13 +19,19 @@ plot. The :class:`trans` is aimed at being useful for *scale* and
 *coordinate* transformations.
 """
 import sys
+import datetime
+from collections.abc import Iterable
 from types import MethodType
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # python < 3.9
+    from backports.zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import datetime
-from dateutil import tz
 from matplotlib.dates import date2num, num2date
 
 from .breaks import (extended_breaks, log_breaks, minor_breaks,
@@ -44,6 +50,8 @@ __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
            'timedelta_trans', 'pd_timedelta_trans',
            'pseudo_log_trans', 'reciprocal_trans',
            'trans', 'trans_new', 'gettrans']
+
+UTC = ZoneInfo('UTC')
 
 
 class trans:
@@ -588,28 +596,77 @@ probit_trans = probability_trans('norm', _name='norm',
 class datetime_trans(trans):
     """
     Datetime Transformation
+
+    Parameters
+    ----------
+    tz : str | ZoneInfo
+        Timezone information
+
+    Examples
+    --------
+    >>> # from zoneinfo import ZoneInfo
+    >>> # from backports.zoneinfo import ZoneInfo  # for python < 3.9
+    >>> UTC = ZoneInfo("UTC")
+    >>> EST = ZoneInfo("EST")
+    >>> t = datetime_trans(EST)
+    >>> x = datetime.datetime(2022, 1, 20, tzinfo=UTC)
+    >>> x2 = t.inverse(t.transform(x))
+    >>> x == x2
+    True
+    >>> x.tzinfo == x2.tzinfo
+    False
+    >>> x.tzinfo.key
+    'UTC'
+    >>> x2.tzinfo.key
+    'EST'
     """
     dataspace_is_numerical = False
-    domain = (datetime.datetime(datetime.MINYEAR, 1, 1,
-                                tzinfo=tz.tzutc()),
-              datetime.datetime(datetime.MAXYEAR, 12, 31,
-                                tzinfo=tz.tzutc()))
+    domain = (
+        datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=UTC),
+        datetime.datetime(datetime.MAXYEAR, 12, 31, tzinfo=UTC)
+    )
     breaks_ = staticmethod(date_breaks())
     format = staticmethod(date_format())
+    tz = None
 
-    @staticmethod
-    def transform(x):
+    def __init__(self, tz=None, **kwargs):
+        if isinstance(tz, str):
+            tz = ZoneInfo(tz)
+
+        super().__init__(**kwargs)
+        self.tz = tz
+
+    def transform(self, x):
         """
         Transform from date to a numerical format
         """
+        if isinstance(x, Iterable) and not len(x):
+            return []
+
+        try:
+            tz = x[0].tzinfo
+        except TypeError:
+            tz = x.tzinfo
+        except AttributeError:
+            tz = None
+
+        if tz and self.tz is None:
+            self.tz = tz
+
         return date2num(x)
 
-    @staticmethod
-    def inverse(x):
+    def inverse(self, x):
         """
         Transform to date from numerical format
         """
-        return num2date(x)
+        return num2date(x, tz=self.tz)
+
+    @property
+    def tzinfo(self):
+        """
+        Alias of `tz`
+        """
+        return self.tz
 
 
 class timedelta_trans(trans):

@@ -12,6 +12,9 @@ API Changes
  :class:`~mizani.palettes.cmap_d_pal` has been deprecated and will
  removed in a future version.
 
+- :class:`~mizani.transforms.datetime_trans` gained parameter ``tz``
+  that controls the timezone of the transformation.
+
 v0.7.4
 ------
 *2022-04-02*

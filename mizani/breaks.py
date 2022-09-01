@@ -109,9 +109,9 @@ class log_breaks:
     >>> x = np.logspace(3, 6)
     >>> limits = min(x), max(x)
     >>> log_breaks()(limits)
-    array([     100,     1000,    10000,   100000,  1000000])
+    array([     1000,    10000,   100000,  1000000])
     >>> log_breaks(2)(limits)
-    array([   100, 100000])
+    array([  1000, 100000])
     >>> log_breaks()([0.1, 1])
     array([0.1, 0.3, 1. , 3. ])
     """
@@ -139,7 +139,14 @@ class log_breaks:
 
         n = self.n
         base = self.base
-        rng = np.log(limits)/np.log(base)
+        if base == 10:
+            rng = np.log10(limits)
+        elif base == 2:
+            rng = np.log2(limits)
+        elif base == np.e:
+            rng = np.log(limits)
+        else:
+            rng = np.log(limits)/np.log(base)
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
 

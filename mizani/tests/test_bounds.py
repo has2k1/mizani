@@ -338,25 +338,25 @@ def test_zero_range():
 
     # Crossed the tol threshold
     # assert zero_range(c((1, 1 + 101 * eps))) is False
-    assert(not zero_range(c((1, 1 + 101 * eps))))
+    assert not zero_range(c((1, 1 + 101 * eps)))
 
     # Changed tol
-    assert(not zero_range(c((1, 1 + 2 * eps)), tol=eps))
+    assert not zero_range(c((1, 1 + 2 * eps)), tol=eps)
 
     # Scaling up or down all the values has no effect since
     # the values are rescaled to 1 before checking against
     # the tolerance
     assert zero_range(100000 * c((1, 1 + eps)))
-    assert(not zero_range(100000 * c((1, 1 + 200 * eps))))
+    assert not zero_range(100000 * c((1, 1 + 200 * eps)))
     assert zero_range(.00001 * c((1, 1 + eps)))
-    assert(not zero_range(.00001 * c((1, 1 + 200 * eps))))
+    assert not zero_range(.00001 * c((1, 1 + 200 * eps)))
 
     # NA values
     assert zero_range((1, np.nan))
 
     # Infinite values
-    assert(not zero_range((1, np.inf)))
-    assert(not zero_range((-np.inf, np.inf)))
+    assert not zero_range((1, np.inf))
+    assert not zero_range((-np.inf, np.inf))
     assert zero_range((np.inf, np.inf))
 
     # Single value
@@ -372,37 +372,37 @@ def test_zero_range():
     x2 = datetime(2010, 1, 1), datetime(2020, 1, 1)
     x3 = (pd.Timestamp('2010-01-01', tz='US/Eastern'),
           pd.Timestamp('2010-01-01', tz='US/Central'))
-    assert(zero_range(x))
-    assert(not zero_range(x2))
-    assert(not zero_range(x3))
+    assert zero_range(x)
+    assert not zero_range(x2)
+    assert not zero_range(x3)
 
     # datetime - numpy
     x = np.datetime64(7, 'D'), np.datetime64(7, 'D')
     x2 = np.datetime64(7, 'D'), np.datetime64(1, 'W')
     x3 = np.datetime64(7, 'D'), np.datetime64(1, 'D')
-    assert(zero_range(x))
-    assert(zero_range(x2))
-    assert(not zero_range(x3))
+    assert zero_range(x)
+    assert zero_range(x2)
+    assert not zero_range(x3)
 
     # timedelta - pandas, cpython
     x = timedelta(seconds=2010), timedelta(seconds=2010)
     x2 = (timedelta(seconds=2010, microseconds=90),
           timedelta(seconds=2010, microseconds=34))
     x3 = pd.Timedelta(200, 'D'), pd.Timedelta(203, 'D')
-    assert(zero_range(x))
-    assert(not zero_range(x2))
-    assert(not zero_range(x3))
+    assert zero_range(x)
+    assert not zero_range(x2)
+    assert not zero_range(x3)
 
     # timedelta - numpy
     x = np.timedelta64(7, 'D'), np.timedelta64(7, 'D')
     x2 = np.timedelta64(7, 'D'), np.timedelta64(1, 'W')
     x3 = np.timedelta64(7, 'D'), np.timedelta64(2, 'D')
-    assert(zero_range(x))
-    assert(zero_range(x2))
-    assert(not zero_range(x3))
+    assert zero_range(x)
+    assert zero_range(x2)
+    assert not zero_range(x3)
 
     # branches #
     assert str(zero_range([4, float('nan')])) == 'nan'
-    assert(not zero_range([4, float('inf')]))
+    assert not zero_range([4, float('inf')])
     with pytest.raises(TypeError):
         zero_range(['a', 'b'])

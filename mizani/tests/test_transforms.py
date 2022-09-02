@@ -256,6 +256,10 @@ def test_datetime_trans_tz():
     assert x == x2
     assert all(val.tzinfo == UTC for val in x2)
 
+    t = datetime_trans('MST')
+    assert t.tzinfo == t.tz
+    assert t.transform([]) == []
+
 
 def test_timedelta_trans():
     x = [timedelta(days=i) for i in range(1, 11)]

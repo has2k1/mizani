@@ -5,7 +5,11 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import pytest
-import pytz
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # python < 3.9
+    from backports.zoneinfo import ZoneInfo
 
 from mizani.formatters import (custom_format, comma_format,
                                currency_format, percent_format,
@@ -110,11 +114,11 @@ def test_date_format():
         ['2006:01:01', '2007:02:02', '2008:03:03', '2009:04:04']
 
     # Different timezones
-    pct = pytz.timezone('US/Pacific')
-    ug = pytz.timezone('Africa/Kampala')
-    x = [datetime(2010, 1, 1, tzinfo=ug),
-         datetime(2010, 1, 1, tzinfo=pct)]
-    with pytest.warns(UserWarning):
+    PCT = ZoneInfo('US/Pacific')
+    UG = ZoneInfo('Africa/Kampala')
+    x = [datetime(2010, 1, 1, tzinfo=UG),
+         datetime(2010, 1, 1, tzinfo=PCT)]
+    with pytest.warns(UserWarning, match=r"different time zones"):
         date_format()(x)
 
 

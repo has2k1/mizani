@@ -488,7 +488,6 @@ class date_format:
 
     Examples
     --------
-    >>> import pytz
     >>> from datetime import datetime
     >>> x = [datetime(x, 1, 1) for x in [2010, 2014, 2018, 2022]]
     >>> date_format()(x)
@@ -504,19 +503,21 @@ class date_format:
 
     Time zones are respected
 
-    >>> utc = pytz.timezone('UTC')
-    >>> ug = pytz.timezone('Africa/Kampala')
+    >>> UTC = ZoneInfo('UTC')
+    >>> UG = ZoneInfo('Africa/Kampala')
     >>> x = [datetime(2010, 1, 1, i) for i in [8, 15]]
-    >>> x_tz = [datetime(2010, 1, 1, i, tzinfo=ug) for i in [8, 15]]
+    >>> x_tz = [datetime(2010, 1, 1, i, tzinfo=UG) for i in [8, 15]]
     >>> date_format('%Y-%m-%d %H:%M')(x)
     ['2010-01-01 08:00', '2010-01-01 15:00']
     >>> date_format('%Y-%m-%d %H:%M')(x_tz)
-    ['2010-01-01 08:33', '2010-01-01 15:33']
+    ['2010-01-01 08:00', '2010-01-01 15:00']
 
     Format with a specific time zone
 
-    >>> date_format('%Y-%m-%d %H:%M', tz=utc)(x_tz)
-    ['2010-01-01 05:33', '2010-01-01 12:33']
+    >>> date_format('%Y-%m-%d %H:%M', tz=UTC)(x_tz)
+    ['2010-01-01 05:00', '2010-01-01 12:00']
+    >>> date_format('%Y-%m-%d %H:%M', tz='EST')(x_tz)
+    ['2010-01-01 00:00', '2010-01-01 07:00']
     """
     def __init__(self, fmt='%Y-%m-%d', tz=None):
         if isinstance(tz, str):
@@ -547,7 +548,7 @@ class date_format:
                        "Choosen `{}` the time zone of the first date. "
                        "To use a different time zone, create a "
                        "formatter and pass the time zone.")
-                warn(msg.format(tz.zone))
+                warn(msg.format(tz.key))
 
         # The formatter is tied to axes and takes
         # breaks in ordinal format.

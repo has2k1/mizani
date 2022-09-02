@@ -373,6 +373,9 @@ class log_format:
         limits (int, int) where if the any of the powers of the
         numbers falls outside, then the labels will be in
         exponent form. This only applies for base 10.
+    mathtex : bool
+        If True, return the labels in mathtex format as understood
+        by Matplotlib.
 
     Examples
     --------
@@ -381,16 +384,21 @@ class log_format:
 
     >>> log_format()([0.0001, 0.1, 10000])
     ['1e-4', '1e-1', '1e4']
+
+    >>> log_format(mathtex=True)([0.0001, 0.1, 10000])
+    ['$10^{-4}$', '$10^{-1}$', '$10^{4}$']
     """
 
-    def __init__(self, base=10, exponent_limits=(-4, 4), **kwargs):
+    def __init__(self, base=10, exponent_limits=(-4, 4), mathtex=False):
         self.base = base
         self.exponent_limits = exponent_limits
+        self.mathtex = mathtex
 
     def _tidyup_labels(self, labels):
         """
-        Make all labels uniform in format and remove redundant zeros
-        for labels in exponential format.
+        Make all labels uniform in format
+
+        Remove redundant zeros for labels in exponential format.
 
         Parameters
         ----------
@@ -402,6 +410,7 @@ class log_format:
         out : list-like
             Labels
         """
+
         def remove_zeroes(s):
             """
             Remove unnecessary zeros for float string s
@@ -422,13 +431,29 @@ class log_format:
             """
             return s if 'e' in s else '{:1.0e}'.format(float(s))
 
+        def as_mathtex(s):
+            """
+            Mathtex for maplotlib
+            """
+            if 'e' not in s:
+                assert s == '1', f"Unexpected value {s = }, instead of '1'"
+                return f"${self.base}^{{0}}$"
+
+            exp = s.split('e')[1]
+            return f"${self.base}^{{{exp}}}$"
+
         # If any are in exponential format, make all of
         # them expontential
-        has_e = np.array(['e' in x for x in labels])
-        if not np.all(has_e) and not np.all(~has_e):
+        has_e = ['e' in x for x in labels]
+        if not all(has_e) and sum(has_e):
             labels = [as_exp(x) for x in labels]
 
         labels = [remove_zeroes(x) for x in labels]
+
+        has_e = ['e' in x for x in labels]
+        if self.mathtex and any(has_e):
+            labels = [as_mathtex(x) for x in labels]
+
         return labels
 
     def __call__(self, x):
@@ -464,7 +489,14 @@ class log_format:
                 fmt = '{:1.0e}'
             else:
                 fmt = '{:g}'
+        elif self.base == 2:
+            fmt = '{:b}'
+        elif self.base == 8:
+            fmt = '{:o}'
+        elif self.base == 16:
+            fmt = '{:x}'
         else:
+            warn("Formating values as base = 10")
             fmt = '{:g}'
 
         labels = [fmt.format(num) for num in x]

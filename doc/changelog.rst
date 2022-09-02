@@ -15,6 +15,10 @@ API Changes
 - :class:`~mizani.transforms.datetime_trans` gained parameter ``tz``
   that controls the timezone of the transformation.
 
+- :class:`~mizani.formatters.log_format` gained boolean parameter
+  ``mathtex`` for TeX values as understood matplotlib instead of
+  values in scientific notation.
+
 v0.7.4
 ------
 *2022-04-02*

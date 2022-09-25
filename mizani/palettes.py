@@ -483,7 +483,7 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
     return _gradient_n_pal
 
 
-def cmap_pal(name=None, lut=None):
+def cmap_pal(name, lut=None):
     """
     Create a continuous palette using an MPL colormap
 
@@ -518,7 +518,11 @@ def cmap_pal(name=None, lut=None):
             "be removed in a future version.",
             FutureWarning
         )
-        colormap = colormap._resample(lut)
+        resample = getattr(
+            colormap, 'resampled',
+            getattr(colormap, '_resample', None)
+        )
+        colormap = resample(lut)
 
     def _cmap_pal(vals):
         return ratios_to_colors(vals, colormap)
@@ -526,7 +530,7 @@ def cmap_pal(name=None, lut=None):
     return _cmap_pal
 
 
-def cmap_d_pal(name=None, lut=None):
+def cmap_d_pal(name, lut=None):
     """
     Create a discrete palette using an MPL Listed colormap
 
@@ -560,7 +564,11 @@ def cmap_d_pal(name=None, lut=None):
             "be removed in a future version.",
             FutureWarning
         )
-        colormap = colormap._resample(lut)
+        resample = getattr(
+            colormap, 'resampled',
+            getattr(colormap, '_resample', None)
+        )
+        colormap = resample(lut)
 
     if not isinstance(colormap, mcolors.ListedColormap):
         raise ValueError(

@@ -9,8 +9,8 @@ API Changes
 ***********
 
 - The ``lut`` parameter of :class:`~mizani.palettes.cmap_pal` and
- :class:`~mizani.palettes.cmap_d_pal` has been deprecated and will
- removed in a future version.
+  :class:`~mizani.palettes.cmap_d_pal` has been deprecated and will
+  removed in a future version.
 
 - :class:`~mizani.transforms.datetime_trans` gained parameter ``tz``
   that controls the timezone of the transformation.

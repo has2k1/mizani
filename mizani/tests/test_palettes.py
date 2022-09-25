@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import numpy.testing as npt
-from matplotlib.cm import get_cmap
+import matplotlib as mpl
 
 from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
                              area_pal, abs_area, grey_pal, hue_pal,
@@ -216,5 +216,5 @@ def test_identity_pal():
 
 def test_ratios_to_colors():
     x = 0.5
-    result = ratios_to_colors(x, get_cmap('viridis'))
+    result = ratios_to_colors(x, mpl.colormaps['viridis'])
     assert result[0] == '#'

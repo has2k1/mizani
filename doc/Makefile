@@ -11,7 +11,7 @@ BUILDDIR      = _build
 BOOTSWATCHTHEME = united
 brand-primary = \#145FCE
 headings-font-weight = bold
-font-family-sans-serif = '"Lato", "proxima-nova", "Helvetica Neue", Arial, sans-serif'
+font-family-sans-serif = '-apple-system, "system-ui", "Segoe UI", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)

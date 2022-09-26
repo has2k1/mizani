@@ -19,6 +19,12 @@ API Changes
   ``mathtex`` for TeX values as understood matplotlib instead of
   values in scientific notation.
 
+Bug Fixes
+*********
+
+- Fixed bug in :class:`~mizani.bounds.zero_range` where ``uint64``
+  values would cause a RuntimeError.
+
 v0.7.4
 ------
 *2022-04-02*

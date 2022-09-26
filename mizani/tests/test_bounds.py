@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -406,3 +407,9 @@ def test_zero_range():
     assert not zero_range([4, float('inf')])
     with pytest.raises(TypeError):
         zero_range(['a', 'b'])
+
+    # are handled without error
+    x = np.array([8, 4], dtype=np.uint64)
+    with warnings.catch_warnings():
+        warnings.simplefilter('error')
+        zero_range(x)

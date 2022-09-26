@@ -419,41 +419,43 @@ def zero_range(x, tol=np.finfo(float).eps * 100):
     if len(x) != 2:
         raise ValueError('x must be length 1 or 2')
 
-    # Deals with array_likes that have non-standard indices
-    x = tuple(x)
+    # Also deals with array_likes that have non-standard indices
+    x = sorted(x)
+    low, high = x
 
     # datetime - pandas, cpython
-    if isinstance(x[0], (pd.Timestamp, datetime.datetime)):
+    if isinstance(low, (pd.Timestamp, datetime.datetime)):
         # date2num include timezone info, .toordinal() does not
-        x = date2num(x)
+        low, high = date2num(x)
     # datetime - numpy
-    elif isinstance(x[0], np.datetime64):
-        return x[0] == x[1]
+    elif isinstance(low, np.datetime64):
+        return low == high
     # timedelta - pandas, cpython
-    elif isinstance(x[0], (pd.Timedelta, datetime.timedelta)):
-        x = x[0].total_seconds(), x[1].total_seconds()
+    elif isinstance(low, (pd.Timedelta, datetime.timedelta)):
+        low, high = low.total_seconds(), high.total_seconds()
     # timedelta - numpy
-    elif isinstance(x[0], np.timedelta64):
-        return x[0] == x[1]
-    elif not isinstance(x[0], (float, int, np.number)):
+    elif isinstance(low, np.timedelta64):
+        return low == high
+    elif not isinstance(low, (float, int, np.number)):
         raise TypeError(
             "zero_range objects cannot work with objects "
-            "of type '{}'".format(type(x[0])))
+            "of type '{}'".format(type(low))
+        )
 
-    if any(np.isnan(x)):
+    if any(np.isnan((low, high))):
         return np.nan
 
-    if x[0] == x[1]:
+    if low == high:
         return True
 
-    if all(np.isinf(x)):
+    if any(np.isinf((low, high))):
         return False
 
-    m = np.abs(x).min()
-    if m == 0:
+    low_abs = np.abs(low)
+    if low_abs == 0:
         return False
 
-    return np.abs((x[0] - x[1]) / m) < tol
+    return ((high - low) / low_abs) < tol
 
 
 def expand_range(range, mul=0, add=0, zero_width=1):

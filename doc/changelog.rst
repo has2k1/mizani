@@ -1,9 +1,10 @@
 Changelog
 =========
 
-Current Development Version
----------------------------
-*future date*
+v0.8.0
+------
+
+*2022-09-26*
 
 API Changes
 ***********

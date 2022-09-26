@@ -502,9 +502,6 @@ def expand_range(range, mul=0, add=0, zero_width=1):
     **zero_width** must be suitable *timedeltas* i.e. You should
     not mix types between **Numpy**, **Pandas** and the
     :mod:`datetime` module.
-
-    In Python 2, you cannot multiplicative constant **mul** cannot be
-    a :class:`float`.
     """
     x = range
 

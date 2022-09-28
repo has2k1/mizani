@@ -13,6 +13,11 @@ Bug Fixes
   where formatting for bases 2, 8 and 16 would fail if the values were
   float-integers.
 
+Enhancements
+************
+- :class:`~mizani.formatters.log_format` now uses exponent notation
+  for bases other than base 10.
+
 v0.8.0
 ------
 

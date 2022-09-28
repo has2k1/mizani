@@ -489,26 +489,30 @@ class log_format:
                 fmt = '{:1.0e}'
             else:
                 fmt = '{:g}'
-        elif self.base == 2:
-            fmt = '{:b}'
-        elif self.base == 8:
-            fmt = '{:o}'
-        elif self.base == 16:
-            fmt = '{:x}'
+            labels = [fmt.format(num) for num in x]
+            return self._tidyup_labels(labels)
         else:
-            warn("Formating values as base = 10")
-            fmt = '{:g}'
+            def _exp(num, base):
+                e = np.log(num)/np.log(base)
+                if float.is_integer(e):
+                    e = int(e)
+                else:
+                    e = np.round(e, 3)
+                return e
 
-        # Base 2, 8 & 16 formatters work with integers
-        if self.base != 10:
-            x = [
-                int(f)
-                if isinstance(f, float) and float.is_integer(f)
-                else f
-                for f in x
-            ]
-        labels = [fmt.format(num) for num in x]
-        return self._tidyup_labels(labels)
+            base_txt = f'{self.base}'
+            if self.base == np.e:
+                base_txt = 'e'
+
+            if self.mathtex:
+                fmt_parts = (f'${base_txt}^', '{{{e}}}$')
+            else:
+                fmt_parts = (f'{base_txt}^', '{e}')
+
+            fmt = ''.join(fmt_parts)
+            exps = [_exp(num, self.base) for num in x]
+            labels = [fmt.format(e=e) for e in exps]
+            return labels
 
 
 class date_format:

@@ -109,6 +109,10 @@ def test_log_format():
     formatter = log_format(base=16)
     assert formatter([1, 8, 16, 32, 256]) == ['1', '8', '10', '20', '100']
 
+    # Floats
+    formatter = log_format(base=8)
+    assert formatter([1., 4., 8., 16.]) == ['1', '4', '10', '20']
+
     # Fallback to base 10
     formatter = log_format(base=np.e)
     with pytest.warns(UserWarning, match=r"base = 10$"):

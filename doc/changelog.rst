@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.8.1
+------
+
+*2022-09-28*
+
+Bug Fixes
+*********
+
+- Fixed regression bug in :class:`~mizani.formatters.log_format` for
+  where formatting for bases 2, 8 and 16 would fail if the values were
+  float-integers.
+
 v0.8.0
 ------
 

@@ -499,6 +499,14 @@ class log_format:
             warn("Formating values as base = 10")
             fmt = '{:g}'
 
+        # Base 2, 8 & 16 formatters work with integers
+        if self.base != 10:
+            x = [
+                int(f)
+                if isinstance(f, float) and float.is_integer(f)
+                else f
+                for f in x
+            ]
         labels = [fmt.format(num) for num in x]
         return self._tidyup_labels(labels)
 

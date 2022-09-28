@@ -494,8 +494,9 @@ class log_format:
         else:
             def _exp(num, base):
                 e = np.log(num)/np.log(base)
-                if float.is_integer(e):
-                    e = int(e)
+                e_round = np.round(e)
+                if np.isclose(e, e_round):
+                    e = int(e_round)
                 else:
                     e = np.round(e, 3)
                 return e

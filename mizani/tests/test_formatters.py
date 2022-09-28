@@ -106,6 +106,9 @@ def test_log_format():
     formatter = log_format(base=8)
     assert formatter([1, 4, 8, 64]) == ['8^0', '8^0.667', '8^1', '8^2']
 
+    formatter = log_format(base=5)
+    assert formatter([1, 5, 25, 125]) == ['5^0', '5^1', '5^2', '5^3']
+
     formatter = log_format(base=np.e)
     assert formatter([1, np.pi, np.e**2, np.e**3]) == \
         ['e^0', 'e^1.145', 'e^2', 'e^3']

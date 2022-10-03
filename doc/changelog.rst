@@ -6,6 +6,9 @@ v0.8.1
 
 *2022-09-28*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7120121.svg
+   :target: https://doi.org/10.5281/zenodo.7120121
+
 Bug Fixes
 *********
 
@@ -22,6 +25,9 @@ v0.8.0
 ------
 
 *2022-09-26*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7113103.svg
+   :target: https://doi.org/10.5281/zenodo.7113103
 
 API Changes
 ***********

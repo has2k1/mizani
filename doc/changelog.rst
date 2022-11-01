@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.8.2
+------
+
+*not-yet-released*
+
+
+Bug Fixes
+*********
+
+- Fixed bug in :class:`~mizani.transforms.datetime_trans` where
+  a pandas series with an index that did not start at 0 could not
+  be transformed.
+
 v0.8.1
 ------
 

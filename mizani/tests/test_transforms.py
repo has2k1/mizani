@@ -227,6 +227,12 @@ def test_datetime_trans():
     x2 = t.inverse(xt)
     assert all(x == x2)
 
+    # Irregular index
+    s = pd.Series(x, index=range(11, len(x)+11))
+    st = t.transform(s)
+    s2 = t.inverse(st)
+    assert all(s == s2)
+
     # Scalar
     x = datetime(2022, 1, 20, tzinfo=UTC)
     t = datetime_trans()

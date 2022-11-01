@@ -645,6 +645,8 @@ class datetime_trans(trans):
 
         try:
             tz = x[0].tzinfo
+        except KeyError:
+            tz = x.iloc[0].tzinfo
         except TypeError:
             tz = x.tzinfo
         except AttributeError:

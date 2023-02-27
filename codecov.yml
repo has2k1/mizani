@@ -1,5 +1,6 @@
 codecov:
   require_ci_to_pass: true
+  token: c801a964-c4cb-4356-ba5c-c2a0ff9450eb
 
 comment:
    behavior: default

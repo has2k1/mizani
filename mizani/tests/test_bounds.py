@@ -8,9 +8,17 @@ import pandas.testing as pdt
 import pytest
 from pytest import approx
 
-from mizani.bounds import (censor, expand_range, rescale, rescale_max,
-                           rescale_mid, squish_infinite, zero_range,
-                           expand_range_distinct, squish)
+from mizani.bounds import (
+    censor,
+    expand_range,
+    expand_range_distinct,
+    rescale,
+    rescale_max,
+    rescale_mid,
+    squish,
+    squish_infinite,
+    zero_range,
+)
 
 NaT_type = type(pd.NaT)
 

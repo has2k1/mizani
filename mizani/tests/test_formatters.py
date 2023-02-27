@@ -2,21 +2,30 @@
 import warnings
 from datetime import datetime, timedelta
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
+
 try:
     from zoneinfo import ZoneInfo
 except ImportError:
     # python < 3.9
     from backports.zoneinfo import ZoneInfo
 
-from mizani.formatters import (custom_format, comma_format,
-                               currency_format, percent_format,
-                               scientific_format, date_format,
-                               mpl_format, log_format, timedelta_format,
-                               pvalue_format, ordinal_format,
-                               number_bytes_format)
+from mizani.formatters import (
+    comma_format,
+    currency_format,
+    custom_format,
+    date_format,
+    log_format,
+    mpl_format,
+    number_bytes_format,
+    ordinal_format,
+    percent_format,
+    pvalue_format,
+    scientific_format,
+    timedelta_format,
+)
 
 
 def test_custom_format():

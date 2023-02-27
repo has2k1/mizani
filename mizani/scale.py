@@ -32,9 +32,13 @@ import pandas as pd
 import pandas.api.types as pdtypes
 
 from .bounds import censor, rescale
-from .utils import CONTINUOUS_KINDS, DISCRETE_KINDS, min_max, match
-from .utils import get_categories
-
+from .utils import (
+    CONTINUOUS_KINDS,
+    DISCRETE_KINDS,
+    get_categories,
+    match,
+    min_max,
+)
 
 __all__ = ['scale_continuous', 'scale_discrete']
 

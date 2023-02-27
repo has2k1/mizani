@@ -1,6 +1,6 @@
-from itertools import chain
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterator
+from itertools import chain
 
 import numpy as np
 

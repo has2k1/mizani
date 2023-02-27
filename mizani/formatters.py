@@ -25,9 +25,7 @@ from matplotlib.dates import DateFormatter, date2num
 from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
-from .utils import round_any, precision, match
-from .utils import same_log10_order_of_magnitude
-
+from .utils import match, precision, round_any, same_log10_order_of_magnitude
 
 __all__ = [
     'comma_format',

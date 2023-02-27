@@ -2,10 +2,16 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
-from mizani.utils import (round_any, min_max, match, precision,
-                          first_element, multitype_sort,
-                          same_log10_order_of_magnitude, get_categories)
+from mizani.utils import (
+    first_element,
+    get_categories,
+    match,
+    min_max,
+    multitype_sort,
+    precision,
+    round_any,
+    same_log10_order_of_magnitude,
+)
 
 
 def test_round_any():

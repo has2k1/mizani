@@ -15,14 +15,21 @@ from itertools import product
 
 import numpy as np
 import pandas as pd
-from matplotlib.dates import MinuteLocator, HourLocator, DayLocator
-from matplotlib.dates import WeekdayLocator, MonthLocator, YearLocator
-from matplotlib.dates import AutoDateLocator, SecondLocator
-from matplotlib.dates import num2date, YEARLY
+from matplotlib.dates import (
+    YEARLY,
+    AutoDateLocator,
+    DayLocator,
+    HourLocator,
+    MinuteLocator,
+    MonthLocator,
+    SecondLocator,
+    WeekdayLocator,
+    YearLocator,
+    num2date,
+)
 from matplotlib.ticker import MaxNLocator
 
-from .utils import min_max, log, SECONDS, NANOSECONDS
-
+from .utils import NANOSECONDS, SECONDS, log, min_max
 
 __all__ = ['mpl_breaks', 'log_breaks', 'minor_breaks',
            'trans_minor_breaks', 'date_breaks',

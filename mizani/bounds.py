@@ -24,11 +24,9 @@ import datetime
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
-
 from matplotlib.dates import date2num
 
 from .utils import first_element
-
 
 __all__ = ['censor', 'expand_range', 'rescale', 'rescale_max',
            'rescale_mid', 'squish_infinite', 'zero_range',

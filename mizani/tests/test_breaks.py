@@ -1,14 +1,20 @@
 from datetime import datetime, timedelta
 
-import pandas as pd
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import pytest
 
-from mizani.breaks import (mpl_breaks, log_breaks, minor_breaks,
-                           trans_minor_breaks, date_breaks,
-                           timedelta_breaks, extended_breaks)
-from mizani.transforms import trans, log_trans
+from mizani.breaks import (
+    date_breaks,
+    extended_breaks,
+    log_breaks,
+    minor_breaks,
+    mpl_breaks,
+    timedelta_breaks,
+    trans_minor_breaks,
+)
+from mizani.transforms import log_trans, trans
 
 
 def test_mpl_breaks():

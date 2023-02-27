@@ -16,16 +16,15 @@ functions that create and return the actual palette functions.
 import colorsys
 from warnings import warn
 
-import numpy as np
-import pandas as pd
 import matplotlib as mpl
 import matplotlib.colors as mcolors
+import numpy as np
+import pandas as pd
 from palettable import colorbrewer
 
-from .external import husl, xkcd_rgb, crayon_rgb
 from .bounds import rescale
+from .external import crayon_rgb, husl, xkcd_rgb
 from .utils import identity
-
 
 __all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
            'area_pal', 'abs_area', 'grey_pal', 'hue_pal',

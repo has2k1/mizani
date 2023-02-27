@@ -1,15 +1,28 @@
-import pytest
+import matplotlib as mpl
 import numpy as np
 import numpy.testing as npt
-import matplotlib as mpl
+import pytest
 
-from mizani.palettes import (hls_palette, husl_palette, rescale_pal,
-                             area_pal, abs_area, grey_pal, hue_pal,
-                             brewer_pal, gradient_n_pal, cmap_pal,
-                             cmap_d_pal,
-                             desaturate_pal, manual_pal, xkcd_palette,
-                             crayon_palette, cubehelix_pal, identity_pal)
-from mizani.palettes import ratios_to_colors
+from mizani.palettes import (
+    abs_area,
+    area_pal,
+    brewer_pal,
+    cmap_d_pal,
+    cmap_pal,
+    crayon_palette,
+    cubehelix_pal,
+    desaturate_pal,
+    gradient_n_pal,
+    grey_pal,
+    hls_palette,
+    hue_pal,
+    husl_palette,
+    identity_pal,
+    manual_pal,
+    ratios_to_colors,
+    rescale_pal,
+    xkcd_palette,
+)
 
 
 def test_hls_palette():

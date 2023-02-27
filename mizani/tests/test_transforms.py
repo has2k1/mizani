@@ -1,5 +1,5 @@
-from types import FunctionType, MethodType
 from datetime import datetime, timedelta
+from types import FunctionType, MethodType
 
 try:
     from zoneinfo import ZoneInfo
@@ -12,16 +12,30 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from mizani.breaks import mpl_breaks, minor_breaks
+from mizani.breaks import minor_breaks, mpl_breaks
 from mizani.transforms import (
-    trans,
-    asn_trans, atanh_trans, boxcox_trans, modulus_trans,
+    asn_trans,
+    atanh_trans,
+    boxcox_trans,
     datetime_trans,
-    exp_trans, identity_trans, log10_trans, log1p_trans,
-    log2_trans, log_trans, probability_trans, reverse_trans,
-    sqrt_trans, timedelta_trans, pd_timedelta_trans,
-    pseudo_log_trans, reciprocal_trans,
-    trans_new, gettrans)
+    exp_trans,
+    gettrans,
+    identity_trans,
+    log1p_trans,
+    log2_trans,
+    log10_trans,
+    log_trans,
+    modulus_trans,
+    pd_timedelta_trans,
+    probability_trans,
+    pseudo_log_trans,
+    reciprocal_trans,
+    reverse_trans,
+    sqrt_trans,
+    timedelta_trans,
+    trans,
+    trans_new,
+)
 
 arr = np.arange(1, 100)
 

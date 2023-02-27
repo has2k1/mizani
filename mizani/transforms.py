@@ -18,8 +18,8 @@ cannot provide transformation specific guides & decorations for the
 plot. The :class:`trans` is aimed at being useful for *scale* and
 *coordinate* transformations.
 """
-import sys
 import datetime
+import sys
 from collections.abc import Iterable
 from types import MethodType
 
@@ -34,12 +34,15 @@ import pandas as pd
 import scipy.stats as stats
 from matplotlib.dates import date2num, num2date
 
-from .breaks import (extended_breaks, log_breaks, minor_breaks,
-                     trans_minor_breaks, date_breaks,
-                     timedelta_breaks)
-from .formatters import mpl_format, date_format, timedelta_format
-from .formatters import log_format
-
+from .breaks import (
+    date_breaks,
+    extended_breaks,
+    log_breaks,
+    minor_breaks,
+    timedelta_breaks,
+    trans_minor_breaks,
+)
+from .formatters import date_format, log_format, mpl_format, timedelta_format
 
 __all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
            'modulus_trans',

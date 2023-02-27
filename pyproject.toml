@@ -1,7 +1,52 @@
-# Reference https://github.com/pydata/xarray/blob/main/pyproject.toml
+[project]
+name = "mizani"
+description = "Scales for Python"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Hassan Kibirige", email = "has2k1@gmail.com"},
+]
+dynamic = ["version"]
+readme = "README.rst"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Visualization"
+]
+dependencies = [
+    "numpy>=1.19.0",
+    "scipy>=1.5.0",
+    "pandas>=1.3.5",
+    "matplotlib>=3.5.0",
+    "palettable",
+    "backports.zoneinfo;python_version<'3.9'",
+    "tzdata;platform_system=='Windows' or platform_system=='Emscripten'"
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+doc = [
+    "sphinx>=4.5.0",
+    "numpydoc>=0.9.1"
+]
+testing = [
+    "flake8",
+    "pytest-cov"
+]
+
+[project.urls]
+homepage = "https://mizani.readthedocs.io/en/stable"
+repository = "https://github.com/has2k1/mizani"
+changelog = "https://mizani.readthedocs.io/en/stable/changelog.html"
+ci = "https://github.com/has2k1/mizani/actions"
+
 [build-system]
 requires = [
-    "setuptools>=45",
+    "setuptools>=61",
     "setuptools_scm[toml]>=6.2",
     "wheel",
 ]
@@ -30,6 +75,9 @@ exclude_lines = [
    "while k < float\\('inf'\\):"
 ]
 precision = 1
+
+[tool.setuptools]
+packages = ["mizani"]
 
 [tool.setuptools_scm]
 fallback_version = "999"

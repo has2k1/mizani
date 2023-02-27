@@ -81,7 +81,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Mizani'
-copyright = '2022, Hassan Kibirige'
+copyright = '2023, Hassan Kibirige'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -349,7 +349,7 @@ autodoc_member_order = 'bysource'
 autosummary_generate = True
 
 extlinks = {
-    'issue': ('https://github.com/has2k1/mizani/issues/%s', 'GH')
+    'issue': ('https://github.com/has2k1/mizani/issues/%s', '#%s')
 }
 
 # numpydoc

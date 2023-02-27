@@ -36,8 +36,15 @@ clean-test:
 	rm -f coverage.xml
 	rm -fr htmlcov/
 
-lint:
-	flake8 mizani
+ruff:
+	ruff mizani $(args)
+
+ruff-isort:
+	ruff --select I001 --quiet mizani $(args)
+
+lint: ruff ruff-isort
+
+lint-fix: ruff ruff-isort
 
 test:
 	pytest

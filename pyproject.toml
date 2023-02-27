@@ -34,7 +34,7 @@ doc = [
     "numpydoc>=0.9.1"
 ]
 testing = [
-    "flake8",
+    "ruff",
     "pytest-cov"
 ]
 
@@ -82,3 +82,13 @@ packages = ["mizani"]
 [tool.setuptools_scm]
 fallback_version = "999"
 version_scheme = 'post-release'
+
+[tool.ruff]
+line-length = 79
+select = ["E", "F", "C"]
+ignore = [
+    "E741"
+]
+exclude = [
+    "mizani/external/*"
+]

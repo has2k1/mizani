@@ -5,7 +5,7 @@ sphinx>=3.5.0
 numpydoc>=0.9.1
 
 # testing
-flake8
+ruff
 pytest-cov
 
 # release

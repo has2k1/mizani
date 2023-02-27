@@ -11,6 +11,7 @@ breaks make interpretation straight forward. These functions
 provide ways to calculate good(hopefully) breaks.
 """
 import sys
+from itertools import product
 
 import numpy as np
 import pandas as pd
@@ -154,10 +155,6 @@ class log_breaks:
         if float(base) ** _max > sys.maxsize:
             base = float(base)
 
-        # numpy arrays with -ve number(s) and of dtype=int
-        # cannot be powers i.e. base ** arr fails
-        dtype = float if _min < 0 or _max < 0 else int
-
         if _max == _min:
             return base ** _min
 
@@ -167,7 +164,7 @@ class log_breaks:
         # _log_sub_breaks
         by = int(np.floor((_max-_min)/n)) + 1
         for step in range(by, 0, -1):
-            breaks = base ** np.arange(_min, _max+1, step=step, dtype=dtype)
+            breaks = np.array([base ** i for i in range(_min, _max+1, step)])
             relevant_breaks = (
                 (limits[0] <= breaks) &
                 (breaks <= limits[1])
@@ -208,7 +205,6 @@ class _log_sub_breaks:
         rng = np.log(limits)/np.log(base)
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
-        dtype = float if _min < 0 or _max < 0 else int
         steps = [1]
 
         # Prevent overflow
@@ -218,7 +214,7 @@ class _log_sub_breaks:
         def delta(x):
             """
             Calculates the smallest distance in the log scale between the
-            currectly selected breaks and a new candidate 'x'
+            currently selected breaks and a new candidate 'x'
             """
             arr = np.sort(np.hstack([x, steps, base]))
             if base == 10:
@@ -228,21 +224,23 @@ class _log_sub_breaks:
             return np.min(np.diff(log_arr))
 
         if self.base == 2:
-            return base ** np.arange(_min, _max+1, dtype=dtype)
+            return [base ** i for i in range(_min, _max+1)]
 
         candidate = np.arange(base+1)
         candidate = np.compress(
-            (1 < candidate) & (candidate < base), candidate)
+            (1 < candidate) & (candidate < base),
+            candidate
+        )
 
         while len(candidate):
             best = np.argmax([delta(x) for x in candidate])
             steps.append(candidate[best])
             candidate = np.delete(candidate, best)
-
-            breaks = np.outer(
-                base ** np.arange(_min, _max+1, dtype=dtype), steps).ravel()
+            _factors = [base ** i for i in range(_min, _max+1)]
+            breaks = np.array([f*s for f, s in product(_factors, steps)])
             relevant_breaks = (
-                (limits[0] <= breaks) & (breaks <= limits[1]))
+                (limits[0] <= breaks) & (breaks <= limits[1])
+            )
 
             if np.sum(relevant_breaks) >= n-2:
                 breaks = np.sort(breaks)

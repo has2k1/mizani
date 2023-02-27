@@ -275,3 +275,31 @@ def get_categories(x):
             return x.categories   # plain categorical
         except AttributeError:
             raise TypeError("x is the wrong type, it has no categories")
+
+
+def log(x, base):
+    """
+    Calculate the log of x
+
+    Parameters
+    ----------
+    x : category_like
+        Input Values
+
+    base : float
+        Base of logarithm
+
+    Returns
+    -------
+    out : float
+        Log of x
+    """
+    if base == 10:
+        res = np.log10(x)
+    elif base == 2:
+        res = np.log2(x)
+    elif base == np.e:
+        res = np.log(x)
+    else:
+        res = np.log(x) / np.log(base)
+    return res

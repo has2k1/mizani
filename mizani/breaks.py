@@ -21,7 +21,7 @@ from matplotlib.dates import AutoDateLocator, SecondLocator
 from matplotlib.dates import num2date, YEARLY
 from matplotlib.ticker import MaxNLocator
 
-from .utils import min_max, SECONDS, NANOSECONDS
+from .utils import min_max, log, SECONDS, NANOSECONDS
 
 
 __all__ = ['mpl_breaks', 'log_breaks', 'minor_breaks',
@@ -140,14 +140,7 @@ class log_breaks:
 
         n = self.n
         base = self.base
-        if base == 10:
-            rng = np.log10(limits)
-        elif base == 2:
-            rng = np.log2(limits)
-        elif base == np.e:
-            rng = np.log(limits)
-        else:
-            rng = np.log(limits)/np.log(base)
+        rng = log(limits, base)
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
 
@@ -202,7 +195,7 @@ class _log_sub_breaks:
     def __call__(self, limits):
         base = self.base
         n = self.n
-        rng = np.log(limits)/np.log(base)
+        rng = log(limits, base)
         _min = int(np.floor(rng[0]))
         _max = int(np.ceil(rng[1]))
         steps = [1]
@@ -217,10 +210,7 @@ class _log_sub_breaks:
             currently selected breaks and a new candidate 'x'
             """
             arr = np.sort(np.hstack([x, steps, base]))
-            if base == 10:
-                log_arr = np.log10(arr)
-            else:
-                log_arr = np.log(arr) / np.log(base)
+            log_arr = log(arr, base)
             return np.min(np.diff(log_arr))
 
         if self.base == 2:

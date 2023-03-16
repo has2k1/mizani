@@ -24,7 +24,6 @@ import datetime
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
-from matplotlib.dates import date2num
 
 from .utils import first_element
 
@@ -423,6 +422,7 @@ def zero_range(x, tol=np.finfo(float).eps * 100):
 
     # datetime - pandas, cpython
     if isinstance(low, (pd.Timestamp, datetime.datetime)):
+        from matplotlib.dates import date2num
         # date2num include timezone info, .toordinal() does not
         low, high = date2num(x)
     # datetime - numpy

@@ -31,7 +31,6 @@ except ImportError:
 
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
 from matplotlib.dates import date2num, num2date
 
 from .breaks import (
@@ -563,6 +562,7 @@ def probability_trans(distribution, *args, **kwargs):
     computations may run into errors. Absence of any errors
     does not imply that the distribution fits the data.
     """
+    import scipy.stats as stats
     cdists = {k for k in dir(stats)
               if hasattr(getattr(stats, k), 'cdf')}
     if distribution not in cdists:

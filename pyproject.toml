@@ -1,4 +1,4 @@
-############################ Project ####################################
+########## Project ##########
 [project]
 name = "mizani"
 description = "Scales for Python"
@@ -45,7 +45,7 @@ repository = "https://github.com/has2k1/mizani"
 changelog = "https://mizani.readthedocs.io/en/stable/changelog.html"
 ci = "https://github.com/has2k1/mizani/actions"
 
-########################## Build System #################################
+########## Build System ##########
 [build-system]
 requires = [
     "setuptools>=61",
@@ -54,7 +54,15 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-########################## Tool - Coverage ##############################
+########## Tool - setuptools ##########
+[tool.setuptools]
+packages = ["mizani"]
+
+[tool.setuptools_scm]
+fallback_version = "999"
+version_scheme = 'post-release'
+
+########## Tool - Coverage ##########
 # Coverage.py
 [tool.coverage.run]
 branch = true
@@ -79,20 +87,12 @@ exclude_lines = [
 ]
 precision = 1
 
-########################## Tool - seuptools #############################
-[tool.setuptools]
-packages = ["mizani"]
-
-[tool.setuptools_scm]
-fallback_version = "999"
-version_scheme = 'post-release'
-
-########################## Tool - Ruff ##################################
+########## Tool - Ruff ##########
 [tool.ruff]
 line-length = 79
 select = ["E", "F", "C"]
 ignore = [
-    "E741"
+    "E741"  # Ambiguous l
 ]
 # Allow autofix for all enabled rules (when `--fix`) is provided
 fixable = ["A", "B", "C", "E", "F", "I"]

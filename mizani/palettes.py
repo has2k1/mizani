@@ -16,8 +16,6 @@ functions that create and return the actual palette functions.
 import colorsys
 from warnings import warn
 
-import matplotlib as mpl
-import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
 from palettable import colorbrewer
@@ -247,6 +245,8 @@ def grey_pal(start=0.2, end=0.8):
     >>> palette(5)
     ['#333333', '#737373', '#989898', '#b5b5b5', '#cccccc']
     """
+    import matplotlib.colors as mcolors
+
     gamma = 2.2
     ends = ((0.0, start, start), (1.0, end, end))
     cdict = {'red': ends, 'green': ends, 'blue': ends}
@@ -295,6 +295,8 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
     >>> hue_pal(color_space='husl')(5)
     ['#e0697e', '#9b9054', '#569d79', '#5b98ab', '#b675d7']
     """
+    import matplotlib.colors as mcolors
+
     if not all([0 <= val <= 1 for val in (h, l, s)]):
         msg = ("hue_pal expects values to be between 0 and 1. "
                " I got h={}, l={}, s={}".format(h, l, s))
@@ -415,6 +417,8 @@ def ratios_to_colors(values, colormap):
     out : list | float
         Color(s) corresponding to the values
     """
+    import matplotlib.colors as mcolors
+
     iterable = True
     try:
         iter(values)
@@ -466,6 +470,8 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
     >>> palette([-np.inf, 0, np.nan, 1, np.inf])
     [nan, '#ff0000', nan, '#0000ff', nan]
     """
+    import matplotlib.colors as mcolors
+
     # Note: For better results across devices and media types,
     # it would be better to do the interpolation in
     # Lab color space.
@@ -509,6 +515,7 @@ def cmap_pal(name, lut=None):
     >>> palette([.1, .2, .3, .4, .5])
     ['#482475', '#414487', '#355f8d', '#2a788e', '#21918c']
     """
+    import matplotlib as mpl
     colormap = mpl.colormaps[name]
 
     if lut is not None:
@@ -555,6 +562,9 @@ def cmap_d_pal(name, lut=None):
     >>> palette(5)
     ['#440154', '#3b528b', '#21918c', '#5cc863', '#fde725']
     """
+    import matplotlib as mpl
+    import matplotlib.colors as mcolors
+
     colormap = mpl.colormaps[name]
 
     if lut is not None:
@@ -622,6 +632,8 @@ def desaturate_pal(color, prop, reverse=False):
     >>> palette([0, .25, .5, .75, 1])
     ['#ff0000', '#e21d1d', '#c53a3a', '#a95656', '#8c7373']
     """
+    import matplotlib.colors as mcolors
+
     if not 0 <= prop <= 1:
         raise ValueError("prop must be between 0 and 1")
 
@@ -779,8 +791,11 @@ def cubehelix_pal(start=0, rot=.4, gamma=1.0, hue=0.8,
     >>> palette(5)
     ['#edd1cb', '#d499a7', '#aa688f', '#6e4071', '#2d1e3e']
     """
+    import matplotlib as mpl
+    import matplotlib.colors as mcolors
+
     cdict = mpl._cm.cubehelix(gamma, start, rot, hue)
-    cubehelix_cmap = mpl.colors.LinearSegmentedColormap('cubehelix', cdict)
+    cubehelix_cmap = mcolors.LinearSegmentedColormap('cubehelix', cdict)
 
     def cubehelix_palette(n):
         values = np.linspace(light, dark, n)

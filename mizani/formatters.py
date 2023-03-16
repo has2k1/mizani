@@ -19,10 +19,7 @@ except ImportError:
     # python < 3.9
     from backports.zoneinfo import ZoneInfo
 
-
 import numpy as np
-from matplotlib.dates import DateFormatter, date2num
-from matplotlib.ticker import ScalarFormatter
 
 from .breaks import timedelta_helper
 from .utils import match, precision, round_any, same_log10_order_of_magnitude
@@ -340,6 +337,7 @@ class mpl_format:
     ['0.6540', '0.8963', '0.1000']
     """
     def __init__(self):
+        from matplotlib.ticker import ScalarFormatter
         self.formatter = ScalarFormatter(useOffset=False)
 
     def __call__(self, x):
@@ -565,6 +563,7 @@ class date_format:
     def __init__(self, fmt='%Y-%m-%d', tz=None):
         if isinstance(tz, str):
             tz = ZoneInfo(tz)
+        from matplotlib.dates import DateFormatter
         self.formatter = DateFormatter(fmt, tz=tz)
         self.tz = tz
 
@@ -582,6 +581,8 @@ class date_format:
         out : list
             List of strings.
         """
+        from matplotlib.dates import date2num
+
         # Formatter timezone
         if self.tz is None and len(x):
             tz = self.formatter.tz = x[0].tzinfo

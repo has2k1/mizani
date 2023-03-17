@@ -40,7 +40,7 @@ from .utils import (
     min_max,
 )
 
-__all__ = ['scale_continuous', 'scale_discrete']
+__all__ = ["scale_continuous", "scale_discrete"]
 
 
 class scale_continuous:
@@ -96,12 +96,11 @@ class scale_continuous:
         if not len(new_data):
             return old
 
-        if not hasattr(new_data, 'dtype'):
+        if not hasattr(new_data, "dtype"):
             new_data = np.asarray(new_data)
 
         if new_data.dtype.kind not in CONTINUOUS_KINDS:
-            raise TypeError(
-                "Discrete value supplied to continuous scale")
+            raise TypeError("Discrete value supplied to continuous scale")
 
         if old is not None:
             new_data = np.hstack([new_data, old])
@@ -200,13 +199,12 @@ class scale_discrete:
         # Get the missing values (NaN & Nones) locations and remove them
         nan_bool_idx = pd.isnull(new_data)
         has_na = np.any(nan_bool_idx)
-        if not hasattr(new_data, 'dtype'):
+        if not hasattr(new_data, "dtype"):
             new_data = np.asarray(new_data)
         new_data = new_data[~nan_bool_idx]
 
         if new_data.dtype.kind not in DISCRETE_KINDS:
-            raise TypeError(
-                "Continuous value supplied to discrete scale")
+            raise TypeError("Continuous value supplied to discrete scale")
 
         # Train i.e. get the new values
         if pdtypes.is_categorical_dtype(new_data):

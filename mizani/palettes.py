@@ -23,15 +23,27 @@ from .bounds import rescale
 from .external import crayon_rgb, husl, xkcd_rgb
 from .utils import identity
 
-__all__ = ['hls_palette', 'husl_palette', 'rescale_pal',
-           'area_pal', 'abs_area', 'grey_pal', 'hue_pal',
-           'brewer_pal', 'gradient_n_pal', 'cmap_pal',
-           'cmap_d_pal',
-           'desaturate_pal', 'manual_pal', 'xkcd_palette',
-           'crayon_palette', 'cubehelix_pal']
+__all__ = [
+    "hls_palette",
+    "husl_palette",
+    "rescale_pal",
+    "area_pal",
+    "abs_area",
+    "grey_pal",
+    "hue_pal",
+    "brewer_pal",
+    "gradient_n_pal",
+    "cmap_pal",
+    "cmap_d_pal",
+    "desaturate_pal",
+    "manual_pal",
+    "xkcd_palette",
+    "crayon_palette",
+    "cubehelix_pal",
+]
 
 
-def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
+def hls_palette(n_colors=6, h=0.01, l=0.6, s=0.65):
     """
     Get a set of evenly spaced colors in HLS hue space.
 
@@ -74,7 +86,7 @@ def hls_palette(n_colors=6, h=.01, l=.6, s=.65):
     return palette
 
 
-def husl_palette(n_colors=6, h=.01, s=.9, l=.65):
+def husl_palette(n_colors=6, h=0.01, s=0.9, l=0.65):
     """
     Get a set of evenly spaced colors in HUSL hue space.
 
@@ -150,8 +162,10 @@ def rescale_pal(range=(0.1, 1)):
     >>> palette([-2, -1, 0.2, .4, .8, 2, 3])
     array([0.1 , 0.1 , 0.28, 0.46, 0.82, 1.  , 1.  ])
     """
+
     def _rescale(x):
         return rescale(x, range, _from=(0, 1))
+
     return _rescale
 
 
@@ -182,8 +196,10 @@ def area_pal(range=(1, 6)):
     The results are equidistant because the input ``x`` is in
     area space, i.e it is squared.
     """
+
     def area_palette(x):
         return rescale(np.sqrt(x), to=range, _from=(0, 1))
+
     return area_palette
 
 
@@ -215,8 +231,10 @@ def abs_area(max):
     whose absolute value is greater than 1 will be clipped to the
     maximum.
     """
+
     def abs_area_palette(x):
         return rescale(np.sqrt(np.abs(x)), to=(0, max), _from=(0, 1))
+
     return abs_area_palette
 
 
@@ -248,21 +266,21 @@ def grey_pal(start=0.2, end=0.8):
 
     gamma = 2.2
     ends = ((0.0, start, start), (1.0, end, end))
-    cdict = {'red': ends, 'green': ends, 'blue': ends}
-    grey_cmap = mcolors.LinearSegmentedColormap('grey', cdict)
+    cdict = {"red": ends, "green": ends, "blue": ends}
+    grey_cmap = mcolors.LinearSegmentedColormap("grey", cdict)
 
     def continuous_grey_palette(n):
         # The grey scale points are linearly separated in
         # gamma encoded space
         x = np.linspace(start**gamma, end**gamma, n)
         # Map points onto the [0, 1] palette domain
-        vals = (x ** (1./gamma) - start) / (end - start)
+        vals = (x ** (1.0 / gamma) - start) / (end - start)
         return ratios_to_colors(vals, grey_cmap)
 
     return continuous_grey_palette
 
 
-def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
+def hue_pal(h=0.01, l=0.6, s=0.65, color_space="hls"):
     """
     Utility for making hue palettes for color schemes.
 
@@ -297,15 +315,17 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
     import matplotlib.colors as mcolors
 
     if not all([0 <= val <= 1 for val in (h, l, s)]):
-        msg = ("hue_pal expects values to be between 0 and 1. "
-               " I got h={}, l={}, s={}".format(h, l, s))
+        msg = (
+            "hue_pal expects values to be between 0 and 1. "
+            " I got h={}, l={}, s={}".format(h, l, s)
+        )
         raise ValueError(msg)
 
-    if color_space not in ('hls', 'husl'):
+    if color_space not in ("hls", "husl"):
         msg = "color_space should be one of ['hls', 'husl']"
         raise ValueError(msg)
 
-    name = '{}_palette'.format(color_space)
+    name = "{}_palette".format(color_space)
     palette = globals()[name]
 
     def _hue_pal(n):
@@ -315,7 +335,7 @@ def hue_pal(h=.01, l=.6, s=.65, color_space='hls'):
     return _hue_pal
 
 
-def brewer_pal(type='seq', palette=1, direction=1):
+def brewer_pal(type="seq", palette=1, direction=1):
     """
     Utility for making a brewer palette
 
@@ -391,10 +411,12 @@ def brewer_pal(type='seq', palette=1, direction=1):
 
         hex_colors = bmap.hex_colors[:n]
         if n > n_max:
-            msg = ("Warning message:"
-                   f"Brewer palette {palette_name} has a maximum "
-                   f"of {n_max} colors Returning the palette you "
-                   "asked for with that many colors")
+            msg = (
+                "Warning message:"
+                f"Brewer palette {palette_name} has a maximum "
+                f"of {n_max} colors Returning the palette you "
+                "asked for with that many colors"
+            )
             warn(msg)
             hex_colors = hex_colors + [None] * (n - n_max)
         return hex_colors[::direction]
@@ -439,7 +461,7 @@ def ratios_to_colors(values, colormap):
     return hex_colors if iterable else hex_colors[0]
 
 
-def gradient_n_pal(colors, values=None, name='gradientn'):
+def gradient_n_pal(colors, values=None, name="gradientn"):
     """
     Create a n color gradient palette
 
@@ -477,11 +499,11 @@ def gradient_n_pal(colors, values=None, name='gradientn'):
     # it would be better to do the interpolation in
     # Lab color space.
     if values is None:
-        colormap = mcolors.LinearSegmentedColormap.from_list(
-            name, colors)
+        colormap = mcolors.LinearSegmentedColormap.from_list(name, colors)
     else:
         colormap = mcolors.LinearSegmentedColormap.from_list(
-            name, list(zip(values, colors)))
+            name, list(zip(values, colors))
+        )
 
     def _gradient_n_pal(vals):
         return ratios_to_colors(vals, colormap)
@@ -517,17 +539,17 @@ def cmap_pal(name, lut=None):
     ['#482475', '#414487', '#355f8d', '#2a788e', '#21918c']
     """
     import matplotlib as mpl
+
     colormap = mpl.colormaps[name]
 
     if lut is not None:
         warn(
             "The lut parameter has been deprecated and will "
             "be removed in a future version.",
-            FutureWarning
+            FutureWarning,
         )
         resample = getattr(
-            colormap, 'resampled',
-            getattr(colormap, '_resample', None)
+            colormap, "resampled", getattr(colormap, "_resample", None)
         )
         colormap = resample(lut)
 
@@ -572,18 +594,18 @@ def cmap_d_pal(name, lut=None):
         warn(
             "The lut parameter has been deprecated and will "
             "be removed in a future version.",
-            FutureWarning
+            FutureWarning,
         )
         resample = getattr(
-            colormap, 'resampled',
-            getattr(colormap, '_resample', None)
+            colormap, "resampled", getattr(colormap, "_resample", None)
         )
         colormap = resample(lut)
 
     if not isinstance(colormap, mcolors.ListedColormap):
         raise ValueError(
             "For a discrete palette, cmap must be of type "
-            "matplotlib.colors.ListedColormap")
+            "matplotlib.colors.ListedColormap"
+        )
 
     ncolors = len(colormap.colors)
 
@@ -591,14 +613,15 @@ def cmap_d_pal(name, lut=None):
         if n > ncolors:
             raise ValueError(
                 "cmap `{}` has {} colors you requested {} "
-                "colors.".format(name, ncolors, n))
+                "colors.".format(name, ncolors, n)
+            )
 
         if ncolors < 256:
             return [mcolors.rgb2hex(c) for c in colormap.colors[:n]]
         else:
             # Assume these are continuous and get colors equally spaced
             # intervals  e.g. viridis is defined with 256 colors
-            idx = np.linspace(0, ncolors-1, n).round().astype(int)
+            idx = np.linspace(0, ncolors - 1, n).round().astype(int)
             return [mcolors.rgb2hex(colormap.colors[i]) for i in idx]
 
     return _cmap_d_pal
@@ -649,7 +672,7 @@ def desaturate_pal(color, prop, reverse=False):
     colors = [color, desaturated_color]
     if reverse:
         colors = colors[::-1]
-    return gradient_n_pal(colors, name='desaturated')
+    return gradient_n_pal(colors, name="desaturated")
 
 
 def manual_pal(values):
@@ -677,8 +700,10 @@ def manual_pal(values):
 
     def _manual_pal(n):
         if n > max_n:
-            msg = ("Palette can return a maximum of {} values. "
-                   "{} values requested.")
+            msg = (
+                "Palette can return a maximum of {} values. "
+                "{} values requested."
+            )
             warn(msg.format(max_n, n))
 
         return values[:n]
@@ -745,8 +770,9 @@ def crayon_palette(colors):
     return [crayon_rgb[name] for name in colors]
 
 
-def cubehelix_pal(start=0, rot=.4, gamma=1.0, hue=0.8,
-                  light=.85, dark=.15, reverse=False):
+def cubehelix_pal(
+    start=0, rot=0.4, gamma=1.0, hue=0.8, light=0.85, dark=0.15, reverse=False
+):
     """
     Utility for creating continuous palette from the cubehelix system.
 
@@ -796,7 +822,7 @@ def cubehelix_pal(start=0, rot=.4, gamma=1.0, hue=0.8,
     import matplotlib.colors as mcolors
 
     cdict = mpl._cm.cubehelix(gamma, start, rot, hue)
-    cubehelix_cmap = mcolors.LinearSegmentedColormap('cubehelix', cdict)
+    cubehelix_cmap = mcolors.LinearSegmentedColormap("cubehelix", cdict)
 
     def cubehelix_palette(n):
         values = np.linspace(light, dark, n)

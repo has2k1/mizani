@@ -46,19 +46,21 @@ def test_trans():
 
 
 def test_trans_new():
-    t = trans_new('bounded_identity',
-                  staticmethod(lambda x: x),
-                  classmethod(lambda x: x),
-                  _format=lambda x: str(x),
-                  domain=(-999, 999),
-                  doc='Bounded Identity transform')
+    t = trans_new(
+        "bounded_identity",
+        staticmethod(lambda x: x),
+        classmethod(lambda x: x),
+        _format=lambda x: str(x),
+        domain=(-999, 999),
+        doc="Bounded Identity transform",
+    )
 
-    assert t.__name__ == 'bounded_identity_trans'
+    assert t.__name__ == "bounded_identity_trans"
     assert isinstance(t.transform, FunctionType)
     assert isinstance(t.inverse, MethodType)
     assert isinstance(t.format, FunctionType)
     assert t.domain == (-999, 999)
-    assert t.__doc__ == 'Bounded Identity transform'
+    assert t.__doc__ == "Bounded Identity transform"
 
     # ticks do not go beyond the bounds
     major = t().breaks((-1999, 1999))
@@ -70,12 +72,11 @@ def test_gettrans():
     t0 = identity_trans()
     t1 = gettrans(t0)
     t2 = gettrans(identity_trans)
-    t3 = gettrans('identity')
-    assert all(
-        isinstance(x, identity_trans) for x in (t0, t1, t2, t3))
+    t3 = gettrans("identity")
+    assert all(isinstance(x, identity_trans) for x in (t0, t1, t2, t3))
 
     t = gettrans(exp_trans)
-    assert t.__class__.__name__ == 'power_e_trans'
+    assert t.__class__.__name__ == "power_e_trans"
 
     with pytest.raises(ValueError):
         gettrans(object)
@@ -85,8 +86,7 @@ def _test_trans(trans, x):
     t = gettrans(trans())
     xt = t.transform(x)
     x2 = t.inverse(xt)
-    is_log_trans = ('log' in t.__class__.__name__ and
-                    hasattr(t, 'base'))
+    is_log_trans = "log" in t.__class__.__name__ and hasattr(t, "base")
     # round trip
     npt.assert_allclose(x, x2)
     major = t.breaks([min(x), max(x)])
@@ -108,15 +108,15 @@ def _test_trans(trans, x):
 
 
 def test_asn_trans():
-    _test_trans(asn_trans, arr*0.01),
+    _test_trans(asn_trans, arr * 0.01),
 
 
 def test_atanh_trans():
-    _test_trans(atanh_trans, arr*0.001),
+    _test_trans(atanh_trans, arr * 0.001),
 
 
 def test_boxcox_trans():
-    _test_trans(boxcox_trans(0.5), arr*10)
+    _test_trans(boxcox_trans(0.5), arr * 10)
     _test_trans(boxcox_trans(1), arr)
     with pytest.raises(ValueError):
         x = np.arange(-4, 4)
@@ -138,14 +138,14 @@ def test_boxcox_trans():
 
 def test_modulus_trans():
     _test_trans(modulus_trans(0), arr)
-    _test_trans(modulus_trans(0.5), arr*10)
+    _test_trans(modulus_trans(0.5), arr * 10)
 
 
 def test_exp_trans():
     _test_trans(exp_trans, arr)
 
     exp2_trans = exp_trans(2)
-    _test_trans(exp2_trans, arr*0.1)
+    _test_trans(exp2_trans, arr * 0.1)
 
 
 def test_identity_trans():
@@ -180,9 +180,9 @@ def test_logn_trans():
     log3_trans = log_trans(3)
     _test_trans(log3_trans, arr)
 
-    log4_trans = log_trans(4, domain=(0.1, 100),
-                           breaks=mpl_breaks(),
-                           minor_breaks=minor_breaks())
+    log4_trans = log_trans(
+        4, domain=(0.1, 100), breaks=mpl_breaks(), minor_breaks=minor_breaks()
+    )
     _test_trans(log4_trans, arr)
 
 
@@ -197,29 +197,26 @@ def test_pseudo_log_trans():
     arr = np.hstack([-np.array(pos[::-1]), pos])
     _test_trans(pseudo_log_trans, arr)
     _test_trans(pseudo_log_trans(base=16), arr)
-    _test_trans(
-        pseudo_log_trans(base=10, minor_breaks=minor_breaks(n=5)),
-        arr
-    )
+    _test_trans(pseudo_log_trans(base=10, minor_breaks=minor_breaks(n=5)), arr)
 
 
 def test_probability_trans():
     with pytest.raises(ValueError):
-        t = probability_trans('unknown_distribution')
+        t = probability_trans("unknown_distribution")
 
     # cdf of the normal is centered at 0 and
     # The values either end of 0 are symmetric
     x = [-3, -2, -1, 0, 1, 2, 3]
-    t = probability_trans('norm')
+    t = probability_trans("norm")
     xt = t.transform(x)
     x2 = t.inverse(xt)
     assert xt[3] == 0.5
-    npt.assert_allclose(xt[:3], 1-xt[-3:][::-1])
+    npt.assert_allclose(xt[:3], 1 - xt[-3:][::-1])
     npt.assert_allclose(x, x2)
 
 
 def test_datetime_trans():
-    UTC = ZoneInfo('UTC')
+    UTC = ZoneInfo("UTC")
 
     x = [datetime(year, 1, 1, tzinfo=UTC) for year in [2010, 2015, 2020, 2026]]
     t = datetime_trans()
@@ -228,21 +225,21 @@ def test_datetime_trans():
     assert all(a == b for a, b in zip(x, x2))
 
     # numpy datetime64
-    x = [np.datetime64(i, 'D') for i in range(1, 11)]
+    x = [np.datetime64(i, "D") for i in range(1, 11)]
     t = datetime_trans()
     xt = t.transform(x)
     x2 = t.inverse(xt)
     assert all(isinstance(val, datetime) for val in x2)
 
     # pandas timestamp
-    x = pd.date_range(start='1/1/2022', end='1/2/2022', freq='3H', tz='EST')
+    x = pd.date_range(start="1/1/2022", end="1/2/2022", freq="3H", tz="EST")
     t = datetime_trans()
     xt = t.transform(x)
     x2 = t.inverse(xt)
     assert all(x == x2)
 
     # Irregular index
-    s = pd.Series(x, index=range(11, len(x)+11))
+    s = pd.Series(x, index=range(11, len(x) + 11))
     st = t.transform(s)
     s2 = t.inverse(st)
     assert all(s == s2)
@@ -256,13 +253,10 @@ def test_datetime_trans():
 
 
 def test_datetime_trans_tz():
-    EST = ZoneInfo('EST')
-    UTC = ZoneInfo('UTC')
+    EST = ZoneInfo("EST")
+    UTC = ZoneInfo("UTC")
 
-    x = [
-        datetime(2022, 1, 1, 0 + 3 * i, 0, 0, tzinfo=EST)
-        for i in range(8)
-    ]
+    x = [datetime(2022, 1, 1, 0 + 3 * i, 0, 0, tzinfo=EST) for i in range(8)]
 
     # Same trans as data
     t = datetime_trans()
@@ -276,7 +270,7 @@ def test_datetime_trans_tz():
     assert x == x2
     assert all(val.tzinfo == UTC for val in x2)
 
-    t = datetime_trans('MST')
+    t = datetime_trans("MST")
     assert t.tzinfo == t.tz
     assert t.transform([]) == []
 

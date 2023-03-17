@@ -12,12 +12,11 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
-
+import sys
 from pathlib import Path
 
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
+on_rtd = os.environ.get("READTHEDOCS") == "True"
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -29,15 +28,18 @@ sys.path.insert(0, str(CUR_PATH))
 sys.path.insert(0, str(PROJECT_PATH))
 
 if on_rtd:
-    import mock
     from pprint import pprint
+
+    import mock
+
     MOCK_MODULES = [
-        'pandas',
-        'pandas.core',
-        'pandas.core.common',
-        'pandas.core.dtypes.common',
-        'pandas.api',
-        'pandas.api.types']
+        "pandas",
+        "pandas.core",
+        "pandas.core.common",
+        "pandas.core.dtypes.common",
+        "pandas.api",
+        "pandas.api.types",
+    ]
     for mod_name in MOCK_MODULES:
         sys.modules[mod_name] = mock.Mock()
     pprint(os.environ)
@@ -46,42 +48,41 @@ if on_rtd:
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '3.0.0'
+needs_sphinx = "3.0.0"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.autosummary',
-
-    'sphinxext.inline_code_highlight',
-    'numpydoc',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    "sphinxext.inline_code_highlight",
+    "numpydoc",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = 'Mizani'
-copyright = '2023, Hassan Kibirige'
+project = "Mizani"
+copyright = "2023, Hassan Kibirige"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -91,21 +92,22 @@ copyright = '2023, Hassan Kibirige'
 try:
     from importlib.metadata import version as _version
 finally:
-    version = _version('mizani')
+    version = _version("mizani")
 
 # readthedocs modifies the repository which messes up the version.
 # 1. remove +dirty if readthedocs modifies the repo,
 # 2. remove the 0.0 version created by setuptools_scm when clone is too shallow
 if on_rtd:
     import re
-    p1 = re.compile(r'\+dirty$')
-    if p1.match(version):
-        version = p1.sub('', version)
 
-    p2 = re.compile(r'^0\.0\.post\d+\+g')
+    p1 = re.compile(r"\+dirty$")
+    if p1.match(version):
+        version = p1.sub("", version)
+
+    p2 = re.compile(r"^0\.0\.post\d+\+g")
     if p2.match(version):
-        commit = p2.sub('', version)
-        version = f'Commit: {commit}'
+        commit = p2.sub("", version)
+        version = f"Commit: {commit}"
 
 # The full version, including alpha/beta/rc tags.
 release = version
@@ -122,9 +124,7 @@ release = version
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = [
-    '_build'
-]
+exclude_patterns = ["_build"]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -142,8 +142,8 @@ exclude_patterns = [
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
-highlight_language = 'python3'
+pygments_style = "sphinx"
+highlight_language = "python3"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -154,28 +154,28 @@ highlight_language = 'python3'
 # I want the sphinx-build -W to emit "warnings as errors" as part of my test
 # & build infrastructure, to ensure that there are no mistakes in the
 # documentation. New in 1.4.2
-suppress_warnings = ['image.nonlocal_uri']
+suppress_warnings = ["image.nonlocal_uri"]
 
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'theme'
+html_theme = "theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 # https://github.com/ryan-roemer/sphinx-bootstrap-theme
 html_theme_options = {
-    'navbar_title': 'mizani',
-    'globaltoc_depth': 2,
-    'globaltoc_includehidden': 'true',
-    'source_link_position': 'footer',
-    'navbar_sidebarrel': False,
+    "navbar_title": "mizani",
+    "globaltoc_depth": 2,
+    "globaltoc_includehidden": "true",
+    "source_link_position": "footer",
+    "navbar_sidebarrel": False,
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['.']
+html_theme_path = ["."]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -196,7 +196,7 @@ html_theme_path = ['.']
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -245,19 +245,17 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'mizanidoc'
+htmlhelp_basename = "mizanidoc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
-    'papersize': 'a4paper',
-
+    "papersize": "a4paper",
     # The font size ('10pt', '11pt' or '12pt').
-    'pointsize': '12pt',
-
+    "pointsize": "12pt",
     # Additional stuff for the LaTeX preamble.
-    'preamble': r"""
+    "preamble": r"""
         \usepackage{charter}
         \usepackage[defaultsans]{lato}
         \usepackage{inconsolata}
@@ -268,9 +266,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'mizani.tex',
-   'Mizani Documentation',
-   'Hassan Kibirige', 'manual'),
+    (
+        master_doc,
+        "mizani.tex",
+        "Mizani Documentation",
+        "Hassan Kibirige",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -299,9 +301,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'mizani',
-     'Mizani Documentation',
-     ['Hassan Kibirige'], 1)
+    (master_doc, "mizani", "Mizani Documentation", ["Hassan Kibirige"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -314,12 +314,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'mizani',
-   'Mizani Documentation',
-   'Hassan Kibirige',
-   'mizani',
-   'One line description of project.',
-   'Miscellaneous'),
+    (
+        master_doc,
+        "mizani",
+        "Mizani Documentation",
+        "Hassan Kibirige",
+        "mizani",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -337,20 +340,18 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-    'matplotlib': ('https://matplotlib.org/stable', None),
-    'numpy': ('https://numpy.org/doc/stable', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy', None),
+    "python": ("https://docs.python.org/3/", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy", None),
 }
 
 
 # -- Extension configuration ----------------------------------------------
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 autosummary_generate = True
 
-extlinks = {
-    'issue': ('https://github.com/has2k1/mizani/issues/%s', '#%s')
-}
+extlinks = {"issue": ("https://github.com/has2k1/mizani/issues/%s", "#%s")}
 
 # numpydoc
 numpydoc_show_class_members = False
@@ -358,26 +359,26 @@ numpydoc_class_members_toctree = False
 numpydoc_xref_param_type = True
 numpydoc_xref_aliases = {
     # python
-    'sequence': ':term:`python:sequence`',
-    'iterable': ':term:`python:iterable`',
-    'string': 'str',
-    'tuples': 'tuple',
-    'boolean': 'bool',
+    "sequence": ":term:`python:sequence`",
+    "iterable": ":term:`python:iterable`",
+    "string": "str",
+    "tuples": "tuple",
+    "boolean": "bool",
     # numpy
-    'array': 'numpy.ndarray',
-    'np.array': 'numpy.ndarray',
-    'ndarray': 'numpy.ndarray',
-    'array-like': ':term:`array-like<numpy:array_like>`',
-    'array_like': ':term:`numpy:array_like`',
+    "array": "numpy.ndarray",
+    "np.array": "numpy.ndarray",
+    "ndarray": "numpy.ndarray",
+    "array-like": ":term:`array-like<numpy:array_like>`",
+    "array_like": ":term:`numpy:array_like`",
     # pandas
-    'dataframe': 'pandas.DataFrame',
-    'DataFrame': 'pandas.DataFrame',
-    'Series': 'pandas.Series',
-    'series': 'pandas.Series',
+    "dataframe": "pandas.DataFrame",
+    "DataFrame": "pandas.DataFrame",
+    "Series": "pandas.Series",
+    "series": "pandas.Series",
 }
-numpydoc_xref_ignore = {'type', 'optional', 'default'}
+numpydoc_xref_ignore = {"type", "optional", "default"}
 
 
 def setup(app):
-    app.add_js_file('copybutton.js')
-    app.add_css_file('custom.css')
+    app.add_js_file("copybutton.js")
+    app.add_css_file("custom.css")

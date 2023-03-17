@@ -8,7 +8,7 @@ import typing
 from palettable import colorbrewer
 
 if typing.TYPE_CHECKING:
-    from typing import Iterable, Literal
+    from typing import Iterable
 
     from mizani.typing import BrewerMapType, BrewerMapTypeAlt
 
@@ -20,11 +20,12 @@ def _first_last(it: Iterable) -> tuple[int, int]:
     lst = list(it)
     return int(lst[0]), int(lst[-1])
 
+
 BREWER_NCOLOR_RANGE = {
     t: {
         palette: _first_last(info.keys())
         for palette, info in colorbrewer.COLOR_MAPS[t].items()
-       }
+    }
     for t in colorbrewer.COLOR_MAPS
 }
 
@@ -44,15 +45,15 @@ def min_num_colors(map_type: BrewerMapType, palette: str) -> int:
 
 
 def full_map_type_name(
-    text: BrewerMapTypeAlt | BrewerMapType
+    text: BrewerMapTypeAlt | BrewerMapType,
 ) -> BrewerMapType:
     """
     Get brewer map_type name from an abbreviation
     """
     lookup: dict[BrewerMapTypeAlt, BrewerMapType] = {
-        'div': 'Diverging',
-        'qual': 'Qualitative',
-        'seq': 'Sequential',
+        "div": "Diverging",
+        "qual": "Qualitative",
+        "seq": "Sequential",
     }
     return lookup.get(text, text).title()  # pyright: ignore
 

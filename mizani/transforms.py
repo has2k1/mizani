@@ -43,17 +43,33 @@ from .breaks import (
 )
 from .formatters import date_format, log_format, mpl_format, timedelta_format
 
-__all__ = ['asn_trans', 'atanh_trans', 'boxcox_trans',
-           'modulus_trans',
-           'datetime_trans', 'exp_trans', 'identity_trans',
-           'log10_trans', 'log1p_trans', 'log2_trans',
-           'log_trans', 'logit_trans', 'probability_trans',
-           'probit_trans', 'reverse_trans', 'sqrt_trans',
-           'timedelta_trans', 'pd_timedelta_trans',
-           'pseudo_log_trans', 'reciprocal_trans',
-           'trans', 'trans_new', 'gettrans']
+__all__ = [
+    "asn_trans",
+    "atanh_trans",
+    "boxcox_trans",
+    "modulus_trans",
+    "datetime_trans",
+    "exp_trans",
+    "identity_trans",
+    "log10_trans",
+    "log1p_trans",
+    "log2_trans",
+    "log_trans",
+    "logit_trans",
+    "probability_trans",
+    "probit_trans",
+    "reverse_trans",
+    "sqrt_trans",
+    "timedelta_trans",
+    "pd_timedelta_trans",
+    "pseudo_log_trans",
+    "reciprocal_trans",
+    "trans",
+    "trans_new",
+    "gettrans",
+]
 
-UTC = ZoneInfo('UTC')
+UTC = ZoneInfo("UTC")
 
 
 class trans:
@@ -89,6 +105,7 @@ class trans:
     >>> t.minor_breaks(major)
     array([0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8])
     """
+
     #: Aesthetic that the transform works on
     aesthetic = None
 
@@ -112,16 +129,13 @@ class trans:
             if hasattr(self, attr):
                 setattr(self, attr, kwargs[attr])
             else:
-                raise KeyError(
-                    "Unknown Parameter {!r}".format(attr))
+                raise KeyError("Unknown Parameter {!r}".format(attr))
 
         # Defaults
-        if (self.breaks_ is None and
-                'breaks_' not in kwargs):
+        if self.breaks_ is None and "breaks_" not in kwargs:
             self.breaks_ = extended_breaks(n=5)
 
-        if (self.minor_breaks is None and
-                'minor_breaks' not in kwargs):
+        if self.minor_breaks is None and "minor_breaks" not in kwargs:
             self.minor_breaks = minor_breaks(1)
 
     @staticmethod
@@ -175,14 +189,23 @@ class trans:
         # Some methods(mpl_breaks, extended_breaks) that
         # calculate breaks take the limits as guide posts and
         # not hard limits.
-        breaks = breaks.compress((breaks >= self.domain[0]) &
-                                 (breaks <= self.domain[1]))
+        breaks = breaks.compress(
+            (breaks >= self.domain[0]) & (breaks <= self.domain[1])
+        )
         return breaks
 
 
-def trans_new(name, transform, inverse, breaks=None,
-              minor_breaks=None, _format=None,
-              domain=(-np.inf, np.inf), doc='', **kwargs):
+def trans_new(
+    name,
+    transform,
+    inverse,
+    breaks=None,
+    minor_breaks=None,
+    _format=None,
+    domain=(-np.inf, np.inf),
+    doc="",
+    **kwargs,
+):
     """
     Create a transformation class object
 
@@ -220,28 +243,31 @@ def trans_new(name, transform, inverse, breaks=None,
     out : trans
         Transform class
     """
+
     def _get(func):
         if isinstance(func, (classmethod, staticmethod, MethodType)):
             return func
         else:
             return staticmethod(func)
 
-    klass_name = '{}_trans'.format(name)
+    klass_name = "{}_trans".format(name)
 
-    d = {'transform': _get(transform),
-         'inverse': _get(inverse),
-         'domain': domain,
-         '__doc__': doc,
-         **kwargs}
+    d = {
+        "transform": _get(transform),
+        "inverse": _get(inverse),
+        "domain": domain,
+        "__doc__": doc,
+        **kwargs,
+    }
 
     if breaks:
-        d['breaks_'] = _get(breaks)
+        d["breaks_"] = _get(breaks)
 
     if minor_breaks:
-        d['minor_breaks'] = _get(minor_breaks)
+        d["minor_breaks"] = _get(minor_breaks)
 
     if _format:
-        d['format'] = _get(_format)
+        d["format"] = _get(_format)
 
     return type(klass_name, (trans,), d)
 
@@ -267,45 +293,45 @@ def log_trans(base=None, **kwargs):
     """
     # transform function
     if base is None:
-        name = 'log'
+        name = "log"
         base = np.exp(1)
         transform = np.log
     elif base == 10:
-        name = 'log10'
+        name = "log10"
         transform = np.log10
     elif base == 2:
-        name = 'log2'
+        name = "log2"
         transform = np.log2
     else:
-        name = 'log{}'.format(base)
+        name = "log{}".format(base)
 
         def transform(x):
-            return np.log(x)/np.log(base)
+            return np.log(x) / np.log(base)
 
     # inverse function
     def inverse(x):
         return np.power(base, x)
 
-    if 'domain' not in kwargs:
-        kwargs['domain'] = (sys.float_info.min, np.inf)
+    if "domain" not in kwargs:
+        kwargs["domain"] = (sys.float_info.min, np.inf)
 
-    if 'breaks' not in kwargs:
-        kwargs['breaks'] = log_breaks(base=base)
+    if "breaks" not in kwargs:
+        kwargs["breaks"] = log_breaks(base=base)
 
-    kwargs['base'] = base
-    kwargs['_format'] = log_format(base)
+    kwargs["base"] = base
+    kwargs["_format"] = log_format(base)
 
     _trans = trans_new(name, transform, inverse, **kwargs)
 
-    if 'minor_breaks' not in kwargs:
+    if "minor_breaks" not in kwargs:
         n = int(base) - 2
         _trans.minor_breaks = trans_minor_breaks(_trans, n=n)
 
     return _trans
 
 
-log10_trans = log_trans(10, doc='Log 10 Transformation')
-log2_trans = log_trans(2, doc='Log 2 Transformation')
+log10_trans = log_trans(10, doc="Log 10 Transformation")
+log2_trans = log_trans(2, doc="Log 2 Transformation")
 
 
 def exp_trans(base=None, **kwargs):
@@ -330,10 +356,10 @@ def exp_trans(base=None, **kwargs):
     """
     # default to e
     if base is None:
-        name = 'power_e'
+        name = "power_e"
         base = np.exp(1)
     else:
-        name = 'power_{}'.format(base)
+        name = "power_{}".format(base)
 
     # transform function
     def transform(x):
@@ -341,9 +367,9 @@ def exp_trans(base=None, **kwargs):
 
     # inverse function
     def inverse(x):
-        return np.log(x)/np.log(base)
+        return np.log(x) / np.log(base)
 
-    kwargs['base'] = base
+    kwargs["base"] = base
     return trans_new(name, transform, inverse, **kwargs)
 
 
@@ -351,6 +377,7 @@ class log1p_trans(trans):
     """
     Log plus one Transformation
     """
+
     transform = staticmethod(np.log1p)
     inverse = staticmethod(np.expm1)
 
@@ -359,6 +386,7 @@ class identity_trans(trans):
     """
     Identity Transformation
     """
+
     pass
 
 
@@ -366,6 +394,7 @@ class reverse_trans(trans):
     """
     Reverse Transformation
     """
+
     transform = staticmethod(np.negative)
     inverse = staticmethod(np.negative)
 
@@ -374,6 +403,7 @@ class sqrt_trans(trans):
     """
     Square-root Transformation
     """
+
     transform = staticmethod(np.sqrt)
     inverse = staticmethod(np.square)
     domain = (0, np.inf)
@@ -383,19 +413,21 @@ class asn_trans(trans):
     """
     Arc-sin square-root Transformation
     """
+
     @staticmethod
     def transform(x):
-        return 2*np.arcsin(np.sqrt(x))
+        return 2 * np.arcsin(np.sqrt(x))
 
     @staticmethod
     def inverse(x):
-        return np.sin(x/2)**2
+        return np.sin(x / 2) ** 2
 
 
 class atanh_trans(trans):
     """
     Arc-tangent Transformation
     """
+
     transform = staticmethod(np.arctanh)
     inverse = staticmethod(np.tanh)
 
@@ -443,6 +475,7 @@ def boxcox_trans(p, offset=0, **kwargs):
     :func:`~mizani.transforms.modulus_trans`
 
     """
+
     def transform(x):
         x = np.asarray(x)
         if np.any((x + offset) < 0):
@@ -453,20 +486,20 @@ def boxcox_trans(p, offset=0, **kwargs):
         if np.abs(p) < 1e-7:
             return np.log(x + offset)
         else:
-            return ((x + offset)**p - 1)/p
+            return ((x + offset) ** p - 1) / p
 
     def inverse(x):
         x = np.asarray(x)
         if np.abs(p) < 1e-7:
             return np.exp(x) - offset
         else:
-            return (x*p + 1) ** (1/p) - offset
+            return (x * p + 1) ** (1 / p) - offset
 
-    kwargs['p'] = p
-    kwargs['offset'] = offset
-    kwargs['name'] = kwargs.get('name', 'pow_{}'.format(p))
-    kwargs['transform'] = transform
-    kwargs['inverse'] = inverse
+    kwargs["p"] = p
+    kwargs["offset"] = offset
+    kwargs["name"] = kwargs.get("name", "pow_{}".format(p))
+    kwargs["transform"] = transform
+    kwargs["inverse"] = inverse
     return trans_new(**kwargs)
 
 
@@ -516,6 +549,7 @@ def modulus_trans(p, offset=1, **kwargs):
     :func:`~mizani.transforms.boxcox_trans`
     """
     if np.abs(p) < 1e-7:
+
         def transform(x):
             x = np.asarray(x)
             return np.sign(x) * np.log(np.abs(x) + offset)
@@ -523,20 +557,22 @@ def modulus_trans(p, offset=1, **kwargs):
         def inverse(x):
             x = np.asarray(x)
             return np.sign(x) * (np.exp(np.abs(x)) - offset)
+
     else:
+
         def transform(x):
             x = np.asarray(x)
-            return np.sign(x) * ((np.abs(x) + offset)**p - 1) / p
+            return np.sign(x) * ((np.abs(x) + offset) ** p - 1) / p
 
         def inverse(x):
             x = np.asarray(x)
-            return np.sign(x) * ((np.abs(x) * p + 1)**(1 / p) - offset)
+            return np.sign(x) * ((np.abs(x) * p + 1) ** (1 / p) - offset)
 
-    kwargs['p'] = p
-    kwargs['offset'] = offset
-    kwargs['name'] = kwargs.get('name', 'mt_pow_{}'.format(p))
-    kwargs['transform'] = transform
-    kwargs['inverse'] = inverse
+    kwargs["p"] = p
+    kwargs["offset"] = offset
+    kwargs["name"] = kwargs.get("name", "mt_pow_{}".format(p))
+    kwargs["transform"] = transform
+    kwargs["inverse"] = inverse
     return trans_new(**kwargs)
 
 
@@ -563,21 +599,21 @@ def probability_trans(distribution, *args, **kwargs):
     does not imply that the distribution fits the data.
     """
     import scipy.stats as stats
-    cdists = {k for k in dir(stats)
-              if hasattr(getattr(stats, k), 'cdf')}
+
+    cdists = {k for k in dir(stats) if hasattr(getattr(stats, k), "cdf")}
     if distribution not in cdists:
         msg = "Unknown distribution '{}'"
         raise ValueError(msg.format(distribution))
 
     try:
-        doc = kwargs.pop('_doc')
+        doc = kwargs.pop("_doc")
     except KeyError:
-        doc = ''
+        doc = ""
 
     try:
-        name = kwargs.pop('_name')
+        name = kwargs.pop("_name")
     except KeyError:
-        name = 'prob_{}'.format(distribution)
+        name = "prob_{}".format(distribution)
 
     def transform(x):
         return getattr(stats, distribution).cdf(x, *args, **kwargs)
@@ -585,15 +621,15 @@ def probability_trans(distribution, *args, **kwargs):
     def inverse(x):
         return getattr(stats, distribution).ppf(x, *args, **kwargs)
 
-    return trans_new(name,
-                     transform, inverse, domain=(0, 1),
-                     doc=doc)
+    return trans_new(name, transform, inverse, domain=(0, 1), doc=doc)
 
 
-logit_trans = probability_trans('logistic', _name='logit',
-                                _doc='Logit Transformation')
-probit_trans = probability_trans('norm', _name='norm',
-                                 _doc='Probit Transformation')
+logit_trans = probability_trans(
+    "logistic", _name="logit", _doc="Logit Transformation"
+)
+probit_trans = probability_trans(
+    "norm", _name="norm", _doc="Probit Transformation"
+)
 
 
 class datetime_trans(trans):
@@ -623,10 +659,11 @@ class datetime_trans(trans):
     >>> x2.tzinfo.key
     'EST'
     """
+
     dataspace_is_numerical = False
     domain = (
         datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=UTC),
-        datetime.datetime(datetime.MAXYEAR, 12, 31, tzinfo=UTC)
+        datetime.datetime(datetime.MAXYEAR, 12, 31, tzinfo=UTC),
     )
     breaks_ = staticmethod(date_breaks())
     format = staticmethod(date_format())
@@ -678,6 +715,7 @@ class timedelta_trans(trans):
     """
     Timedelta Transformation
     """
+
     dataspace_is_numerical = False
     domain = (datetime.timedelta.min, datetime.timedelta.max)
     breaks_ = staticmethod(timedelta_breaks())
@@ -690,9 +728,9 @@ class timedelta_trans(trans):
         """
         # microseconds
         try:
-            x = np.array([_x.total_seconds()*10**6 for _x in x])
+            x = np.array([_x.total_seconds() * 10**6 for _x in x])
         except TypeError:
-            x = x.total_seconds()*10**6
+            x = x.total_seconds() * 10**6
         return x
 
     @staticmethod
@@ -711,6 +749,7 @@ class pd_timedelta_trans(trans):
     """
     Pandas timedelta Transformation
     """
+
     dataspace_is_numerical = False
     domain = (pd.Timedelta.min, pd.Timedelta.max)
     breaks_ = staticmethod(timedelta_breaks())
@@ -780,17 +819,17 @@ def pseudo_log_trans(sigma=1, base=None, **kwargs):
 
     def transform(x):
         x = np.asarray(x)
-        return np.arcsinh(x/(2*sigma)) / np.log(base)
+        return np.arcsinh(x / (2 * sigma)) / np.log(base)
 
     def inverse(x):
         x = np.asarray(x)
         return 2 * sigma * np.sinh(x * np.log(base))
 
-    kwargs['base'] = base
-    kwargs['sigma'] = sigma
-    _trans = trans_new('pseudo_log', transform, inverse, **kwargs)
+    kwargs["base"] = base
+    kwargs["sigma"] = sigma
+    _trans = trans_new("pseudo_log", transform, inverse, **kwargs)
 
-    if 'minor_breaks' not in kwargs:
+    if "minor_breaks" not in kwargs:
         n = int(base) - 2
         _trans.minor_breaks = trans_minor_breaks(_trans, n=n)
 
@@ -813,7 +852,7 @@ def gettrans(t):
     obj = t
     # Make sure trans object is instantiated
     if isinstance(obj, str):
-        name = '{}_trans'.format(obj)
+        name = "{}_trans".format(obj)
         obj = globals()[name]()
     if callable(obj):
         obj = obj()

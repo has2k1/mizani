@@ -25,19 +25,19 @@ from .breaks import timedelta_helper
 from .utils import match, precision, round_any, same_log10_order_of_magnitude
 
 __all__ = [
-    'comma_format',
-    'custom_format',
-    'currency_format',
-    'dollar_format',
-    'percent_format',
-    'scientific_format',
-    'date_format',
-    'mpl_format',
-    'log_format',
-    'timedelta_format',
-    'pvalue_format',
-    'ordinal_format',
-    'number_bytes_format'
+    "comma_format",
+    "custom_format",
+    "currency_format",
+    "dollar_format",
+    "percent_format",
+    "scientific_format",
+    "date_format",
+    "mpl_format",
+    "log_format",
+    "timedelta_format",
+    "pvalue_format",
+    "ordinal_format",
+    "number_bytes_format",
 ]
 
 
@@ -62,7 +62,8 @@ class custom_format:
     >>> formatter([3.987, 2, 42.42])
     ['3.99 USD', '2.00 USD', '42.42 USD']
     """
-    def __init__(self, fmt='{}', style='new'):
+
+    def __init__(self, fmt="{}", style="new"):
         self.fmt = fmt
         self.style = style
 
@@ -80,13 +81,12 @@ class custom_format:
         out : list
             List of strings.
         """
-        if self.style == 'new':
+        if self.style == "new":
             return [self.fmt.format(val) for val in x]
-        elif self.style == 'old':
+        elif self.style == "old":
             return [self.fmt % val for val in x]
         else:
-            raise ValueError(
-                "style should be either 'new' or 'old'")
+            raise ValueError("style should be either 'new' or 'old'")
 
 
 # formatting functions
@@ -114,7 +114,8 @@ class currency_format:
     >>> currency_format('C$', digits=0, big_mark=',')(x)
     ['C$1', 'C$99', 'C$5', 'C$9', 'C$4,500']
     """
-    def __init__(self, prefix='$', suffix='', digits=2, big_mark=''):
+
+    def __init__(self, prefix="$", suffix="", digits=2, big_mark=""):
         self.prefix = prefix
         self.suffix = suffix
         self.digits = digits
@@ -136,13 +137,22 @@ class currency_format:
         """
         # create {:.2f} or {:,.2f}
         big_mark = self.big_mark
-        comma = ',' if big_mark else ''
-        tpl = ''.join((self.prefix, '{:', comma, '.',
-                       str(self.digits), 'f}', self.suffix))
+        comma = "," if big_mark else ""
+        tpl = "".join(
+            (
+                self.prefix,
+                "{:",
+                comma,
+                ".",
+                str(self.digits),
+                "f}",
+                self.suffix,
+            )
+        )
 
         labels = [tpl.format(val) for val in x]
-        if big_mark and big_mark != ',':
-            labels = [val.replace(',', big_mark) for val in labels]
+        if big_mark and big_mark != ",":
+            labels = [val.replace(",", big_mark) for val in labels]
         return labels
 
 
@@ -164,9 +174,11 @@ class comma_format:
     >>> comma_format()([1000, 2, 33000, 400])
     ['1,000', '2', '33,000', '400']
     """
+
     def __init__(self, digits=0):
         self.formatter = currency_format(
-            prefix='', digits=digits, big_mark=',')
+            prefix="", digits=digits, big_mark=","
+        )
 
     def __call__(self, x):
         """
@@ -205,8 +217,9 @@ class percent_format:
     >>> formatter([.654, .8963, .1])
     ['65.4%', '89.6%', '10.0%']
     """
+
     def __init__(self, use_comma=False):
-        self.big_mark = ',' if use_comma else ''
+        self.big_mark = "," if use_comma else ""
 
     def __call__(self, x):
         """
@@ -234,15 +247,14 @@ class percent_format:
         else:
             digits = abs(int(np.log10(_precision)))
 
-        formatter = currency_format(prefix='',
-                                    suffix='%',
-                                    digits=digits,
-                                    big_mark=self.big_mark)
+        formatter = currency_format(
+            prefix="", suffix="%", digits=digits, big_mark=self.big_mark
+        )
         labels = formatter(x)
         # Remove unnecessary zeros after the decimal
-        pattern = re.compile(r'\.0+%$')
+        pattern = re.compile(r"\.0+%$")
         if all(pattern.search(val) for val in labels):
-            labels = [pattern.sub('%', val) for val in labels]
+            labels = [pattern.sub("%", val) for val in labels]
         return labels
 
 
@@ -271,15 +283,16 @@ class scientific_format:
 
     .. _machine epsilon: https://en.wikipedia.org/wiki/Machine_epsilon
     """
+
     def __init__(self, digits=3):
-        tpl = ''.join(['{:.', str(digits), 'e}'])
+        tpl = "".join(["{:.", str(digits), "e}"])
         self.formatter = custom_format(tpl)
 
     def __call__(self, x):
         if len(x) == 0:
             return []
 
-        zeros_re = re.compile(r'(0+)e')
+        zeros_re = re.compile(r"(0+)e")
 
         def count_zeros(s):
             match = zeros_re.search(s)
@@ -292,7 +305,7 @@ class scientific_format:
         labels = self.formatter(x)
         n = min([count_zeros(val) for val in labels])
         if n:
-            labels = [val.replace('0'*n+'e', 'e') for val in labels]
+            labels = [val.replace("0" * n + "e", "e") for val in labels]
         return labels
 
 
@@ -314,16 +327,15 @@ def _format(formatter, x):
     labels = [formatter(tick) for tick in x]
 
     # Remove unnecessary decimals
-    pattern = re.compile(r'\.0+$')
+    pattern = re.compile(r"\.0+$")
     for i, label in enumerate(labels):
         match = pattern.search(label)
         if match:
-            labels[i] = pattern.sub('', label)
+            labels[i] = pattern.sub("", label)
 
     # MPL does not add the exponential component
     if oom:
-        labels = ['{}e{}'.format(s, oom) if s != '0' else s
-                  for s in labels]
+        labels = ["{}e{}".format(s, oom) if s != "0" else s for s in labels]
     return labels
 
 
@@ -336,8 +348,10 @@ class mpl_format:
     >>> mpl_format()([.654, .8963, .1])
     ['0.6540', '0.8963', '0.1000']
     """
+
     def __init__(self):
         from matplotlib.ticker import ScalarFormatter
+
         self.formatter = ScalarFormatter(useOffset=False)
 
     def __call__(self, x):
@@ -411,12 +425,12 @@ class log_format:
             """
             Remove unnecessary zeros for float string s
             """
-            tup = s.split('e')
+            tup = s.split("e")
             if len(tup) == 2:
-                mantissa = tup[0].rstrip('0').rstrip('.')
+                mantissa = tup[0].rstrip("0").rstrip(".")
                 exponent = int(tup[1])
                 if exponent:
-                    s = '%se%d' % (mantissa, exponent)
+                    s = "%se%d" % (mantissa, exponent)
                 else:
                     s = mantissa
             return s
@@ -425,28 +439,28 @@ class log_format:
             """
             Float string s as in exponential format
             """
-            return s if 'e' in s else '{:1.0e}'.format(float(s))
+            return s if "e" in s else "{:1.0e}".format(float(s))
 
         def as_mathtex(s):
             """
             Mathtex for maplotlib
             """
-            if 'e' not in s:
-                assert s == '1', f"Unexpected value {s = }, instead of '1'"
+            if "e" not in s:
+                assert s == "1", f"Unexpected value {s = }, instead of '1'"
                 return f"${self.base}^{{0}}$"
 
-            exp = s.split('e')[1]
+            exp = s.split("e")[1]
             return f"${self.base}^{{{exp}}}$"
 
         # If any are in exponential format, make all of
         # them expontential
-        has_e = ['e' in x for x in labels]
+        has_e = ["e" in x for x in labels]
         if not all(has_e) and sum(has_e):
             labels = [as_exp(x) for x in labels]
 
         labels = [remove_zeroes(x) for x in labels]
 
-        has_e = ['e' in x for x in labels]
+        has_e = ["e" in x for x in labels]
         if self.mathtex and any(has_e):
             labels = [as_mathtex(x) for x in labels]
 
@@ -474,22 +488,22 @@ class log_format:
             xmin = int(np.floor(np.log10(np.min(x))))
             xmax = int(np.ceil(np.log10(np.max(x))))
             emin, emax = self.exponent_limits
-            all_multiples = np.all(
-                [np.log10(num).is_integer() for num in x])
+            all_multiples = np.all([np.log10(num).is_integer() for num in x])
             # Order of magnitude of the minimum and maximum
             if same_log10_order_of_magnitude(x):
                 f = mpl_format()
                 f.formatter.set_powerlimits((emin, emax))
                 return f(x)
             elif all_multiples and (xmin <= emin or xmax >= emax):
-                fmt = '{:1.0e}'
+                fmt = "{:1.0e}"
             else:
-                fmt = '{:g}'
+                fmt = "{:g}"
             labels = [fmt.format(num) for num in x]
             return self._tidyup_labels(labels)
         else:
+
             def _exp(num, base):
-                e = np.log(num)/np.log(base)
+                e = np.log(num) / np.log(base)
                 e_round = np.round(e)
                 if np.isclose(e, e_round):
                     e = int(e_round)
@@ -497,16 +511,16 @@ class log_format:
                     e = np.round(e, 3)
                 return e
 
-            base_txt = f'{self.base}'
+            base_txt = f"{self.base}"
             if self.base == np.e:
-                base_txt = 'e'
+                base_txt = "e"
 
             if self.mathtex:
-                fmt_parts = (f'${base_txt}^', '{{{e}}}$')
+                fmt_parts = (f"${base_txt}^", "{{{e}}}$")
             else:
-                fmt_parts = (f'{base_txt}^', '{e}')
+                fmt_parts = (f"{base_txt}^", "{e}")
 
-            fmt = ''.join(fmt_parts)
+            fmt = "".join(fmt_parts)
             exps = [_exp(num, self.base) for num in x]
             labels = [fmt.format(e=e) for e in exps]
             return labels
@@ -560,10 +574,12 @@ class date_format:
     >>> date_format('%Y-%m-%d %H:%M', tz='EST')(x_tz)
     ['2010-01-01 00:00', '2010-01-01 07:00']
     """
-    def __init__(self, fmt='%Y-%m-%d', tz=None):
+
+    def __init__(self, fmt="%Y-%m-%d", tz=None):
         if isinstance(tz, str):
             tz = ZoneInfo(tz)
         from matplotlib.dates import DateFormatter
+
         self.formatter = DateFormatter(fmt, tz=tz)
         self.tz = tz
 
@@ -588,10 +604,12 @@ class date_format:
             tz = self.formatter.tz = x[0].tzinfo
 
             if not all(value.tzinfo == tz for value in x):
-                msg = ("Dates have different time zones. "
-                       "Choosen `{}` the time zone of the first date. "
-                       "To use a different time zone, create a "
-                       "formatter and pass the time zone.")
+                msg = (
+                    "Dates have different time zones. "
+                    "Choosen `{}` the time zone of the first date. "
+                    "To use a different time zone, create a "
+                    "formatter and pass the time zone."
+                )
                 warn(msg.format(tz.key))
 
         # The formatter is tied to axes and takes
@@ -640,17 +658,19 @@ class timedelta_format:
     >>> timedelta_format(units='d', add_units=False)(x)
     ['0', '31', '62', '93', '124']
     """
+
     abbreviations = {
-        'ns': 'ns',
-        'us': 'us',
-        'ms': 'ms',
-        's': 's',
-        'm': ' minute',
-        'h': ' hour',
-        'd': ' day',
-        'w': ' week',
-        'M': ' month',
-        'y': ' year'}
+        "ns": "ns",
+        "us": "us",
+        "ms": "ms",
+        "s": "s",
+        "m": " minute",
+        "h": " hour",
+        "d": " day",
+        "w": " week",
+        "M": " month",
+        "y": " year",
+    }
 
     def __init__(self, units=None, add_units=True, usetex=False):
         self.units = units
@@ -664,20 +684,20 @@ class timedelta_format:
 
         labels = []
         values, _units = timedelta_helper.format_info(x, self.units)
-        plural = '' if _units.endswith('s') else 's'
+        plural = "" if _units.endswith("s") else "s"
         ulabel = self.abbreviations[_units]
-        if ulabel == 'us' and self.usetex:
-            ulabel = r'$\mu s$'
+        if ulabel == "us" and self.usetex:
+            ulabel = r"$\mu s$"
         _labels = self._mpl_format(values)
 
         if not self.add_units:
             return _labels
 
         for num, num_label in zip(values, _labels):
-            s = '' if num == 1 else plural
+            s = "" if num == 1 else plural
             # 0 has no units
-            _ulabel = '' if num == 0 else ulabel+s
-            labels.append(''.join([num_label, _ulabel]))
+            _ulabel = "" if num == 0 else ulabel + s
+            labels.append("".join([num_label, _ulabel]))
 
         return labels
 
@@ -726,34 +746,33 @@ class pvalue_format:
         below = [num < self.accuracy for num in x]
 
         if self.add_p:
-            eq_fmt = 'p={:g}'.format
-            below_label = 'p<{:g}'.format(self.accuracy)
+            eq_fmt = "p={:g}".format
+            below_label = "p<{:g}".format(self.accuracy)
         else:
-            eq_fmt = '{:g}'.format
-            below_label = '<{:g}'.format(self.accuracy)
+            eq_fmt = "{:g}".format
+            below_label = "<{:g}".format(self.accuracy)
 
-        labels = [below_label if b else eq_fmt(i)
-                  for i, b in zip(x, below)]
+        labels = [below_label if b else eq_fmt(i) for i, b in zip(x, below)]
         return labels
 
 
-def ordinal(n, prefix='', suffix='', big_mark=''):
+def ordinal(n, prefix="", suffix="", big_mark=""):
     # General Case: 0th, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th
     # Special Case: 10th, 11th, 12th, 13th
     n = int(n)
     idx = np.min((n % 10, 4))
-    _suffix = ['th', 'st', 'nd', 'rd', 'th'][idx]
+    _suffix = ["th", "st", "nd", "rd", "th"][idx]
     if 11 <= (n % 100) <= 13:
-        _suffix = 'th'
+        _suffix = "th"
 
     if big_mark:
-        s = '{:,}'.format(n)
-        if big_mark != ',':
-            s = s.replace(',', big_mark)
+        s = "{:,}".format(n)
+        if big_mark != ",":
+            s = s.replace(",", big_mark)
     else:
-        s = '{}'.format(n)
+        s = "{}".format(n)
 
-    return '{}{}{}{}'.format(prefix, s, _suffix, suffix)
+    return "{}{}{}{}".format(prefix, s, _suffix, suffix)
 
 
 class ordinal_format:
@@ -777,14 +796,16 @@ class ordinal_format:
     >>> ordinal_format(suffix=' Number')(range(11, 15))
     ['11th Number', '12th Number', '13th Number', '14th Number']
     """
-    def __init__(self, prefix='', suffix='', big_mark=''):
+
+    def __init__(self, prefix="", suffix="", big_mark=""):
         self.prefix = prefix
         self.suffix = suffix
         self.big_mark = big_mark
 
     def __call__(self, x):
-        labels = [ordinal(num, self.prefix, self.suffix, self.big_mark)
-                  for num in x]
+        labels = [
+            ordinal(num, self.prefix, self.suffix, self.big_mark) for num in x
+        ]
         return labels
 
 
@@ -812,31 +833,48 @@ class number_bytes_format:
     >>> number_bytes_format(units='si')(x)
     ['1 kB', '1 MB', '400 kB']
     """
-    def __init__(self, symbol='auto', units='binary', fmt='{:.0f} '):
+
+    def __init__(self, symbol="auto", units="binary", fmt="{:.0f} "):
         self.symbol = symbol
         self.units = units
         self.fmt = fmt
 
-        if units == 'si':
+        if units == "si":
             self.base = 1000
             self._all_symbols = [
-                'B', 'kB', 'MB', 'GB', 'TB',
-                'PB', 'EB', 'ZB', 'YB']
+                "B",
+                "kB",
+                "MB",
+                "GB",
+                "TB",
+                "PB",
+                "EB",
+                "ZB",
+                "YB",
+            ]
         else:
             self.base = 1024
             self._all_symbols = [
-                'B', 'KiB', 'MiB', 'GiB', 'TiB',
-                'PiB', 'EiB', 'ZiB', 'YiB']
+                "B",
+                "KiB",
+                "MiB",
+                "GiB",
+                "TiB",
+                "PiB",
+                "EiB",
+                "ZiB",
+                "YiB",
+            ]
 
         # possible exponents of base: eg 1000^1, 1000^2, 1000^3, ...
-        exponents = np.arange(1, len(self._all_symbols)+1, dtype=float)
-        self._powers = self.base ** exponents
-        self._validate_symbol(symbol, ['auto'] + self._all_symbols)
+        exponents = np.arange(1, len(self._all_symbols) + 1, dtype=float)
+        self._powers = self.base**exponents
+        self._validate_symbol(symbol, ["auto"] + self._all_symbols)
 
     def __call__(self, x):
         _all_symbols = self._all_symbols
         symbol = self.symbol
-        if symbol == 'auto':
+        if symbol == "auto":
             power = [bisect_right(self._powers, val) for val in x]
             symbols = [_all_symbols[p] for p in power]
         else:
@@ -846,11 +884,12 @@ class number_bytes_format:
         x = np.asarray(x)
         power = np.asarray(power, dtype=float)
         values = x / self.base**power
-        fmt = (self.fmt + '{}').format
+        fmt = (self.fmt + "{}").format
         labels = [fmt(v, s) for v, s in zip(values, symbols)]
         return labels
 
     def _validate_symbol(self, symbol, allowed_symbols):
         if symbol not in allowed_symbols:
             raise ValueError(
-                "Symbol must be one of {}".format(allowed_symbols))
+                "Symbol must be one of {}".format(allowed_symbols)
+            )

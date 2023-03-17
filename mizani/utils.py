@@ -4,47 +4,57 @@ from itertools import chain
 
 import numpy as np
 
-__all__ = ['round_any', 'min_max', 'match',
-           'precision', 'first_element', 'multitype_sort',
-           'same_log10_order_of_magnitude',
-           'identity', 'get_categories'
-           ]
+__all__ = [
+    "round_any",
+    "min_max",
+    "match",
+    "precision",
+    "first_element",
+    "multitype_sort",
+    "same_log10_order_of_magnitude",
+    "identity",
+    "get_categories",
+]
 
-DISCRETE_KINDS = 'ObUS'
-CONTINUOUS_KINDS = 'ifuc'
+DISCRETE_KINDS = "ObUS"
+CONTINUOUS_KINDS = "ifuc"
 
-SECONDS = OrderedDict([
-    ('ns', 1e-9),        # nanosecond
-    ('us', 1e-6),        # microsecond
-    ('ms', 1e-3),        # millisecond
-    ('s', 1),            # second
-    ('m', 60),           # month
-    ('h', 3600),         # hour
-    ('d', 24*3600),      # day
-    ('w', 7*24*3600),    # week
-    ('M', 31*24*3600),   # month
-    ('y', 365*24*3600),  # year
-])
+SECONDS = OrderedDict(
+    [
+        ("ns", 1e-9),  # nanosecond
+        ("us", 1e-6),  # microsecond
+        ("ms", 1e-3),  # millisecond
+        ("s", 1),  # second
+        ("m", 60),  # month
+        ("h", 3600),  # hour
+        ("d", 24 * 3600),  # day
+        ("w", 7 * 24 * 3600),  # week
+        ("M", 31 * 24 * 3600),  # month
+        ("y", 365 * 24 * 3600),  # year
+    ]
+)
 
-NANOSECONDS = OrderedDict([
-    ('ns', 1),             # nanosecond
-    ('us', 1e3),           # microsecond
-    ('ms', 1e6),           # millisecond
-    ('s', 1e9),            # second
-    ('m', 60e9),           # month
-    ('h', 3600e9),         # hour
-    ('d', 24*3600e9),      # day
-    ('w', 7*24*3600e9),    # week
-    ('M', 31*24*3600e9),   # month
-    ('y', 365*24*3600e9),  # year
-])
+NANOSECONDS = OrderedDict(
+    [
+        ("ns", 1),  # nanosecond
+        ("us", 1e3),  # microsecond
+        ("ms", 1e6),  # millisecond
+        ("s", 1e9),  # second
+        ("m", 60e9),  # month
+        ("h", 3600e9),  # hour
+        ("d", 24 * 3600e9),  # day
+        ("w", 7 * 24 * 3600e9),  # week
+        ("M", 31 * 24 * 3600e9),  # month
+        ("y", 365 * 24 * 3600e9),  # year
+    ]
+)
 
 
 def round_any(x, accuracy, f=np.round):
     """
     Round to multiple of any number.
     """
-    if not hasattr(x, 'dtype'):
+    if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
     return f(x / accuracy) * accuracy
@@ -68,7 +78,7 @@ def min_max(x, na_rm=False, finite=True):
     out : tuple
         (minimum, maximum) of x
     """
-    if not hasattr(x, 'dtype'):
+    if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
     if na_rm and finite:
@@ -80,10 +90,10 @@ def min_max(x, na_rm=False, finite=True):
     elif finite:
         x = x[~np.isinf(x)]
 
-    if (len(x)):
+    if len(x):
         return np.min(x), np.max(x)
     else:
-        return float('-inf'), float('inf')
+        return float("-inf"), float("inf")
 
 
 def match(v1, v2, nomatch=-1, incomparables=None, start=0):
@@ -186,8 +196,7 @@ def first_element(obj):
         exception if `obj` is empty.
     """
     if isinstance(obj, Iterator):
-        raise RuntimeError(
-            "Cannot get the first element of an iterator")
+        raise RuntimeError("Cannot get the first element of an iterator")
     return next(iter(obj))
 
 
@@ -214,7 +223,7 @@ def multitype_sort(a):
     for x in a:
         t = type(x)
         if t in numbers:
-            types['number'].append(x)
+            types["number"].append(x)
         else:
             types[t].append(x)
 
@@ -242,8 +251,8 @@ def same_log10_order_of_magnitude(x, delta=0.1):
     delta : float
         Fuzz factor for approximation. It is multiplicative.
     """
-    dmin = np.log10(np.min(x)*(1-delta))
-    dmax = np.log10(np.max(x)*(1+delta))
+    dmin = np.log10(np.min(x) * (1 - delta))
+    dmax = np.log10(np.max(x) * (1 + delta))
     return np.floor(dmin) == np.floor(dmax)
 
 
@@ -272,7 +281,7 @@ def get_categories(x):
         return x.cat.categories  # series
     except AttributeError:
         try:
-            return x.categories   # plain categorical
+            return x.categories  # plain categorical
         except AttributeError:
             raise TypeError("x is the wrong type, it has no categories")
 

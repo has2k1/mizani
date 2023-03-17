@@ -31,24 +31,41 @@ from matplotlib.ticker import MaxNLocator
 
 from .utils import NANOSECONDS, SECONDS, log, min_max
 
-__all__ = ['mpl_breaks', 'log_breaks', 'minor_breaks',
-           'trans_minor_breaks', 'date_breaks',
-           'timedelta_breaks', 'extended_breaks']
+__all__ = [
+    "mpl_breaks",
+    "log_breaks",
+    "minor_breaks",
+    "trans_minor_breaks",
+    "date_breaks",
+    "timedelta_breaks",
+    "extended_breaks",
+]
 
 
 # The break calculations rely on MPL locators to do
 # the heavylifting. It may be more convinient to lift
 # the calculations out of MPL.
 
-class DateLocator(AutoDateLocator):
 
+class DateLocator(AutoDateLocator):
     def __init__(self):
-        AutoDateLocator.__init__(self, minticks=5,
-                                 interval_multiples=True)
+        AutoDateLocator.__init__(self, minticks=5, interval_multiples=True)
         # Remove 4 and 400
         self.intervald[YEARLY] = [
-            1, 2, 5, 10, 20, 50, 100, 200, 500,
-            1000, 2000, 5000, 10000]
+            1,
+            2,
+            5,
+            10,
+            20,
+            50,
+            100,
+            200,
+            500,
+            1000,
+            2000,
+            5000,
+            10000,
+        ]
         self.create_dummy_axis()
 
     def tick_values(self, vmin, vmax):
@@ -75,6 +92,7 @@ class mpl_breaks:
     >>> mpl_breaks(nbins=2)(limits)
     array([  0.,   5.,  10.])
     """
+
     def __init__(self, *args, **kwargs):
         self.locator = MaxNLocator(*args, **kwargs)
 
@@ -156,20 +174,17 @@ class log_breaks:
             base = float(base)
 
         if _max == _min:
-            return base ** _min
+            return base**_min
 
         # Try getting breaks at the integer powers of the base
         # e.g [1, 100, 10000, 1000000]
         # If there are too few breaks, try other points using the
         # _log_sub_breaks
-        by = int(np.floor((_max-_min)/n)) + 1
+        by = int(np.floor((_max - _min) / n)) + 1
         for step in range(by, 0, -1):
-            breaks = np.array([base ** i for i in range(_min, _max+1, step)])
-            relevant_breaks = (
-                (limits[0] <= breaks) &
-                (breaks <= limits[1])
-            )
-            if np.sum(relevant_breaks) >= n-2:
+            breaks = np.array([base**i for i in range(_min, _max + 1, step)])
+            relevant_breaks = (limits[0] <= breaks) & (breaks <= limits[1])
+            if np.sum(relevant_breaks) >= n - 2:
                 return breaks
 
         return _log_sub_breaks(n=n, base=base)(limits)
@@ -221,35 +236,30 @@ class _log_sub_breaks:
             return np.min(np.diff(log_arr))
 
         if self.base == 2:
-            return [base ** i for i in range(_min, _max+1)]
+            return [base**i for i in range(_min, _max + 1)]
 
-        candidate = np.arange(base+1)
+        candidate = np.arange(base + 1)
         candidate = np.compress(
-            (1 < candidate) & (candidate < base),
-            candidate
+            (1 < candidate) & (candidate < base), candidate
         )
 
         while len(candidate):
             best = np.argmax([delta(x) for x in candidate])
             steps.append(candidate[best])
             candidate = np.delete(candidate, best)
-            _factors = [base ** i for i in range(_min, _max+1)]
-            breaks = np.array([f*s for f, s in product(_factors, steps)])
-            relevant_breaks = (
-                (limits[0] <= breaks) & (breaks <= limits[1])
-            )
+            _factors = [base**i for i in range(_min, _max + 1)]
+            breaks = np.array([f * s for f, s in product(_factors, steps)])
+            relevant_breaks = (limits[0] <= breaks) & (breaks <= limits[1])
 
-            if np.sum(relevant_breaks) >= n-2:
+            if np.sum(relevant_breaks) >= n - 2:
                 breaks = np.sort(breaks)
-                lower_end = np.max([
-                    np.min(np.where(limits[0] <= breaks))-1,
-                    0
-                ])
-                upper_end = np.min([
-                    np.max(np.where(breaks <= limits[1]))+1,
-                    len(breaks)
-                ])
-                return breaks[lower_end:upper_end+1]
+                lower_end = np.max(
+                    [np.min(np.where(limits[0] <= breaks)) - 1, 0]
+                )
+                upper_end = np.min(
+                    [np.max(np.where(breaks <= limits[1])) + 1, len(breaks)]
+                )
+                return breaks[lower_end : upper_end + 1]
         else:
             return extended_breaks(n=n)(limits)
 
@@ -280,6 +290,7 @@ class minor_breaks:
     >>> minor_breaks()([1, 2], (1, 2), 3)
     array([1.25, 1.5 , 1.75])
     """
+
     def __init__(self, n=1):
         self.n = n
 
@@ -319,19 +330,16 @@ class minor_breaks:
         diff = np.diff(major)
         step = diff[0]
         if len(diff) > 1 and all(diff == step):
-            major = np.hstack([major[0]-step,
-                               major,
-                               major[-1]+step])
+            major = np.hstack([major[0] - step, major, major[-1] + step])
 
         mbreaks = []
-        factors = np.arange(1, n+1)
+        factors = np.arange(1, n + 1)
         for lhs, rhs in zip(major[:-1], major[1:]):
-            sep = (rhs - lhs)/(n+1)
+            sep = (rhs - lhs) / (n + 1)
             mbreaks.append(lhs + factors * sep)
 
         minor = np.hstack(mbreaks)
-        minor = minor.compress((limits[0] <= minor) &
-                               (minor <= limits[1]))
+        minor = minor.compress((limits[0] <= minor) & (minor <= limits[1]))
         return minor
 
 
@@ -373,6 +381,7 @@ class trans_minor_breaks:
     >>> sqrt_trans().minor_breaks(major, limits, 4)
     array([2.8, 4.6, 6.4, 8.2])
     """
+
     def __init__(self, trans, n=1):
         self.trans = trans
         self.n = n
@@ -401,7 +410,8 @@ class trans_minor_breaks:
         if not self.trans.dataspace_is_numerical:
             raise TypeError(
                 "trans_minor_breaks can only be used for data "
-                "whose format is numerical.")
+                "whose format is numerical."
+            )
 
         if limits is None:
             limits = min_max(major)
@@ -429,24 +439,24 @@ class trans_minor_breaks:
         trans = trans if isinstance(trans, type) else trans.__class__
         # so far we are only certain about this extending stuff
         # making sense for log transform
-        is_log = trans.__name__.startswith('log')
+        is_log = trans.__name__.startswith("log")
         diff = np.diff(major)
         step = diff[0]
         if is_log and all(diff == step):
-            major = np.hstack([major[0]-step, major, major[-1]+step])
+            major = np.hstack([major[0] - step, major, major[-1] + step])
         return major
 
 
 # Matplotlib's YearLocator uses different named
 # arguments than the others
 LOCATORS = {
-    'second': SecondLocator,
-    'minute': MinuteLocator,
-    'hour': HourLocator,
-    'day': DayLocator,
-    'week': WeekdayLocator,
-    'month': MonthLocator,
-    'year': lambda interval: YearLocator(base=interval)
+    "second": SecondLocator,
+    "minute": MinuteLocator,
+    "hour": HourLocator,
+    "day": DayLocator,
+    "week": WeekdayLocator,
+    "month": MonthLocator,
+    "year": lambda interval: YearLocator(base=interval),
 }
 
 
@@ -480,6 +490,7 @@ class date_breaks:
     >>> [d.year for d in breaks(limits)]
     [2008, 2012, 2016, 2020, 2024, 2028]
     """
+
     def __init__(self, width=None):
         if not width:
             locator = DateLocator()
@@ -487,7 +498,7 @@ class date_breaks:
             # Parse the width specification
             # e.g. '10 weeks' => (10, week)
             _n, units = width.strip().lower().split()
-            interval, units = int(_n), units.rstrip('s')
+            interval, units = int(_n), units.rstrip("s")
             locator = LOCATORS[units](interval=interval)
         self.locator = locator
 
@@ -536,6 +547,7 @@ class timedelta_breaks:
     >>> [val.total_seconds()/(365*24*60*60)for val in major]
     [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
     """
+
     def __init__(self, n=5, Q=(1, 2, 5, 10)):
         self._breaks_func = extended_breaks(n=n, Q=Q)
 
@@ -589,6 +601,7 @@ class timedelta_helper:
 
     See, :func:`timedelta_format`
     """
+
     def __init__(self, x, units=None):
         self.x = x
         self.type = type(x[0])
@@ -600,12 +613,12 @@ class timedelta_helper:
 
     @classmethod
     def determine_package(cls, td):
-        if hasattr(td, 'components'):
-            package = 'pandas'
-        elif hasattr(td, 'total_seconds'):
-            package = 'cpython'
+        if hasattr(td, "components"):
+            package = "pandas"
+        elif hasattr(td, "total_seconds"):
+            package = "cpython"
         else:
-            msg = '{} format not yet supported.'
+            msg = "{} format not yet supported."
             raise ValueError(msg.format(td.__class__))
         return package
 
@@ -625,33 +638,35 @@ class timedelta_helper:
         # and 9 minutes are represented in seconds. And so on.
         ts_range = self.value(max(sequence)) - self.value(min(sequence))
         package = self.determine_package(sequence[0])
-        if package == 'pandas':
+        if package == "pandas":
             cuts = [
-                (0.9, 'us'),
-                (0.9, 'ms'),
-                (0.9, 's'),
-                (9, 'm'),
-                (6, 'h'),
-                (4, 'd'),
-                (4, 'w'),
-                (4, 'M'),
-                (3, 'y')]
+                (0.9, "us"),
+                (0.9, "ms"),
+                (0.9, "s"),
+                (9, "m"),
+                (6, "h"),
+                (4, "d"),
+                (4, "w"),
+                (4, "M"),
+                (3, "y"),
+            ]
             denomination = NANOSECONDS
-            base_units = 'ns'
+            base_units = "ns"
         else:
             cuts = [
-                (0.9, 's'),
-                (9, 'm'),
-                (6, 'h'),
-                (4, 'd'),
-                (4, 'w'),
-                (4, 'M'),
-                (3, 'y')]
+                (0.9, "s"),
+                (9, "m"),
+                (6, "h"),
+                (4, "d"),
+                (4, "w"),
+                (4, "M"),
+                (3, "y"),
+            ]
             denomination = SECONDS
-            base_units = 'ms'
+            base_units = "ms"
 
         for size, units in reversed(cuts):
-            if ts_range >= size*denomination[units]:
+            if ts_range >= size * denomination[units]:
                 return units
 
         return base_units
@@ -660,7 +675,7 @@ class timedelta_helper:
         """
         Return the numeric value representation on a timedelta
         """
-        if self.package == 'pandas':
+        if self.package == "pandas":
             return td.value
         else:
             return td.total_seconds()
@@ -669,8 +684,8 @@ class timedelta_helper:
         """
         Minimum and Maximum to use for computing breaks
         """
-        _min = self.limits[0]/self.factor
-        _max = self.limits[1]/self.factor
+        _min = self.limits[0] / self.factor
+        _max = self.limits[1] / self.factor
         return _min, _max
 
     def timedelta_to_numeric(self, timedeltas):
@@ -683,15 +698,15 @@ class timedelta_helper:
         """
         Convert sequence of numerics to timedelta
         """
-        if self.package == 'pandas':
-            return [self.type(int(x*self.factor), units='ns')
-                    for x in numerics]
+        if self.package == "pandas":
+            return [
+                self.type(int(x * self.factor), units="ns") for x in numerics
+            ]
         else:
-            return [self.type(seconds=x*self.factor)
-                    for x in numerics]
+            return [self.type(seconds=x * self.factor) for x in numerics]
 
     def get_scaling_factor(self, units):
-        if self.package == 'pandas':
+        if self.package == "pandas":
             return NANOSECONDS[units]
         else:
             return SECONDS[units]
@@ -702,10 +717,10 @@ class timedelta_helper:
         appropriate units. The appropriate units are those
         determined with the object is initialised.
         """
-        if self.package == 'pandas':
-            return td.value/NANOSECONDS[self.units]
+        if self.package == "pandas":
+            return td.value / NANOSECONDS[self.units]
         else:
-            return td.total_seconds()/SECONDS[self.units]
+            return td.total_seconds() / SECONDS[self.units]
 
 
 class extended_breaks:
@@ -743,8 +758,14 @@ class extended_breaks:
     Additional Credit to Justin Talbot on whose code this
     implementation is almost entirely based.
     """
-    def __init__(self, n=5, Q=[1, 5, 2, 2.5, 4, 3],
-                 only_inside=False, w=[0.25, 0.2, 0.5, 0.05]):
+
+    def __init__(
+        self,
+        n=5,
+        Q=[1, 5, 2, 2.5, 4, 3],
+        only_inside=False,
+        w=[0.25, 0.2, 0.5, 0.05],
+    ):
         self.Q = Q
         self.only_inside = only_inside
         self.w = w
@@ -753,47 +774,50 @@ class extended_breaks:
         self.Q_index = {q: i for i, q in enumerate(Q)}
 
     def coverage(self, dmin, dmax, lmin, lmax):
-        p1 = (dmax-lmax)**2
-        p2 = (dmin-lmin)**2
-        p3 = (0.1*(dmax-dmin))**2
-        return 1 - 0.5*(p1+p2)/p3
+        p1 = (dmax - lmax) ** 2
+        p2 = (dmin - lmin) ** 2
+        p3 = (0.1 * (dmax - dmin)) ** 2
+        return 1 - 0.5 * (p1 + p2) / p3
 
     def coverage_max(self, dmin, dmax, span):
-        range = dmax-dmin
+        range = dmax - dmin
         if span > range:
-            half = (span-range)/2.0
-            return 1 - (half**2) / (0.1*range)**2
+            half = (span - range) / 2.0
+            return 1 - (half**2) / (0.1 * range) ** 2
         else:
             return 1
 
     def density(self, k, dmin, dmax, lmin, lmax):
-        r = (k-1.0) / (lmax-lmin)
-        rt = (self.n-1) / (max(lmax, dmax) - min(lmin, dmin))
-        return 2 - max(r/rt, rt/r)
+        r = (k - 1.0) / (lmax - lmin)
+        rt = (self.n - 1) / (max(lmax, dmax) - min(lmin, dmin))
+        return 2 - max(r / rt, rt / r)
 
     def density_max(self, k):
         if k >= self.n:
-            return 2 - (k-1.0)/(self.n-1.0)
+            return 2 - (k - 1.0) / (self.n - 1.0)
         else:
             return 1
 
     def simplicity(self, q, j, lmin, lmax, lstep):
         eps = 1e-10
         n = len(self.Q)
-        i = self.Q_index[q]+1
+        i = self.Q_index[q] + 1
 
-        if ((lmin % lstep < eps or (lstep - lmin % lstep) < eps) and
-                lmin <= 0 and lmax >= 0):
+        if (
+            (lmin % lstep < eps or (lstep - lmin % lstep) < eps)
+            and lmin <= 0
+            and lmax >= 0
+        ):
             v = 1
         else:
             v = 0
-        return (n-i)/(n-1.0) + v - j
+        return (n - i) / (n - 1.0) + v - j
 
     def simplicity_max(self, q, j):
         n = len(self.Q)
-        i = self.Q_index[q]+1
+        i = self.Q_index[q] + 1
         v = 1
-        return (n-i)/(n-1.0) + v - j
+        return (n - i) / (n - 1.0) + v - j
 
     def legibility(self, lmin, lmax, lstep):
         # Legibility depends on fontsize, rotation, overlap ... i.e.
@@ -838,41 +862,44 @@ class extended_breaks:
         best_score = -2
         j = 1
 
-        while j < float('inf'):
+        while j < float("inf"):
             for q in Q:
                 sm = simplicity_max(q, j)
 
-                if w[0]*sm + w[1] + w[2] + w[3] < best_score:
-                    j = float('inf')
+                if w[0] * sm + w[1] + w[2] + w[3] < best_score:
+                    j = float("inf")
                     break
 
                 k = 2
-                while k < float('inf'):
+                while k < float("inf"):
                     dm = density_max(k)
 
-                    if w[0]*sm + w[1] + w[2]*dm + w[3] < best_score:
+                    if w[0] * sm + w[1] + w[2] * dm + w[3] < best_score:
                         break
 
-                    delta = (dmax-dmin)/(k+1)/j/q
+                    delta = (dmax - dmin) / (k + 1) / j / q
                     z = ceil(log10(delta))
 
-                    while z < float('inf'):
-                        step = j*q*(10**z)
-                        cm = coverage_max(dmin, dmax, step*(k-1))
+                    while z < float("inf"):
+                        step = j * q * (10**z)
+                        cm = coverage_max(dmin, dmax, step * (k - 1))
 
-                        if w[0]*sm + w[1]*cm + w[2]*dm + w[3] < best_score:
+                        if (
+                            w[0] * sm + w[1] * cm + w[2] * dm + w[3]
+                            < best_score
+                        ):
                             break
 
-                        min_start = int(floor(dmax/step)*j - (k-1)*j)
-                        max_start = int(ceil(dmin/step)*j)
+                        min_start = int(floor(dmax / step) * j - (k - 1) * j)
+                        max_start = int(ceil(dmin / step) * j)
 
                         if min_start > max_start:
-                            z = z+1
+                            z = z + 1
                             break
 
-                        for start in range(min_start, max_start+1):
-                            lmin = start * (step/j)
-                            lmax = lmin + step*(k-1)
+                        for start in range(min_start, max_start + 1):
+                            lmin = start * (step / j)
+                            lmax = lmin + step * (k - 1)
                             lstep = step
 
                             s = simplicity(q, j, lmin, lmax, lstep)
@@ -880,19 +907,20 @@ class extended_breaks:
                             d = density(k, dmin, dmax, lmin, lmax)
                             l = legibility(lmin, lmax, lstep)
 
-                            score = w[0]*s + w[1]*c + w[2]*d + w[3]*l
+                            score = w[0] * s + w[1] * c + w[2] * d + w[3] * l
 
-                            if (score > best_score and
-                                    (not only_inside or
-                                     (lmin >= dmin and lmax <= dmax))):
+                            if score > best_score and (
+                                not only_inside
+                                or (lmin >= dmin and lmax <= dmax)
+                            ):
                                 best_score = score
                                 best = (lmin, lmax, lstep, q, k)
-                        z = z+1
-                    k = k+1
-            j = j+1
+                        z = z + 1
+                    k = k + 1
+            j = j + 1
 
         try:
-            locs = best[0] + np.arange(best[4])*best[2]
+            locs = best[0] + np.arange(best[4]) * best[2]
         except UnboundLocalError:
             locs = []
         return locs

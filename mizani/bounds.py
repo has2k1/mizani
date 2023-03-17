@@ -27,9 +27,17 @@ import pandas.api.types as pdtypes
 
 from .utils import first_element
 
-__all__ = ['censor', 'expand_range', 'rescale', 'rescale_max',
-           'rescale_mid', 'squish_infinite', 'zero_range',
-           'expand_range_distinct', 'squish']
+__all__ = [
+    "censor",
+    "expand_range",
+    "rescale",
+    "rescale_max",
+    "rescale_mid",
+    "squish_infinite",
+    "zero_range",
+    "expand_range_distinct",
+    "squish",
+]
 
 
 def rescale(x, to=(0, 1), _from=None):
@@ -103,7 +111,7 @@ def rescale_mid(x, to=(0, 1), _from=None, mid=0):
         array_like = False
         x = [x]
 
-    if not hasattr(x, 'dtype'):
+    if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
     if _from is None:
@@ -111,7 +119,7 @@ def rescale_mid(x, to=(0, 1), _from=None, mid=0):
     else:
         _from = np.asarray(_from)
 
-    if (zero_range(_from) or zero_range(to)):
+    if zero_range(_from) or zero_range(to):
         out = np.repeat(np.mean(to), len(x))
     else:
         extent = 2 * np.max(np.abs(_from - mid))
@@ -179,7 +187,7 @@ def rescale_max(x, to=(0, 1), _from=None):
         array_like = False
         x = [x]
 
-    if not hasattr(x, 'dtype'):
+    if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
     if _from is None:
@@ -190,7 +198,7 @@ def rescale_max(x, to=(0, 1), _from=None):
     elif np.all(x == 0) and _from[1] == 0:
         out = np.repeat(to[1], len(x))
     else:
-        out = x/_from[1] * to[1]
+        out = x / _from[1] * to[1]
 
     if not array_like:
         out = out[0]
@@ -223,7 +231,7 @@ def squish_infinite(x, range=(0, 1)):
     """
     xtype = type(x)
 
-    if not hasattr(x, 'dtype'):
+    if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
     x[x == -np.inf] = range[0]
@@ -262,7 +270,7 @@ def squish(x, range=(0, 1), only_finite=True):
     """
     xtype = type(x)
 
-    if not hasattr(x, 'dtype'):
+    if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
     finite = np.isfinite(x) if only_finite else True
@@ -321,32 +329,36 @@ def censor(x, range=(0, 1), only_finite=True):
         return x
 
     py_time_types = (datetime.datetime, datetime.timedelta)
-    np_pd_time_types = (pd.Timestamp, pd.Timedelta,
-                        np.datetime64, np.timedelta64)
+    np_pd_time_types = (
+        pd.Timestamp,
+        pd.Timedelta,
+        np.datetime64,
+        np.timedelta64,
+    )
     x0 = first_element(x)
 
     # Yes, we want type not isinstance
     if type(x0) in py_time_types:
-        return _censor_with(x, range, 'NaT')
+        return _censor_with(x, range, "NaT")
 
-    if not hasattr(x, 'dtype') and isinstance(x0, np_pd_time_types):
-        return _censor_with(x, range, type(x0)('NaT'))
+    if not hasattr(x, "dtype") and isinstance(x0, np_pd_time_types):
+        return _censor_with(x, range, type(x0)("NaT"))
 
     x_array = np.asarray(x)
     if pdtypes.is_number(x0) and not isinstance(x0, np.timedelta64):
-        null = float('nan')
+        null = float("nan")
     elif isinstance(x0, pd.Timestamp):
-        null = pd.Timestamp('NaT')
+        null = pd.Timestamp("NaT")
     elif pdtypes.is_datetime64_dtype(x_array):
-        null = np.datetime64('NaT')
+        null = np.datetime64("NaT")
     elif isinstance(x0, pd.Timedelta):
-        null = pd.Timedelta('NaT')
+        null = pd.Timedelta("NaT")
     elif pdtypes.is_timedelta64_dtype(x_array):
-        null = np.timedelta64('NaT')
+        null = np.timedelta64("NaT")
     else:
         raise ValueError(
-            "Do not know how to censor values of type "
-            "{}".format(type(x0)))
+            "Do not know how to censor values of type " "{}".format(type(x0))
+        )
 
     if only_finite:
         try:
@@ -356,16 +368,18 @@ def censor(x, range=(0, 1), only_finite=True):
     else:
         finite = np.repeat(True, len(x))
 
-    if hasattr(x, 'dtype'):
+    if hasattr(x, "dtype"):
         # Ignore RuntimeWarning when x contains nans
-        with np.errstate(invalid='ignore'):
+        with np.errstate(invalid="ignore"):
             outside = (x < range[0]) | (x > range[1])
         bool_idx = finite & outside
         x = x.copy()
         x[bool_idx] = null
     else:
-        x = [null if not range[0] <= val <= range[1] and f else val
-             for val, f in zip(x, finite)]
+        x = [
+            null if not range[0] <= val <= range[1] and f else val
+            for val, f in zip(x, finite)
+        ]
 
     return x
 
@@ -374,8 +388,7 @@ def _censor_with(x, range, value=None):
     """
     Censor any values outside of range with ``None``
     """
-    return [val if range[0] <= val <= range[1] else value
-            for val in x]
+    return [val if range[0] <= val <= range[1] else value for val in x]
 
 
 def zero_range(x, tol=np.finfo(float).eps * 100):
@@ -414,7 +427,7 @@ def zero_range(x, tol=np.finfo(float).eps * 100):
         return True
 
     if len(x) != 2:
-        raise ValueError('x must be length 1 or 2')
+        raise ValueError("x must be length 1 or 2")
 
     # Also deals with array_likes that have non-standard indices
     x = sorted(x)
@@ -423,6 +436,7 @@ def zero_range(x, tol=np.finfo(float).eps * 100):
     # datetime - pandas, cpython
     if isinstance(low, (pd.Timestamp, datetime.datetime)):
         from matplotlib.dates import date2num
+
         # date2num include timezone info, .toordinal() does not
         low, high = date2num(x)
     # datetime - numpy
@@ -511,10 +525,10 @@ def expand_range(range, mul=0, add=0, zero_width=1):
 
     # The expansion cases
     if zero_range(x):
-        new = x[0]-zero_width/2, x[0]+zero_width/2
+        new = x[0] - zero_width / 2, x[0] + zero_width / 2
     else:
         dx = (x[1] - x[0]) * mul + add
-        new = x[0]-dx, x[1]+dx
+        new = x[0] - dx, x[1] + dx
 
     return new
 

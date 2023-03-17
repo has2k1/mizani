@@ -3,7 +3,6 @@ name: build
 on: [push, pull_request]
 
 jobs:
-  # Unittests
   unittests:
     runs-on: ubuntu-latest
 
@@ -25,17 +24,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Packages
-        shell: bash -l {0}
+        shell: bash
         run: |
-          pip install -e ".[testing]"
+          pip install -e ".[test]"
 
       - name: Environment Information
-        shell: bash -l {0}
+        shell: bash
         run: |
           pip list
 
       - name: Run Tests
-        shell: bash -l {0}
+        shell: bash
         run: |
           coverage erase
           make test
@@ -46,8 +45,7 @@ jobs:
           fail_ci_if_error: true
           name: "py${{ matrix.python-version }}"
 
-  # Linting
-  lint:
+  lint-and-format:
     runs-on: ubuntu-latest
 
     # We want to run on external PRs, but not on our own internal PRs as they'll be run
@@ -66,19 +64,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Packages
-        shell: bash -l {0}
-        run: pip install ruff
+      - name: Install Linting & Formatting Packages
+        shell: bash
+        run: |
+          pip install ruff
+          pip install black
 
       - name: Environment Information
-        shell: bash -l {0}
+        shell: bash
         run: pip list
 
-      - name: Run Tests
-        shell: bash -l {0}
+      - name: Check lint with Ruff
+        shell: bash
         run: make lint
 
-  # Documentation
+      - name: Check format with Black
+        shell: bash
+        run: make format
+
   documentation:
     runs-on: ubuntu-latest
 
@@ -100,16 +103,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Packages
-        shell: bash -l {0}
+        shell: bash
         run: |
           pip install -e ".[doc]"
 
       - name: Environment Information
-        shell: bash -l {0}
+        shell: bash
         run: pip list
 
       - name: Build Documentation
-        shell: bash -l {0}
+        shell: bash
         run: |
           pushd doc
           SPHINXOPTS=-W

@@ -1,4 +1,4 @@
-.PHONY: clean-pyc clean-build doc clean
+.PHONY: clean-pyc clean-build doc clean build
 BROWSER := python -mwebbrowser
 
 help:
@@ -42,9 +42,17 @@ ruff:
 ruff-isort:
 	ruff --select I001 --quiet mizani $(args)
 
+format:
+	black . --check
+
+format-fix:
+	black .
+
 lint: ruff ruff-isort
 
 lint-fix: ruff ruff-isort
+
+fix: format-fix lint-fix
 
 test:
 	pytest
@@ -66,8 +74,14 @@ release: clean
 	bash ./tools/release.sh
 
 dist: clean
-	python setup.py sdist bdist_wheel
+	python -m build
 	ls -l dist
 
+build: dist
+
+develop: clean-pyc
+	pip install -e ".[all]"
+
 install: clean
-	python setup.py install
+	ls -l dist
+	pip install .

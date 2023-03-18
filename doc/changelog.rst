@@ -14,6 +14,8 @@ Bug Fixes
   a pandas series with an index that did not start at 0 could not
   be transformed.
 
+- Install tzdata on pyiodide/emscripten. :issue:`27`
+
 v0.8.1
 ------
 

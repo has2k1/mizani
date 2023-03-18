@@ -88,10 +88,10 @@ version_scheme = 'post-release'
 ########## Tool - pytest ##########
 [tool.pytest.ini_options]
 testpaths = [
-    "mizani/tests"
+    "mizani"
 ]
-doctest_optionflags = "ALLOW_UNICODE ALLOW_BYTES NORMALIZE_WHITESPACE"
 addopts = "--pyargs --cov=mizani --cov-report=xml --doctest-modules --doctest-ignore-import-errors"
+doctest_optionflags = "ALLOW_BYTES NORMALIZE_WHITESPACE"
 
 ########## Tool - Coverage ##########
 # Coverage.py
@@ -106,6 +106,7 @@ omit = [
    "mizani/_version.py",
    "mizani/external/*",
    "mizani/tests/*",
+   "mizani/typing.py",
 ]
 disable_warnings = ["include-ignored"]
 
@@ -114,7 +115,10 @@ exclude_lines = [
    "pragma: no cover",
    "^def test_",
    "if __name__ == .__main__.:",
-   "while k < float\\('inf'\\):"
+   "while k < float\\('inf'\\):",
+   "if typing.TYPE_CHECKING:",
+   "except ImportError:",
+   "except PackageNotFoundError:",
 ]
 precision = 1
 

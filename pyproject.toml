@@ -78,8 +78,11 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 ########## Tool - Setuptools ##########
-[tool.setuptools]
-packages = ["mizani"]
+# If you only specify the top-level package (=mizani) setuptools complains
+# about not listing the sub-packages. Since we want every sub-package in the
+# mizani package, it is easier to use find directive.
+[tool.setuptools.packages.find]
+include = ["mizani*"]
 
 [tool.setuptools_scm]
 fallback_version = "999"

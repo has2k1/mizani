@@ -13,7 +13,10 @@ two or more points. Therefore palettes must be created that
 enforce such restrictions. This is the reason for the ``*_pal``
 functions that create and return the actual palette functions.
 """
+from __future__ import annotations
+
 import colorsys
+import typing
 from warnings import warn
 
 import numpy as np
@@ -22,6 +25,12 @@ import pandas as pd
 from .bounds import rescale
 from .external import crayon_rgb, husl, xkcd_rgb
 from .utils import identity
+
+if typing.TYPE_CHECKING:
+    from typing import Literal
+
+    from mizani.colors.typing import ColorScheme, ColorSchemeShort
+
 
 __all__ = [
     "hls_palette",
@@ -335,7 +344,11 @@ def hue_pal(h=0.01, l=0.6, s=0.65, color_space="hls"):
     return _hue_pal
 
 
-def brewer_pal(type="seq", palette=1, direction=1):
+def brewer_pal(
+    type: ColorScheme | ColorSchemeShort = "seq",
+    palette: int = 1,
+    direction: Literal[1, -1] = 1,
+):
     """
     Utility for making a brewer palette
 
@@ -377,49 +390,35 @@ def brewer_pal(type="seq", palette=1, direction=1):
     The available color names for each palette type can be
     obtained using the following code::
 
-        import palettable.colorbrewer as brewer
+        from mizani.colors.brewer import get_palette_names
 
-        print([k for k in brewer.COLOR_MAPS['Sequential'].keys()])
-        print([k for k in brewer.COLOR_MAPS['Qualitative'].keys()])
-        print([k for k in brewer.COLOR_MAPS['Diverging'].keys()])
+        print(get_palette_names("sequential"))
+        print(get_palette_names("qualitative"))
+        print(get_palette_names("diverging"))
     """
-    from . import _colorbrewer as brewer_helper
+    from .colors import brewer
 
     if direction != 1 and direction != -1:
         raise ValueError("direction should be 1 or -1.")
 
-    type = brewer_helper.full_map_type_name(type)
-    if isinstance(palette, int):
-        palette_name = brewer_helper.number_to_name(type, palette)
-    else:
-        palette_name = palette
-
-    # Get the number of colors in the palette
-    n_max = brewer_helper.num_colors(type, palette_name)
+    pal = brewer.get_color_palette(type, palette)
 
     def _brewer_pal(n):
         # Only draw the maximum allowable colors from the palette
         # and fill any remaining spots with None
-        _n = n if n <= n_max else n_max
-        try:
-            bmap = brewer_helper.get_map(palette_name, type, _n)
-        except ValueError:
-            # Some palettes have a minimum no. of colors
-            # We get around that restriction.
-            n_min = brewer_helper.min_num_colors(type, palette_name)
-            bmap = brewer_helper.get_map(palette_name, type, n_min)
-
-        hex_colors = bmap.hex_colors[:n]
-        if n > n_max:
+        _n = min(max(n, pal.min_colors), pal.max_colors)
+        color_map = pal.get_hex_swatch(_n)
+        colors = color_map[:n]
+        if n > pal.max_colors:
             msg = (
                 "Warning message:"
-                f"Brewer palette {palette_name} has a maximum "
-                f"of {n_max} colors Returning the palette you "
+                f"Brewer palette {pal.name} has a maximum "
+                f"of {pal.max_colors} colors Returning the palette you "
                 "asked for with that many colors"
             )
             warn(msg)
-            hex_colors = hex_colors + [None] * (n - n_max)
-        return hex_colors[::direction]
+            colors = colors + [None] * (n - pal.max_colors)
+        return colors[::direction]
 
     return _brewer_pal
 

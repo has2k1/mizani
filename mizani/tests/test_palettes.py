@@ -116,6 +116,26 @@ def test_brewer_pal():
         brewer_pal(direction=-2)(100)
 
 
+def test_brewer_palette_names():
+    from mizani.colors.brewer import get_palette_names
+
+    names = get_palette_names("sequential")
+    assert len(names) > 0
+
+    names = get_palette_names("qualitative")
+    assert len(names) > 0
+
+    names = get_palette_names("diverging")
+    assert len(names) > 0
+
+
+def test_brewer_palette_modules():
+    from mizani.colors.brewer import get_palette_module
+
+    with pytest.raises(ValueError):
+        get_palette_module("cyclic")
+
+
 def test_gradient_n_pal():
     palette = gradient_n_pal(["red", "blue"])
     result = palette([0, 0.25, 0.5, 0.75, 1])

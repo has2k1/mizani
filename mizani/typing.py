@@ -5,17 +5,24 @@ import typing
 if typing.TYPE_CHECKING:
     from typing import Literal, TypeAlias
 
-    BrewerMapType: TypeAlias = Literal[
-        "Diverging",
-        "Qualitative",
-        "Sequential",
-    ]
+    from mizani.colors.color_palette import palette
 
-    BrewerMapTypeAlt: TypeAlias = Literal[
-        "div",
-        "qual",
-        "seq",
+    RGB256Color: TypeAlias = tuple[int, int, int]
+    RGB256Swatch: TypeAlias = list[RGB256Color]
+    RGB256Swatches: TypeAlias = list[RGB256Swatch]
+
+    RGBHexColor: TypeAlias = str
+    RGBHexSwatch: TypeAlias = list[RGBHexColor]
+    RGBHexSwatches: TypeAlias = list[RGBHexSwatch]
+
+    ColorScheme: TypeAlias = Literal[
         "diverging",
         "qualitative",
         "sequential",
     ]
+    ColorSchemeShort: TypeAlias = Literal[
+        "div",
+        "qual",
+        "seq",
+    ]
+    ColorPalette: TypeAlias = palette

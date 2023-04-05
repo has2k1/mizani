@@ -50,7 +50,8 @@ format-fix:
 
 lint: ruff ruff-isort
 
-lint-fix: ruff ruff-isort
+lint-fix:
+	make lint args="--fix"
 
 fix: format-fix lint-fix
 

@@ -22,7 +22,7 @@ VERSION=$(echo $describe | grep "^v${release_re}${pre_re}$")
 PREVIOUS_VERSION=$(echo $describe | grep "^v${release_re}${pre_re}")
 
 if [[ $VERSION ]];  then
-   python setup.py sdist bdist_wheel
+   make dist
    twine upload dist/*
 
 elif [[ $PREVIOUS_VERSION ]]; then

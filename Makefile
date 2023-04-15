@@ -20,18 +20,11 @@ clean: clean-build clean-pyc clean-test
 clean-build:
 	rm -fr build/
 	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
 
 clean-pyc:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
 clean-test:
-	rm -fr .tox/
 	rm -f .coverage
 	rm -f coverage.xml
 	rm -fr htmlcov/
@@ -74,11 +67,11 @@ doc:
 release: clean
 	bash ./tools/release.sh
 
-dist: clean
+build: clean
 	python -m build
-	ls -l dist
 
-build: dist
+dist: build
+	ls -l dist
 
 develop: clean-pyc
 	pip install -e ".[all]"

@@ -1,11 +1,15 @@
 Changelog
 =========
 
-v0.8.2
+v0.9.0
 ------
 
-*not-yet-released*
+*2023-04-15*
 
+API Changes
+************
+
+- `palettable` dropped as a dependency.
 
 Bug Fixes
 *********

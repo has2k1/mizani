@@ -7,7 +7,7 @@ authors = [
   {name = "Hassan Kibirige", email = "has2k1@gmail.com"},
 ]
 dynamic = ["version"]
-readme = "README.rst"
+readme = "README.md"
 classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
@@ -130,7 +130,7 @@ line-length = 79
 select = ["E", "F", "C"]
 ignore = [
     "E741",  # Ambiguous l
-    "C901"  # Function is too complex
+    "C901",  # Function is too complex
 ]
 # Allow autofix for all enabled rules (when `--fix`) is provided
 fixable = ["A", "B", "C", "E", "F", "I"]

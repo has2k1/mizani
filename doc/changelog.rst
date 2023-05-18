@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.9.1
+------
+
+*not-yet-released*
+
+Bug Fixes
+*********
+
+- Fixed but in :class:`~mizani.formatters.date_format` to handle datetime
+  sequences within the same timezone but a mixed daylight saving state.
+  `(plotnine #687) <https://github.com/has2k1/plotnine/issues/687>`_
+
 v0.9.0
 ------
 

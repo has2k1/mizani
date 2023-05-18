@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import warnings
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 
 import numpy as np
 import pandas as pd
 import pytest
+import pytz
 
 try:
     from zoneinfo import ZoneInfo
@@ -161,6 +162,28 @@ def test_date_format():
     UG = ZoneInfo("Africa/Kampala")
     x = [datetime(2010, 1, 1, tzinfo=UG), datetime(2010, 1, 1, tzinfo=PCT)]
     with pytest.warns(UserWarning, match=r"different time zones"):
+        date_format()(x)
+
+    # Timezone with Daylight time
+    NY = ZoneInfo("America/New_York")
+    x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]
+    result = date_format()(x)
+    assert result == ["2023-10-01", "2023-11-01"]
+
+    # Same as above, but different tz library
+    NY = pytz.timezone("America/New_York")
+    x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]
+    result = date_format()(x)
+    assert result == ["2023-10-01", "2023-11-01"]
+
+    # Unknown Timezone
+    class myTzInfo(tzinfo):
+        def __str__(self):
+            return "None"
+
+    TZ = myTzInfo()
+    x = [datetime(2023, 10, 1, tzinfo=TZ), datetime(2023, 11, 1, tzinfo=TZ)]
+    with pytest.raises(ValueError, match=r"^Unrecognised timezone class"):
         date_format()(x)
 
 

@@ -11,7 +11,6 @@ representation of a value helps improve readability of the guide.
 """
 import re
 from bisect import bisect_right
-from warnings import warn
 
 try:
     from zoneinfo import ZoneInfo
@@ -22,7 +21,13 @@ except ImportError:
 import numpy as np
 
 from .breaks import timedelta_helper
-from .utils import match, precision, round_any, same_log10_order_of_magnitude
+from .utils import (
+    get_timezone,
+    match,
+    precision,
+    round_any,
+    same_log10_order_of_magnitude,
+)
 
 __all__ = [
     "comma_format",
@@ -601,16 +606,7 @@ class date_format:
 
         # Formatter timezone
         if self.tz is None and len(x):
-            tz = self.formatter.tz = x[0].tzinfo
-
-            if not all(value.tzinfo == tz for value in x):
-                msg = (
-                    "Dates have different time zones. "
-                    "Choosen `{}` the time zone of the first date. "
-                    "To use a different time zone, create a "
-                    "formatter and pass the time zone."
-                )
-                warn(msg.format(tz.key))
+            self.formatter.tz = get_timezone(x)
 
         # The formatter is tied to axes and takes
         # breaks in ordinal format.

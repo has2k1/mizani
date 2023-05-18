@@ -57,7 +57,7 @@ def test_log_breaks():
     # When the limits are in the same order of magnitude
     breaks = log_breaks()([35, 60])
     assert len(breaks) > 0
-    assert all([1 < b < 100 for b in breaks])
+    assert all(1 < b < 100 for b in breaks)
 
     breaks = log_breaks()([200, 800])
     npt.assert_array_equal(breaks, [100, 200, 300, 500, 1000])

@@ -323,7 +323,7 @@ def hue_pal(h=0.01, l=0.6, s=0.65, color_space="hls"):
     """
     import matplotlib.colors as mcolors
 
-    if not all([0 <= val <= 1 for val in (h, l, s)]):
+    if not all(0 <= val <= 1 for val in (h, l, s)):
         msg = (
             "hue_pal expects values to be between 0 and 1. "
             " I got h={}, l={}, s={}".format(h, l, s)

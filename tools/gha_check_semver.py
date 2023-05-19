@@ -11,7 +11,7 @@ Writes the following variables to the output file for the github step:
            - final
            - ""
 
-    2. publish_index=<publish_index>
+    2. publish_on=<publish_on>
        Possible values are:
            - pypi
            - testpypi
@@ -82,9 +82,11 @@ def output_tag_type(tag_type: TagType | None):
         print(f"tag_type={tag_type}", file=f)
 
 
-def output_publish_index(tag_type: TagType | None):
+def output_publish_on(tag_type: TagType | None):
     """
-    Write release_type to the GHA output
+    Write index (pypi or testpypi) to publish on to the GHA output
+
+    i.e. Where to release
     """
     output_file = os.environ.get("GITHUB_OUTPUT")
 
@@ -93,17 +95,17 @@ def output_publish_index(tag_type: TagType | None):
         return
 
     if tag_type in ("alpha", "beta", "candidate"):
-        publish_index = "testpypi"
+        publish_on = "testpypi"
     elif tag_type == "final":
-        publish_index = "pypi"
+        publish_on = "pypi"
     else:
-        publish_index = ""
+        publish_on = ""
 
     with open(output_file, "a") as f:
-        print(f"publish_index={publish_index}", file=f)
+        print(f"publish_on={publish_on}", file=f)
 
 
 if __name__ == "__main__":
     tag_type = get_tag_type()
     output_tag_type(tag_type)
-    output_publish_index(tag_type)
+    output_publish_on(tag_type)

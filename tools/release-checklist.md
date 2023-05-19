@@ -15,7 +15,6 @@ Release: mizani-<VERSION>
   ```sh
   git switch main
   git pull origin/main
-  git switch -c release-v<VERSION>
   make test
   make coverage
   ```

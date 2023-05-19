@@ -24,7 +24,7 @@ Release: mizani-<VERSION>
 
   </details>
 
-- [ ] Verify online [documentation](https://mizani.readthedocs.io/latest/)
+- [ ] Verify online [documentation](https://mizani.readthedocs.io/en/latest/)
 
 - [ ] Create a release branch
 

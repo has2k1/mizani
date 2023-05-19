@@ -105,11 +105,11 @@ Release: mizani-<VERSION>
     ```sh
     cd ../mizani-feestock
     git switch main
-    git pull upstream/main
-    git switch -c <VERSION>
+    git pull upstream main
+    git switch -c v<VERSION>
     nvim recipe/meta.yml
     git commit -am  "Version <VERSION>"
-    git push -u origin <VERSION>
+    git push -u origin v<VERSION>
     ```
   - [ ] Create a [PR](https://github.com/conda-forge/mizani-feedstock/pulls)
   - [ ] Complete PR (follow the steps and merge)

@@ -97,10 +97,8 @@ Release: mizani-<VERSION>
 
   <details>
 
-  ```sh
-  sha256sum dist/*.tar.gz
-  # copy hash
-  ```
+
+  - [ ] Copy _SHA256 hash_. Click view hashes, for the [Source Distribution](https://pypi.org/project/mizani/<VERSION>/#files) (`.tar.gz`).
 
   - [ ] Update [mizani-feedsock](https://github.com/conda-forge/mizani-feedstock)
 

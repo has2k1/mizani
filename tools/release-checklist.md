@@ -23,7 +23,7 @@ Release: mizani-<VERSION>
 
   </details>
 
-- [ ] Verify online [documentation](https://mizani.readthedocs.io/en/latest/)
+- [ ] The latest [online documentation](https://mizani.readthedocs.io/latest/) builds, be sure to browse
 
 - [ ] Create a release branch
 
@@ -41,14 +41,13 @@ Release: mizani-<VERSION>
 
   ```sh
   git tag -as v<VERSION>a1 -m "Version <VERSION>a1"  # e.g. <VERSION>a1, <VERSION>b1, <VERSION>rc1
-  git push
+  git push -u origin release-v<VERSION>
   ```
   - [ ] GHA [release job](https://github.com/has2k1/mizani/actions/workflows/release.yml) passes
   - [ ] Mizani test release is on [TestPyPi](https://test.pypi.org/project/mizani)
 
   </details>
 
-- [ ] The latest [online documentation](https://mizani.readthedocs.io/latest/) builds, be sure to browse
 
 - [ ] Update changelog
 

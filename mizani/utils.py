@@ -8,10 +8,13 @@ from itertools import chain
 from warnings import warn
 
 import numpy as np
+import pandas.api.types as pdtypes
 
 if typing.TYPE_CHECKING:
     from datetime import datetime
-    from typing import Sequence
+    from typing import Any, Sequence
+
+    from mizani.typing import Null
 
 
 __all__ = [
@@ -351,3 +354,34 @@ def get_timezone(x: Sequence[datetime]) -> tzinfo:
         )
         warn(msg.format(tzname0))
     return info
+
+def get_null_value(x: Any) -> Null:
+    """
+    Return a Null value for the type of values
+    """
+    from datetime import datetime, timedelta
+
+    import pandas as pd
+
+    py_time_types = (datetime, timedelta)
+    np_pd_time_types = (
+        pd.Timestamp,
+        pd.Timedelta,
+        np.datetime64,
+        np.timedelta64,
+    )
+    x0 = first_element(x)
+
+    if pdtypes.is_object_dtype(x):
+        return None
+    elif isinstance(x0, (int, float, bool)):
+        return float("nan")
+    # Yes, we want type not isinstance
+    elif type(x0) in py_time_types:
+        return None
+    elif isinstance(x0, np_pd_time_types):
+        return type(x0)("NaT")
+    else:
+        raise ValueError(
+            "Cannot get a null value for type: {}".format(type(x[0]))
+        )

@@ -47,6 +47,9 @@ lint-fix:
 
 fix: format-fix lint-fix
 
+typecheck:
+	pyright
+
 test:
 	pytest
 

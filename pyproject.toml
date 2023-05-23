@@ -143,7 +143,7 @@ include = [
     "mizani/colors",
     "mizani/__init__.py",
     "mizani/bounds.py",
-    # "mizani/breaks.py",
+    "mizani/breaks.py",
     # "mizani/formatters.py",
     # "mizani/palettes.py",
     # "mizani/scale.py",

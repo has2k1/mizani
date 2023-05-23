@@ -34,7 +34,7 @@ if typing.TYPE_CHECKING:
 
     from mizani.typing import (
         AnyArrayLike,
-        FloatArray,
+        NDArrayFloat,
         NumArrayLike,
         TupleFloat2,
         TupleFloat4,
@@ -60,7 +60,7 @@ def rescale(
     x: NumArrayLike,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
-) -> FloatArray:
+) -> NDArrayFloat:
     """
     Rescale numeric vector to have specified minimum and maximum.
 
@@ -99,7 +99,7 @@ def rescale_mid(
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
     mid: float = 0,
-) -> FloatArray:
+) -> NDArrayFloat:
     """
     Rescale numeric vector to have specified minimum, midpoint,
     and maximum.
@@ -144,7 +144,7 @@ def rescale_max(
     x: NumArrayLike,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
-) -> FloatArray:
+) -> NDArrayFloat:
     """
     Rescale numeric vector to have specified maximum.
 
@@ -210,7 +210,7 @@ def rescale_max(
 
 def squish_infinite(
     x: NumArrayLike, range: TupleFloat2 = (0, 1)
-) -> FloatArray:
+) -> NDArrayFloat:
     """
     Truncate infinite values to a range.
 
@@ -242,7 +242,7 @@ def squish_infinite(
 
 def squish(
     x: NumArrayLike, range: TupleFloat2 = (0, 1), only_finite: bool = True
-) -> FloatArray:
+) -> NDArrayFloat:
     """
     Squish values into range.
 

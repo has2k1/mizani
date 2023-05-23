@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from collections.abc import Iterator
 from datetime import timezone, tzinfo
 from itertools import chain
@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
     from datetime import datetime
     from typing import Any, Sequence
 
-    from mizani.typing import Null
+    from mizani.typing import DurationUnit, NullType
 
 
 __all__ = [
@@ -33,35 +33,31 @@ __all__ = [
 DISCRETE_KINDS = "ObUS"
 CONTINUOUS_KINDS = "ifuc"
 
-SECONDS = OrderedDict(
-    [
-        ("ns", 1e-9),  # nanosecond
-        ("us", 1e-6),  # microsecond
-        ("ms", 1e-3),  # millisecond
-        ("s", 1),  # second
-        ("m", 60),  # month
-        ("h", 3600),  # hour
-        ("d", 24 * 3600),  # day
-        ("w", 7 * 24 * 3600),  # week
-        ("M", 31 * 24 * 3600),  # month
-        ("y", 365 * 24 * 3600),  # year
-    ]
-)
+SECONDS: dict[DurationUnit, float] = {
+    "ns": 1e-9,  # nanosecond
+    "us": 1e-6,  # microsecond
+    "ms": 1e-3,  # millisecond
+    "s": 1,  # second
+    "m": 60,  # month
+    "h": 3600,  # hour
+    "d": 24 * 3600,  # day
+    "w": 7 * 24 * 3600,  # week
+    "M": 31 * 24 * 3600,  # month
+    "y": 365 * 24 * 3600,  # year
+}
 
-NANOSECONDS = OrderedDict(
-    [
-        ("ns", 1),  # nanosecond
-        ("us", 1e3),  # microsecond
-        ("ms", 1e6),  # millisecond
-        ("s", 1e9),  # second
-        ("m", 60e9),  # month
-        ("h", 3600e9),  # hour
-        ("d", 24 * 3600e9),  # day
-        ("w", 7 * 24 * 3600e9),  # week
-        ("M", 31 * 24 * 3600e9),  # month
-        ("y", 365 * 24 * 3600e9),  # year
-    ]
-)
+NANOSECONDS: dict[DurationUnit, float] = {
+    "ns": 1,  # nanosecond
+    "us": 1e3,  # microsecond
+    "ms": 1e6,  # millisecond
+    "s": 1e9,  # second
+    "m": 60e9,  # month
+    "h": 3600e9,  # hour
+    "d": 24 * 3600e9,  # day
+    "w": 7 * 24 * 3600e9,  # week
+    "M": 31 * 24 * 3600e9,  # month
+    "y": 365 * 24 * 3600e9,  # year
+}
 
 
 def round_any(x, accuracy, f=np.round):
@@ -355,7 +351,7 @@ def get_timezone(x: Sequence[datetime]) -> tzinfo:
         warn(msg.format(tzname0))
     return info
 
-def get_null_value(x: Any) -> Null:
+def get_null_value(x: Any) -> NullType:
     """
     Return a Null value for the type of values
     """

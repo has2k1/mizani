@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
+    import datetime
     from types import NoneType
     from typing import Any, Literal, Sequence, TypeAlias, TypeVar
 
@@ -12,19 +13,21 @@ if typing.TYPE_CHECKING:
     from pandas._libs import NaTType
 
     from mizani.colors.color_palette import palette
+    from mizani.transforms import trans
 
     # Tuples
     TupleInt2: TypeAlias = tuple[int, int]
     TupleFloat2: TypeAlias = tuple[float, float]
     TupleFloat3: TypeAlias = tuple[float, float, float]
     TupleFloat4: TypeAlias = tuple[float, float, float, float]
+    TupleFloat5: TypeAlias = tuple[float, float, float, float, float]
 
     # Arrays (strictly numpy)
-    AnyArray: TypeAlias = npt.NDArray[Any]
-    BoolArray: TypeAlias = npt.NDArray[np.bool_]
-    FloatArray: TypeAlias = npt.NDArray[np.float64]
-    IntArray: TypeAlias = npt.NDArray[np.int64]
-    StrArray: TypeAlias = npt.NDArray[np.str_]
+    NDArrayAny: TypeAlias = npt.NDArray[Any]
+    NDArrayBool: TypeAlias = npt.NDArray[np.bool_]
+    NDArrayFloat: TypeAlias = npt.NDArray[np.float64]
+    NDArrayInt: TypeAlias = npt.NDArray[np.int64]
+    NDArrayStr: TypeAlias = npt.NDArray[np.str_]
 
     # Series
     AnySeries: TypeAlias = pd.Series[Any]
@@ -32,9 +35,9 @@ if typing.TYPE_CHECKING:
     FloatSeries: TypeAlias = pd.Series[float]
 
     # ArrayLikes
-    AnyArrayLike: TypeAlias = AnyArray | pd.Series[Any] | Sequence[Any]
-    IntArrayLike: TypeAlias = IntArray | IntSeries | Sequence[int]
-    FloatArrayLike: TypeAlias = FloatArray | FloatSeries | Sequence[float]
+    AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]
+    IntArrayLike: TypeAlias = NDArrayInt | IntSeries | Sequence[int]
+    FloatArrayLike: TypeAlias = NDArrayFloat | FloatSeries | Sequence[float]
     NumArrayLike: TypeAlias = IntArrayLike | FloatArrayLike
 
     # Nulls for different types
@@ -49,7 +52,7 @@ if typing.TYPE_CHECKING:
         "FloatArrayLikeTV",
         # We cannot use FloatArrayLike type because pyright expect
         # the result to be a FloatArrayLike
-        FloatArray,
+        NDArrayFloat,
         FloatSeries,
         Sequence[float],
         TupleFloat2,
@@ -74,3 +77,20 @@ if typing.TYPE_CHECKING:
         "seq",
     ]
     ColorPalette: TypeAlias = palette
+
+    DurationUnit: TypeAlias = Literal[
+        "ns",  # nanosecond
+        "us",  # microsecond
+        "ms",  # millisecond
+        "s",  # second
+        "m",  # month
+        "h",  # hour
+        "d",  # day
+        "w",  # week
+        "M",  # month
+        "y",  # year
+    ]
+    TimedeltaType = pd.Timedelta | datetime.timedelta
+
+    # Mizani
+    Trans: TypeAlias = trans

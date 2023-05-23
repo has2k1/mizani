@@ -10,7 +10,11 @@ The named markers are what we call breaks. Properly calculated
 breaks make interpretation straight forward. These functions
 provide ways to calculate good(hopefully) breaks.
 """
+from __future__ import annotations
+
+import datetime
 import sys
+import typing
 from itertools import product
 
 import numpy as np
@@ -30,6 +34,19 @@ from matplotlib.dates import (
 from matplotlib.ticker import MaxNLocator
 
 from .utils import NANOSECONDS, SECONDS, log, min_max
+
+if typing.TYPE_CHECKING:
+    from typing import Callable, Literal, Optional, Sequence
+
+    from mizani.typing import (
+        DurationUnit,
+        FloatArrayLike,
+        TimedeltaType,
+        Trans,
+        TupleFloat2,
+        TupleFloat5,
+    )
+
 
 __all__ = [
     "mpl_breaks",
@@ -96,7 +113,7 @@ class mpl_breaks:
     def __init__(self, *args, **kwargs):
         self.locator = MaxNLocator(*args, **kwargs)
 
-    def __call__(self, limits):
+    def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
         """
         Compute breaks
 
@@ -116,7 +133,7 @@ class mpl_breaks:
         if limits[0] == limits[1]:
             return np.array([limits[0]])
 
-        return self.locator.tick_values(limits[0], limits[1])
+        return self.locator.tick_values(limits[0], limits[1])  # type: ignore
 
 
 class log_breaks:
@@ -142,11 +159,11 @@ class log_breaks:
     array([0.1, 0.3, 1. , 3. ])
     """
 
-    def __init__(self, n=5, base=10):
+    def __init__(self, n: int = 5, base: int | float = 10):
         self.n = n
         self.base = base
 
-    def __call__(self, limits):
+    def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
         """
         Compute breaks
 
@@ -174,7 +191,7 @@ class log_breaks:
             base = float(base)
 
         if _max == _min:
-            return base**_min
+            return [base**_min]
 
         # Try getting breaks at the integer powers of the base
         # e.g [1, 100, 10000, 1000000]
@@ -201,7 +218,7 @@ class _log_sub_breaks:
     ----------
     n : int
         Desired number of breaks
-    base : int
+    base : int | float
         Base of logarithm
 
     Notes
@@ -210,11 +227,11 @@ class _log_sub_breaks:
     algorithm in the r-scales package.
     """
 
-    def __init__(self, n=5, base=10):
+    def __init__(self, n: int = 5, base: int | float = 10):
         self.n = n
         self.base = base
 
-    def __call__(self, limits):
+    def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
         base = self.base
         n = self.n
         rng = log(limits, base)
@@ -254,10 +271,10 @@ class _log_sub_breaks:
             if np.sum(relevant_breaks) >= n - 2:
                 breaks = np.sort(breaks)
                 lower_end = np.max(
-                    [np.min(np.where(limits[0] <= breaks)) - 1, 0]
+                    [np.min(np.where(limits[0] <= breaks)) - 1, 0]  # type: ignore
                 )
                 upper_end = np.min(
-                    [np.max(np.where(breaks <= limits[1])) + 1, len(breaks)]
+                    [np.max(np.where(breaks <= limits[1])) + 1, len(breaks)]  # type: ignore
                 )
                 return breaks[lower_end : upper_end + 1]
         else:
@@ -291,10 +308,15 @@ class minor_breaks:
     array([1.25, 1.5 , 1.75])
     """
 
-    def __init__(self, n=1):
+    def __init__(self, n: int = 1):
         self.n = n
 
-    def __call__(self, major, limits=None, n=None):
+    def __call__(
+        self,
+        major: FloatArrayLike,
+        limits: Optional[TupleFloat2] = None,
+        n: Optional[int] = None,
+    ) -> FloatArrayLike:
         """
         Minor breaks
 
@@ -382,11 +404,16 @@ class trans_minor_breaks:
     array([2.8, 4.6, 6.4, 8.2])
     """
 
-    def __init__(self, trans, n=1):
+    def __init__(self, trans: Trans, n: int = 1):
         self.trans = trans
         self.n = n
 
-    def __call__(self, major, limits=None, n=None):
+    def __call__(
+        self,
+        major: FloatArrayLike,
+        limits: Optional[TupleFloat2] = None,
+        n: Optional[int] = None,
+    ) -> FloatArrayLike:
         """
         Minor breaks for transformed scales
 
@@ -425,7 +452,7 @@ class trans_minor_breaks:
         minor = minor_breaks(n)(major, limits)
         return self.trans.transform(minor)
 
-    def _extend_breaks(self, major):
+    def _extend_breaks(self, major: FloatArrayLike) -> FloatArrayLike:
         """
         Append 2 extra breaks at either end of major
 
@@ -491,7 +518,7 @@ class date_breaks:
     [2008, 2012, 2016, 2020, 2024, 2028]
     """
 
-    def __init__(self, width=None):
+    def __init__(self, width: Optional[str] = None):
         if not width:
             locator = DateLocator()
         else:
@@ -502,7 +529,7 @@ class date_breaks:
             locator = LOCATORS[units](interval=interval)
         self.locator = locator
 
-    def __call__(self, limits):
+    def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
         """
         Compute breaks
 
@@ -548,10 +575,14 @@ class timedelta_breaks:
     [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
     """
 
-    def __init__(self, n=5, Q=(1, 2, 5, 10)):
-        self._breaks_func = extended_breaks(n=n, Q=Q)
+    _calculate_breaks: Callable[[TupleFloat2], FloatArrayLike]
 
-    def __call__(self, limits):
+    def __init__(self, n: int = 5, Q: Sequence[float] = (1, 2, 5, 10)):
+        self._calculate_breaks = extended_breaks(n=n, Q=Q)
+
+    def __call__(
+        self, limits: tuple[TimedeltaType, TimedeltaType]
+    ) -> Sequence[TimedeltaType]:
         """
         Compute breaks
 
@@ -570,7 +601,7 @@ class timedelta_breaks:
 
         helper = timedelta_helper(limits)
         scaled_limits = helper.scaled_limits()
-        scaled_breaks = self._breaks_func(scaled_limits)
+        scaled_breaks = self._calculate_breaks(scaled_limits)
         breaks = helper.numeric_to_timedelta(scaled_breaks)
         return breaks
 
@@ -602,9 +633,18 @@ class timedelta_helper:
     See, :func:`timedelta_format`
     """
 
-    def __init__(self, x, units=None):
+    x: Sequence[TimedeltaType]
+    units: DurationUnit
+    limits: TupleFloat2
+    package: Literal["pandas", "cpython"]
+    factor: float
+
+    def __init__(
+        self,
+        x: Sequence[TimedeltaType],
+        units: Optional[DurationUnit] = None,
+    ):
         self.x = x
-        self.type = type(x[0])
         self.package = self.determine_package(x[0])
         _limits = min(x), max(x)
         self.limits = self.value(_limits[0]), self.value(_limits[1])
@@ -612,7 +652,9 @@ class timedelta_helper:
         self.factor = self.get_scaling_factor(self.units)
 
     @classmethod
-    def determine_package(cls, td):
+    def determine_package(
+        cls, td: TimedeltaType
+    ) -> Literal["pandas", "cpython"]:
         if hasattr(td, "components"):
             package = "pandas"
         elif hasattr(td, "total_seconds"):
@@ -623,11 +665,13 @@ class timedelta_helper:
         return package
 
     @classmethod
-    def format_info(cls, x, units=None):
+    def format_info(
+        cls, x: Sequence[TimedeltaType], units: Optional[DurationUnit] = None
+    ) -> tuple[Sequence[float], DurationUnit]:
         helper = cls(x, units)
         return helper.timedelta_to_numeric(x), helper.units
 
-    def best_units(self, sequence):
+    def best_units(self, x: Sequence[TimedeltaType]) -> DurationUnit:
         """
         Determine good units for representing a sequence of timedeltas
         """
@@ -636,10 +680,10 @@ class timedelta_helper:
         #    (9, 'm)]
         # as, break ranges between 0.9 seconds (inclusive)
         # and 9 minutes are represented in seconds. And so on.
-        ts_range = self.value(max(sequence)) - self.value(min(sequence))
-        package = self.determine_package(sequence[0])
+        ts_range = self.value(max(x)) - self.value(min(x))
+        package = self.determine_package(x[0])
         if package == "pandas":
-            cuts = [
+            cuts: list[tuple[float, DurationUnit]] = [
                 (0.9, "us"),
                 (0.9, "ms"),
                 (0.9, "s"),
@@ -671,16 +715,17 @@ class timedelta_helper:
 
         return base_units
 
-    def value(self, td):
+    @staticmethod
+    def value(td: TimedeltaType) -> float:
         """
         Return the numeric value representation on a timedelta
         """
-        if self.package == "pandas":
+        if isinstance(td, pd.Timedelta):
             return td.value
         else:
             return td.total_seconds()
 
-    def scaled_limits(self):
+    def scaled_limits(self) -> TupleFloat2:
         """
         Minimum and Maximum to use for computing breaks
         """
@@ -688,22 +733,28 @@ class timedelta_helper:
         _max = self.limits[1] / self.factor
         return _min, _max
 
-    def timedelta_to_numeric(self, timedeltas):
+    def timedelta_to_numeric(
+        self, timedeltas: Sequence[TimedeltaType]
+    ) -> list[float]:
         """
         Convert sequence of timedelta to numerics
         """
         return [self.to_numeric(td) for td in timedeltas]
 
-    def numeric_to_timedelta(self, numerics):
+    def numeric_to_timedelta(
+        self, values: FloatArrayLike
+    ) -> Sequence[TimedeltaType]:
         """
-        Convert sequence of numerics to timedelta
+        Convert sequence of numerical values to timedelta
         """
         if self.package == "pandas":
             return [
-                self.type(int(x * self.factor), units="ns") for x in numerics
+                pd.Timedelta(int(x * self.factor), unit="ns") for x in values
             ]
         else:
-            return [self.type(seconds=x * self.factor) for x in numerics]
+            return [
+                datetime.timedelta(seconds=x * self.factor) for x in values
+            ]
 
     def get_scaling_factor(self, units):
         if self.package == "pandas":
@@ -711,13 +762,13 @@ class timedelta_helper:
         else:
             return SECONDS[units]
 
-    def to_numeric(self, td):
+    def to_numeric(self, td: TimedeltaType) -> float:
         """
         Convert timedelta to a number corresponding to the
         appropriate units. The appropriate units are those
         determined with the object is initialised.
         """
-        if self.package == "pandas":
+        if isinstance(td, pd.Timedelta):
             return td.value / NANOSECONDS[self.units]
         else:
             return td.total_seconds() / SECONDS[self.units]
@@ -761,10 +812,10 @@ class extended_breaks:
 
     def __init__(
         self,
-        n=5,
-        Q=[1, 5, 2, 2.5, 4, 3],
-        only_inside=False,
-        w=[0.25, 0.2, 0.5, 0.05],
+        n: int = 5,
+        Q: Sequence[float] = (1, 5, 2, 2.5, 4, 3),
+        only_inside: bool = False,
+        w: Sequence[float] = (0.25, 0.2, 0.5, 0.05),
     ):
         self.Q = Q
         self.only_inside = only_inside
@@ -773,13 +824,15 @@ class extended_breaks:
         # Used for lookups during the computations
         self.Q_index = {q: i for i, q in enumerate(Q)}
 
-    def coverage(self, dmin, dmax, lmin, lmax):
+    def coverage(
+        self, dmin: float, dmax: float, lmin: float, lmax: float
+    ) -> float:
         p1 = (dmax - lmax) ** 2
         p2 = (dmin - lmin) ** 2
         p3 = (0.1 * (dmax - dmin)) ** 2
         return 1 - 0.5 * (p1 + p2) / p3
 
-    def coverage_max(self, dmin, dmax, span):
+    def coverage_max(self, dmin: float, dmax: float, span: float) -> float:
         range = dmax - dmin
         if span > range:
             half = (span - range) / 2.0
@@ -787,18 +840,22 @@ class extended_breaks:
         else:
             return 1
 
-    def density(self, k, dmin, dmax, lmin, lmax):
+    def density(
+        self, k: float, dmin: float, dmax: float, lmin: float, lmax: float
+    ) -> float:
         r = (k - 1.0) / (lmax - lmin)
         rt = (self.n - 1) / (max(lmax, dmax) - min(lmin, dmin))
         return 2 - max(r / rt, rt / r)
 
-    def density_max(self, k):
+    def density_max(self, k: float) -> float:
         if k >= self.n:
             return 2 - (k - 1.0) / (self.n - 1.0)
         else:
             return 1
 
-    def simplicity(self, q, j, lmin, lmax, lstep):
+    def simplicity(
+        self, q: float, j: float, lmin: float, lmax: float, lstep: float
+    ) -> float:
         eps = 1e-10
         n = len(self.Q)
         i = self.Q_index[q] + 1
@@ -813,19 +870,19 @@ class extended_breaks:
             v = 0
         return (n - i) / (n - 1.0) + v - j
 
-    def simplicity_max(self, q, j):
+    def simplicity_max(self, q: float, j: float) -> float:
         n = len(self.Q)
         i = self.Q_index[q] + 1
         v = 1
         return (n - i) / (n - 1.0) + v - j
 
-    def legibility(self, lmin, lmax, lstep):
+    def legibility(self, lmin: float, lmax: float, lstep: float) -> float:
         # Legibility depends on fontsize, rotation, overlap ... i.e.
         # it requires drawing or simulating drawn breaks then calculating
         # a score. Return 1 ignores all that.
         return 1
 
-    def __call__(self, limits):
+    def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
         """
         Calculate the breaks
 
@@ -859,8 +916,9 @@ class extended_breaks:
         elif dmin == dmax:
             return np.array([dmin])
 
-        best_score = -2
-        j = 1
+        best_score = -2.0
+        best: TupleFloat5 = (0, 0, 0, 0, 0)  # Gives Empty breaks
+        j = 1.0
 
         while j < float("inf"):
             for q in Q:
@@ -870,7 +928,7 @@ class extended_breaks:
                     j = float("inf")
                     break
 
-                k = 2
+                k = 2.0
                 while k < float("inf"):
                     dm = density_max(k)
 
@@ -919,8 +977,5 @@ class extended_breaks:
                     k = k + 1
             j = j + 1
 
-        try:
-            locs = best[0] + np.arange(best[4]) * best[2]
-        except UnboundLocalError:
-            locs = []
+        locs = best[0] + np.arange(best[4]) * best[2]
         return locs

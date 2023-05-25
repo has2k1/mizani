@@ -183,7 +183,7 @@ def test_date_format():
 
     TZ = myTzInfo()
     x = [datetime(2023, 10, 1, tzinfo=TZ), datetime(2023, 11, 1, tzinfo=TZ)]
-    with pytest.raises(ValueError, match=r"^Unrecognised timezone class"):
+    with pytest.raises(NotImplementedError, match=r"^a tzinfo subclass"):
         date_format()(x)
 
 

@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.9.2
+------
+
+*not-yet-released*
+
+Bug Fixes
+*********
+
+- Fixed regression in but in :class:`~mizani.formatters.date_format` where
+  it cannot deal with UTC timezone from :class:`~datetime.timezone`
+  :issue:`30`.
+
 v0.9.1
 ------
 

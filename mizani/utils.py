@@ -3,14 +3,9 @@ from __future__ import annotations
 import typing
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterator
+from datetime import timezone, tzinfo
 from itertools import chain
 from warnings import warn
-
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # python < 3.9
-    from backports.zoneinfo import ZoneInfo
 
 import numpy as np
 
@@ -330,7 +325,7 @@ def log(x, base):
     return res
 
 
-def get_timezone(x: Sequence[datetime]) -> ZoneInfo:
+def get_timezone(x: Sequence[datetime]) -> tzinfo:
     """
     Return a single timezone for the sequence of datetimes
 
@@ -338,36 +333,21 @@ def get_timezone(x: Sequence[datetime]) -> ZoneInfo:
     has a different timezone
     """
 
-    from pytz.tzinfo import BaseTzInfo
-
     # Ref: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
     info = x[0].tzinfo
     if info is None:
-        return ZoneInfo("UTC")
-
-    # We recognise two sources of timezone info:
-    #   1. zoneinfo
-    #   2. pytz
-    # These are all subclasses of datetime.tzinfo but they store the
-    # timezone identifier e.g. (Africa/Uganda) in different properties
-    # We assume that all items in the sequence do not mix
-    if isinstance(info, ZoneInfo):
-        prop = "key"
-    elif isinstance(info, BaseTzInfo):
-        prop = "zone"
-    else:
-        raise ValueError(f"Unrecognised timezone class {info.__class__}")
+        return timezone.utc
 
     # Consistency check
-    tz = ZoneInfo(getattr(info, prop))
-    tz_ids = (getattr(value.tzinfo, prop) for value in x)
-    if any(id != tz.key for id in tz_ids):
+    tzname0 = info.tzname(x[0])
+    tznames = (dt.tzinfo.tzname(dt) if dt.tzinfo else None for dt in x)
+    if any(tzname0 != name for name in tznames):
         msg = (
             "Dates in column have different time zones. "
             "Choosen `{}` the time zone of the first date. "
             "To use a different time zone, create a "
             "formatter and pass the time zone."
         )
-        warn(msg.format(tz.key))
-    return tz
+        warn(msg.format(tzname0))
+    return info

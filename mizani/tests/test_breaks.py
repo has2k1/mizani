@@ -4,7 +4,9 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+from zoneinfo import ZoneInfo
 
+from mizani._core.dates import _from_ordinalf
 from mizani.breaks import (
     date_breaks,
     extended_breaks,
@@ -212,28 +214,85 @@ def test_trans_minor_breaks():
 
 def test_date_breaks():
     # cpython
-    x = [datetime(year, 1, 1) for year in [2010, 2026, 2015]]
-    limits = min(x), max(x)
-
+    limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
     breaks = date_breaks("5 Years")
-    years = [d.year for d in breaks(limits)]
-    npt.assert_array_equal(years, [2010, 2015, 2020, 2025, 2030])
+    assert [d.year for d in breaks(limits)] == [2010, 2015, 2020, 2025, 2030]
 
-    breaks = date_breaks("10 Years")
-    years = [d.year for d in breaks(limits)]
-    npt.assert_array_equal(years, [2010, 2020, 2030])
+    breaks = date_breaks("10 Years")(limits)
+    assert [d.year for d in breaks] == [2010, 2020, 2030]
 
-    # numpy
-    x = [np.datetime64(i * 10, "D") for i in range(1, 10)]
-    breaks = date_breaks("10 Years")
-    limits = min(x), max(x)
-    with pytest.raises(AttributeError):
-        breaks(limits)
+    # numpy datetime64
+    limits = (np.datetime64("1973"), np.datetime64("1997"))
+    breaks = date_breaks(width="10 Years")(limits)
+    assert [d.year for d in breaks] == [1970, 1980, 1990, 2000]
 
     # NaT
     limits = np.datetime64("NaT"), datetime(2017, 1, 1)
-    breaks = date_breaks("10 Years")
-    assert len(breaks(limits)) == 0
+    breaks = date_breaks("10 Years")(limits)
+    assert len(breaks) == 0
+
+    # automatic monthly breaks
+    limits = (datetime(2020, 1, 1), datetime(2021, 1, 15))
+    breaks = date_breaks()(limits)
+    assert [dt.month for dt in breaks] == [1, 4, 7, 10, 1]
+
+    # automatic day breaks
+    limits = (datetime(2020, 1, 1), datetime(2020, 1, 15))
+    breaks = date_breaks()(limits)
+    assert [dt.day for dt in breaks] == [1, 5, 9, 13]
+
+    # automatic second breaks
+    limits = (datetime(2020, 1, 1, hour=0), datetime(2020, 1, 1, hour=19))
+    breaks = date_breaks()(limits)
+    assert [dt.hour for dt in breaks] == [0, 4, 8, 12, 16]
+
+    # automatic minute breaks
+    limits = (datetime(2020, 1, 1, minute=0), datetime(2020, 1, 1, minute=50))
+    breaks = date_breaks()(limits)
+    assert [dt.minute for dt in breaks] == [0, 15, 30, 45]
+
+    # automatic second breaks
+    limits = (datetime(2020, 1, 1, second=20), datetime(2020, 1, 1, second=50))
+    breaks = date_breaks()(limits)
+    assert [dt.second for dt in breaks] == [20, 30, 40, 50]
+
+    # automatic microsecond breaks
+    limits = (
+        datetime(2020, 1, 1, microsecond=10),
+        datetime(2020, 1, 1, microsecond=25),
+    )
+    breaks = date_breaks()(limits)
+    assert [dt.microsecond for dt in breaks] == [5, 10, 15, 20, 25, 30]
+
+    # timezone
+    UG = ZoneInfo("Africa/Kampala")
+    limits = (datetime(1990, 1, 1, tzinfo=UG), datetime(2022, 1, 1, tzinfo=UG))
+    breaks = date_breaks()(limits)
+    assert breaks[0].tzinfo == UG
+
+    # weeks
+    limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
+    breaks = date_breaks("1 week")(limits)
+    assert [dt.day for dt in breaks] == [1, 8, 15, 22] * 2
+
+    breaks = date_breaks("2 weeks")(limits)
+    assert [dt.day for dt in breaks] == [1, 15] * 2
+
+    breaks = date_breaks("3 weeks")(limits)
+    assert [dt.day for dt in breaks] == [1, 22] * 2
+
+    # Special cases
+    limits = (datetime(2039, 12, 17), datetime(2045, 12, 16))
+    breaks = date_breaks()(limits)
+    assert [dt.year for dt in breaks] == [2038, 2040, 2042, 2044, 2046]
+
+    breaks = date_breaks(10)(limits)
+    assert [dt.year for dt in breaks] == [2039 + i // 2 for i in range(1, 15)]
+    assert [dt.month for dt in breaks] == [7, 1] * 7
+
+    # error cases
+    with pytest.raises(ValueError):
+        _from_ordinalf(2.933e6, None)
 
 
 def test_timedelta_breaks():

@@ -1,16 +1,11 @@
 from datetime import datetime, timedelta
 from types import FunctionType, MethodType
 
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # python < 3.9
-    from backports.zoneinfo import ZoneInfo
-
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+from zoneinfo import ZoneInfo
 
 from mizani.breaks import minor_breaks, mpl_breaks
 from mizani.transforms import (

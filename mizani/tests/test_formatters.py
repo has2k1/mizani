@@ -6,12 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import pytz
-
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # python < 3.9
-    from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from mizani.formatters import (
     comma_format,

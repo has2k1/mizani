@@ -382,10 +382,9 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
 
     # datetime - pandas, cpython
     if isinstance(x[0], (pd.Timestamp, datetime.datetime)):
-        from matplotlib.dates import date2num
+        from mizani._core.dates import datetime_to_num
 
-        # date2num includes timezone info, .toordinal() does not
-        l, h = date2num(x)
+        l, h = datetime_to_num(x)
         return l == h
     # datetime - numpy
     elif isinstance(x[0], np.datetime64):

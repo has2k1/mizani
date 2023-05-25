@@ -12,26 +12,18 @@ provide ways to calculate good(hopefully) breaks.
 """
 from __future__ import annotations
 
-import datetime
 import sys
 import typing
+from datetime import datetime, timedelta
 from itertools import product
 
 import numpy as np
 import pandas as pd
-from matplotlib.dates import (
-    YEARLY,
-    AutoDateLocator,
-    DayLocator,
-    HourLocator,
-    MinuteLocator,
-    MonthLocator,
-    SecondLocator,
-    WeekdayLocator,
-    YearLocator,
-    num2date,
+
+from mizani._core.dates import (
+    calculate_date_breaks_auto,
+    calculate_date_breaks_byunits,
 )
-from matplotlib.ticker import MaxNLocator
 
 from .utils import NANOSECONDS, SECONDS, log, min_max
 
@@ -39,12 +31,14 @@ if typing.TYPE_CHECKING:
     from typing import Callable, Literal, Optional, Sequence
 
     from mizani.typing import (
+        DatetimeBreaksUnits,
         DurationUnit,
         FloatArrayLike,
-        TimedeltaType,
+        Timedelta,
         Trans,
         TupleFloat2,
         TupleFloat5,
+        TupleT2,
     )
 
 
@@ -62,35 +56,6 @@ __all__ = [
 # The break calculations rely on MPL locators to do
 # the heavylifting. It may be more convinient to lift
 # the calculations out of MPL.
-
-
-class DateLocator(AutoDateLocator):
-    def __init__(self):
-        AutoDateLocator.__init__(self, minticks=5, interval_multiples=True)
-        # Remove 4 and 400
-        self.intervald[YEARLY] = [
-            1,
-            2,
-            5,
-            10,
-            20,
-            50,
-            100,
-            200,
-            500,
-            1000,
-            2000,
-            5000,
-            10000,
-        ]
-        self.create_dummy_axis()
-
-    def tick_values(self, vmin, vmax):
-        # get locator
-        # if yearlocator
-        # change the vmin to turn of decade or half-decade
-        ticks = AutoDateLocator.tick_values(self, vmin, vmax)
-        return ticks
 
 
 class mpl_breaks:
@@ -111,6 +76,8 @@ class mpl_breaks:
     """
 
     def __init__(self, *args, **kwargs):
+        from matplotlib.ticker import MaxNLocator
+
         self.locator = MaxNLocator(*args, **kwargs)
 
     def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
@@ -271,10 +238,16 @@ class _log_sub_breaks:
             if np.sum(relevant_breaks) >= n - 2:
                 breaks = np.sort(breaks)
                 lower_end = np.max(
-                    [np.min(np.where(limits[0] <= breaks)) - 1, 0]  # type: ignore
+                    [
+                        np.min(np.where(limits[0] <= breaks)) - 1,
+                        0,  # type: ignore
+                    ]
                 )
                 upper_end = np.min(
-                    [np.max(np.where(breaks <= limits[1])) + 1, len(breaks)]  # type: ignore
+                    [
+                        np.max(np.where(breaks <= limits[1])) + 1,
+                        len(breaks),  # type: ignore
+                    ]
                 )
                 return breaks[lower_end : upper_end + 1]
         else:
@@ -474,25 +447,14 @@ class trans_minor_breaks:
         return major
 
 
-# Matplotlib's YearLocator uses different named
-# arguments than the others
-LOCATORS = {
-    "second": SecondLocator,
-    "minute": MinuteLocator,
-    "hour": HourLocator,
-    "day": DayLocator,
-    "week": WeekdayLocator,
-    "month": MonthLocator,
-    "year": lambda interval: YearLocator(base=interval),
-}
-
-
 class date_breaks:
     """
     Regularly spaced dates
 
     Parameters
     ----------
+    n :
+        Desired number of breaks.
     width : str | None
         An interval specification. Must be one of
         [second, minute, hour, day, week, month, year]
@@ -507,7 +469,7 @@ class date_breaks:
     is automatically determined
 
     >>> limits = min(x), max(x)
-    >>> breaks = date_breaks()
+    >>> breaks = date_breaks(9)
     >>> [d.year for d in breaks(limits)]
     [2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
 
@@ -518,18 +480,24 @@ class date_breaks:
     [2008, 2012, 2016, 2020, 2024, 2028]
     """
 
-    def __init__(self, width: Optional[str] = None):
-        if not width:
-            locator = DateLocator()
-        else:
-            # Parse the width specification
-            # e.g. '10 weeks' => (10, week)
-            _n, units = width.strip().lower().split()
-            interval, units = int(_n), units.rstrip("s")
-            locator = LOCATORS[units](interval=interval)
-        self.locator = locator
+    n: int
+    width: Optional[int] = None
+    units: Optional[DatetimeBreaksUnits] = None
 
-    def __call__(self, limits: TupleFloat2) -> FloatArrayLike:
+    def __init__(self, n: int = 5, width: Optional[str] = None):
+        if isinstance(n, str):
+            width = n
+
+        self.n = n
+
+        if width:
+            # Parse the width specification
+            # e.g. '10 months' => (10, month)
+            _w, units = width.strip().lower().split()
+            self.width = int(_w)
+            self.units = units.rstrip("s")  # type: ignore
+
+    def __call__(self, limits: TupleT2[datetime]) -> Sequence[datetime]:
         """
         Compute breaks
 
@@ -546,11 +514,17 @@ class date_breaks:
         if any(pd.isnull(x) for x in limits):
             return []
 
-        ret = self.locator.tick_values(*limits)
-        # MPL returns the tick_values in ordinal format,
-        # but we return them in the same space as the
-        # inputs.
-        return [num2date(val) for val in ret]
+        if isinstance(limits[0], np.datetime64) and isinstance(
+            limits[1], np.datetime64
+        ):
+            limits = limits[0].astype(object), limits[1].astype(object)
+
+        if self.units and self.width:
+            return calculate_date_breaks_byunits(
+                limits, self.units, self.width
+            )
+        else:
+            return calculate_date_breaks_auto(limits, self.n)
 
 
 class timedelta_breaks:
@@ -581,8 +555,8 @@ class timedelta_breaks:
         self._calculate_breaks = extended_breaks(n=n, Q=Q)
 
     def __call__(
-        self, limits: tuple[TimedeltaType, TimedeltaType]
-    ) -> Sequence[TimedeltaType]:
+        self, limits: tuple[Timedelta, Timedelta]
+    ) -> Sequence[Timedelta]:
         """
         Compute breaks
 
@@ -633,7 +607,7 @@ class timedelta_helper:
     See, :func:`timedelta_format`
     """
 
-    x: Sequence[TimedeltaType]
+    x: Sequence[Timedelta]
     units: DurationUnit
     limits: TupleFloat2
     package: Literal["pandas", "cpython"]
@@ -641,7 +615,7 @@ class timedelta_helper:
 
     def __init__(
         self,
-        x: Sequence[TimedeltaType],
+        x: Sequence[Timedelta],
         units: Optional[DurationUnit] = None,
     ):
         self.x = x
@@ -652,9 +626,7 @@ class timedelta_helper:
         self.factor = self.get_scaling_factor(self.units)
 
     @classmethod
-    def determine_package(
-        cls, td: TimedeltaType
-    ) -> Literal["pandas", "cpython"]:
+    def determine_package(cls, td: Timedelta) -> Literal["pandas", "cpython"]:
         if hasattr(td, "components"):
             package = "pandas"
         elif hasattr(td, "total_seconds"):
@@ -666,12 +638,12 @@ class timedelta_helper:
 
     @classmethod
     def format_info(
-        cls, x: Sequence[TimedeltaType], units: Optional[DurationUnit] = None
+        cls, x: Sequence[Timedelta], units: Optional[DurationUnit] = None
     ) -> tuple[Sequence[float], DurationUnit]:
         helper = cls(x, units)
         return helper.timedelta_to_numeric(x), helper.units
 
-    def best_units(self, x: Sequence[TimedeltaType]) -> DurationUnit:
+    def best_units(self, x: Sequence[Timedelta]) -> DurationUnit:
         """
         Determine good units for representing a sequence of timedeltas
         """
@@ -716,7 +688,7 @@ class timedelta_helper:
         return base_units
 
     @staticmethod
-    def value(td: TimedeltaType) -> float:
+    def value(td: Timedelta) -> float:
         """
         Return the numeric value representation on a timedelta
         """
@@ -734,7 +706,7 @@ class timedelta_helper:
         return _min, _max
 
     def timedelta_to_numeric(
-        self, timedeltas: Sequence[TimedeltaType]
+        self, timedeltas: Sequence[Timedelta]
     ) -> list[float]:
         """
         Convert sequence of timedelta to numerics
@@ -743,7 +715,7 @@ class timedelta_helper:
 
     def numeric_to_timedelta(
         self, values: FloatArrayLike
-    ) -> Sequence[TimedeltaType]:
+    ) -> Sequence[Timedelta]:
         """
         Convert sequence of numerical values to timedelta
         """
@@ -752,9 +724,7 @@ class timedelta_helper:
                 pd.Timedelta(int(x * self.factor), unit="ns") for x in values
             ]
         else:
-            return [
-                datetime.timedelta(seconds=x * self.factor) for x in values
-            ]
+            return [timedelta(seconds=x * self.factor) for x in values]
 
     def get_scaling_factor(self, units):
         if self.package == "pandas":
@@ -762,7 +732,7 @@ class timedelta_helper:
         else:
             return SECONDS[units]
 
-    def to_numeric(self, td: TimedeltaType) -> float:
+    def to_numeric(self, td: Timedelta) -> float:
         """
         Convert timedelta to a number corresponding to the
         appropriate units. The appropriate units are those
@@ -781,11 +751,11 @@ class extended_breaks:
     Parameters
     ----------
     n : int
-        Desired number of ticks
+        Desired number of breaks
     Q : list
         List of nice numbers
     only_inside : bool
-        If ``True``, then all the ticks will be within the given
+        If ``True``, then all the breaks will be within the given
         range.
     w : list
         Weights applied to the four optimization components

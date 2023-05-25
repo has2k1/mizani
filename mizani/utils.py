@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from collections import defaultdict
 from collections.abc import Iterator
-from datetime import timezone, tzinfo
+from datetime import datetime, timezone
 from itertools import chain
 from warnings import warn
 
@@ -11,10 +11,10 @@ import numpy as np
 import pandas.api.types as pdtypes
 
 if typing.TYPE_CHECKING:
-    from datetime import datetime
-    from typing import Any, Sequence
+    from datetime import tzinfo
+    from typing import Any
 
-    from mizani.typing import DurationUnit, NullType
+    from mizani.typing import DurationUnit, NullType, SeqDatetime
 
 
 __all__ = [
@@ -324,23 +324,29 @@ def log(x, base):
     return res
 
 
-def get_timezone(x: Sequence[datetime]) -> tzinfo:
+def get_timezone(x: SeqDatetime) -> tzinfo | None:
     """
     Return a single timezone for the sequence of datetimes
 
-    Returns the timezone of first item and warns if any other item
-    has a different timezone
+    Returns the timezone of first item and warns if any other items
+    have a different timezone
     """
 
     # Ref: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    x0 = next(iter(x))
+    if not isinstance(x0, datetime):
+        return None
 
-    info = x[0].tzinfo
+    info = x0.tzinfo
     if info is None:
         return timezone.utc
 
     # Consistency check
-    tzname0 = info.tzname(x[0])
-    tznames = (dt.tzinfo.tzname(dt) if dt.tzinfo else None for dt in x)
+    tzname0 = info.tzname(x0)
+    tznames = (
+        dt.tzinfo.tzname(dt) if dt.tzinfo else None for dt in x  # type: ignore
+    )
+
     if any(tzname0 != name for name in tznames):
         msg = (
             "Dates in column have different time zones. "
@@ -351,6 +357,7 @@ def get_timezone(x: Sequence[datetime]) -> tzinfo:
         warn(msg.format(tzname0))
     return info
 
+
 def get_null_value(x: Any) -> NullType:
     """
     Return a Null value for the type of values
@@ -359,23 +366,19 @@ def get_null_value(x: Any) -> NullType:
 
     import pandas as pd
 
-    py_time_types = (datetime, timedelta)
-    np_pd_time_types = (
-        pd.Timestamp,
-        pd.Timedelta,
-        np.datetime64,
-        np.timedelta64,
-    )
     x0 = first_element(x)
 
     if pdtypes.is_object_dtype(x):
         return None
     elif isinstance(x0, (int, float, bool)):
         return float("nan")
-    # Yes, we want type not isinstance
-    elif type(x0) in py_time_types:
+    # pandas types subclass cypthon types, so check
+    # for them first
+    elif isinstance(x0, (pd.Timestamp, pd.Timedelta)):
+        return type(x0)("NaT")
+    elif isinstance(x0, (datetime, timedelta)):
         return None
-    elif isinstance(x0, np_pd_time_types):
+    elif isinstance(x0, (np.datetime64, np.timedelta64)):
         return type(x0)("NaT")
     else:
         raise ValueError(

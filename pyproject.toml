@@ -12,7 +12,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -23,7 +22,6 @@ dependencies = [
     "scipy>=1.5.0",
     "pandas>=1.3.5",
     "matplotlib>=3.5.0",
-    "backports.zoneinfo;python_version<'3.9'",
     "tzdata;platform_system=='Windows' or platform_system=='Emscripten'"
 ]
 requires-python = ">=3.8"
@@ -141,6 +139,7 @@ precision = 1
 include = [
     # "mizani/"
     "mizani/colors",
+    "mizani/_core",
     "mizani/__init__.py",
     "mizani/bounds.py",
     "mizani/breaks.py",

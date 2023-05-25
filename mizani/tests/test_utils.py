@@ -1,3 +1,5 @@
+from datetime import date
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -5,6 +7,7 @@ import pytest
 from mizani.utils import (
     first_element,
     get_categories,
+    get_timezone,
     match,
     min_max,
     multitype_sort,
@@ -161,3 +164,8 @@ def test_get_categories():
 
     with pytest.raises(TypeError):
         assert categories.equals(get_categories(s))
+
+
+def test_get_timezone():
+    x = [date(2022, 1, 1), date(2022, 12, 1)]
+    assert get_timezone(x) is None

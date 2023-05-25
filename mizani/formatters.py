@@ -12,13 +12,8 @@ representation of a value helps improve readability of the guide.
 import re
 from bisect import bisect_right
 
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # python < 3.9
-    from backports.zoneinfo import ZoneInfo
-
 import numpy as np
+from zoneinfo import ZoneInfo
 
 from .breaks import timedelta_helper
 from .utils import (
@@ -602,7 +597,7 @@ class date_format:
         out : list
             List of strings.
         """
-        from matplotlib.dates import date2num
+        from mizani._core.dates import datetime_to_num
 
         # Formatter timezone
         if self.tz is None and len(x):
@@ -610,7 +605,7 @@ class date_format:
 
         # The formatter is tied to axes and takes
         # breaks in ordinal format.
-        x = [date2num(val) for val in x]
+        x = datetime_to_num(x)
         return _format(self.formatter, x)
 
 

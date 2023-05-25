@@ -23,16 +23,11 @@ import sys
 from collections.abc import Iterable
 from types import MethodType
 
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # python < 3.9
-    from backports.zoneinfo import ZoneInfo
-
 import numpy as np
 import pandas as pd
-from matplotlib.dates import date2num, num2date
+from zoneinfo import ZoneInfo
 
+from ._core.dates import datetime_to_num, num_to_datetime
 from .breaks import (
     date_breaks,
     extended_breaks,
@@ -643,8 +638,7 @@ class datetime_trans(trans):
 
     Examples
     --------
-    >>> # from zoneinfo import ZoneInfo
-    >>> # from backports.zoneinfo import ZoneInfo  # for python < 3.9
+    >>> from zoneinfo import ZoneInfo
     >>> UTC = ZoneInfo("UTC")
     >>> EST = ZoneInfo("EST")
     >>> t = datetime_trans(EST)
@@ -695,13 +689,13 @@ class datetime_trans(trans):
         if tz and self.tz is None:
             self.tz = tz
 
-        return date2num(x)
+        return datetime_to_num(x)
 
     def inverse(self, x):
         """
         Transform to date from numerical format
         """
-        return num2date(x, tz=self.tz)
+        return num_to_datetime(x, tz=self.tz)
 
     @property
     def tzinfo(self):

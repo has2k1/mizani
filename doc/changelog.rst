@@ -4,7 +4,7 @@ Changelog
 v0.9.2
 ------
 
-*not-yet-released*
+*2023-05-25*
 
 Bug Fixes
 *********

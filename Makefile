@@ -60,8 +60,14 @@ doc:
 	$(MAKE) -C doc html
 	$(BROWSER) doc/_build/html/index.html
 
-release: clean
-	bash ./tools/release.sh
+release-major:
+	@python ./tools/release-checklist.py major
+
+release-minor:
+	@python ./tools/release-checklist.py minor
+
+release-patch:
+	@python ./tools/release-checklist.py patch
 
 build: clean
 	python -m build

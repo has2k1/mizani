@@ -6,6 +6,9 @@ v0.9.2
 
 *2023-05-25*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7971866.svg
+   :target: https://doi.org/10.5281/zenodo.7971866
+
 Bug Fixes
 *********
 
@@ -17,7 +20,6 @@ v0.9.1
 ------
 
 *2023-05-19*
-
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7951172.svg
    :target: https://doi.org/10.5281/zenodo.7951172

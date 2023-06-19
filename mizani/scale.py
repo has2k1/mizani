@@ -27,6 +27,10 @@ concept unpinning a scale.
 
 The **apply** methods are simple examples of how to put it all together.
 """
+from __future__ import annotations
+
+import typing
+
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
@@ -40,6 +44,19 @@ from .utils import (
     min_max,
 )
 
+if typing.TYPE_CHECKING:
+    from typing import Any, Optional, Sequence
+
+    from mizani.typing import (
+        AnyArrayLike,
+        Callable,
+        ContinuousPalette,
+        DiscretePalette,
+        FloatArrayLike,
+        Trans,
+        TupleFloat2,
+    )
+
 __all__ = ["scale_continuous", "scale_discrete"]
 
 
@@ -49,7 +66,13 @@ class scale_continuous:
     """
 
     @classmethod
-    def apply(cls, x, palette, na_value=None, trans=None):
+    def apply(
+        cls,
+        x: FloatArrayLike,
+        palette: ContinuousPalette,
+        na_value: Any = None,
+        trans: Optional[Trans] = None,
+    ) -> FloatArrayLike:
         """
         Scale data continuously
 
@@ -77,7 +100,9 @@ class scale_continuous:
         return cls.map(x, palette, limits, na_value)
 
     @classmethod
-    def train(cls, new_data, old=None):
+    def train(
+        cls, new_data: FloatArrayLike, old: Optional[TupleFloat2] = None
+    ) -> TupleFloat2:
         """
         Train a continuous scale
 
@@ -86,29 +111,36 @@ class scale_continuous:
         new_data : array_like
             New values
         old : array_like
-            Old range. Most likely a tuple of length 2.
+            Old range
 
         Returns
         -------
         out : tuple
             Limits(range) of the scale
         """
+        if old is None:
+            old = (-np.inf, np.inf)
+
         if not len(new_data):
             return old
 
-        if not hasattr(new_data, "dtype"):
-            new_data = np.asarray(new_data)
+        new_data = np.asarray(new_data)
 
         if new_data.dtype.kind not in CONTINUOUS_KINDS:
             raise TypeError("Discrete value supplied to continuous scale")
 
-        if old is not None:
-            new_data = np.hstack([new_data, old])
-
+        new_data = np.hstack([new_data, old])
         return min_max(new_data, na_rm=True, finite=True)
 
     @classmethod
-    def map(cls, x, palette, limits, na_value=None, oob=censor):
+    def map(
+        cls,
+        x: FloatArrayLike,
+        palette: ContinuousPalette,
+        limits: TupleFloat2,
+        na_value: Any = None,
+        oob: Callable[[FloatArrayLike], FloatArrayLike] = censor,
+    ) -> FloatArrayLike:
         """
         Map values to a continuous palette
 
@@ -130,12 +162,8 @@ class scale_continuous:
             Values mapped onto a palette
         """
         x = oob(rescale(x, _from=limits))
-        pal = palette(x)
-        try:
-            pal[pd.isnull(x)] = na_value
-        except TypeError:
-            pal = [v if not pd.isnull(v) else na_value for v in pal]
-
+        pal = np.asarray(palette(x))
+        pal[pd.isna(x)] = na_value  # type: ignore
         return pal
 
 
@@ -145,7 +173,12 @@ class scale_discrete:
     """
 
     @classmethod
-    def apply(cls, x, palette, na_value=None):
+    def apply(
+        cls,
+        x: AnyArrayLike,
+        palette: DiscretePalette,
+        na_value: Any = None,
+    ):
         """
         Scale data discretely
 
@@ -167,7 +200,13 @@ class scale_discrete:
         return cls.map(x, palette, limits, na_value)
 
     @classmethod
-    def train(cls, new_data, old=None, drop=False, na_rm=False):
+    def train(
+        cls,
+        new_data: AnyArrayLike,
+        old: Optional[Sequence[Any]] = None,
+        drop: bool = False,
+        na_rm: bool = False,
+    ) -> Sequence[Any]:
         """
         Train a continuous scale
 
@@ -188,16 +227,18 @@ class scale_discrete:
         out : list
             Values covered by the scale
         """
-        if not len(new_data):
-            return old
-
         if old is None:
             old = []
         else:
             old = list(old)
 
+        if not len(new_data):
+            return old
+
+        old_set = set(old)
+
         # Get the missing values (NaN & Nones) locations and remove them
-        nan_bool_idx = pd.isnull(new_data)
+        nan_bool_idx = pd.isna(new_data)  # type: ignore
         has_na = np.any(nan_bool_idx)
         if not hasattr(new_data, "dtype"):
             new_data = np.asarray(new_data)
@@ -206,26 +247,23 @@ class scale_discrete:
         if new_data.dtype.kind not in DISCRETE_KINDS:
             raise TypeError("Continuous value supplied to discrete scale")
 
-        # Train i.e. get the new values
+        # 1. Train i.e. get the new values
+        # 2. Update old
         if pdtypes.is_categorical_dtype(new_data):
             categories = get_categories(new_data)
             if drop:
-                present = set(new_data.drop_duplicates())
+                present = set(new_data)
                 new = [i for i in categories if i in present]
             else:
                 new = list(categories)
-        else:
-            new = np.unique(new_data)
-            new.sort()
 
-        # update old
-        old_set = set(old)
-        if pdtypes.is_categorical_dtype(new_data):
-            # The limits are in the order of the categories
             all_set = old_set | set(new)
             ordered_cats = categories.union(old, sort=False)
             limits = [c for c in ordered_cats if c in all_set]
         else:
+            new = np.unique(new_data)
+            new.sort()
+
             limits = old + [i for i in new if (i not in old_set)]
 
         # Add nan if required
@@ -235,7 +273,13 @@ class scale_discrete:
         return limits
 
     @classmethod
-    def map(cls, x, palette, limits, na_value=None):
+    def map(
+        cls,
+        x: AnyArrayLike,
+        palette: DiscretePalette,
+        limits: Sequence[Any],
+        na_value: Any = None,
+    ) -> AnyArrayLike:
         """
         Map values to a discrete palette
 
@@ -254,10 +298,11 @@ class scale_discrete:
             Values mapped onto a palette
         """
         n = len(limits)
-        pal = palette(n)[match(x, limits)]
+        pal = np.asarray(palette(n))[match(x, limits)]
+        nas = pd.isna(x)  # type: ignore
         try:
-            pal[pd.isnull(x)] = na_value
+            pal[nas] = na_value
         except TypeError:
-            pal = [v if not pd.isnull(v) else na_value for v in pal]
+            pal = [na_value if isna else v for v, isna in zip(pal, nas)]
 
         return pal

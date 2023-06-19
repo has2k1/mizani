@@ -125,6 +125,7 @@ exclude_lines = [
    "if typing.TYPE_CHECKING:",
    "except ImportError:",
    "except PackageNotFoundError:",
+   "@overload"
 ]
 precision = 1
 
@@ -145,9 +146,9 @@ include = [
     "mizani/breaks.py",
     # "mizani/formatters.py",
     # "mizani/palettes.py",
-    # "mizani/scale.py",
+    "mizani/scale.py",
     # "mizani/transforms.py",
-    # "mizani/typing.py",
+    "mizani/typing.py",
     # "mizani/utils.py"
 ]
 

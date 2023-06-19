@@ -7,6 +7,7 @@ if typing.TYPE_CHECKING:
     from types import NoneType
     from typing import (
         Any,
+        Callable,
         Literal,
         Sequence,
         TypeAlias,
@@ -135,6 +136,9 @@ if typing.TYPE_CHECKING:
         "month",
         "year",
     ]
+
+    ContinuousPalette: TypeAlias = Callable[[FloatArrayLike], Sequence[Any]]
+    DiscretePalette: TypeAlias = Callable[[int], NDArrayAny | AnySeries]
 
     # Mizani
     Trans: TypeAlias = trans

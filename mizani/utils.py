@@ -12,9 +12,18 @@ import pandas.api.types as pdtypes
 
 if typing.TYPE_CHECKING:
     from datetime import tzinfo
-    from typing import Any
+    from typing import Any, Callable, Literal, Optional
 
-    from mizani.typing import DurationUnit, NullType, SeqDatetime
+    from mizani.typing import (
+        AnyArrayLike,
+        DurationUnit,
+        FloatArrayLike,
+        NDArrayInt,
+        NullType,
+        NumericUFunction,
+        SeqDatetime,
+        TupleFloat2,
+    )
 
 
 __all__ = [
@@ -22,8 +31,6 @@ __all__ = [
     "min_max",
     "match",
     "precision",
-    "first_element",
-    "multitype_sort",
     "same_log10_order_of_magnitude",
     "identity",
     "get_categories",
@@ -60,17 +67,21 @@ NANOSECONDS: dict[DurationUnit, float] = {
 }
 
 
-def round_any(x, accuracy, f=np.round):
+def round_any(
+    x: FloatArrayLike | float, accuracy: float, f: NumericUFunction = np.round
+) -> FloatArrayLike | float:
     """
     Round to multiple of any number.
     """
     if not hasattr(x, "dtype"):
         x = np.asarray(x)
 
-    return f(x / accuracy) * accuracy
+    return f(x / accuracy) * accuracy  # type: ignore
 
 
-def min_max(x, na_rm=False, finite=True):
+def min_max(
+    x: FloatArrayLike | float, na_rm: bool = False, finite: bool = True
+) -> TupleFloat2:
     """
     Return the minimum and maximum of x
 
@@ -88,8 +99,7 @@ def min_max(x, na_rm=False, finite=True):
     out : tuple
         (minimum, maximum) of x
     """
-    if not hasattr(x, "dtype"):
-        x = np.asarray(x)
+    x = np.asarray(x)
 
     if na_rm and finite:
         x = x[np.isfinite(x)]
@@ -101,55 +111,59 @@ def min_max(x, na_rm=False, finite=True):
         x = x[~np.isinf(x)]
 
     if len(x):
-        return np.min(x), np.max(x)
+        return np.min(x), np.max(x)  # type: ignore
     else:
         return float("-inf"), float("inf")
 
 
-def match(v1, v2, nomatch=-1, incomparables=None, start=0):
+def match(
+    v1: AnyArrayLike,
+    v2: AnyArrayLike,
+    nomatch: int = -1,
+    incomparables: Optional[Any] = None,
+    start: int = 0,
+) -> list[int]:
     """
     Return a vector of the positions of (first)
     matches of its first argument in its second.
 
     Parameters
     ----------
-    v1: array_like
-        Values to be matched
+    v1: array-like
+        The values to be matched
 
-    v2: array_like
-        Values to be matched against
+    v2: array-like
+        The values to be matched against
 
     nomatch: int
-        Value to be returned in the case when
+        The value to be returned in the case when
         no match is found.
 
-    incomparables: array_like
-        Values that cannot be matched. Any value in ``v1``
-        matching a value in this list is assigned the nomatch
-        value.
+    incomparables: array-like
+        A list of values that cannot be matched.
+        Any value in v1 matching a value in this list
+        is assigned the nomatch value.
     start: int
         Type of indexing to use. Most likely 0 or 1
     """
-    v2_indices = {}
-    for i, x in enumerate(v2):
-        if x not in v2_indices:
-            v2_indices[x] = i
+    # NOTE: This function gets called a lot. If it can
+    # be optimised, it should.
+    lookup: dict[Any, int] = {}
+    for i, x in enumerate(v2, start=start):
+        if x not in lookup:
+            lookup[x] = i
 
-    v1_to_v2_map = [nomatch] * len(v1)
-    skip = set(incomparables) if incomparables else set()
-    for i, x in enumerate(v1):
-        if x in skip:
-            continue
-
-        try:
-            v1_to_v2_map[i] = v2_indices[x] + start
-        except KeyError:
-            pass
-
-    return v1_to_v2_map
+    if incomparables:
+        skip = set(incomparables)
+        lst = [
+            lookup.get(x, nomatch) if x not in skip else nomatch for x in v1
+        ]
+    else:
+        lst = [lookup.get(x, nomatch) for x in v1]
+    return lst
 
 
-def precision(x):
+def precision(x: FloatArrayLike | float) -> float:
     """
     Return the precision of x
 
@@ -188,59 +202,6 @@ def precision(x):
         return 1
     else:
         return 10 ** int(np.floor(np.log10(span)))
-
-
-def first_element(obj):
-    """
-    Return the first element of `obj`
-
-    Parameters
-    ----------
-    obj : iterable
-        Should not be an iterator
-
-    Returns
-    -------
-    out : object
-        First element of `obj`. Raise a class:`StopIteration`
-        exception if `obj` is empty.
-    """
-    if isinstance(obj, Iterator):
-        raise RuntimeError("Cannot get the first element of an iterator")
-    return next(iter(obj))
-
-
-def multitype_sort(a):
-    """
-    Sort elements of multiple types
-
-    x is assumed to contain elements of different types, such that
-    plain sort would raise a `TypeError`.
-
-    Parameters
-    ----------
-    a : array-like
-        Array of items to be sorted
-
-    Returns
-    -------
-    out : list
-        Items sorted within their type groups.
-    """
-    types = defaultdict(list)
-    numbers = {int, float, complex}
-
-    for x in a:
-        t = type(x)
-        if t in numbers:
-            types["number"].append(x)
-        else:
-            types[t].append(x)
-
-    for t in types:
-        types[t] = np.sort(types[t])
-
-    return list(chain.from_iterable(types[t] for t in types))
 
 
 def same_log10_order_of_magnitude(x, delta=0.1):
@@ -366,7 +327,7 @@ def get_null_value(x: Any) -> NullType:
 
     import pandas as pd
 
-    x0 = first_element(x)
+    x0 = next(iter(x))
 
     if pdtypes.is_object_dtype(x):
         return None

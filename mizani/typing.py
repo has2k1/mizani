@@ -45,11 +45,22 @@ if typing.TYPE_CHECKING:
     IntSeries: TypeAlias = pd.Series[int]
     FloatSeries: TypeAlias = pd.Series[float]
 
+    # Sequences that support vectorized operations
+    IntVector: TypeAlias = NDArrayInt | IntSeries
+    FloatVector: TypeAlias = NDArrayFloat | FloatSeries
+
     # ArrayLikes
     AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]
     IntArrayLike: TypeAlias = NDArrayInt | IntSeries | Sequence[int]
     FloatArrayLike: TypeAlias = NDArrayFloat | FloatSeries | Sequence[float]
     NumArrayLike: TypeAlias = IntArrayLike | FloatArrayLike
+
+    NumericUFunction: TypeAlias = (
+        Callable[[FloatVector], FloatVector]
+        | Callable[[IntVector], FloatVector]
+        | Callable[[float], float]
+        | Callable[[int], float]
+    )
 
     # Nulls for different types
     # float("nan"), np.timedelta64("NaT") & np.datetime64("NaT") do not

@@ -149,7 +149,7 @@ include = [
     "mizani/scale.py",
     # "mizani/transforms.py",
     "mizani/typing.py",
-    # "mizani/utils.py"
+    "mizani/utils.py"
 ]
 
 # Paths of directories or files whose diagnostic output (errors and

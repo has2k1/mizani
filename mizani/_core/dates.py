@@ -22,11 +22,12 @@ if typing.TYPE_CHECKING:
     from mizani.typing import (
         Datetime,
         DatetimeBreaksUnits,
-        FloatArrayLike,
-        NDArrayDatetime64,
+        FloatVector,
+        NDArrayDatetime,
         NDArrayFloat,
         SeqDatetime,
         TupleFloat2,
+        TupleInt2,
         TzInfo,
     )
 
@@ -130,7 +131,7 @@ def datetime_to_num(x: SeqDatetime | Datetime) -> NDArrayFloat | float:
     return res if iterable else res[0]
 
 
-def datetime64_to_num(x: NDArrayDatetime64) -> NDArrayFloat:
+def datetime64_to_num(x: NDArrayDatetime) -> NDArrayFloat:
     """
     Convery any numpy datetime64 array to float array
     """
@@ -149,13 +150,13 @@ def datetime64_to_num(x: NDArrayDatetime64) -> NDArrayFloat:
 
 
 def num_to_datetime(
-    x: FloatArrayLike, tz: Optional[str | TzInfo] = None
-) -> Sequence[datetime]:
+    x: FloatVector, tz: Optional[str | TzInfo] = None
+) -> NDArrayDatetime:
     """
     Convert any float array to numpy datetime64 array
     """
     tz = get_tzinfo(tz) or UTC
-    return _from_ordinalf_np_vectorized(x, tz).tolist()
+    return _from_ordinalf_np_vectorized(x, tz)
 
 
 class DateFrequency(IntEnum):
@@ -232,7 +233,7 @@ def _isclose_abs(a: float, b: float, tol: float = ABS_TOL) -> bool:
     return math.isclose(a, b, rel_tol=0, abs_tol=ABS_TOL)
 
 
-def _align_limits(limits: TupleFloat2, width: float) -> TupleFloat2:
+def _align_limits(limits: TupleInt2, width: float) -> TupleFloat2:
     """
     Return limits so that breaks should be multiples of the width
 
@@ -541,7 +542,7 @@ def secondly_breaks(info: date_breaks_info) -> Sequence[datetime]:
     return r.between(info.start, info.until, True)
 
 
-def microsecondly_breaks(info: date_breaks_info) -> Sequence[datetime]:
+def microsecondly_breaks(info: date_breaks_info) -> NDArrayDatetime:
     """
     Calculate breaks at microsecond intervals
     """

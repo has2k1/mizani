@@ -33,9 +33,11 @@ if typing.TYPE_CHECKING:
     from typing import Any, Optional
 
     from mizani.typing import (
-        AnyArrayLike,
+        AnyVector,
+        Float,
+        FloatVector,
         NDArrayFloat,
-        NumArrayLike,
+        NumVector,
         TupleFloat2,
         TupleFloat4,
     )
@@ -57,7 +59,7 @@ EPSILON = sys.float_info.epsilon
 
 
 def rescale(
-    x: NumArrayLike,
+    x: FloatVector,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
 ) -> NDArrayFloat:
@@ -89,13 +91,12 @@ def rescale(
     >>> rescale(x, to=(0, 2), _from=(0, 20))
     array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
     """
-    if _from is None:
-        _from = np.min(x), np.max(x)
-    return np.interp(x, _from, to)
+    __from = (np.min(x), np.max(x)) if _from is None else _from
+    return np.interp(x, __from, to)
 
 
 def rescale_mid(
-    x: NumArrayLike,
+    x: NumVector,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
     mid: float = 0,
@@ -128,20 +129,21 @@ def rescale_mid(
     >>> rescale_mid([1, 2, 3], mid=2)
     array([0. , 0.5, 1. ])
     """
-    if _from is None:
-        _from = (np.min(x), np.max(x))
+    __from: NDArrayFloat = np.array(
+        (np.min(x), np.max(x)) if _from is None else _from
+    )
 
-    if zero_range(_from) or zero_range(to):
+    if zero_range(__from) or zero_range(to):  # type: ignore
         out = np.repeat(np.mean(to), len(x))
     else:
-        extent = 2 * np.max(np.abs((_from[0] - mid, _from[1] - mid)))
+        extent = 2 * np.max(np.abs(__from - mid))
         out = (np.asarray(x) - mid) / extent * np.diff(to) + np.mean(to)
 
     return out
 
 
 def rescale_max(
-    x: NumArrayLike,
+    x: FloatVector,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
 ) -> NDArrayFloat:
@@ -167,7 +169,7 @@ def rescale_max(
 
     Examples
     --------
-    >>> x = [0, 2, 4, 6, 8, 10]
+    >>> x = np.array([0, 2, 4, 6, 8, 10])
     >>> rescale_max(x, (0, 3))
     array([0. , 0.6, 1.2, 1.8, 2.4, 3. ])
 
@@ -188,28 +190,26 @@ def rescale_max(
     If the values are the same, they taken on the requested maximum.
     This includes an array of all zeros.
 
-    >>> rescale_max([5, 5, 5])
+    >>> rescale_max(np.array([5, 5, 5]))
     array([1., 1., 1.])
-    >>> rescale_max([0, 0, 0])
+    >>> rescale_max(np.array([0, 0, 0]))
     array([1, 1, 1])
     """
-    if _from is None:
-        _from = (np.min(x), np.max(x))
+    __from = (np.min(x), np.max(x)) if _from is None else _from
+    _x = np.asarray(x)
 
-    x = np.asarray(x)
-
-    if np.any(x < 0):
-        out = rescale(x, (0, to[1]), _from)
-    elif np.all(x == 0) and _from[1] == 0:
-        out = np.repeat(to[1], len(x))
+    if np.any(_x < 0):
+        out = rescale(x, (0, to[1]), __from)  # type: ignore
+    elif np.all(_x == 0) and __from[1] == 0:
+        out = np.repeat(to[1], len(_x))
     else:
-        out = x / _from[1] * to[1]
+        out = _x / __from[1] * to[1]
 
     return out
 
 
 def squish_infinite(
-    x: NumArrayLike, range: TupleFloat2 = (0, 1)
+    x: FloatVector, range: TupleFloat2 = (0, 1)
 ) -> NDArrayFloat:
     """
     Truncate infinite values to a range.
@@ -229,19 +229,21 @@ def squish_infinite(
 
     Examples
     --------
-    >>> list(squish_infinite([0, .5, .25, np.inf, .44]))
+    >>> arr1 = np.array([0, .5, .25, np.inf, .44])
+    >>> arr2 = np.array([0, -np.inf, .5, .25, np.inf])
+    >>> list(squish_infinite(arr1))
     [0.0, 0.5, 0.25, 1.0, 0.44]
-    >>> list(squish_infinite([0, -np.inf, .5, .25, np.inf], (-10, 9)))
+    >>> list(squish_infinite(arr2, (-10, 9)))
     [0.0, -10.0, 0.5, 0.25, 9.0]
     """
-    _x = np.asarray(x, dtype=float)
+    _x = np.asarray(x)
     _x[np.isneginf(_x)] = range[0]
     _x[np.isposinf(_x)] = range[1]
     return _x
 
 
 def squish(
-    x: NumArrayLike, range: TupleFloat2 = (0, 1), only_finite: bool = True
+    x: FloatVector, range: TupleFloat2 = (0, 1), only_finite: bool = True
 ) -> NDArrayFloat:
     """
     Squish values into range.
@@ -276,8 +278,8 @@ def squish(
 
 
 def censor(
-    x: NumArrayLike, range: TupleFloat2 = (0, 1), only_finite: bool = True
-) -> AnyArrayLike:
+    x: NumVector, range: TupleFloat2 = (0, 1), only_finite: bool = True
+) -> AnyVector:
     """
     Convert any values outside of range to a **NULL** type object.
 
@@ -298,13 +300,13 @@ def censor(
 
     Examples
     --------
-    >>> a = [1, 2, np.inf, 3, 4, -np.inf, 5]
-    >>> censor(a, (0, 10))
-    [1, 2, inf, 3, 4, -inf, 5]
-    >>> censor(a, (0, 10), False)
-    [1, 2, nan, 3, 4, nan, 5]
-    >>> censor(a, (2, 4))
-    [nan, 2, inf, 3, 4, -inf, nan]
+    >>> a = np.array([1, 2, np.inf, 3, 4, -np.inf, 5])
+    >>> list(censor(a, (0, 10)))
+    [1.0, 2.0, inf, 3.0, 4.0, -inf, 5.0]
+    >>> list(censor(a, (0, 10), False))
+    [1.0, 2.0, nan, 3.0, 4.0, nan, 5.0]
+    >>> list(censor(a, (2, 4)))
+    [nan, 2.0, inf, 3.0, 4.0, -inf, nan]
 
     Notes
     -----
@@ -332,19 +334,15 @@ def censor(
     else:
         finite = np.repeat(True, len(x))
 
-    if isinstance(x, (np.ndarray, pd.Series)):
-        # Ignore RuntimeWarning when x contains nans
-        with np.errstate(invalid="ignore"):
-            outside = (x < range[0]) | (x > range[1])  # type: ignore
-        bool_idx = finite & outside
-        res = x.copy()
+    # Ignore RuntimeWarning when x contains nans
+    with np.errstate(invalid="ignore"):
+        outside = (x < range[0]) | (x > range[1])  # type: ignore
+    bool_idx = finite & outside
+    res = x.copy()
+    if bool_idx.any():
+        if res.dtype.kind == "i":
+            res = np.asarray(res, dtype=float)
         res[bool_idx] = null
-    else:
-        res = [
-            null if not range[0] <= val <= range[1] and f else val
-            for val, f in zip(x, finite)
-        ]
-
     return res
 
 
@@ -420,7 +418,7 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
 
 
 def expand_range(
-    range: TupleFloat2, mul: float = 0, add: float = 0, zero_width: float = 1
+    range: TupleFloat2, mul: Float = 0, add: Float = 0, zero_width: float = 1
 ) -> TupleFloat2:
     """
     Expand a range with a multiplicative or additive constant
@@ -476,7 +474,7 @@ def expand_range(
         dx = (high - low) * mul + add
         new = low - dx, high + dx
 
-    return new
+    return new  # type: ignore
 
 
 def expand_range_distinct(
@@ -533,8 +531,11 @@ def expand_range_distinct(
     """
 
     if len(expand) == 2:
-        expand = (expand[0], expand[1], expand[0], expand[1])
+        low_mul = high_mul = expand[0]
+        low_add = high_add = expand[1]
+    else:
+        low_mul, low_add, high_mul, high_add = expand
 
-    lower = expand_range(range, expand[0], expand[1], zero_width)[0]
-    upper = expand_range(range, expand[2], expand[3], zero_width)[1]
-    return (lower, upper)
+    lower = expand_range(range, low_mul, low_add, zero_width)[0]
+    upper = expand_range(range, high_mul, high_add, zero_width)[1]
+    return (lower, upper)  # type: ignore

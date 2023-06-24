@@ -147,7 +147,7 @@ include = [
     # "mizani/formatters.py",
     # "mizani/palettes.py",
     "mizani/scale.py",
-    # "mizani/transforms.py",
+    "mizani/transforms.py",
     "mizani/typing.py",
     "mizani/utils.py"
 ]

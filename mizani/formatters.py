@@ -399,7 +399,9 @@ class log_format:
     ['$10^{-4}$', '$10^{-1}$', '$10^{4}$']
     """
 
-    def __init__(self, base=10, exponent_limits=(-4, 4), mathtex=False):
+    def __init__(
+        self, base: float = 10, exponent_limits=(-4, 4), mathtex=False
+    ):
         self.base = base
         self.exponent_limits = exponent_limits
         self.mathtex = mathtex

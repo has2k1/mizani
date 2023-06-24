@@ -6,6 +6,7 @@ import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
 import pytest
+from numpy.testing import assert_equal
 from pytest import approx
 
 from mizani.bounds import (
@@ -24,7 +25,7 @@ NaT_type = type(pd.NaT)
 
 
 def test_censor():
-    x = list(range(10))
+    x = np.arange(10)
     xx = censor(x, (2, 8))
     assert np.isnan(xx[0])
     assert np.isnan(xx[1])
@@ -41,27 +42,27 @@ def test_censor():
 
     # datetime
     limits = datetime(2010, 1, 1), datetime(2020, 1, 1)
-    x = [datetime(year, 1, 1) for year in range(2008, 2023)]
+    x = np.array([datetime(year, 1, 1) for year in range(2008, 2023)])
     result = censor(x, limits)
-    assert result[2:-2] == x[2:-2]
-    assert result[:2] == [None, None]
-    assert result[-2:] == [None, None]
+    assert_equal(result[2:-2], x[2:-2])
+    assert_equal(result[:2], [None, None])
+    assert_equal(result[-2:], [None, None])
 
     # timedelta
     limits = timedelta(seconds=2010), timedelta(seconds=2020)
-    x = [timedelta(seconds=i) for i in range(2008, 2023)]
+    x = np.array([timedelta(seconds=i) for i in range(2008, 2023)])
     result = censor(x, limits)
-    assert result[2:-2] == x[2:-2]
-    assert result[:2] == [None, None]
-    assert result[-2:] == [None, None]
+    assert_equal(result[2:-2], x[2:-2])
+    assert_equal(result[:2], [None, None])
+    assert_equal(result[-2:], [None, None])
 
     # pd.timestamp
     limits = pd.Timestamp(200 * 1e16), pd.Timestamp(205 * 1e16)
-    x = [pd.Timestamp(i * 1e16) for i in range(198, 208)]
+    x = np.array([pd.Timestamp(i * 1e16) for i in range(198, 208)])
     result = censor(x, limits)
-    assert result[2:-2] == x[2:-2]
-    assert all(isinstance(val, NaT_type) for val in result[:2])
-    assert all(isinstance(val, NaT_type) for val in result[-2:])
+    assert_equal(result[2:-2], x[2:-2])
+    assert_equal(result[:2], [None, None])
+    assert_equal(result[-2:], [None, None])
 
     x1 = np.array(x)
     result = censor(x1, limits)
@@ -79,18 +80,17 @@ def test_censor():
     x = [np.datetime64(i, "D") for i in range(198, 208)]
     x2 = np.array(x)
     result = censor(x2, limits)
-    npt.assert_array_equal(result[2:-2], x2[2:-2])
+    assert_equal(result[2:-2], x2[2:-2])
     assert all(isinstance(val, np.datetime64) for val in result[:2])
     assert all(isinstance(val, np.datetime64) for val in result[-2:])
 
     # pd.Timedelta
     limits = pd.Timedelta(seconds=2010), pd.Timedelta(seconds=2020)
-    x = [pd.Timedelta(seconds=i) for i in range(2008, 2023)]
+    x = np.array([pd.Timedelta(seconds=i) for i in range(2008, 2023)])
     result = censor(x, limits)
-    assert isinstance(result, list)
-    assert result[2:-2] == x[2:-2]
-    assert all(isinstance(val, NaT_type) for val in result[:2])
-    assert all(isinstance(val, NaT_type) for val in result[-2:])
+    assert_equal(result[2:-2], x[2:-2])
+    assert all(val is None for val in result[:2])
+    assert all(val is None for val in result[-2:])
 
     x4 = np.array(x)
     result = censor(x4, limits)

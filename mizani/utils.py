@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 import typing
-from collections import defaultdict
-from collections.abc import Iterator
 from datetime import datetime, timezone
-from itertools import chain
 from warnings import warn
 
 import numpy as np
@@ -12,13 +9,12 @@ import pandas.api.types as pdtypes
 
 if typing.TYPE_CHECKING:
     from datetime import tzinfo
-    from typing import Any, Callable, Literal, Optional
+    from typing import Any, Optional, Sequence
 
     from mizani.typing import (
         AnyArrayLike,
         DurationUnit,
-        FloatArrayLike,
-        NDArrayInt,
+        FloatVector,
         NullType,
         NumericUFunction,
         SeqDatetime,
@@ -68,8 +64,8 @@ NANOSECONDS: dict[DurationUnit, float] = {
 
 
 def round_any(
-    x: FloatArrayLike | float, accuracy: float, f: NumericUFunction = np.round
-) -> FloatArrayLike | float:
+    x: FloatVector | float, accuracy: float, f: NumericUFunction = np.round
+) -> FloatVector | float:
     """
     Round to multiple of any number.
     """
@@ -80,7 +76,7 @@ def round_any(
 
 
 def min_max(
-    x: FloatArrayLike | float, na_rm: bool = False, finite: bool = True
+    x: FloatVector | float, na_rm: bool = False, finite: bool = True
 ) -> TupleFloat2:
     """
     Return the minimum and maximum of x
@@ -111,7 +107,7 @@ def min_max(
         x = x[~np.isinf(x)]
 
     if len(x):
-        return np.min(x), np.max(x)  # type: ignore
+        return np.min(x), np.max(x)
     else:
         return float("-inf"), float("inf")
 
@@ -163,7 +159,7 @@ def match(
     return lst
 
 
-def precision(x: FloatArrayLike | float) -> float:
+def precision(x: FloatVector | float) -> float:
     """
     Return the precision of x
 
@@ -328,10 +324,11 @@ def get_null_value(x: Any) -> NullType:
     import pandas as pd
 
     x0 = next(iter(x))
+    numeric_types: Sequence[type] = (np.int64, np.float64, int, float, bool)
 
     if pdtypes.is_object_dtype(x):
         return None
-    elif isinstance(x0, (int, float, bool)):
+    elif isinstance(x0, numeric_types):  # type: ignore
         return float("nan")
     # pandas types subclass cypthon types, so check
     # for them first

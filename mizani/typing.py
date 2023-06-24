@@ -3,12 +3,13 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
-    import datetime
+    from datetime import date, datetime, timedelta, tzinfo
     from types import NoneType
     from typing import (
         Any,
         Callable,
         Literal,
+        Optional,
         Sequence,
         TypeAlias,
         TypeVar,
@@ -24,13 +25,20 @@ if typing.TYPE_CHECKING:
 
     T = TypeVar("T")
 
+    Int: TypeAlias = int | np.int64
+    Float: TypeAlias = float | np.float64
+
     # Tuples
-    TupleInt2: TypeAlias = tuple[int, int]
-    TupleFloat2: TypeAlias = tuple[float, float]
-    TupleFloat3: TypeAlias = tuple[float, float, float]
-    TupleFloat4: TypeAlias = tuple[float, float, float, float]
-    TupleFloat5: TypeAlias = tuple[float, float, float, float, float]
     TupleT2: TypeAlias = tuple[T, T]
+    TupleT3: TypeAlias = tuple[T, T, T]
+    TupleT4: TypeAlias = tuple[T, T, T, T]
+    TupleT5: TypeAlias = tuple[T, T, T, T, T]
+
+    TupleInt2: TypeAlias = TupleT2[int]
+    TupleFloat2: TypeAlias = TupleT2[float] | TupleT2[np.float64]
+    TupleFloat3: TypeAlias = TupleT3[float] | TupleT3[np.float64]
+    TupleFloat4: TypeAlias = TupleT4[float] | TupleT4[np.float64]
+    TupleFloat5: TypeAlias = TupleT5[float] | TupleT5[np.float64]
 
     # Arrays (strictly numpy)
     NDArrayAny: TypeAlias = npt.NDArray[Any]
@@ -38,7 +46,8 @@ if typing.TYPE_CHECKING:
     NDArrayFloat: TypeAlias = npt.NDArray[np.float64]
     NDArrayInt: TypeAlias = npt.NDArray[np.int64]
     NDArrayStr: TypeAlias = npt.NDArray[np.str_]
-    NDArrayDatetime64: TypeAlias = npt.NDArray[np.datetime64]
+    NDArrayDatetime: TypeAlias = npt.NDArray[Any]
+    NDArrayTimedelta: TypeAlias = npt.NDArray[Any]
 
     # Series
     AnySeries: TypeAlias = pd.Series[Any]
@@ -48,6 +57,8 @@ if typing.TYPE_CHECKING:
     # Sequences that support vectorized operations
     IntVector: TypeAlias = NDArrayInt | IntSeries
     FloatVector: TypeAlias = NDArrayFloat | FloatSeries
+    AnyVector: TypeAlias = NDArrayAny | AnySeries
+    NumVector: TypeAlias = IntVector | FloatVector
 
     # ArrayLikes
     AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]
@@ -77,19 +88,6 @@ if typing.TYPE_CHECKING:
         | pd.Timedelta
         | np.timedelta64
         | np.datetime64
-    )
-
-    # Type Variables
-    # A array variable we can pass to a transforming function and expect
-    # result to be of the same type
-    FloatArrayLikeTV = TypeVar(
-        "FloatArrayLikeTV",
-        # We cannot use FloatArrayLike type because pyright expect
-        # the result to be a FloatArrayLike
-        NDArrayFloat,
-        FloatSeries,
-        Sequence[float],
-        TupleFloat2,
     )
 
     RGB256Color: TypeAlias = tuple[int, int, int]
@@ -124,15 +122,13 @@ if typing.TYPE_CHECKING:
         "M",  # month
         "y",  # year
     ]
-    Timedelta: TypeAlias = datetime.timedelta | pd.Timedelta
-    Datetime: TypeAlias = datetime.date | datetime.datetime | np.datetime64
+    Timedelta: TypeAlias = timedelta | pd.Timedelta
+    Datetime: TypeAlias = date | datetime | np.datetime64
     SeqDatetime: TypeAlias = (
-        Sequence[datetime.date]
-        | Sequence[datetime.datetime]
-        | Sequence[np.datetime64]
+        Sequence[date] | Sequence[datetime] | Sequence[np.datetime64]
     )
     SeqDatetime64: TypeAlias = Sequence[np.datetime64]
-    TzInfo: TypeAlias = datetime.tzinfo
+    TzInfo: TypeAlias = tzinfo
 
     # dateutil.rrule.YEARLY, ..., but not including 2 weekly
     # adding 7 for our own MICROSECONDLY
@@ -153,3 +149,11 @@ if typing.TYPE_CHECKING:
 
     # Mizani
     Trans: TypeAlias = trans
+    TransformFunction: TypeAlias = Callable[[AnyVector], FloatVector]
+    InverseFunction: TypeAlias = Callable[[FloatVector], AnyVector]
+    BreaksFunction: TypeAlias = Callable[[tuple[Any, Any]], AnyArrayLike]
+    MinorBreaksFunction: TypeAlias = Callable[
+        [FloatVector, Optional[TupleFloat2], Optional[int]], FloatVector
+    ]
+
+    FormatFunction: TypeAlias = Callable[[AnyArrayLike], Sequence[str]]

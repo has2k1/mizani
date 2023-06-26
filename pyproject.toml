@@ -94,7 +94,8 @@ version_scheme = 'post-release'
 ########## Tool - pytest ##########
 [tool.pytest.ini_options]
 testpaths = [
-    "mizani"
+    "mizani",
+    "tests"
 ]
 addopts = "--pyargs --cov=mizani --cov-report=xml --doctest-modules --doctest-ignore-import-errors"
 doctest_optionflags = "ALLOW_BYTES NORMALIZE_WHITESPACE"

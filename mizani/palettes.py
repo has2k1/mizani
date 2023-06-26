@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 from .bounds import rescale
-from .external import crayon_rgb, husl, xkcd_rgb
+from .colors import crayon_rgb, hsluv, xkcd_rgb
 from .utils import identity
 
 if typing.TYPE_CHECKING:
@@ -136,7 +136,7 @@ def husl_palette(n_colors=6, h=0.01, s=0.9, l=0.65):
     hues *= 359
     s *= 99
     l *= 99
-    palette = [husl.husl_to_rgb(h_i, s, l) for h_i in hues]
+    palette = [hsluv.hsluv_to_rgb((h_i, s, l)) for h_i in hues]
     return palette
 
 
@@ -719,7 +719,7 @@ def xkcd_palette(colors):
     Parameters
     ----------
     colors : list of strings
-        List of keys in the ``mizani.external.xkcd_rgb`` dictionary.
+        List of keys in the ``mizani.colors.xkcd_rgb`` dictionary.
 
     Returns
     -------
@@ -732,7 +732,7 @@ def xkcd_palette(colors):
     >>> palette
     ['#e50000', '#15b01a', '#0343df']
 
-    >>> from mizani.external import xkcd_rgb
+    >>> from mizani.colors import xkcd_rgb
     >>> list(sorted(xkcd_rgb.keys()))[:5]
     ['acid green', 'adobe', 'algae', 'algae green', 'almost black']
     """
@@ -749,7 +749,7 @@ def crayon_palette(colors):
     Parameters
     ----------
     colors : list of strings
-        List of keys in the ``mizani.external.crayloax_rgb`` dictionary.
+        List of keys in the ``mizani.colors.crayloax_rgb`` dictionary.
 
     Returns
     -------
@@ -762,7 +762,7 @@ def crayon_palette(colors):
     >>> palette
     ['#eed9c4', '#c9c0bb', '#fbe870']
 
-    >>> from mizani.external import crayon_rgb
+    >>> from mizani.colors import crayon_rgb
     >>> list(sorted(crayon_rgb.keys()))[:5]
     ['almond', 'antique brass', 'apricot', 'aquamarine', 'asparagus']
     """

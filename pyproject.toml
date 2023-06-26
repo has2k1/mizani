@@ -141,6 +141,7 @@ include = [
     # "mizani/"
     "mizani/colors",
     "mizani/_core",
+    "mizani/external",
     "mizani/__init__.py",
     "mizani/bounds.py",
     "mizani/breaks.py",

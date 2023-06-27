@@ -118,7 +118,7 @@ omit = [
 disable_warnings = ["include-ignored"]
 
 [tool.coverage.report]
-exclude_lines = [
+exclude_also = [
    "pragma: no cover",
    "^def test_",
    "if __name__ == .__main__.:",
@@ -126,7 +126,8 @@ exclude_lines = [
    "if typing.TYPE_CHECKING:",
    "except ImportError:",
    "except PackageNotFoundError:",
-   "@overload"
+   "@overload",
+   "\\s{4,}\\.\\.\\."
 ]
 precision = 1
 
@@ -142,12 +143,11 @@ include = [
     # "mizani/"
     "mizani/colors",
     "mizani/_core",
-    "mizani/external",
     "mizani/__init__.py",
     "mizani/bounds.py",
     "mizani/breaks.py",
     # "mizani/formatters.py",
-    # "mizani/palettes.py",
+    "mizani/palettes.py",
     "mizani/scale.py",
     "mizani/transforms.py",
     "mizani/typing.py",

@@ -16,9 +16,9 @@ from functools import partial as _partial
 from functools import wraps as _wraps  # unexport, see #17
 
 if typing.TYPE_CHECKING:
-    from typing import Literal, Sequence, TypeAlias
+    from typing import Literal, TypeAlias
 
-    from mizani.typing import RGB256Color, RGBHexColor
+    from mizani.typing import RGBHexColor
 
     Doublet: TypeAlias = tuple[float, float]
     Triplet: TypeAlias = tuple[float, float, float]
@@ -184,7 +184,7 @@ def xyz_to_luv(_hx_tuple: Triplet) -> Triplet:
     if l == 0:
         return (0, 0, 0)
     divider = x + 15 * y + 3 * z
-    if divider == 0:
+    if divider == 0:  # pragma: no cover
         u = v = float("nan")
         return (l, u, v)
     var_u = 4 * x / divider
@@ -287,9 +287,9 @@ def lch_to_hpluv(_hx_tuple: Triplet) -> Triplet:
 
 def rgb_to_hex(_hx_tuple: Triplet) -> RGBHexColor:
     return "#{:02x}{:02x}{:02x}".format(
-        int(_math.floor(_hx_tuple[0] * 255 + 0.5)),
-        int(_math.floor(_hx_tuple[1] * 255 + 0.5)),
-        int(_math.floor(_hx_tuple[2] * 255 + 0.5)),
+        _math.floor(_hx_tuple[0] * 255 + 0.5),
+        _math.floor(_hx_tuple[1] * 255 + 0.5),
+        _math.floor(_hx_tuple[2] * 255 + 0.5),
     )
 
 

@@ -23,7 +23,7 @@ from warnings import warn
 import numpy as np
 
 from .bounds import rescale
-from .colors import crayon_rgb, hsluv, rgb_to_hex, xkcd_rgb
+from .colors import get_named_color, hex_to_rgb, hsluv, rgb_to_hex
 from .utils import identity
 
 if typing.TYPE_CHECKING:
@@ -683,12 +683,13 @@ class desaturate_pal(gradient_n_pal):
     """
 
     def __init__(self, color: str, prop: float, reverse: bool = False):
-        from matplotlib.colors import colorConverter
-
         if not 0 <= prop <= 1:
             raise ValueError("prop must be between 0 and 1")
 
-        rgb = colorConverter.to_rgb(color)
+        if isinstance(color, str):
+            color = get_named_color(color)
+
+        rgb = hex_to_rgb(color)
         h, l, s = colorsys.rgb_to_hls(*rgb)
         s *= prop
         desaturated_color = colorsys.hls_to_rgb(h, l, s)
@@ -756,13 +757,13 @@ def xkcd_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
     --------
     >>> palette = xkcd_palette(['red', 'green', 'blue'])
     >>> palette
-    ['#e50000', '#15b01a', '#0343df']
+    ['#E50000', '#15B01A', '#0343DF']
 
-    >>> from mizani.colors import xkcd_rgb
-    >>> list(sorted(xkcd_rgb.keys()))[:5]
-    ['acid green', 'adobe', 'algae', 'algae green', 'almost black']
+    >>> from mizani.colors.named_colors import XKCD
+    >>> list(sorted(XKCD.keys()))[:4]
+    ['xkcd:acid green', 'xkcd:adobe', 'xkcd:algae', 'xkcd:algae green']
     """
-    return [xkcd_rgb[name] for name in colors]
+    return [get_named_color(f"xkcd:{name}") for name in colors]
 
 
 def crayon_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
@@ -786,13 +787,13 @@ def crayon_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
     --------
     >>> palette = crayon_palette(['almond', 'silver', 'yellow'])
     >>> palette
-    ['#eed9c4', '#c9c0bb', '#fbe870']
+    ['#EED9C4', '#C9C0BB', '#FBE870']
 
-    >>> from mizani.colors import crayon_rgb
-    >>> list(sorted(crayon_rgb.keys()))[:5]
-    ['almond', 'antique brass', 'apricot', 'aquamarine', 'asparagus']
+    >>> from mizani.colors.named_colors import CRAYON
+    >>> list(sorted(CRAYON.keys()))[:3]
+    ['crayon:almond', 'crayon:antique brass', 'crayon:apricot']
     """
-    return [crayon_rgb[name] for name in colors]
+    return [get_named_color(f"crayon:{name}") for name in colors]
 
 
 @dataclass

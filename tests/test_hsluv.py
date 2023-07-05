@@ -24,7 +24,7 @@ def test_rgb_range():
 
 def test_snapshort():
     # Load snapshot into memory
-    filename = Path(__file__).parent / "hsluv-snapshot-rev4.json"
+    filename = Path(__file__).parent / "data/hsluv-snapshot-rev4.json"
     with open(filename) as f:
         snapshot = json.load(f)
 

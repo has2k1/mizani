@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pytest
 from numpy.testing import assert_allclose
 
 from mizani.colors import hsluv
@@ -22,6 +23,7 @@ def test_rgb_range():
                     assert -ATOL < c < 1 + ATOL
 
 
+@pytest.mark.slow
 def test_snapshort():
     # Load snapshot into memory
     filename = Path(__file__).parent / "data/hsluv-snapshot-rev4.json"

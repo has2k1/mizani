@@ -23,7 +23,14 @@ from warnings import warn
 import numpy as np
 
 from .bounds import rescale
-from .colors import get_named_color, hex_to_rgb, hsluv, rgb_to_hex
+from .colors import (
+    CubeHelixMap,
+    GradientMap,
+    get_named_color,
+    hex_to_rgb,
+    hsluv,
+    rgb_to_hex,
+)
 from .utils import identity
 
 if typing.TYPE_CHECKING:
@@ -312,26 +319,24 @@ class grey_pal(_discrete_pal):
     --------
     >>> palette = grey_pal()
     >>> palette(5)
-    ['#333333', '#737373', '#989898', '#b5b5b5', '#cccccc']
+    ['#333333', '#737373', '#989898', '#b4b4b4', '#cccccc']
     """
 
     start: float = 0.2
     end: float = 0.8
 
+    def __post_init__(self):
+        colors = (self.start,) * 3, (self.end,) * 3
+        self._gmap = GradientMap(colors)
+
     def __call__(self, n: int) -> Sequence[RGBHexColor | None]:
-        from matplotlib.colors import LinearSegmentedColormap
-
         gamma = 2.2
-        ends = ((0.0, self.start, self.start), (1.0, self.end, self.end))
-        cdict = {"red": ends, "green": ends, "blue": ends}
-        grey_cmap = LinearSegmentedColormap("grey", cdict)
-
         # The grey scale points are linearly separated in
         # gamma encoded space
-        x = np.linspace(self.start**gamma, self.end**gamma, n)
+        space = np.linspace(self.start**gamma, self.end**gamma, n)
         # Map points onto the [0, 1] palette domain
-        vals = (x ** (1.0 / gamma) - self.start) / (self.end - self.start)
-        return ratios_to_colors(vals, grey_cmap)
+        x = (space ** (1.0 / gamma) - self.start) / (self.end - self.start)
+        return self._gmap.continuous_palette(x)
 
 
 @dataclass
@@ -531,7 +536,7 @@ class gradient_n_pal(_continuous_pal):
     --------
     >>> palette = gradient_n_pal(['red', 'blue'])
     >>> palette([0, .25, .5, .75, 1])
-    ['#ff0000', '#bf0040', '#7f0080', '#3f00c0', '#0000ff']
+    ['#ff0000', '#bf0040', '#7f0080', '#4000bf', '#0000ff']
     >>> palette([-np.inf, 0, np.nan, 1, np.inf])
     [None, '#ff0000', None, '#0000ff', None]
     """
@@ -541,22 +546,10 @@ class gradient_n_pal(_continuous_pal):
     name: str = "gradientn"
 
     def __post_init__(self):
-        from matplotlib.colors import LinearSegmentedColormap
-
-        # Note: For better results across devices and media types,
-        # it would be better to do the interpolation in
-        # Lab color space.
-        if self.values is None:
-            self.colormap = LinearSegmentedColormap.from_list(
-                self.name, self.colors
-            )
-        else:
-            self.colormap = LinearSegmentedColormap.from_list(
-                self.name, list(zip(self.values, self.colors))
-            )
+        self._gmap = GradientMap(self.colors, self.values)
 
     def __call__(self, x: FloatVector) -> Sequence[RGBHexColor | None]:
-        return ratios_to_colors(x, self.colormap)
+        return self._gmap.continuous_palette(x)
 
 
 @dataclass
@@ -692,7 +685,7 @@ class desaturate_pal(gradient_n_pal):
         rgb = hex_to_rgb(color)
         h, l, s = colorsys.rgb_to_hls(*rgb)
         s *= prop
-        desaturated_color = colorsys.hls_to_rgb(h, l, s)
+        desaturated_color = rgb_to_hex(colorsys.hls_to_rgb(h, l, s))
         colors = [color, desaturated_color]
         if reverse:
             colors = colors[::-1]
@@ -797,9 +790,9 @@ def crayon_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
 
 
 @dataclass
-class cubehelix_pal(_continuous_pal):
+class cubehelix_pal(_discrete_pal):
     """
-    Utility for creating continuous palette from the cubehelix system.
+    Utility for creating discrete palette from the cubehelix system.
 
     This produces a colormap with linearly-decreasing (or increasing)
     brightness. That means that information will be preserved if printed to
@@ -841,11 +834,11 @@ class cubehelix_pal(_continuous_pal):
     --------
     >>> palette = cubehelix_pal()
     >>> palette(5)
-    ['#edd1cb', '#d499a7', '#aa688f', '#6e4071', '#2d1e3e']
+    ['#edd1cb', '#d499a7', '#aa678f', '#6e4071', '#2d1e3e']
     """
 
     start: int = 0
-    rot: float = 0.4
+    rotation: float = 0.4
     gamma: float = 1.0
     hue: float = 0.8
     light: float = 0.85
@@ -853,15 +846,18 @@ class cubehelix_pal(_continuous_pal):
     reverse: bool = False
 
     def __post_init__(self):
-        from matplotlib._cm import cubehelix
-        from matplotlib.colors import LinearSegmentedColormap
-
-        cdict = cubehelix(self.gamma, self.start, self.rot, self.hue)
-        self.cubehelix_cmap = LinearSegmentedColormap("cubehelix", cdict)
+        self._chmap = CubeHelixMap(
+            self.start,
+            self.rotation,
+            self.gamma,
+            self.hue,
+            self.light,
+            self.dark,
+            self.reverse,
+        )
 
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
-        values = np.linspace(self.light, self.dark, n)
-        return [rgb_to_hex(self.cubehelix_cmap(x)) for x in values]
+        return self._chmap.discrete_palette(n)
 
 
 def identity_pal() -> Callable[[], Any]:

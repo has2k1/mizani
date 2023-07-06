@@ -90,6 +90,8 @@ if typing.TYPE_CHECKING:
         | np.datetime64
     )
 
+    RGBColor: TypeAlias = tuple[float, float, float]
+
     RGB256Color: TypeAlias = tuple[int, int, int]
     RGB256Swatch: TypeAlias = list[RGB256Color]
     RGB256Swatches: TypeAlias = list[RGB256Swatch]

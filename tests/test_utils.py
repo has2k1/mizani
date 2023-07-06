@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 
 import pandas as pd
 import pytest
 
 from mizani.utils import (
     get_categories,
+    get_null_value,
     get_timezone,
     match,
     min_max,
@@ -134,3 +135,8 @@ def test_get_categories():
 def test_get_timezone():
     x = [date(2022, 1, 1), date(2022, 12, 1)]
     assert get_timezone(x) is None
+
+
+def test_get_null_value():
+    x = [datetime(2022, 3, 24)]
+    assert get_null_value(x) is None

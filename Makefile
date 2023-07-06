@@ -51,6 +51,9 @@ typecheck:
 	pyright
 
 test:
+	pytest --runslow
+
+test-fast:
 	pytest
 
 coverage:

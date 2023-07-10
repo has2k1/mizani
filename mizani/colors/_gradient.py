@@ -16,6 +16,7 @@ if typing.TYPE_CHECKING:
         FloatVector,
         NDArrayFloat,
         RGBColor,
+        RGBColorArray,
         RGBHexColor,
     )
 
@@ -29,7 +30,7 @@ __all__ = ("GradientMap",)
 
 @dataclass
 class GradientMap(ColorMap):
-    colors: Sequence[RGBHexColor] | Sequence[RGBColor]
+    colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
     values: Optional[Sequence[float]] = None
 
     def __post_init__(self):

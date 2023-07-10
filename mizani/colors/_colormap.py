@@ -7,10 +7,7 @@ import numpy as np
 if typing.TYPE_CHECKING:
     from typing import Sequence
 
-    from mizani.typing import (
-        FloatVector,
-        RGBHexColor,
-    )
+    from mizani.typing import FloatVector, RGBColor, RGBColorArray, RGBHexColor
 
 __all__ = ("ColorMap",)
 
@@ -19,6 +16,8 @@ class ColorMap:
     """
     Base color for all color maps
     """
+
+    colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
 
     def _generate_colors(self, x: FloatVector) -> Sequence[RGBHexColor]:
         """

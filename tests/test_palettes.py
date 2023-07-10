@@ -1,4 +1,3 @@
-import matplotlib as mpl
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -19,7 +18,6 @@ from mizani.palettes import (
     husl_palette,
     identity_pal,
     manual_pal,
-    ratios_to_colors,
     rescale_pal,
     xkcd_palette,
 )
@@ -171,7 +169,7 @@ def test_cmap_d_pal():
 
     # Bad palette
     with pytest.raises(ValueError):
-        palette = cmap_d_pal("Greens")
+        palette = cmap_d_pal("Foobar")
 
 
 def test_desaturate_pal():

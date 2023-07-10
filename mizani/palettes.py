@@ -26,6 +26,7 @@ from .bounds import rescale
 from .colors import (
     CubeHelixMap,
     GradientMap,
+    get_colormap,
     get_named_color,
     hex_to_rgb,
     hsluv,
@@ -35,8 +36,6 @@ from .utils import identity
 
 if typing.TYPE_CHECKING:
     from typing import Any, Literal, Optional, Sequence
-
-    from matplotlib.colors import Colormap
 
     from mizani.typing import (
         Callable,
@@ -477,36 +476,6 @@ def brewer_pal(
     return _brewer_pal
 
 
-def ratios_to_colors(
-    values: FloatVector, colormap: "Colormap"
-) -> Sequence[RGBHexColor | None]:
-    """
-    Map values in the range [0, 1] onto colors
-
-    Parameters
-    ----------
-    values : array_like
-        Numeric(s) in the range [0, 1]
-    colormap : cmap
-        Matplotlib colormap to use for the mapping
-
-    Returns
-    -------
-    out : list
-        Color(s) corresponding to the values
-    """
-    color_tuples = colormap(values)
-    hex_colors = [rgb_to_hex(t) for t in color_tuples]
-
-    nan_bool_idx = np.isnan(values) | np.isinf(values)
-    if nan_bool_idx.any():
-        hex_colors = [
-            None if isnan else color
-            for color, isnan in zip(hex_colors, nan_bool_idx)
-        ]
-    return hex_colors
-
-
 @dataclass
 class gradient_n_pal(_continuous_pal):
     """
@@ -520,8 +489,6 @@ class gradient_n_pal(_continuous_pal):
         list of points in the range [0, 1] at which to
         place each color. Must be the same size as
         `colors`. Default to evenly space the colors
-    name : str
-        Name to call the resultant MPL colormap
 
     Returns
     -------
@@ -543,7 +510,6 @@ class gradient_n_pal(_continuous_pal):
 
     colors: Sequence[str]
     values: Optional[Sequence[float]] = None
-    name: str = "gradientn"
 
     def __post_init__(self):
         self._gmap = GradientMap(self.colors, self.values)
@@ -555,7 +521,7 @@ class gradient_n_pal(_continuous_pal):
 @dataclass
 class cmap_pal(_continuous_pal):
     """
-    Create a continuous palette using an MPL colormap
+    Create a continuous palette using a colormap
 
     Parameters
     ----------
@@ -581,18 +547,16 @@ class cmap_pal(_continuous_pal):
     name: str
 
     def __post_init__(self):
-        import matplotlib as mpl
-
-        self.colormap = mpl.colormaps[self.name]
+        self.cm = get_colormap(self.name)
 
     def __call__(self, x: FloatVector) -> Sequence[RGBHexColor | None]:
-        return ratios_to_colors(x, self.colormap)
+        return self.cm.continuous_palette(x)
 
 
 @dataclass
 class cmap_d_pal(_discrete_pal):
     """
-    Create a discrete palette using an MPL Listed colormap
+    Create a discrete palette from a colormap
 
     Parameters
     ----------
@@ -611,24 +575,17 @@ class cmap_d_pal(_discrete_pal):
     --------
     >>> palette = cmap_d_pal('viridis')
     >>> palette(5)
-    ['#440154', '#3b528b', '#21918c', '#5cc863', '#fde725']
+    ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']
     """
 
     name: str
 
     def __post_init__(self):
-        import matplotlib as mpl
-        from matplotlib.colors import ListedColormap
-
-        self.colormap = mpl.colormaps[self.name]
-
-        if not isinstance(self.colormap, ListedColormap):
-            raise ValueError(
-                "For a discrete palette, cmap must be of type "
-                "matplotlib.colors.ListedColormap"
-            )
-
-        self.num_colors = len(self.colormap.colors)
+        self.cm = get_colormap(self.name)
+        if hasattr(self.cm, "colors"):
+            self.num_colors = len(self.cm.colors)
+        else:
+            self.num_colors = float("inf")
 
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
         if n > self.num_colors:
@@ -636,13 +593,7 @@ class cmap_d_pal(_discrete_pal):
                 f"cmap {self.name} has {self.num_colors} colors you "
                 f"requested {n} colors."
             )
-        if self.num_colors < 256:
-            return [rgb_to_hex(c) for c in self.colormap.colors[:n]]
-        else:
-            # Assume these are continuous and get colors equally spaced
-            # intervals  e.g. viridis is defined with 256 colors
-            idx = np.linspace(0, self.num_colors - 1, n).round().astype(int)
-            return [rgb_to_hex(self.colormap.colors[i]) for i in idx]
+        return self.cm.discrete_palette(n)
 
 
 class desaturate_pal(gradient_n_pal):
@@ -651,8 +602,8 @@ class desaturate_pal(gradient_n_pal):
 
     Parameters
     ----------
-    color : matplotlib color
-        hex, rgb-tuple, or html color name
+    color : color
+        html color name, hex, rgb-tuple
     prop : float
         saturation channel of color will be multiplied by
         this value
@@ -690,7 +641,7 @@ class desaturate_pal(gradient_n_pal):
         if reverse:
             colors = colors[::-1]
 
-        super().__init__(colors, name="desaturated")
+        super().__init__(colors)
 
 
 @dataclass

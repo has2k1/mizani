@@ -16,8 +16,8 @@ if typing.TYPE_CHECKING:
     )
 
     import numpy as np
-    import numpy.typing as npt
     import pandas as pd
+    from numpy.typing import NDArray
     from pandas._libs import NaTType
 
     from mizani.colors.color_palette import palette
@@ -41,13 +41,13 @@ if typing.TYPE_CHECKING:
     TupleFloat5: TypeAlias = TupleT5[float] | TupleT5[np.float64]
 
     # Arrays (strictly numpy)
-    NDArrayAny: TypeAlias = npt.NDArray[Any]
-    NDArrayBool: TypeAlias = npt.NDArray[np.bool_]
-    NDArrayFloat: TypeAlias = npt.NDArray[np.float64]
-    NDArrayInt: TypeAlias = npt.NDArray[np.int64]
-    NDArrayStr: TypeAlias = npt.NDArray[np.str_]
-    NDArrayDatetime: TypeAlias = npt.NDArray[Any]
-    NDArrayTimedelta: TypeAlias = npt.NDArray[Any]
+    NDArrayAny: TypeAlias = NDArray[Any]
+    NDArrayBool: TypeAlias = NDArray[np.bool_]
+    NDArrayFloat: TypeAlias = NDArray[np.float64]
+    NDArrayInt: TypeAlias = NDArray[np.int64]
+    NDArrayStr: TypeAlias = NDArray[np.str_]
+    NDArrayDatetime: TypeAlias = NDArray[Any]
+    NDArrayTimedelta: TypeAlias = NDArray[Any]
 
     # Series
     AnySeries: TypeAlias = pd.Series[Any]
@@ -90,7 +90,7 @@ if typing.TYPE_CHECKING:
         | np.datetime64
     )
 
-    RGBColor: TypeAlias = tuple[float, float, float]
+    RGBColor: TypeAlias = tuple[float, float, float] | NDArrayFloat
 
     RGB256Color: TypeAlias = tuple[int, int, int]
     RGB256Swatch: TypeAlias = list[RGB256Color]
@@ -99,6 +99,10 @@ if typing.TYPE_CHECKING:
     RGBHexColor: TypeAlias = str
     RGBHexSwatch: TypeAlias = list[RGBHexColor]
     RGBHexSwatches: TypeAlias = list[RGBHexSwatch]
+
+    # Change this when numpy gets support for type-hinting shapes
+    # Ref: https://github.com/numpy/numpy/issues/16544
+    RGBColorArray: TypeAlias = NDArrayFloat
 
     ColorScheme: TypeAlias = Literal[
         "diverging",

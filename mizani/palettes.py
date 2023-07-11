@@ -582,10 +582,10 @@ class cmap_d_pal(_discrete_pal):
 
     def __post_init__(self):
         self.cm = get_colormap(self.name)
-        if hasattr(self.cm, "colors"):
-            self.num_colors = len(self.cm.colors)
-        else:
-            self.num_colors = float("inf")
+
+        # Currently all named colormaps have an array of colors
+        # We do not expect CubeHelixMap
+        self.num_colors = len(self.cm.colors)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
         if n > self.num_colors:

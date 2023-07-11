@@ -41,7 +41,7 @@ from .breaks import (
 from .formatters import date_format, log_format, mpl_format, timedelta_format
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Callable, Optional, Type
+    from typing import Any, Callable, Optional, Sequence, Type
 
     from mizani.typing import (
         AnyVector,

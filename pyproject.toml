@@ -140,18 +140,7 @@ precision = 1
 # characters), or ? (a single character). If no include paths are
 # specified, the root path for the workspace is assumed.
 include = [
-    # "mizani/"
-    "mizani/colors",
-    "mizani/_core",
-    "mizani/__init__.py",
-    "mizani/bounds.py",
-    "mizani/breaks.py",
-    # "mizani/formatters.py",
-    "mizani/palettes.py",
-    "mizani/scale.py",
-    "mizani/transforms.py",
-    "mizani/typing.py",
-    "mizani/utils.py"
+    "mizani/"
 ]
 
 # Paths of directories or files whose diagnostic output (errors and

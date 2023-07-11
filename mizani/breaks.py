@@ -634,8 +634,8 @@ class timedelta_helper:
         elif hasattr(td, "total_seconds"):
             package = "cpython"
         else:
-            msg = "{} format not yet supported."
-            raise ValueError(msg.format(td.__class__))
+            msg = f"{td.__class__} format not yet supported."
+            raise ValueError(msg)
         return package
 
     @classmethod

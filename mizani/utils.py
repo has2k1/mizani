@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 from datetime import datetime, timezone
+from typing import overload
 from warnings import warn
 
 import numpy as np
@@ -14,6 +15,7 @@ if typing.TYPE_CHECKING:
     from mizani.typing import (
         AnyArrayLike,
         DurationUnit,
+        FloatArrayLike,
         FloatVector,
         NullType,
         NumericUFunction,
@@ -63,8 +65,22 @@ NANOSECONDS: dict[DurationUnit, float] = {
 }
 
 
+@overload
 def round_any(
-    x: FloatVector | float, accuracy: float, f: NumericUFunction = np.round
+    x: FloatArrayLike, accuracy: float, f: NumericUFunction = np.round
+) -> FloatVector:
+    ...
+
+
+@overload
+def round_any(
+    x: float, accuracy: float, f: NumericUFunction = np.round
+) -> float:
+    ...
+
+
+def round_any(
+    x: FloatArrayLike | float, accuracy: float, f: NumericUFunction = np.round
 ) -> FloatVector | float:
     """
     Round to multiple of any number.
@@ -76,7 +92,7 @@ def round_any(
 
 
 def min_max(
-    x: FloatVector | float, na_rm: bool = False, finite: bool = True
+    x: FloatArrayLike | float, na_rm: bool = False, finite: bool = True
 ) -> TupleFloat2:
     """
     Return the minimum and maximum of x
@@ -159,7 +175,7 @@ def match(
     return lst
 
 
-def precision(x: FloatVector | float) -> float:
+def precision(x: FloatArrayLike | float) -> float:
     """
     Return the precision of x
 

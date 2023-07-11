@@ -162,4 +162,33 @@ if typing.TYPE_CHECKING:
         [FloatVector, Optional[TupleFloat2], Optional[int]], FloatVector
     ]
 
-    FormatFunction: TypeAlias = Callable[[AnyArrayLike], Sequence[str]]
+    # This does not work probably due to a bug in the typechecker
+    # FormatFunction: TypeAlias = Callable[[AnyArrayLike], Sequence[str]]
+    FormatFunction: TypeAlias = (
+        Callable[[NDArrayAny], Sequence[str]]
+        | Callable[[pd.Series[Any]], Sequence[str]]
+        | Callable[[Sequence[Any]], Sequence[str]]
+    )
+    BytesBinarySymbol: TypeAlias = Literal[
+        "B",
+        "KiB",
+        "MiB",
+        "GiB",
+        "TiB",
+        "PiB",
+        "EiB",
+        "ZiB",
+        "YiB",
+    ]
+    BytesSISymbol: TypeAlias = Literal[
+        "B",
+        "KB",
+        "MB",
+        "GB",
+        "TB",
+        "PB",
+        "EB",
+        "ZB",
+        "YB",
+    ]
+    BytesSymbol: TypeAlias = BytesBinarySymbol | BytesSISymbol

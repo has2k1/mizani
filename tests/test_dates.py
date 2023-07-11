@@ -7,6 +7,7 @@ from mizani._core.dates import (
     _align_limits,
     _ceil_mid_year,
     _floor_mid_year,
+    datetime_to_num,
     get_tzinfo,
     num_to_datetime,
 )
@@ -41,6 +42,12 @@ def test_num_to_datetime():
 
     d = num_to_datetime((27742 + 1.9999999999,))[0]
     assert d.microsecond == 0
+
+
+def test_datetime_to_num():
+    x = []
+    res = datetime_to_num([])
+    assert len(res) == 0
 
 
 # Just for test coverage

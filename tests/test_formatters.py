@@ -152,13 +152,6 @@ def test_date_format():
     result = date_format("%Y:%m:%d")(x)
     assert result == ["2006:01:01", "2007:02:02", "2008:03:03", "2009:04:04"]
 
-    # Different timezones
-    PCT = ZoneInfo("US/Pacific")
-    UG = ZoneInfo("Africa/Kampala")
-    x = [datetime(2010, 1, 1, tzinfo=UG), datetime(2010, 1, 1, tzinfo=PCT)]
-    with pytest.warns(UserWarning, match=r"different time zones"):
-        date_format()(x)
-
     # Timezone with Daylight time
     NY = ZoneInfo("America/New_York")
     x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]

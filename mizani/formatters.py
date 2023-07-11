@@ -40,6 +40,8 @@ __all__ = [
     "number_bytes_format",
 ]
 
+UTC = ZoneInfo("UTC")
+
 
 class custom_format:
     """
@@ -580,10 +582,9 @@ class date_format:
     def __init__(self, fmt="%Y-%m-%d", tz=None):
         if isinstance(tz, str):
             tz = ZoneInfo(tz)
-        from matplotlib.dates import DateFormatter
 
-        self.formatter = DateFormatter(fmt, tz=tz)
         self.tz = tz
+        self.fmt = fmt
 
     def __call__(self, x):
         """
@@ -599,16 +600,9 @@ class date_format:
         out : list
             List of strings.
         """
-        from mizani._core.dates import datetime_to_num
-
-        # Formatter timezone
-        if self.tz is None and len(x):
-            self.formatter.tz = get_timezone(x)
-
-        # The formatter is tied to axes and takes
-        # breaks in ordinal format.
-        x = datetime_to_num(x)
-        return _format(self.formatter, x)
+        if self.tz is not None:
+            x = [d.astimezone(self.tz) for d in x]
+        return [d.strftime(self.fmt) for d in x]
 
 
 class timedelta_format:

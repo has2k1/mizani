@@ -11,6 +11,10 @@ API Changes
 - :class:`~mizani.formatters.mpl_format` has been removed,
   :class:`~mizani.formatters.number_format` takes its place.
 
+- :class:`~mizani.breaks.mpl_breaks` has been removed,
+  :class:`~mizani.breaks.extended_breaks` has always been the default
+  and it is sufficient.
+
 
 v0.9.2
 ------

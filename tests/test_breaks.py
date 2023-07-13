@@ -12,33 +12,10 @@ from mizani.breaks import (
     extended_breaks,
     log_breaks,
     minor_breaks,
-    mpl_breaks,
     timedelta_breaks,
     trans_minor_breaks,
 )
 from mizani.transforms import log_trans, trans
-
-
-def test_mpl_breaks():
-    x = np.arange(100)
-    limits = min(x), max(x)
-    for nbins in (5, 7, 10, 13, 31):
-        breaks = mpl_breaks(nbins=nbins)
-        assert len(breaks(limits)) <= nbins + 1
-
-    limits = float("-inf"), float("inf")
-    breaks = mpl_breaks(nbins=5)
-    assert len(breaks(limits)) == 0
-
-    # Zero range discrete
-    limits = [1, 1]
-    assert len(breaks(limits)) == 1
-    assert breaks(limits)[0] == limits[1]
-
-    # Zero range continuous
-    limits = [np.pi, np.pi]
-    assert len(breaks(limits)) == 1
-    assert breaks(limits)[0] == limits[1]
 
 
 def test_log_breaks():

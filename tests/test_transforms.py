@@ -8,7 +8,7 @@ import pytest
 from numpy.testing import assert_equal
 from zoneinfo import ZoneInfo
 
-from mizani.breaks import minor_breaks, mpl_breaks
+from mizani.breaks import extended_breaks, minor_breaks
 from mizani.transforms import (
     asn_trans,
     atanh_trans,
@@ -177,7 +177,10 @@ def test_logn_trans():
     _test_trans(log3_trans, arr)
 
     log4_trans = log_trans(
-        4, domain=(0.1, 100), breaks=mpl_breaks(), minor_breaks=minor_breaks()
+        4,
+        domain=(0.1, 100),
+        breaks=extended_breaks(),
+        minor_breaks=minor_breaks(),
     )
     _test_trans(log4_trans, arr)
 

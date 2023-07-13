@@ -45,7 +45,6 @@ if typing.TYPE_CHECKING:
 
 
 __all__ = [
-    "mpl_breaks",
     "log_breaks",
     "minor_breaks",
     "trans_minor_breaks",
@@ -53,56 +52,6 @@ __all__ = [
     "timedelta_breaks",
     "extended_breaks",
 ]
-
-
-# The break calculations rely on MPL locators to do
-# the heavylifting. It may be more convinient to lift
-# the calculations out of MPL.
-
-
-class mpl_breaks:
-    """
-    Compute breaks using MPL's default locator
-
-    See :class:`~matplotlib.ticker.MaxNLocator` for the
-    parameter descriptions
-
-    Examples
-    --------
-    >>> x = range(10)
-    >>> limits = (0, 9)
-    >>> mpl_breaks()(limits)
-    array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])
-    >>> mpl_breaks(nbins=2)(limits)
-    array([  0.,   5.,  10.])
-    """
-
-    def __init__(self, *args, **kwargs):
-        from matplotlib.ticker import MaxNLocator
-
-        self.locator = MaxNLocator(*args, **kwargs)
-
-    def __call__(self, limits: TupleFloat2) -> FloatVector:
-        """
-        Compute breaks
-
-        Parameters
-        ----------
-        limits : tuple
-            Minimum and maximum values
-
-        Returns
-        -------
-        out : array_like
-            Sequence of breaks points
-        """
-        if any(np.isinf(limits)):
-            return np.array([])
-
-        if limits[0] == limits[1]:
-            return np.array([limits[0]])
-
-        return self.locator.tick_values(limits[0], limits[1])  # type: ignore
 
 
 class log_breaks:

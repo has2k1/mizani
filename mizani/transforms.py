@@ -195,7 +195,7 @@ class trans:
         vmax = np.min([self.domain[1], limits[1]])
         breaks = np.asarray(self.breaks_((vmin, vmax)))
 
-        # Some methods(mpl_breaks, extended_breaks) that
+        # Some methods (e.g. extended_breaks) that
         # calculate breaks take the limits as guide posts and
         # not hard limits.
         breaks = breaks.compress(

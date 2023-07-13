@@ -17,6 +17,8 @@ API Changes
 
 - matplotlib has been removed as a dependency of mizani.
 
+- mizani now requires python 3.9 and above.
+
 
 v0.9.2
 ------

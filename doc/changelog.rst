@@ -15,6 +15,8 @@ API Changes
   :class:`~mizani.breaks.extended_breaks` has always been the default
   and it is sufficient.
 
+- matplotlib has been removed as a dependency of mizani.
+
 
 v0.9.2
 ------

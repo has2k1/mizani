@@ -14,8 +14,8 @@ from mizani.formatters import (
     custom_format,
     date_format,
     log_format,
-    mpl_format,
     number_bytes_format,
+    number_format,
     ordinal_format,
     percent_format,
     pvalue_format,
@@ -87,8 +87,8 @@ def test_scientific():
     ]
 
 
-def test_mpl_format():
-    formatter = mpl_format()
+def test_number_format():
+    formatter = number_format()
     assert formatter([5, 10, 100, 150]) == ["5", "10", "100", "150"]
 
     # trigger the order of magnitude correction (not any more)
@@ -101,9 +101,9 @@ def test_log_format():
     assert formatter([0.001, 0.1, 10000]) == ["1e-3", "1e-1", "1e4"]
     assert formatter([35, 60]) == ["35", "60"]
     assert formatter([34.99999999999, 60.0000000001]) == ["35", "60"]
-    assert formatter([3000.0000000000014, 4999.999999999999]) == [
-        "3000",
-        "5000",
+    assert formatter([300.0000000000014, 499.999999999999]) == [
+        "300",
+        "500",
     ]
     assert formatter([1, 35, 60, 1000]) == ["1", "35", "60", "1000"]
     assert formatter([1, 35, 60, 10000]) == ["1", "35", "60", "10000"]
@@ -263,7 +263,7 @@ def test_empty_breaks():
     assert percent_format()(x) == []
     assert scientific_format()(x) == []
     assert date_format()(x) == []
-    assert mpl_format()(x) == []
+    assert number_format()(x) == []
     assert log_format()(x) == []
     assert timedelta_format()(x) == []
     assert pvalue_format()(x) == []

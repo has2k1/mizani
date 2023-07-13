@@ -38,7 +38,12 @@ from .breaks import (
     timedelta_breaks,
     trans_minor_breaks,
 )
-from .formatters import date_format, log_format, mpl_format, timedelta_format
+from .formatters import (
+    date_format,
+    log_format,
+    number_format,
+    timedelta_format,
+)
 
 if typing.TYPE_CHECKING:
     from typing import Any, Callable, Optional, Sequence, Type
@@ -133,7 +138,7 @@ class trans:
     minor_breaks: MinorBreaksFunction = minor_breaks(1)
 
     #: Function to format breaks
-    format: FormatFunction = staticmethod(mpl_format())
+    format: FormatFunction = staticmethod(number_format())
 
     def __init__(self, **kwargs: Any):
         for k, v in kwargs.items():

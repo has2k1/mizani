@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.10.0
+-------
+*not-yet-released*
+
+API Changes
+************
+
+- :class:`~mizani.formatters.mpl_format` has been removed,
+  :class:`~mizani.formatters.number_format` takes its place.
+
+
 v0.9.2
 ------
 

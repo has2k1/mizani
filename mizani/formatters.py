@@ -48,7 +48,7 @@ __all__ = [
     "percent_format",
     "scientific_format",
     "date_format",
-    "mpl_format",
+    "number_format",
     "log_format",
     "timedelta_format",
     "pvalue_format",
@@ -338,63 +338,36 @@ class scientific_format:
 scientific = scientific_format()
 
 
-def _format(formatter, x):
+@dataclass
+class number_format:
     """
-    Helper to format and tidy up
-    """
-    # For MPL to play nice
-    formatter.create_dummy_axis()
-    # For sensible decimal places
-    formatter.set_locs([val for val in x if ~np.isnan(val)])
-    try:
-        oom = int(formatter.orderOfMagnitude)
-    except AttributeError:
-        oom = 0
-    labels = [formatter(tick) for tick in x]
+    Format floats
 
-    # Remove unnecessary decimals
-    pattern = re.compile(r"\.0+$")
-    for i, label in enumerate(labels):
-        match = pattern.search(label)
-        if match:
-            labels[i] = pattern.sub("", label)
-
-    # MPL does not add the exponential component
-    if oom:
-        labels = ["{}e{}".format(s, oom) if s != "0" else s for s in labels]
-    return labels
-
-
-class mpl_format:
-    """
-    Format using MPL formatter for scalars
+    Parameters
+    ----------
+    digits : int
+        Number of digits after the decimal point.
 
     Examples
     --------
-    >>> mpl_format()([.654, .8963, .1])
+    >>> number_format()([.654, .8963, .1])
     ['0.6540', '0.8963', '0.1000']
     """
 
-    def __init__(self):
-        from matplotlib.ticker import ScalarFormatter
+    digits: int = 4
 
-        self.formatter = ScalarFormatter(useOffset=False)
+    def __post_init__(self):
+        # New style format string e.g. '{:1.4f}'
+        self.fmt = f"{{:1.{self.digits}f}}".format
+        self._zeros_pattern = re.compile(r"\.0+$")
 
     def __call__(self, x: FloatArrayLike) -> Sequence[str]:
-        """
-        Format a sequence of inputs
-
-        Parameters
-        ----------
-        x : array
-            Input
-
-        Returns
-        -------
-        out : list
-            List of strings.
-        """
-        return _format(self.formatter, x)
+        labels = [self.fmt(val) for val in x]
+        for i, label in enumerate(labels):
+            match = self._zeros_pattern.search(label)
+            if match:
+                labels[i] = self._zeros_pattern.sub("", label)
+        return labels
 
 
 @dataclass
@@ -515,15 +488,11 @@ class log_format:
             xmax = int(np.ceil(np.log10(np.max(x))))
             emin, emax = self.exponent_limits
             all_multiples = np.all([np.log10(num).is_integer() for num in x])
-            # Order of magnitude of the minimum and maximum
-            if same_log10_order_of_magnitude(x):
-                f = mpl_format()
-                f.formatter.set_powerlimits((emin, emax))
-                return f(x)
-            elif all_multiples and (xmin <= emin or xmax >= emax):
-                fmt = "{:1.0e}"
-            else:
-                fmt = "{:g}"
+            beyond_threshold = xmin <= emin or emax <= xmax
+            use_exponents = (
+                same_log10_order_of_magnitude(x) or all_multiples
+            ) and beyond_threshold
+            fmt = "{:1.0e}" if use_exponents else "{:g}"
             labels = [fmt.format(num) for num in x]
             return self._tidyup_labels(labels)
         else:
@@ -675,7 +644,7 @@ class timedelta_format:
     usetex: bool = False
 
     def __post_init__(self):
-        self._mpl_format = mpl_format()
+        self._base_format = number_format()
         self.abbreviations = {
             "ns": "ns",
             "us": "us",
@@ -699,7 +668,7 @@ class timedelta_format:
         ulabel = self.abbreviations[_units]
         if ulabel == "us" and self.usetex:
             ulabel = r"$\mu s$"
-        _labels = self._mpl_format(values)
+        _labels = self._base_format(values)
 
         if not self.add_units:
             return _labels

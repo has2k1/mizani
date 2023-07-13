@@ -7,12 +7,12 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, tzinfo
 from enum import IntEnum
 from typing import overload
+from zoneinfo import ZoneInfo
 
 import dateutil.rrule as rr
 import numpy as np
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule
-from zoneinfo import ZoneInfo
 
 from ..utils import get_timezone
 

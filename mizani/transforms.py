@@ -24,10 +24,10 @@ import sys
 import typing
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
 from types import MethodType
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
-from zoneinfo import ZoneInfo
 
 from ._core.dates import datetime_to_num, num_to_datetime
 from .breaks import (
@@ -46,7 +46,7 @@ from .formatters import (
 )
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Callable, Optional, Sequence, Type
+    from typing import Any, Callable, Optional, Type
 
     from mizani.typing import (
         AnyVector,

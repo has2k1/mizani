@@ -15,13 +15,12 @@ import re
 import typing
 from bisect import bisect_right
 from dataclasses import dataclass
+from zoneinfo import ZoneInfo
 
 import numpy as np
-from zoneinfo import ZoneInfo
 
 from .breaks import timedelta_helper
 from .utils import (
-    get_timezone,
     match,
     precision,
     round_any,
@@ -29,8 +28,8 @@ from .utils import (
 )
 
 if typing.TYPE_CHECKING:
-    from datetime import datetime, timedelta, tzinfo
-    from typing import Callable, Literal, Optional, Sequence
+    from datetime import datetime, tzinfo
+    from typing import Literal, Optional, Sequence
 
     from mizani.typing import (
         BytesSymbol,

@@ -397,11 +397,8 @@ class hue_pal(_discrete_pal):
         return [hsluv.rgb_to_hex(c) for c in colors]
 
 
-def brewer_pal(
-    type: ColorScheme | ColorSchemeShort = "seq",
-    palette: int = 1,
-    direction: Literal[1, -1] = 1,
-):
+@dataclass
+class brewer_pal(_discrete_pal):
     """
     Utility for making a brewer palette
 
@@ -449,31 +446,35 @@ def brewer_pal(
         print(get_palette_names("qualitative"))
         print(get_palette_names("diverging"))
     """
-    from .colors import brewer
 
-    if direction != 1 and direction != -1:
-        raise ValueError("direction should be 1 or -1.")
+    type: ColorScheme | ColorSchemeShort = "seq"
+    palette: int = 1
+    direction: Literal[1, -1] = 1
 
-    pal = brewer.get_color_palette(type, palette)
+    def __post_init__(self):
+        from .colors import brewer
 
-    def _brewer_pal(n):
+        if self.direction not in (1, -1):
+            raise ValueError("direction should be 1 or -1.")
+
+        self.bpal = brewer.get_color_palette(self.type, self.palette)
+
+    def __call__(self, n: int) -> Sequence[RGBHexColor | None]:
         # Only draw the maximum allowable colors from the palette
         # and fill any remaining spots with None
-        _n = min(max(n, pal.min_colors), pal.max_colors)
-        color_map = pal.get_hex_swatch(_n)
+        _n = min(max(n, self.bpal.min_colors), self.bpal.max_colors)
+        color_map = self.bpal.get_hex_swatch(_n)
         colors = color_map[:n]
-        if n > pal.max_colors:
+        if n > self.bpal.max_colors:
             msg = (
                 "Warning message:"
-                f"Brewer palette {pal.name} has a maximum "
-                f"of {pal.max_colors} colors Returning the palette you "
-                "asked for with that many colors"
+                f"Brewer palette {self.bpal.name} has a maximum "
+                f"of {self.bpal.max_colors} colors Returning the "
+                "palette you asked for with that many colors"
             )
             warn(msg)
-            colors = colors + [None] * (n - pal.max_colors)
-        return colors[::direction]
-
-    return _brewer_pal
+            colors = colors + [None] * (n - self.bpal.max_colors)
+        return colors[:: self.direction]
 
 
 @dataclass

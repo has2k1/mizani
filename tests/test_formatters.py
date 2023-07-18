@@ -217,7 +217,7 @@ def test_timedelta_format():
 
     # usetex
     x = [timedelta(microseconds=7 * i) for i in range(5)]
-    labels = timedelta_format(units="us", spaced_units=False, usetex=True)(x)
+    labels = timedelta_format(units="us", space=False, usetex=True)(x)
     assert labels == [
         "0$\\mu s$",
         "7$\\mu s$",

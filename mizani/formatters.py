@@ -610,7 +610,7 @@ class timedelta_format:
     usetex : bool
         If True, they microseconds identifier string is
         rendered with greek letter *mu*. Default is False.
-    spaced_units : bool
+    space : bool
         If True add a space between the value and the units
     use_plurals : bool
         If True, for the when the value is not 1 and the units are
@@ -637,7 +637,7 @@ class timedelta_format:
     show_units: bool = True
     zero_has_units: bool = True
     usetex: bool = False
-    spaced_units: bool = True
+    space: bool = True
     use_plurals: bool = True
 
     def __call__(self, x: NDArrayTimedelta) -> Sequence[str]:
@@ -656,7 +656,7 @@ class timedelta_format:
             else:
                 units_plural = units
 
-            if self.spaced_units:
+            if self.space:
                 units = f" {units}"
                 units_plural = f" {units_plural}"
             for i, (num, label) in enumerate(zip(values, labels)):

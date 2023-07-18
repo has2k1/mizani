@@ -116,17 +116,18 @@ if typing.TYPE_CHECKING:
     ]
     ColorPalette: TypeAlias = palette
 
+    # Use SI Units where applica
     DurationUnit: TypeAlias = Literal[
         "ns",  # nanosecond
         "us",  # microsecond
         "ms",  # millisecond
         "s",  # second
-        "m",  # month
+        "min",  # minute
         "h",  # hour
-        "d",  # day
-        "w",  # week
-        "M",  # month
-        "y",  # year
+        "day",  # day
+        "week",  # week
+        "month",  # month
+        "year",  # year
     ]
     Timedelta: TypeAlias = timedelta | pd.Timedelta
     Datetime: TypeAlias = date | datetime | np.datetime64

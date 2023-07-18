@@ -59,6 +59,113 @@ UTC = ZoneInfo("UTC")
 
 
 @dataclass
+class number_format:
+    """
+    Format floats
+
+    Parameters
+    ----------
+    digits : int
+        Number of digits after the decimal point.
+
+    Examples
+    --------
+    >>> number_format()([.654, .8963, .1])
+    ['0.65', '0.90', '0.10']
+    >>> number_format(accuracy=0.0001)([.654, .8963, .1])
+    ['0.6540', '0.8963', '0.1000']
+    >>> number_format(precision=4)([.654, .8963, .1])
+    ['0.6540', '0.8963', '0.1000']
+    >>> number_format(prefix="$")([5, 24, -42])
+    ['$5', '$24', '-$42']
+    >>> number_format(suffix="s")([5, 24, -42])
+    ['5s', '24s', '-42s']
+    >>> number_format(big_mark="_")([1e3, 1e4, 1e5, 1e6])
+    ['1_000', '10_000', '100_000', '1_000_000']
+    >>> number_format(width=3)([1, 10, 100, 1000])
+    ['  1', ' 10', '100', '1,000']
+    >>> number_format(align="^", width=5)([1, 10, 100, 1000])
+    ['  1  ', ' 10  ', ' 100 ', '1,000']
+    >>> number_format(style_positive=" ")([5, 24, -42])
+    [' 5', ' 24', '-42']
+    >>> number_format(style_positive="+")([5, 24, -42])
+    ['+5', '+24', '-42']
+    >>> number_format(prefix="$", style_negative="braces")([5, 24, -42])
+    ['$5', '$24', '($42)']
+    """
+
+    accuracy: Optional[float] = None
+    precision: Optional[int] = None
+    scale: float = 1
+    prefix: str = ""
+    suffix: str = ""
+    big_mark: str = ","
+    decimal_mark: str = "."
+    fill: str = ""
+    style_negative: Literal["-", "hyphen", "parens"] = "-"
+    style_positive: Literal["", "+", " "] = ""
+    align: Literal["<", ">", "=", "^"] = ">"
+    width: Optional[int] = None
+
+    def __post_init__(self):
+        if self.precision is not None:
+            if self.accuracy is not None:
+                raise ValueError("Specify only one of precision or accuracy")
+            self.accuracy = 10**-self.precision
+
+    def __call__(self, x: FloatArrayLike) -> Sequence[str]:
+        # Construct formatting according to
+        # https://docs.python.org/3/library/string.html#format-string-syntax
+        # Specfically using the Format Specification Mini-Language
+
+        # python format only accepts ",", "_" to separate the thousands
+        # if we have a non-standard value, we use "," & replace it after
+        sep = self.big_mark if self.big_mark in (",", "", "_") else ","
+
+        fmt = (
+            f"{self.prefix}" f"{{num:{sep}.{{precision}}f}}" f"{self.suffix}"
+        ).format
+
+        x = np.asarray(x)
+        x_scaled = x * self.scale
+
+        if self.accuracy is None:
+            accuracy = precision(x_scaled)
+        else:
+            accuracy = self.accuracy
+
+        x = round_any(x, accuracy / self.scale)
+        digits = -np.floor(np.log10(accuracy)).astype(int)
+        digits = np.minimum(np.maximum(digits, 0), 20)
+
+        res = [fmt(num=abs(n), precision=digits) for n in x_scaled]
+        if self.big_mark not in (",", "_"):
+            res = [s.replace(",", self.big_mark) for s in res]
+
+        if self.decimal_mark != ".":
+            res = [s.replace(".", self.decimal_mark) for s in res]
+
+        pos_fmt = f"{self.style_positive}{{s}}".format
+
+        if self.style_negative == "-":
+            neg_fmt = "-{s}".format
+        elif self.style_negative == "hyphen":
+            neg_fmt = "\u2212{s}".format
+        else:
+            neg_fmt = "({s})".format
+
+        res = [
+            neg_fmt(s=s) if num < 0 else pos_fmt(s=s) for num, s in zip(x, res)
+        ]
+
+        if self.width is not None:
+            fmt = f"{{s:{self.fill}{self.align}{self.width}}}".format
+            res = [fmt(s=s) for s in res]
+
+        return res
+
+
+@dataclass
 class custom_format:
     """
     Custom format
@@ -108,7 +215,7 @@ class custom_format:
 
 # formatting functions
 @dataclass
-class currency_format:
+class currency_format(number_format):
     """
     Currency formatter
 
@@ -129,48 +236,14 @@ class currency_format:
     >>> x = [1.232, 99.2334, 4.6, 9, 4500]
     >>> currency_format()(x)
     ['$1.23', '$99.23', '$4.60', '$9.00', '$4500.00']
-    >>> currency_format('C$', digits=0, big_mark=',')(x)
+    >>> currency_format(prefix='C$', precision=0, big_mark=',')(x)
     ['C$1', 'C$99', 'C$5', 'C$9', 'C$4,500']
     """
 
     prefix: str = "$"
     suffix: str = ""
-    digits: int = 2
+    precision: int = 2
     big_mark: str = ""
-
-    def __call__(self, x: FloatArrayLike) -> Sequence[str]:
-        """
-        Format a sequence of inputs
-
-        Parameters
-        ----------
-        x : array
-            Input
-
-        Returns
-        -------
-        out : list
-            List of strings.
-        """
-        # create {:.2f} or {:,.2f}
-        big_mark = self.big_mark
-        comma = "," if big_mark else ""
-        tpl = "".join(
-            (
-                self.prefix,
-                "{:",
-                comma,
-                ".",
-                str(self.digits),
-                "f}",
-                self.suffix,
-            )
-        )
-
-        labels = [tpl.format(val) for val in x]
-        if big_mark and big_mark != ",":
-            labels = [val.replace(",", big_mark) for val in labels]
-        return labels
 
 
 dollar_format = currency_format
@@ -178,7 +251,7 @@ dollar = dollar_format()
 
 
 @dataclass
-class comma_format:
+class comma_format(currency_format):
     """
     Format number with commas separating thousands
 
@@ -193,32 +266,13 @@ class comma_format:
     ['1,000', '2', '33,000', '400']
     """
 
-    digits: int = 0
-
-    def __post_init__(self):
-        self.formatter = currency_format(
-            prefix="", digits=self.digits, big_mark=","
-        )
-
-    def __call__(self, x):
-        """
-        Format a sequence of inputs
-
-        Parameters
-        ----------
-        x : array
-            Input
-
-        Returns
-        -------
-        out : list
-            List of strings.
-        """
-        return self.formatter(x)
+    prefix: str = ""
+    precision: int = 0
+    big_mark: str = ","
 
 
 @dataclass
-class percent_format:
+class percent_format(number_format):
     """
     Percent formatter
 
@@ -236,49 +290,11 @@ class percent_format:
     >>> formatter([.45, 9.515, .01])
     ['45%', '952%', '1%']
     >>> formatter([.654, .8963, .1])
-    ['65.4%', '89.6%', '10.0%']
+    ['65%', '90%', '10%']
     """
 
-    use_comma: bool = False
-
-    def __post_init__(self):
-        self.big_mark = "," if self.use_comma else ""
-
-    def __call__(self, x: FloatArrayLike) -> Sequence[str]:
-        """
-        Format a sequence of inputs
-
-        Parameters
-        ----------
-        x : array
-            Input
-
-        Returns
-        -------
-        out : list
-            List of strings.
-        """
-        if len(x) == 0:
-            return []
-
-        _precision = precision(x)
-        x = round_any(x, _precision / 100) * 100
-
-        # When the precision is less than 1, we show
-        if _precision > 1:
-            digits = 0
-        else:
-            digits = abs(int(np.log10(_precision)))
-
-        formatter = currency_format(
-            prefix="", suffix="%", digits=digits, big_mark=self.big_mark
-        )
-        labels = formatter(x)
-        # Remove unnecessary zeros after the decimal
-        pattern = re.compile(r"\.0+%$")
-        if all(pattern.search(val) for val in labels):
-            labels = [pattern.sub("%", val) for val in labels]
-        return labels
+    scale: float = 100
+    suffix: str = "%"
 
 
 percent = percent_format()
@@ -335,38 +351,6 @@ class scientific_format:
 
 
 scientific = scientific_format()
-
-
-@dataclass
-class number_format:
-    """
-    Format floats
-
-    Parameters
-    ----------
-    digits : int
-        Number of digits after the decimal point.
-
-    Examples
-    --------
-    >>> number_format()([.654, .8963, .1])
-    ['0.6540', '0.8963', '0.1000']
-    """
-
-    digits: int = 4
-
-    def __post_init__(self):
-        # New style format string e.g. '{:1.4f}'
-        self.fmt = f"{{:1.{self.digits}f}}".format
-        self._zeros_pattern = re.compile(r"\.0+$")
-
-    def __call__(self, x: FloatArrayLike) -> Sequence[str]:
-        labels = [self.fmt(val) for val in x]
-        for i, label in enumerate(labels):
-            match = self._zeros_pattern.search(label)
-            if match:
-                labels[i] = self._zeros_pattern.sub("", label)
-        return labels
 
 
 @dataclass
@@ -611,72 +595,77 @@ class timedelta_format:
             'ns'    # nanoseconds
             'us'    # microseconds
             'ms'    # milliseconds
-            's'     # secondss
-            'm'     # minute
+            's'     # seconds
+            'min'   # minute
             'h'     # hour
-            'd'     # day
-            'w'     # week
-            'M'     # month
-            'y'     # year
+            'day'     # day
+            'week'  # week
+            'month' # month
+            'year'  # year
 
-    add_units : bool
-        Whether to append the units identifier string
-        to the values.
-    usetext : bool
+    show_units : bool
+        Whether to append the units symbol to the values.
+    zero_has_units : bool
+        If True a value of zero
+    usetex : bool
         If True, they microseconds identifier string is
         rendered with greek letter *mu*. Default is False.
+    spaced_units : bool
+        If True add a space between the value and the units
+    use_plurals : bool
+        If True, for the when the value is not 1 and the units are
+        one of `week`, `month` and `year`, the plural form of the
+        unit is used e.g. `2 weeks`.
 
     Examples
     --------
     >>> from datetime import timedelta
     >>> x = [timedelta(days=31*i) for i in range(5)]
     >>> timedelta_format()(x)
-    ['0', '1 month', '2 months', '3 months', '4 months']
-    >>> timedelta_format(units='d')(x)
+    ['0 months', '1 month', '2 months', '3 months', '4 months']
+    >>> timedelta_format(use_plurals=False)(x)
+    ['0 month', '1 month', '2 month', '3 month', '4 month']
+    >>> timedelta_format(units='day')(x)
+    ['0 days', '31 days', '62 days', '93 days', '124 days']
+    >>> timedelta_format(units='day', zero_has_units=False)(x)
     ['0', '31 days', '62 days', '93 days', '124 days']
-    >>> timedelta_format(units='d', add_units=False)(x)
+    >>> timedelta_format(units='day', show_units=False)(x)
     ['0', '31', '62', '93', '124']
     """
 
     units: Optional[DurationUnit] = None
-    add_units: bool = True
+    show_units: bool = True
+    zero_has_units: bool = True
     usetex: bool = False
-
-    def __post_init__(self):
-        self._base_format = number_format()
-        self.abbreviations = {
-            "ns": "ns",
-            "us": "us",
-            "ms": "ms",
-            "s": "s",
-            "m": " minute",
-            "h": " hour",
-            "d": " day",
-            "w": " week",
-            "M": " month",
-            "y": " year",
-        }
+    spaced_units: bool = True
+    use_plurals: bool = True
 
     def __call__(self, x: NDArrayTimedelta) -> Sequence[str]:
         if len(x) == 0:
             return []
 
-        labels = []
-        values, _units = timedelta_helper.format_info(x, self.units)
-        plural = "" if _units.endswith("s") else "s"
-        ulabel = self.abbreviations[_units]
-        if ulabel == "us" and self.usetex:
-            ulabel = r"$\mu s$"
-        _labels = self._base_format(values)
+        values, units = timedelta_helper.format_info(x, self.units)
+        labels = list(number_format()(values))
 
-        if not self.add_units:
-            return _labels
+        if self.show_units:
+            if self.usetex and units == "us":
+                units = r"$\mu s$"
 
-        for num, num_label in zip(values, _labels):
-            s = "" if num == 1 else plural
-            # 0 has no units
-            _ulabel = "" if num == 0 else ulabel + s
-            labels.append("".join([num_label, _ulabel]))
+            if self.use_plurals and units in ("day", "week", "month", "year"):
+                units_plural = f"{units}s"
+            else:
+                units_plural = units
+
+            if self.spaced_units:
+                units = f" {units}"
+                units_plural = f" {units_plural}"
+            for i, (num, label) in enumerate(zip(values, labels)):
+                if num == 0 and not self.zero_has_units:
+                    continue
+                elif num == 1:
+                    labels[i] = f"{label}{units}"
+                else:
+                    labels[i] = f"{label}{units_plural}"
 
         return labels
 

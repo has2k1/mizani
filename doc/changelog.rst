@@ -19,6 +19,10 @@ API Changes
 
 - mizani now requires python 3.9 and above.
 
+- The units parameter for of :class:`~mizani.formatters.timedelta_format`
+  now accepts the values `"min", "day", "week", "month"`,
+  instead of `"m", "d", "w", "M"`.
+
 
 v0.9.2
 ------

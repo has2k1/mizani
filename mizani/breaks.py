@@ -612,24 +612,24 @@ class timedelta_helper:
                 (0.9, "us"),
                 (0.9, "ms"),
                 (0.9, "s"),
-                (9, "m"),
+                (9, "min"),
                 (6, "h"),
-                (4, "d"),
-                (4, "w"),
-                (4, "M"),
-                (3, "y"),
+                (4, "day"),
+                (4, "week"),
+                (4, "month"),
+                (3, "year"),
             ]
             denomination = NANOSECONDS
             base_units = "ns"
         else:
             cuts = [
                 (0.9, "s"),
-                (9, "m"),
+                (9, "min"),
                 (6, "h"),
-                (4, "d"),
-                (4, "w"),
-                (4, "M"),
-                (3, "y"),
+                (4, "day"),
+                (4, "week"),
+                (4, "month"),
+                (3, "year"),
             ]
             denomination = SECONDS
             base_units = "ms"

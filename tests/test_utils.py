@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pytest
@@ -87,12 +88,13 @@ def test_match():
 
 
 def test_precision():
-    assert precision(0.0037) == 0.001
-    assert precision(0.5) == 0.1
-    assert precision(9) == 1
-    assert precision(24) == 10
-    assert precision(784) == 100
-    assert precision([0, 0]) == 1
+    assert precision(0.0037) == 1
+    assert precision([0.0037, 0.0045]) == 0.0001
+    assert precision([0.5, 0.4]) == 0.1
+    assert precision([5, 9]) == 1
+    assert precision([24, 84]) == 1
+    assert precision([290, 784]) == 1
+    assert precision([0.0037, 0.5, 9, 24, 784]) == 0.1
 
 
 def test_same_log10_order_of_magnitude():
@@ -133,8 +135,15 @@ def test_get_categories():
 
 
 def test_get_timezone():
+    UTC = ZoneInfo("UTC")
+    UG = ZoneInfo("Africa/Kampala")
+
     x = [date(2022, 1, 1), date(2022, 12, 1)]
     assert get_timezone(x) is None
+
+    x = [datetime(2022, 1, 1, tzinfo=UTC), datetime(2022, 12, 1, tzinfo=UG)]
+    with pytest.warns(UserWarning, match="^Dates"):
+        get_timezone(x)
 
 
 def test_get_null_value():

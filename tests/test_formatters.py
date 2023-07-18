@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import warnings
 from datetime import datetime, timedelta, tzinfo
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
 import pytest
 import pytz
-from zoneinfo import ZoneInfo
 
 from mizani.formatters import (
     comma_format,
@@ -40,15 +40,15 @@ def test_custom_format():
 
 def test_currency_format():
     x = [1.232, 99.2334, 4.6, 9, 4500]
-    formatter = currency_format("C$", digits=0, big_mark=",")
+    formatter = currency_format(prefix="C$", precision=0, big_mark=",")
     result = formatter(x)
     assert result == ["C$1", "C$99", "C$5", "C$9", "C$4,500"]
 
-    formatter = currency_format("C$", digits=0, big_mark=" ")
+    formatter = currency_format(prefix="C$", precision=0, big_mark=" ")
     result = formatter(x)
     assert result == ["C$1", "C$99", "C$5", "C$9", "C$4 500"]
 
-    formatter = currency_format("$", digits=2)
+    formatter = currency_format(prefix="$", precision=2)
     result = formatter(x)
     assert result == ["$1.23", "$99.23", "$4.60", "$9.00", "$4500.00"]
 
@@ -67,7 +67,7 @@ def test_percent_format():
     assert formatter([0.12, 0.23, 0.34, 4.5]) == ["12%", "23%", "34%", "450%"]
 
     # mixed precision values
-    assert formatter([0.12, 0.23, 0.34, 45]) == ["10%", "20%", "30%", "4500%"]
+    assert formatter([0.12, 0.23, 0.34, 45]) == ["12%", "23%", "34%", "4,500%"]
 
 
 def test_scientific():
@@ -90,9 +90,24 @@ def test_scientific():
 def test_number_format():
     formatter = number_format()
     assert formatter([5, 10, 100, 150]) == ["5", "10", "100", "150"]
+    assert formatter([5, 10, 100, 150e8]) == [
+        "5",
+        "10",
+        "100",
+        "15,000,000,000",
+    ]
 
-    # trigger the order of magnitude correction (not any more)
-    assert formatter([5, 10, 100, 150e8]) == ["5", "10", "100", "15000000000"]
+    formatter = number_format(big_mark="#")
+    assert formatter([1000, 10000]) == ["1#000", "10#000"]
+
+    formatter = number_format(precision=2, decimal_mark=",")
+    assert formatter([98.23, 34.67]) == ["98,23", "34,67"]
+
+    formatter = number_format(style_negative="hyphen")
+    assert formatter([-1, 0, 1]) == ["\u22121", "0", "1"]
+
+    with pytest.raises(ValueError):
+        number_format(accuracy=0.01, precision=2)
 
 
 def test_log_format():
@@ -178,32 +193,33 @@ def test_date_format():
 def test_timedelta_format():
     x = [timedelta(days=7 * i) for i in range(5)]
     labels = timedelta_format()(x)
-    assert labels == ["0", "1 week", "2 weeks", "3 weeks", "4 weeks"]
+    assert labels == ["0 weeks", "1 week", "2 weeks", "3 weeks", "4 weeks"]
 
     x = [pd.Timedelta(seconds=600 * i) for i in range(5)]
     labels = timedelta_format()(x)
     assert labels == [
-        "0",
-        "10 minutes",
-        "20 minutes",
-        "30 minutes",
-        "40 minutes",
+        "0 min",
+        "10 min",
+        "20 min",
+        "30 min",
+        "40 min",
     ]
 
     # specific units
     labels = timedelta_format(units="h")(x)
     assert labels == [
-        "0",
-        "0.1667 hours",
-        "0.3333 hours",
-        "0.5000 hours",
-        "0.6667 hours",
+        "0.00 h",
+        "0.17 h",
+        "0.33 h",
+        "0.50 h",
+        "0.67 h",
     ]
+
     # usetex
     x = [timedelta(microseconds=7 * i) for i in range(5)]
-    labels = timedelta_format(units="us", usetex=True)(x)
+    labels = timedelta_format(units="us", spaced_units=False, usetex=True)(x)
     assert labels == [
-        "0",
+        "0$\\mu s$",
         "7$\\mu s$",
         "14$\\mu s$",
         "21$\\mu s$",

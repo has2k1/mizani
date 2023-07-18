@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-import sys
 import typing
 from dataclasses import dataclass
 from datetime import datetime, timedelta, tzinfo
@@ -32,7 +31,6 @@ if typing.TYPE_CHECKING:
     )
 
 ABS_TOL = 1e-10  # Absolute Tolerance
-EPSILON = sys.float_info.epsilon
 
 EPOCH = datetime(1970, 1, 1, tzinfo=None)
 EPOCH64 = np.datetime64("1970", "Y")

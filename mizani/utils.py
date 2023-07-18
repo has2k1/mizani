@@ -36,7 +36,11 @@ __all__ = [
     "get_timezone",
 ]
 
+# Use sqrt(epsilon) to correct for loss of precision due floating point
+# rounding errors. This value is derived for forward difference numerical
+# difference, but for our use cases this choice of value is arbitrary.
 EPSILON = sys.float_info.epsilon
+ROUNDING_ERROR = np.sqrt(EPSILON)
 
 DISCRETE_KINDS = "ObUS"
 CONTINUOUS_KINDS = "ifuc"
@@ -223,10 +227,15 @@ def precision(x: FloatArrayLike | float) -> float:
         return 1
 
     smallest_diff = np.diff(np.sort(x))[0]
-    if smallest_diff < np.sqrt(EPSILON):  # pragma: nocover
+    if smallest_diff < ROUNDING_ERROR:  # pragma: nocover
         return 1
     else:
-        res = 10 ** int(np.floor(np.log10(smallest_diff)) - 1)
+        # For some intel processors (Skylake), numpy may be compiled
+        # to do a fast but precision losing np.log10 calculation.
+        # We add a rounding error incase due to lost precision, a
+        # result that should be an integer (or slightly greater than
+        # one) will get "floored" to the correct value
+        res = 10 ** int(np.floor(np.log10(smallest_diff) + ROUNDING_ERROR) - 1)
         has_extra_zeros = (np.round(x / res) % 10 == 0).all()
         if has_extra_zeros:
             res *= 10

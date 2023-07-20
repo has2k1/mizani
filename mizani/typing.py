@@ -39,6 +39,8 @@ if typing.TYPE_CHECKING:
     TupleFloat3: TypeAlias = TupleT3[float] | TupleT3[np.float64]
     TupleFloat4: TypeAlias = TupleT4[float] | TupleT4[np.float64]
     TupleFloat5: TypeAlias = TupleT5[float] | TupleT5[np.float64]
+    TupleDatetime2: TypeAlias = TupleT2[datetime]
+    TupleDate2: TypeAlias = TupleT2[date]
 
     # Arrays (strictly numpy)
     NDArrayAny: TypeAlias = NDArray[Any]
@@ -142,6 +144,7 @@ if typing.TYPE_CHECKING:
     DateFreq: TypeAlias = Literal[0, 1, 3, 4, 5, 6, 7]
     DatetimeBreaksUnits: TypeAlias = Literal[
         "auto",
+        "microsecond",
         "second",
         "minute",
         "hour",

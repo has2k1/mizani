@@ -1,12 +1,18 @@
 from datetime import datetime
-
-import pytest
 from zoneinfo import ZoneInfo
 
+import pytest
+
+from mizani._core.date_utils import (
+    align_limits,
+    ceil_mid_year,
+    ceil_second,
+    ceil_week,
+    floor_mid_year,
+    floor_second,
+    floor_week,
+)
 from mizani._core.dates import (
-    _align_limits,
-    _ceil_mid_year,
-    _floor_mid_year,
     datetime_to_num,
     get_tzinfo,
     num_to_datetime,
@@ -22,17 +28,43 @@ def test_tzinfo():
 
 
 def test_floor_mid_year():
-    d = datetime(2022, 3, 1)
-    assert _floor_mid_year(d) == datetime(2022, 1, 1)
+    d1 = datetime(2022, 3, 1)
+    d2 = datetime(2022, 11, 9)
+    assert floor_mid_year(d1) == datetime(2022, 1, 1)
+    assert floor_mid_year(d2) == datetime(2022, 7, 1)
 
 
 def test_ceil_mid_year():
     d1 = datetime(2022, 1, 1)
     d2 = datetime(2022, 1, 2)
     d3 = datetime(2022, 8, 2)
-    assert _ceil_mid_year(d1) == datetime(2022, 1, 1)
-    assert _ceil_mid_year(d2) == datetime(2022, 7, 1)
-    assert _ceil_mid_year(d3) == datetime(2023, 1, 1)
+    assert ceil_mid_year(d1) == datetime(2022, 1, 1)
+    assert ceil_mid_year(d2) == datetime(2022, 7, 1)
+    assert ceil_mid_year(d3) == datetime(2023, 1, 1)
+
+
+def test_floor_week():
+    d1 = datetime(2000, 1, 11)
+    d2 = datetime(2000, 8, 21)
+    assert floor_week(d1) == datetime(2000, 1, 8)
+    assert floor_week(d2) == datetime(2000, 8, 15)
+
+
+def test_ceil_week():
+    d1 = datetime(2000, 1, 15)
+    d2 = datetime(2000, 8, 20)
+    assert ceil_week(d1) == datetime(2000, 1, 15)
+    assert ceil_week(d2) == datetime(2000, 8, 22)
+
+
+def test_floor_second():
+    d1 = datetime(2000, 1, 1, 10, 10, 24, 1000)
+    assert floor_second(d1) == datetime(2000, 1, 1, 10, 10, 24)
+
+
+def test_ceil_second():
+    d1 = datetime(2000, 1, 1, 10, 10, 24, 1000)
+    assert ceil_second(d1) == datetime(2000, 1, 1, 10, 10, 25)
 
 
 def test_num_to_datetime():
@@ -54,4 +86,4 @@ def test_datetime_to_num():
 # TODO: Find a better test
 def test_align_limits():
     limits = (2009, 2010)
-    _align_limits(limits, 1 + 1e-14)
+    align_limits(limits, 1 + 1e-14)

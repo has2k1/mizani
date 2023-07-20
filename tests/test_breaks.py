@@ -1,10 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
-from zoneinfo import ZoneInfo
 
 from mizani._core.dates import _from_ordinalf
 from mizani.breaks import (
@@ -247,29 +247,109 @@ def test_date_breaks():
     breaks = date_breaks()(limits)
     assert breaks[0].tzinfo == UG
 
-    # weeks
-    limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
-    breaks = date_breaks("1 week")(limits)
-    assert [dt.day for dt in breaks] == [1, 8, 15, 22] * 2
-
-    breaks = date_breaks("2 weeks")(limits)
-    assert [dt.day for dt in breaks] == [1, 15] * 2
-
-    breaks = date_breaks("3 weeks")(limits)
-    assert [dt.day for dt in breaks] == [1, 22] * 2
-
     # Special cases
     limits = (datetime(2039, 12, 17), datetime(2045, 12, 16))
     breaks = date_breaks()(limits)
     assert [dt.year for dt in breaks] == [2038, 2040, 2042, 2044, 2046]
 
-    breaks = date_breaks(10)(limits)
-    assert [dt.year for dt in breaks] == [2039 + i // 2 for i in range(1, 15)]
-    assert [dt.month for dt in breaks] == [7, 1] * 7
-
     # error cases
     with pytest.raises(ValueError):
         _from_ordinalf(2.933e6, None)
+
+
+def test_date_type_breaks():
+    limits1 = (date(2020, 1, 1), date(2023, 2, 15))
+    limits2 = (datetime(2020, 1, 1), datetime(2023, 2, 15))
+    calc_breaks = date_breaks()
+    res1 = calc_breaks(limits1)
+    res2 = [b.replace(tzinfo=None) for b in calc_breaks(limits2)]
+    assert res1 == res2
+
+
+def _check_width(limits, breaks, td: timedelta):
+    padding = abs(breaks[0] - limits[0]) + abs(breaks[-1] - limits[-1])
+    assert all(np.diff(breaks) == td)
+    assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
+    assert padding < td
+
+
+def test_date_breaks_week_auto():
+    limits = (datetime(2020, 1, 1), datetime(2020, 2, 15))
+
+    breaks = date_breaks()(limits)
+    assert set(b.day for b in breaks) == set([1, 15])
+
+    breaks = date_breaks(n=8)(limits)
+    assert set(b.day for b in breaks) == set([1, 8, 15, 22])
+
+
+def test_date_breaks_day_width():
+    # days
+    # 1. The width should be as specified
+    # 2. The breaks should encloses the limits
+    # 3. The breaks the padding added around the limits should be less than
+    #    the width of the breaks
+    limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
+    breaks = date_breaks(width="10 days")(limits)
+    _check_width(limits, breaks, timedelta(days=10))
+
+    breaks = date_breaks(width="11 days")(limits)
+    _check_width(limits, breaks, timedelta(days=11))
+
+    breaks = date_breaks(width="12 days")(limits)
+    _check_width(limits, breaks, timedelta(days=12))
+
+    limits = (
+        datetime(2000, 1, 1, hour=2),
+        datetime(2000, 1, 1, hour=16, second=13),
+    )
+    breaks = date_breaks(width="2 hour")(limits)
+    _check_width(limits, breaks, timedelta(hours=2))
+
+    breaks = date_breaks(width="100 minutes")(limits)
+    _check_width(limits, breaks, timedelta(minutes=100))
+
+    breaks = date_breaks(width="5000 seconds")(limits)
+    _check_width(limits, breaks, timedelta(seconds=5000))
+
+    breaks = date_breaks(width="5000 seconds")(limits)
+    _check_width(limits, breaks, timedelta(seconds=5000))
+
+
+def test_date_breaks_week_width():
+    # weeks
+    # 1. The width should be as specified
+    # 2. The breaks should encloses the limits
+    # 3. The breaks the padding added around the limits should be less than
+    #    the width of the breaks
+    limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
+    breaks = date_breaks(width="1 week")(limits)
+    _check_width(limits, breaks, timedelta(days=7))
+
+    breaks = date_breaks(width="2 weeks")(limits)
+    _check_width(limits, breaks, timedelta(days=14))
+
+    breaks = date_breaks(width="3 weeks")(limits)
+    _check_width(limits, breaks, timedelta(days=21))
+
+
+def test_date_breaks_month_width():
+    # months
+    # 1. The width is within any combination of sequential months
+    # 2. The breaks should enclose the limits
+    limits = (datetime(2020, 1, 1), datetime(2021, 2, 28))
+
+    breaks = date_breaks(width="1 month")(limits)
+    assert all([28 <= d.days <= 31 for d in np.diff(breaks)])
+    assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
+
+    breaks = date_breaks(width="2 month")(limits)
+    assert all([59 <= d.days <= 62 for d in np.diff(breaks)])
+    assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
+    #
+    breaks = date_breaks(width="3 month")(limits)
+    assert all([90 <= d.days <= 92 for d in np.diff(breaks)])
+    assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
 
 def test_timedelta_breaks():

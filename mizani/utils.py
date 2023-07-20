@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import sys
 import typing
 from datetime import datetime, timezone
@@ -30,6 +31,7 @@ __all__ = [
     "min_max",
     "match",
     "precision",
+    "isclose_abs",
     "same_log10_order_of_magnitude",
     "identity",
     "get_categories",
@@ -41,6 +43,7 @@ __all__ = [
 # difference, but for our use cases this choice of value is arbitrary.
 EPSILON = sys.float_info.epsilon
 ROUNDING_ERROR = np.sqrt(EPSILON)
+ABS_TOL = 1e-10  # Absolute Tolerance
 
 DISCRETE_KINDS = "ObUS"
 CONTINUOUS_KINDS = "ifuc"
@@ -386,3 +389,10 @@ def get_null_value(x: Any) -> NullType:
         raise ValueError(
             "Cannot get a null value for type: {}".format(type(x[0]))
         )
+
+
+def isclose_abs(a: float, b: float, tol: float = ABS_TOL) -> bool:
+    """
+    Return True if a and b are close given the absolute tolerance
+    """
+    return math.isclose(a, b, rel_tol=0, abs_tol=ABS_TOL)

@@ -2,18 +2,16 @@ from __future__ import annotations
 
 import math
 import typing
-from dataclasses import dataclass
 from datetime import datetime, timedelta, tzinfo
-from enum import IntEnum
 from typing import overload
 from zoneinfo import ZoneInfo
 
-import dateutil.rrule as rr
 import numpy as np
-from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule
 
-from ..utils import get_timezone
+from ..utils import get_timezone, isclose_abs
+from .date_utils import Interval, align_limits, expand_datetime_limits
+from .types import DateFrequency, date_breaks_info
 
 if typing.TYPE_CHECKING:
     from typing import Generator, Optional, Sequence
@@ -25,21 +23,20 @@ if typing.TYPE_CHECKING:
         NDArrayDatetime,
         NDArrayFloat,
         SeqDatetime,
-        TupleFloat2,
-        TupleInt2,
         TzInfo,
     )
 
-ABS_TOL = 1e-10  # Absolute Tolerance
 
 EPOCH = datetime(1970, 1, 1, tzinfo=None)
 EPOCH64 = np.datetime64("1970", "Y")
 SECONDS_PER_DAY = 24 * 60 * 60
 MICROSECONDS_PER_DAY = SECONDS_PER_DAY * (10**6)
+
 NaT_int = np.datetime64("NaT").astype(np.int64)
 MIN_DATETIME64 = np.datetime64("0001-01-01")
 MAX_DATETIME64 = np.datetime64("10000-01-01")
 UTC = ZoneInfo("UTC")
+DF = DateFrequency
 
 
 def _from_ordinalf(x: float, tz: tzinfo | None) -> datetime:
@@ -157,40 +154,6 @@ def num_to_datetime(
     return _from_ordinalf_np_vectorized(x, tz)
 
 
-class DateFrequency(IntEnum):
-    """
-    Date Frequency
-
-    Matching the dateutils constants
-    """
-
-    __order__ = "YEARLY MONTHLY DAILY HOURLY MINUTELY SECONDLY MICROSECONDLY"
-    YEARLY = rr.YEARLY
-    MONTHLY = rr.MONTHLY
-    DAILY = rr.DAILY
-    HOURLY = rr.HOURLY
-    MINUTELY = rr.MINUTELY
-    SECONDLY = rr.SECONDLY
-    MICROSECONDLY = SECONDLY + 1
-
-
-DF = DateFrequency
-
-
-@dataclass
-class date_breaks_info:
-    """
-    Information required to generate sequence of date breaks
-    """
-
-    frequency: DateFrequency
-    n: int
-    width: int
-    start: datetime
-    until: datetime
-    tz: TzInfo | None
-
-
 WIDTHS: dict[DateFrequency, Sequence[int]] = {
     DF.YEARLY: (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000),
     DF.MONTHLY: (1, 2, 3, 4, 6),
@@ -222,32 +185,6 @@ WIDTHS: dict[DateFrequency, Sequence[int]] = {
 }
 
 MAX_BREAKS = dict(zip(DateFrequency, (11, 12, 11, 12, 11, 11, 8)))
-
-
-def _isclose_abs(a: float, b: float, tol: float = ABS_TOL) -> bool:
-    """
-    Return True if a and b are close given the absolute tolerance
-    """
-    return math.isclose(a, b, rel_tol=0, abs_tol=ABS_TOL)
-
-
-def _align_limits(limits: TupleInt2, width: float) -> TupleFloat2:
-    """
-    Return limits so that breaks should be multiples of the width
-
-    The new limits are equal or contain the original limits
-    """
-    low, high = limits
-
-    l, m = divmod(low, width)
-    if _isclose_abs(m / width, 1):
-        l += 1
-
-    h, m = divmod(high, width)
-    if not _isclose_abs(m / width, 0):
-        h += 1
-
-    return l * width, h * width
 
 
 def _viable_freqs(
@@ -287,25 +224,17 @@ def calculate_date_breaks_info(
     tz = get_timezone(limits)
     _max_breaks_lookup = {f: max(b, n) for f, b in MAX_BREAKS.items()}
 
-    low, high = limits
-    delta = relativedelta(high, low)
-    tdelta = high - low
-
-    # Calculate durations in all possible units
-    # The durations round downwards
-    y = delta.years
-    M = y * 12 + delta.months
-    d = tdelta.days
-    h = d * 24 + delta.hours
-    m = h * 60 + delta.minutes
-    s = math.floor(tdelta.total_seconds())
-    u = math.floor(tdelta.total_seconds() * 1e6)
-
-    # Widen the duration for the year to include
-    limits_year = _floor_year(low), _ceil_year(high)
-    y_wide = limits_year[1].year - limits_year[0].year
-    unit_durations = (y_wide, M, d, h, m, s, u)
-
+    # Widen the duration at each granularity
+    itv = Interval(*limits)
+    unit_durations = (
+        itv.y_wide,
+        itv.M_wide,
+        itv.d_wide,
+        itv.h_wide,
+        itv.m_wide,
+        itv.s,
+        itv.u,
+    )
     # Search frequencies from longest (yearly) to the smallest
     # for one that would a good width between the breaks
 
@@ -326,7 +255,7 @@ def calculate_date_breaks_info(
             for break_width in WIDTHS[freq]:
                 if duration <= break_width * mb - 1:
                     break
-            else:
+            else:  # pragma: no cover
                 continue
             break
         else:
@@ -334,10 +263,7 @@ def calculate_date_breaks_info(
         break
 
     num_breaks = duration // break_width
-
-    if freq == DateFrequency.YEARLY:
-        limits = limits_year
-
+    limits = itv.limits_for_frequency(freq)
     res = date_breaks_info(
         freq,
         num_breaks,
@@ -383,10 +309,10 @@ def calculate_date_breaks_byunits(
     freq = getattr(DF, timely_name)
 
     # Appropriate start and end dates
-    low, high = limits
-    delta = relativedelta(high, high)
-    start = low - delta
-    until = high + delta
+    start, until = expand_datetime_limits(limits, width, units)
+
+    if units == "week":
+        width *= 7
 
     info = date_breaks_info(
         freq,
@@ -398,16 +324,26 @@ def calculate_date_breaks_byunits(
     )
 
     lookup = {
-        "year": yearly_breaks,
-        "month": monthly_breaks,
-        "week": weekly_breaks,
-        "day": daily_breaks,
-        "hour": hourly_breaks,
-        "minute": minutely_breaks,
-        "second": secondly_breaks,
+        "year": rrulely_breaks,
+        "month": rrulely_breaks,
+        "week": rrulely_breaks,
+        "day": rrulely_breaks,
+        "hour": rrulely_breaks,
+        "minute": rrulely_breaks,
+        "second": rrulely_breaks,
         "microsecond": microsecondly_breaks,
     }
     return lookup[units](info)
+
+
+def rrulely_breaks(info: date_breaks_info) -> Sequence[datetime]:
+    r = rrule(
+        info.frequency,
+        interval=info.width,
+        dtstart=info.start,
+        until=info.until,
+    )
+    return list(r)
 
 
 def yearly_breaks(info: date_breaks_info) -> Sequence[datetime]:
@@ -417,23 +353,20 @@ def yearly_breaks(info: date_breaks_info) -> Sequence[datetime]:
     # New limits so that breaks fall on multiples of
     # the width
     limits = info.start.year, info.until.year
-    l, h = _align_limits(limits, info.width)
+    l, h = align_limits(limits, info.width)
     l, h = math.floor(l), math.ceil(h)
 
-    if isinstance(info.start, datetime):
-        _replace_d = {
-            "month": 1,
-            "day": 1,
-            "hour": 0,
-            "minute": 0,
-            "second": 0,
-            "tzinfo": info.tz,
-        }
-    else:  # date object
-        _replace_d = {"month": 1, "day": 1}
+    _replace_d = {
+        "month": 1,
+        "day": 1,
+        "hour": 0,
+        "minute": 0,
+        "second": 0,
+        "tzinfo": info.tz,
+    }
 
-    start = info.start.replace(year=l, **_replace_d)  # type: ignore
-    until = info.until.replace(year=h, **_replace_d)  # type: ignore
+    start = info.start.replace(year=l, **_replace_d)
+    until = info.until.replace(year=h, **_replace_d)
     r = rrule(
         info.frequency,
         interval=info.width,
@@ -454,27 +387,7 @@ def monthly_breaks(info: date_breaks_info) -> Sequence[datetime]:
         until=info.until,
         bymonth=range(1, 13, info.width),
     )
-    breaks = r.between(info.start, info.until, True)
-    if not len(breaks):
-        start = _floor_mid_year(info.start)
-        until = _ceil_mid_year(info.until)
-        r = rrule(
-            info.frequency,
-            interval=info.width,
-            dtstart=start,
-            until=until,
-            bymonth=range(1, 13, info.width),
-        )
-        breaks = list(r)
-    return breaks
-
-
-def weekly_breaks(info: date_breaks_info) -> Sequence[datetime]:
-    """
-    Calculate weekly breaks
-    """
-    info.width = info.width * 7
-    return daily_breaks(info)
+    return list(r)
 
 
 def daily_breaks(info: date_breaks_info) -> Sequence[datetime]:
@@ -544,19 +457,22 @@ def microsecondly_breaks(info: date_breaks_info) -> NDArrayDatetime:
     """
     Calculate breaks at microsecond intervals
     """
+    # TODO: A little too complicated, could use some refactoring
     nmin: float
     nmax: float
     width = info.width
 
     nmin, nmax = datetime_to_num((info.start, info.until))
     day0: float = np.floor(nmin)
+
+    # difference in microseconds
     umax = (nmax - day0) * MICROSECONDS_PER_DAY
     umin = (nmin - day0) * MICROSECONDS_PER_DAY
 
     # Ensure max is a multiple of the width
     width = info.width
     h, m = divmod(umax, width)
-    if not _isclose_abs(m / width, 0):
+    if not isclose_abs(m / width, 0):
         h += 1
     umax = h * width
 
@@ -565,46 +481,3 @@ def microsecondly_breaks(info: date_breaks_info) -> NDArrayDatetime:
     ubreaks = umin - width + np.arange(n + 3) * width
     breaks = day0 + ubreaks / MICROSECONDS_PER_DAY
     return num_to_datetime(breaks, info.tz)
-
-
-def _floor_year(d: datetime) -> datetime:
-    """
-    Round down to the start of the year
-    """
-    return d.min.replace(d.year)
-
-
-def _ceil_year(d: datetime) -> datetime:
-    """
-    Round up to start of the year
-    """
-    _d = _floor_year(d)
-    if _d == d:
-        # Already at the start of the year
-        return _d
-    else:
-        return _d.replace(d.year + 1)
-
-
-def _floor_mid_year(d: datetime) -> datetime:
-    """
-    Round down half a year
-    """
-    _d = _floor_year(d)
-    if d.month < 7:
-        return _d.replace(month=1)
-    else:
-        return _d.replace(month=7)
-
-
-def _ceil_mid_year(d: datetime) -> datetime:
-    """
-    Round up half a year
-    """
-    _d = _floor_year(d)
-    if _d == d:
-        return _d
-    elif d.month < 7:
-        return _d.replace(month=7)
-    else:
-        return _d.replace(year=_d.year + 1, month=1)

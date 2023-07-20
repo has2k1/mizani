@@ -414,12 +414,11 @@ class date_breaks:
     Examples
     --------
     >>> from datetime import datetime
-    >>> x = [datetime(year, 1, 1) for year in [2010, 2026, 2015]]
+    >>> limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
 
     Default breaks will be regularly spaced but the spacing
     is automatically determined
 
-    >>> limits = min(x), max(x)
     >>> breaks = date_breaks(9)
     >>> [d.year for d in breaks(limits)]
     [2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
@@ -428,7 +427,7 @@ class date_breaks:
 
     >>> breaks = date_breaks('4 year')
     >>> [d.year for d in breaks(limits)]
-    [2008, 2012, 2016, 2020, 2024, 2028]
+    [2010, 2014, 2018, 2022, 2026]
     """
 
     n: int

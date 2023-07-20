@@ -45,16 +45,16 @@ if typing.TYPE_CHECKING:
 
 
 __all__ = [
-    "log_breaks",
+    "breaks_log",
     "minor_breaks",
-    "trans_minor_breaks",
-    "date_breaks",
-    "timedelta_breaks",
-    "extended_breaks",
+    "minor_breaks_trans",
+    "breaks_date",
+    "breaks_timedelta",
+    "breaks_extended",
 ]
 
 
-class log_breaks:
+class breaks_log:
     """
     Integer breaks on log transformed scales
 
@@ -69,11 +69,11 @@ class log_breaks:
     --------
     >>> x = np.logspace(3, 6)
     >>> limits = min(x), max(x)
-    >>> log_breaks()(limits)
+    >>> breaks_log()(limits)
     array([     1000,    10000,   100000,  1000000])
-    >>> log_breaks(2)(limits)
+    >>> breaks_log(2)(limits)
     array([  1000, 100000])
-    >>> log_breaks()([0.1, 1])
+    >>> breaks_log()([0.1, 1])
     array([0.1, 0.3, 1. , 3. ])
     """
 
@@ -122,10 +122,10 @@ class log_breaks:
             if np.sum(relevant_breaks) >= n - 2:
                 return breaks
 
-        return _log_sub_breaks(n=n, base=base)(limits)
+        return _breaks_log_sub(n=n, base=base)(limits)
 
 
-class _log_sub_breaks:
+class _breaks_log_sub:
     """
     Breaks for log transformed scales
 
@@ -202,7 +202,7 @@ class _log_sub_breaks:
                 )
                 return breaks[lower_end : upper_end + 1]
         else:
-            return extended_breaks(n=n)(limits)
+            return breaks_extended(n=n)(limits)
 
 
 class minor_breaks:
@@ -289,7 +289,7 @@ class minor_breaks:
         return minor
 
 
-class trans_minor_breaks:
+class minor_breaks_trans:
     """
     Compute minor breaks for transformed scales
 
@@ -316,7 +316,7 @@ class trans_minor_breaks:
     array([0.5, 1.5, 2.5, 3.5, 4.5])
     >>> class sqrt_trans2(sqrt_trans):
     ...     def __init__(self):
-    ...         self.minor_breaks = trans_minor_breaks(sqrt_trans2)
+    ...         self.minor_breaks = minor_breaks_trans(sqrt_trans2)
     >>> sqrt_trans2().minor_breaks(major, limits)
     array([1.58113883, 2.54950976, 3.53553391])
 
@@ -398,7 +398,7 @@ class trans_minor_breaks:
         return major
 
 
-class date_breaks:
+class breaks_date:
     """
     Regularly spaced dates
 
@@ -419,13 +419,13 @@ class date_breaks:
     Default breaks will be regularly spaced but the spacing
     is automatically determined
 
-    >>> breaks = date_breaks(9)
+    >>> breaks = breaks_date(9)
     >>> [d.year for d in breaks(limits)]
     [2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
 
     Breaks at 4 year intervals
 
-    >>> breaks = date_breaks('4 year')
+    >>> breaks = breaks_date('4 year')
     >>> [d.year for d in breaks(limits)]
     [2010, 2014, 2018, 2022, 2026]
     """
@@ -477,7 +477,7 @@ class date_breaks:
             return calculate_date_breaks_auto(limits, self.n)
 
 
-class timedelta_breaks:
+class breaks_timedelta:
     """
     Timedelta breaks
 
@@ -491,7 +491,7 @@ class timedelta_breaks:
     Examples
     --------
     >>> from datetime import timedelta
-    >>> breaks = timedelta_breaks()
+    >>> breaks = breaks_timedelta()
     >>> x = [timedelta(days=i*365) for i in range(25)]
     >>> limits = min(x), max(x)
     >>> major = breaks(limits)
@@ -502,7 +502,7 @@ class timedelta_breaks:
     _calculate_breaks: Callable[[TupleFloat2], FloatVector]
 
     def __init__(self, n: int = 5, Q: Sequence[float] = (1, 2, 5, 10)):
-        self._calculate_breaks = extended_breaks(n=n, Q=Q)
+        self._calculate_breaks = breaks_extended(n=n, Q=Q)
 
     def __call__(
         self, limits: tuple[Timedelta, Timedelta]
@@ -544,7 +544,7 @@ class timedelta_helper:
        routine. The scaled limits are in numerical format.
     3. Convert the computed breaks from numeric into timedelta.
 
-    See, :func:`timedelta_breaks`
+    See, :class:`breaks_timedelta`
 
     How to use - formating?
 
@@ -554,7 +554,7 @@ class timedelta_helper:
     2. Format the values with a general purpose formatting
        routing.
 
-    See, :func:`timedelta_format`
+    See, :class:`~mizani.labels.label_timedelta`
     """
 
     x: NDArrayTimedelta | Sequence[Timedelta]
@@ -696,7 +696,7 @@ class timedelta_helper:
             return td.total_seconds() / SECONDS[self.units]
 
 
-class extended_breaks:
+class breaks_extended:
     """
     An extension of Wilkinson's tick position algorithm
 
@@ -717,9 +717,9 @@ class extended_breaks:
     Examples
     --------
     >>> limits = (0, 9)
-    >>> extended_breaks()(limits)
+    >>> breaks_extended()(limits)
     array([  0. ,   2.5,   5. ,   7.5,  10. ])
-    >>> extended_breaks(n=6)(limits)
+    >>> breaks_extended(n=6)(limits)
     array([  0.,   2.,   4.,   6.,   8.,  10.])
 
     References
@@ -903,3 +903,11 @@ class extended_breaks:
 
         locs = best[0] + np.arange(best[4]) * best[2]
         return locs
+
+
+# Deprecated
+log_breaks = breaks_log
+trans_minor_breaks = minor_breaks_trans
+date_breaks = breaks_date
+timedelta_breaks = breaks_timedelta
+extended_breaks = breaks_extended

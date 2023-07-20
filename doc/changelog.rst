@@ -24,8 +24,7 @@ API Changes
   instead of `"m", "d", "w", "M"`.
 
 - The naming convention for break formatting methods has changed from
-  `*_format` to `label_*`. Specifically these methods have been renamed
-  to
+  `*_format` to `label_*`. Specifically these methods have been renamed.
 
   * `comma_format` is now :class:`~mizani.formatters.label_comma`
   * `custom_format` is now :class:`~mizani.formatters.label_custom`
@@ -40,6 +39,15 @@ API Changes
   * `pvalue_format` is now :class:`~mizani.formatters.label_pvalue`
   * `ordinal_format` is now :class:`~mizani.formatters.label_ordinal`
   * `number_bytes_format` is now :class:`~mizani.formatters.label_bytes`
+
+- The naming convention for break calculating methods has changed from
+  `*_breaks` to `breaks_*`. Specifically these methods have been renamed.
+
+  * `log_breaks` is now :class:`~mizani.breaks.breaks_log`
+  * `trans_minor_breaks` is now :class:`~mizani.breaks.minor_breaks_trans`
+  * `date_breaks` is now :class:`~mizani.breaks. breaks_date`
+  * `timedelta_breaks` is now :class:`~mizani.breaks. breaks_timedelta`
+  * `extended_breaks` is now :class:`~mizani.breaks. breaks_extended`
 
 v0.9.2
 ------

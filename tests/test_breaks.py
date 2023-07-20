@@ -8,12 +8,12 @@ import pytest
 
 from mizani._core.dates import _from_ordinalf
 from mizani.breaks import (
-    date_breaks,
-    extended_breaks,
-    log_breaks,
+    breaks_date,
+    breaks_extended,
+    breaks_log,
+    breaks_timedelta,
     minor_breaks,
-    timedelta_breaks,
-    trans_minor_breaks,
+    minor_breaks_trans,
 )
 from mizani.transforms import log_trans, trans
 
@@ -21,60 +21,60 @@ from mizani.transforms import log_trans, trans
 def test_log_breaks():
     x = [2, 20, 2000]
     limits = min(x), max(x)
-    breaks = log_breaks()(limits)
+    breaks = breaks_log()(limits)
     npt.assert_array_equal(breaks, [1, 10, 100, 1000, 10000])
 
-    breaks = log_breaks(3)(limits)
+    breaks = breaks_log(3)(limits)
     npt.assert_array_equal(breaks, [1, 100, 10000])
 
-    breaks = log_breaks()((10000, 10000))
+    breaks = breaks_log()((10000, 10000))
     npt.assert_array_equal(breaks, [10000])
 
-    breaks = log_breaks()((float("-inf"), float("inf")))
+    breaks = breaks_log()((float("-inf"), float("inf")))
     assert len(breaks) == 0
 
     # When the limits are in the same order of magnitude
-    breaks = log_breaks()([35, 60])
+    breaks = breaks_log()([35, 60])
     assert len(breaks) > 0
     assert all(1 < b < 100 for b in breaks)
 
-    breaks = log_breaks()([200, 800])
+    breaks = breaks_log()([200, 800])
     npt.assert_array_equal(breaks, [100, 200, 300, 500, 1000])
 
-    breaks = log_breaks()((1664, 14008))
+    breaks = breaks_log()((1664, 14008))
     npt.assert_array_equal(breaks, [1000, 3000, 5000, 10000, 30000])
 
-    breaks = log_breaks()([407, 3430])
+    breaks = breaks_log()([407, 3430])
     npt.assert_array_equal(breaks, [300, 500, 1000, 3000, 5000])
 
-    breaks = log_breaks()([1761, 8557])
+    breaks = breaks_log()([1761, 8557])
     npt.assert_array_equal(breaks, [1000, 2000, 3000, 5000, 10000])
 
     # log_breaks -> _log_sub_breaks -> extended_breaks
-    breaks = log_breaks(13)([1, 10])
+    breaks = breaks_log(13)([1, 10])
     npt.assert_array_almost_equal(breaks, np.arange(0, 11))
 
     # No overflow effects
-    breaks = log_breaks(n=6)([1e25, 1e30])
+    breaks = breaks_log(n=6)([1e25, 1e30])
     npt.assert_array_almost_equal(breaks, [1e25, 1e26, 1e27, 1e28, 1e29, 1e30])
 
     # No overflow effects in _log_sub_breaks
-    breaks = log_breaks()([2e19, 8e19])
+    breaks = breaks_log()([2e19, 8e19])
     npt.assert_array_almost_equal(
         breaks, [1.0e19, 2.0e19, 3.0e19, 5.0e19, 1.0e20]
     )
 
     # _log_sub_breaks for base != 10
-    breaks = log_breaks(n=5, base=60)([2e5, 8e5])
+    breaks = breaks_log(n=5, base=60)([2e5, 8e5])
     npt.assert_array_almost_equal(
         breaks, [129600, 216000, 432000, 648000, 1080000]
     )
 
-    breaks = log_breaks(n=5, base=2)([20, 80])
+    breaks = breaks_log(n=5, base=2)([20, 80])
     npt.assert_array_almost_equal(breaks, [16, 32, 64, 128])
 
     # bases & negative breaks
-    breaks = log_breaks(base=2)([0.9, 2.9])
+    breaks = breaks_log(base=2)([0.9, 2.9])
     npt.assert_array_almost_equal(breaks, [0.5, 1.0, 2.0, 4.0])
 
 
@@ -121,23 +121,23 @@ def test_minor_breaks():
     assert len(minor) == 0
 
 
-def test_trans_minor_breaks():
+def test_minor_breaks_trans():
     class identity_trans(trans):
         def __init__(self):
-            self.minor_breaks = trans_minor_breaks(identity_trans)
+            self.minor_breaks = minor_breaks_trans(identity_trans)
 
     class square_trans(trans):
         transform = staticmethod(np.square)
         inverse = staticmethod(np.sqrt)
 
         def __init__(self):
-            self.minor_breaks = trans_minor_breaks(square_trans)
+            self.minor_breaks = minor_breaks_trans(square_trans)
 
     class weird_trans(trans):
         dataspace_is_numerical = False
 
         def __init__(self):
-            self.minor_breaks = trans_minor_breaks(weird_trans)
+            self.minor_breaks = minor_breaks_trans(weird_trans)
 
     major = [1, 2, 3, 4]
     limits = [0, 5]
@@ -173,7 +173,7 @@ def test_trans_minor_breaks():
     t = log_trans()
     major = t.transform([1, 10, 100])
     limits = t.transform([1, 100])
-    result = trans_minor_breaks(t)(major, limits, n=4)
+    result = minor_breaks_trans(t)(major, limits, n=4)
     npt.assert_allclose(
         result,
         [
@@ -189,48 +189,48 @@ def test_trans_minor_breaks():
     )
 
 
-def test_date_breaks():
+def test_breaks_date():
     # cpython
     limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
-    breaks = date_breaks("5 Years")
+    breaks = breaks_date("5 Years")
     assert [d.year for d in breaks(limits)] == [2010, 2015, 2020, 2025, 2030]
 
-    breaks = date_breaks("10 Years")(limits)
+    breaks = breaks_date("10 Years")(limits)
     assert [d.year for d in breaks] == [2010, 2020, 2030]
 
     # numpy datetime64
     limits = (np.datetime64("1973"), np.datetime64("1997"))
-    breaks = date_breaks(width="10 Years")(limits)
+    breaks = breaks_date(width="10 Years")(limits)
     assert [d.year for d in breaks] == [1970, 1980, 1990, 2000]
 
     # NaT
     limits = np.datetime64("NaT"), datetime(2017, 1, 1)
-    breaks = date_breaks("10 Years")(limits)
+    breaks = breaks_date("10 Years")(limits)
     assert len(breaks) == 0
 
     # automatic monthly breaks
     limits = (datetime(2020, 1, 1), datetime(2021, 1, 15))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.month for dt in breaks] == [1, 4, 7, 10, 1]
 
     # automatic day breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 1, 15))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.day for dt in breaks] == [1, 5, 9, 13]
 
     # automatic second breaks
     limits = (datetime(2020, 1, 1, hour=0), datetime(2020, 1, 1, hour=19))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.hour for dt in breaks] == [0, 4, 8, 12, 16]
 
     # automatic minute breaks
     limits = (datetime(2020, 1, 1, minute=0), datetime(2020, 1, 1, minute=50))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.minute for dt in breaks] == [0, 15, 30, 45]
 
     # automatic second breaks
     limits = (datetime(2020, 1, 1, second=20), datetime(2020, 1, 1, second=50))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.second for dt in breaks] == [20, 30, 40, 50]
 
     # automatic microsecond breaks
@@ -238,18 +238,18 @@ def test_date_breaks():
         datetime(2020, 1, 1, microsecond=10),
         datetime(2020, 1, 1, microsecond=25),
     )
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.microsecond for dt in breaks] == [5, 10, 15, 20, 25, 30]
 
     # timezone
     UG = ZoneInfo("Africa/Kampala")
     limits = (datetime(1990, 1, 1, tzinfo=UG), datetime(2022, 1, 1, tzinfo=UG))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert breaks[0].tzinfo == UG
 
     # Special cases
     limits = (datetime(2039, 12, 17), datetime(2045, 12, 16))
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert [dt.year for dt in breaks] == [2038, 2040, 2042, 2044, 2046]
 
     # error cases
@@ -260,7 +260,7 @@ def test_date_breaks():
 def test_date_type_breaks():
     limits1 = (date(2020, 1, 1), date(2023, 2, 15))
     limits2 = (datetime(2020, 1, 1), datetime(2023, 2, 15))
-    calc_breaks = date_breaks()
+    calc_breaks = breaks_date()
     res1 = calc_breaks(limits1)
     res2 = [b.replace(tzinfo=None) for b in calc_breaks(limits2)]
     assert res1 == res2
@@ -273,87 +273,87 @@ def _check_width(limits, breaks, td: timedelta):
     assert padding < td
 
 
-def test_date_breaks_week_auto():
+def test_breaks_date_week_auto():
     limits = (datetime(2020, 1, 1), datetime(2020, 2, 15))
 
-    breaks = date_breaks()(limits)
+    breaks = breaks_date()(limits)
     assert set(b.day for b in breaks) == set([1, 15])
 
-    breaks = date_breaks(n=8)(limits)
+    breaks = breaks_date(n=8)(limits)
     assert set(b.day for b in breaks) == set([1, 8, 15, 22])
 
 
-def test_date_breaks_day_width():
+def test_breaks_date_day_width():
     # days
     # 1. The width should be as specified
     # 2. The breaks should encloses the limits
     # 3. The breaks the padding added around the limits should be less than
     #    the width of the breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
-    breaks = date_breaks(width="10 days")(limits)
+    breaks = breaks_date(width="10 days")(limits)
     _check_width(limits, breaks, timedelta(days=10))
 
-    breaks = date_breaks(width="11 days")(limits)
+    breaks = breaks_date(width="11 days")(limits)
     _check_width(limits, breaks, timedelta(days=11))
 
-    breaks = date_breaks(width="12 days")(limits)
+    breaks = breaks_date(width="12 days")(limits)
     _check_width(limits, breaks, timedelta(days=12))
 
     limits = (
         datetime(2000, 1, 1, hour=2),
         datetime(2000, 1, 1, hour=16, second=13),
     )
-    breaks = date_breaks(width="2 hour")(limits)
+    breaks = breaks_date(width="2 hour")(limits)
     _check_width(limits, breaks, timedelta(hours=2))
 
-    breaks = date_breaks(width="100 minutes")(limits)
+    breaks = breaks_date(width="100 minutes")(limits)
     _check_width(limits, breaks, timedelta(minutes=100))
 
-    breaks = date_breaks(width="5000 seconds")(limits)
+    breaks = breaks_date(width="5000 seconds")(limits)
     _check_width(limits, breaks, timedelta(seconds=5000))
 
-    breaks = date_breaks(width="5000 seconds")(limits)
+    breaks = breaks_date(width="5000 seconds")(limits)
     _check_width(limits, breaks, timedelta(seconds=5000))
 
 
-def test_date_breaks_week_width():
+def test_breaks_date_week_width():
     # weeks
     # 1. The width should be as specified
     # 2. The breaks should encloses the limits
     # 3. The breaks the padding added around the limits should be less than
     #    the width of the breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
-    breaks = date_breaks(width="1 week")(limits)
+    breaks = breaks_date(width="1 week")(limits)
     _check_width(limits, breaks, timedelta(days=7))
 
-    breaks = date_breaks(width="2 weeks")(limits)
+    breaks = breaks_date(width="2 weeks")(limits)
     _check_width(limits, breaks, timedelta(days=14))
 
-    breaks = date_breaks(width="3 weeks")(limits)
+    breaks = breaks_date(width="3 weeks")(limits)
     _check_width(limits, breaks, timedelta(days=21))
 
 
-def test_date_breaks_month_width():
+def test_breaks_date_month_width():
     # months
     # 1. The width is within any combination of sequential months
     # 2. The breaks should enclose the limits
     limits = (datetime(2020, 1, 1), datetime(2021, 2, 28))
 
-    breaks = date_breaks(width="1 month")(limits)
+    breaks = breaks_date(width="1 month")(limits)
     assert all([28 <= d.days <= 31 for d in np.diff(breaks)])
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
-    breaks = date_breaks(width="2 month")(limits)
+    breaks = breaks_date(width="2 month")(limits)
     assert all([59 <= d.days <= 62 for d in np.diff(breaks)])
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
     #
-    breaks = date_breaks(width="3 month")(limits)
+    breaks = breaks_date(width="3 month")(limits)
     assert all([90 <= d.days <= 92 for d in np.diff(breaks)])
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
 
-def test_timedelta_breaks():
-    breaks = timedelta_breaks()
+def test_breaks_timedelta():
+    breaks = breaks_timedelta()
 
     # cpython
     x = [timedelta(days=i * 365) for i in range(25)]
@@ -386,20 +386,20 @@ def test_timedelta_breaks():
     assert len(breaks(limits)) == 0
 
 
-def test_extended_breaks():
+def test_breaks_extended():
     x = np.arange(100)
     limits = min(x), max(x)
     for n in (5, 7, 10, 13, 31):
-        breaks = extended_breaks(n=n)
+        breaks = breaks_extended(n=n)
         assert len(breaks(limits)) <= n + 1
 
     # Reverse limits
-    breaks = extended_breaks(n=7)
+    breaks = breaks_extended(n=7)
     npt.assert_array_equal(breaks((0, 6)), breaks((6, 0)))
 
     # Infinite limits
     limits = float("-inf"), float("inf")
-    breaks = extended_breaks(n=5)
+    breaks = breaks_extended(n=5)
     assert len(breaks(limits)) == 0
 
     # Zero range discrete

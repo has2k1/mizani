@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 from types import FunctionType, MethodType
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
 from numpy.testing import assert_equal
-from zoneinfo import ZoneInfo
 
-from mizani.breaks import extended_breaks, minor_breaks
+from mizani.breaks import breaks_extended, minor_breaks
 from mizani.transforms import (
     asn_trans,
     atanh_trans,
@@ -179,7 +179,7 @@ def test_logn_trans():
     log4_trans = log_trans(
         4,
         domain=(0.1, 100),
-        breaks=extended_breaks(),
+        breaks=breaks_extended(),
         minor_breaks=minor_breaks(),
     )
     _test_trans(log4_trans, arr)

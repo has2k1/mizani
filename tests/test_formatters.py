@@ -8,78 +8,74 @@ import pandas as pd
 import pytest
 import pytz
 
-from mizani.formatters import (
-    comma_format,
-    currency_format,
-    custom_format,
-    date_format,
-    log_format,
-    number_bytes_format,
-    number_format,
-    ordinal_format,
-    percent_format,
-    pvalue_format,
-    scientific_format,
-    timedelta_format,
+from mizani.labels import (
+    label_bytes,
+    label_comma,
+    label_currency,
+    label_custom,
+    label_date,
+    label_log,
+    label_number,
+    label_ordinal,
+    label_percent,
+    label_pvalue,
+    label_scientific,
+    label_timedelta,
 )
 
 
-def test_custom_format():
+def test_label_custom():
     x = [3.987, 2, 42.42]
     labels = ["3.99 USD", "2.00 USD", "42.42 USD"]
-    formatter = custom_format("{:.2f} USD")
-    assert formatter(x) == labels
 
-    formatter = custom_format("%.2f USD", style="old")
-    assert formatter(x) == labels
+    assert label_custom("{:.2f} USD")(x) == labels
+    assert label_custom("%.2f USD", style="old")(x) == labels
 
-    formatter = custom_format("%.2f USD", style="ancient")
+    label = label_custom("%.2f USD", style="ancient")
     with pytest.raises(ValueError):
-        formatter(x)
+        label(x)
 
 
-def test_currency_format():
+def test_label_currency():
     x = [1.232, 99.2334, 4.6, 9, 4500]
-    formatter = currency_format(prefix="C$", precision=0, big_mark=",")
-    result = formatter(x)
-    assert result == ["C$1", "C$99", "C$5", "C$9", "C$4,500"]
 
-    formatter = currency_format(prefix="C$", precision=0, big_mark=" ")
-    result = formatter(x)
-    assert result == ["C$1", "C$99", "C$5", "C$9", "C$4 500"]
+    labels = label_currency(prefix="C$", precision=0, big_mark=",")(x)
+    assert labels == ["C$1", "C$99", "C$5", "C$9", "C$4,500"]
 
-    formatter = currency_format(prefix="$", precision=2)
-    result = formatter(x)
-    assert result == ["$1.23", "$99.23", "$4.60", "$9.00", "$4500.00"]
+    labels = label_currency(prefix="C$", precision=0, big_mark=" ")(x)
+    assert labels == ["C$1", "C$99", "C$5", "C$9", "C$4 500"]
+
+    labels = label_currency(prefix="$", precision=2)(x)
+    assert labels == ["$1.23", "$99.23", "$4.60", "$9.00", "$4500.00"]
 
 
-def test_comma_format():
+def test_label_comma():
     x = [1000, 2, 33000, 400]
-    result = comma_format()(x)
-    assert result == ["1,000", "2", "33,000", "400"]
+    labels = label_comma()(x)
+    assert labels == ["1,000", "2", "33,000", "400"]
 
 
-def test_percent_format():
-    formatter = percent_format()
+def test_label_percent():
+    label = label_percent()
     # same/nearly same precision values
-    assert formatter([0.12, 0.23, 0.34, 0.45]) == ["12%", "23%", "34%", "45%"]
+    assert label([0.12, 0.23, 0.34, 0.45]) == ["12%", "23%", "34%", "45%"]
 
-    assert formatter([0.12, 0.23, 0.34, 4.5]) == ["12%", "23%", "34%", "450%"]
+    assert label([0.12, 0.23, 0.34, 4.5]) == ["12%", "23%", "34%", "450%"]
 
     # mixed precision values
-    assert formatter([0.12, 0.23, 0.34, 45]) == ["12%", "23%", "34%", "4,500%"]
+    assert label([0.12, 0.23, 0.34, 45]) == ["12%", "23%", "34%", "4,500%"]
 
 
-def test_scientific():
-    formatter = scientific_format(2)
-    assert formatter([0.12, 0.2376, 0.34, 45]) == [
+def test_label_scientific():
+    label = label_scientific(2)
+    assert label([0.12, 0.2376, 0.34, 45]) == [
         "1.20e-01",
         "2.38e-01",
         "3.40e-01",
         "4.50e+01",
     ]
 
-    assert formatter([0.12, 230, 0.34 * 10**5, 0.4]) == [
+    assert label([0.12, 230, 0.34 * 10**5, 0.4]) == [
         "1.2e-01",
         "2.3e+02",
         "3.4e+04",
@@ -87,57 +83,57 @@ def test_scientific():
     ]
 
 
-def test_number_format():
-    formatter = number_format()
-    assert formatter([5, 10, 100, 150]) == ["5", "10", "100", "150"]
-    assert formatter([5, 10, 100, 150e8]) == [
+def test_label_number():
+    label = label_number()
+    assert label([5, 10, 100, 150]) == ["5", "10", "100", "150"]
+    assert label([5, 10, 100, 150e8]) == [
         "5",
         "10",
         "100",
         "15,000,000,000",
     ]
 
-    formatter = number_format(big_mark="#")
-    assert formatter([1000, 10000]) == ["1#000", "10#000"]
+    label = label_number(big_mark="#")
+    assert label([1000, 10000]) == ["1#000", "10#000"]
 
-    formatter = number_format(precision=2, decimal_mark=",")
-    assert formatter([98.23, 34.67]) == ["98,23", "34,67"]
+    label = label_number(precision=2, decimal_mark=",")
+    assert label([98.23, 34.67]) == ["98,23", "34,67"]
 
-    formatter = number_format(style_negative="hyphen")
-    assert formatter([-1, 0, 1]) == ["\u22121", "0", "1"]
+    label = label_number(style_negative="hyphen")
+    assert label([-1, 0, 1]) == ["\u22121", "0", "1"]
 
     with pytest.raises(ValueError):
-        number_format(accuracy=0.01, precision=2)
+        label_number(accuracy=0.01, precision=2)
 
 
-def test_log_format():
-    formatter = log_format()
-    assert formatter([0.001, 0.1, 100]) == ["0.001", "0.1", "100"]
-    assert formatter([0.001, 0.1, 10000]) == ["1e-3", "1e-1", "1e4"]
-    assert formatter([35, 60]) == ["35", "60"]
-    assert formatter([34.99999999999, 60.0000000001]) == ["35", "60"]
-    assert formatter([300.0000000000014, 499.999999999999]) == [
+def test_label_log():
+    label = label_log()
+    assert label([0.001, 0.1, 100]) == ["0.001", "0.1", "100"]
+    assert label([0.001, 0.1, 10000]) == ["1e-3", "1e-1", "1e4"]
+    assert label([35, 60]) == ["35", "60"]
+    assert label([34.99999999999, 60.0000000001]) == ["35", "60"]
+    assert label([300.0000000000014, 499.999999999999]) == [
         "300",
         "500",
     ]
-    assert formatter([1, 35, 60, 1000]) == ["1", "35", "60", "1000"]
-    assert formatter([1, 35, 60, 10000]) == ["1", "35", "60", "10000"]
-    assert formatter([3.000000000000001e-05]) == ["3e-5"]
-    assert formatter([1, 1e4]) == ["1", "1e4"]
-    assert formatter([1, 35, 60, 1e6]) == ["1", "4e1", "6e1", "1e6"]
+    assert label([1, 35, 60, 1000]) == ["1", "35", "60", "1000"]
+    assert label([1, 35, 60, 10000]) == ["1", "35", "60", "10000"]
+    assert label([3.000000000000001e-05]) == ["3e-5"]
+    assert label([1, 1e4]) == ["1", "1e4"]
+    assert label([1, 35, 60, 1e6]) == ["1", "4e1", "6e1", "1e6"]
 
-    formatter = log_format(base=2)
-    assert formatter([1, 2, 4, 8]) == ["2^0", "2^1", "2^2", "2^3"]
-    assert formatter([0b1, 0b10, 0b11]) == ["2^0", "2^1", "2^1.585"]
+    label = label_log(base=2)
+    assert label([1, 2, 4, 8]) == ["2^0", "2^1", "2^2", "2^3"]
+    assert label([0b1, 0b10, 0b11]) == ["2^0", "2^1", "2^1.585"]
 
-    formatter = log_format(base=8)
-    assert formatter([1, 4, 8, 64]) == ["8^0", "8^0.667", "8^1", "8^2"]
+    label = label_log(base=8)
+    assert label([1, 4, 8, 64]) == ["8^0", "8^0.667", "8^1", "8^2"]
 
-    formatter = log_format(base=5)
-    assert formatter([1, 5, 25, 125]) == ["5^0", "5^1", "5^2", "5^3"]
+    label = label_log(base=5)
+    assert label([1, 5, 25, 125]) == ["5^0", "5^1", "5^2", "5^3"]
 
-    formatter = log_format(base=np.e)
-    assert formatter([1, np.pi, np.e**2, np.e**3]) == [
+    label = label_log(base=np.e)
+    assert label([1, np.pi, np.e**2, np.e**3]) == [
         "e^0",
         "e^1.145",
         "e^2",
@@ -145,38 +141,38 @@ def test_log_format():
     ]
 
     # mathtex
-    formatter = log_format(mathtex=True)
-    assert formatter([0.001, 0.1, 10000]) == [
+    label = label_log(mathtex=True)
+    assert label([0.001, 0.1, 10000]) == [
         "$10^{-3}$",
         "$10^{-1}$",
         "$10^{4}$",
     ]
-    assert formatter([35, 60]) == ["35", "60"]
-    assert formatter([1, 10000]) == ["$10^{0}$", "$10^{4}$"]
+    assert label([35, 60]) == ["35", "60"]
+    assert label([1, 10000]) == ["$10^{0}$", "$10^{4}$"]
 
-    formatter = log_format(base=8, mathtex=True)
-    assert formatter([1, 4, 64]) == ["$8^{0}$", "$8^{0.667}$", "$8^{2}$"]
+    label = label_log(base=8, mathtex=True)
+    assert label([1, 4, 64]) == ["$8^{0}$", "$8^{0.667}$", "$8^{2}$"]
 
 
-def test_date_format():
+def test_label_date():
     x = pd.date_range("1/1/2010", periods=4, freq="4AS")
-    result = date_format("%Y")(x)
+    result = label_date("%Y")(x)
     assert result == ["2010", "2014", "2018", "2022"]
 
     x = [datetime(year=2005 + i, month=i, day=i) for i in range(1, 5)]
-    result = date_format("%Y:%m:%d")(x)
+    result = label_date("%Y:%m:%d")(x)
     assert result == ["2006:01:01", "2007:02:02", "2008:03:03", "2009:04:04"]
 
     # Timezone with Daylight time
     NY = ZoneInfo("America/New_York")
     x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]
-    result = date_format()(x)
+    result = label_date()(x)
     assert result == ["2023-10-01", "2023-11-01"]
 
     # Same as above, but different tz library
     NY = pytz.timezone("America/New_York")
     x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]
-    result = date_format()(x)
+    result = label_date()(x)
     assert result == ["2023-10-01", "2023-11-01"]
 
     # Unknown Timezone
@@ -187,16 +183,16 @@ def test_date_format():
     TZ = myTzInfo()
     x = [datetime(2023, 10, 1, tzinfo=TZ), datetime(2023, 11, 1, tzinfo=TZ)]
     with pytest.raises(NotImplementedError, match=r"^a tzinfo subclass"):
-        date_format()(x)
+        label_date()(x)
 
 
-def test_timedelta_format():
+def test_label_timedelta():
     x = [timedelta(days=7 * i) for i in range(5)]
-    labels = timedelta_format()(x)
+    labels = label_timedelta()(x)
     assert labels == ["0 weeks", "1 week", "2 weeks", "3 weeks", "4 weeks"]
 
     x = [pd.Timedelta(seconds=600 * i) for i in range(5)]
-    labels = timedelta_format()(x)
+    labels = label_timedelta()(x)
     assert labels == [
         "0 min",
         "10 min",
@@ -206,7 +202,7 @@ def test_timedelta_format():
     ]
 
     # specific units
-    labels = timedelta_format(units="h")(x)
+    labels = label_timedelta(units="h")(x)
     assert labels == [
         "0.00 h",
         "0.17 h",
@@ -217,7 +213,7 @@ def test_timedelta_format():
 
     # usetex
     x = [timedelta(microseconds=7 * i) for i in range(5)]
-    labels = timedelta_format(units="us", space=False, usetex=True)(x)
+    labels = label_timedelta(units="us", space=False, usetex=True)(x)
     assert labels == [
         "0$\\mu s$",
         "7$\\mu s$",
@@ -227,17 +223,17 @@ def test_timedelta_format():
     ]
 
 
-def test_pvalue_format():
+def test_label_pvalue():
     x = [0.90, 0.15, 0.015, 0.009, 0.0005]
-    labels = pvalue_format()(x)
+    labels = label_pvalue()(x)
     assert labels == ["0.9", "0.15", "0.015", "0.009", "<0.001"]
 
-    labels = pvalue_format(add_p=True)(x)
+    labels = label_pvalue(add_p=True)(x)
     assert labels == ["p=0.9", "p=0.15", "p=0.015", "p=0.009", "p<0.001"]
 
     with warnings.catch_warnings(record=True) as record:
         x = [0.90, 0.15, np.nan, 0.015, 0.009, 0.0005]
-        labels = pvalue_format()(x)
+        labels = label_pvalue()(x)
         assert labels == ["0.9", "0.15", "nan", "0.015", "0.009", "<0.001"]
         assert not record, "Issued an unexpected warning"
 
@@ -245,43 +241,43 @@ def test_pvalue_format():
     assert len(record) == 0
 
 
-def test_ordinal_format():
-    labels = ordinal_format()(range(110, 115))
+def test_label_ordinal():
+    labels = label_ordinal()(range(110, 115))
     assert labels == ["110th", "111th", "112th", "113th", "114th"]
 
-    labels = ordinal_format()(range(120, 125))
+    labels = label_ordinal()(range(120, 125))
     assert labels == ["120th", "121st", "122nd", "123rd", "124th"]
 
-    labels = ordinal_format(big_mark=",")(range(1200, 1205))
+    labels = label_ordinal(big_mark=",")(range(1200, 1205))
     assert labels == ["1,200th", "1,201st", "1,202nd", "1,203rd", "1,204th"]
 
-    labels = ordinal_format(big_mark=".")(range(1200, 1205))
+    labels = label_ordinal(big_mark=".")(range(1200, 1205))
     assert labels == ["1.200th", "1.201st", "1.202nd", "1.203rd", "1.204th"]
 
 
-def test_number_bytes_format():
+def test_label_bytes():
     x = [1000, 1000000, 4e5]
-    labels = number_bytes_format(symbol="MiB")(x)
+    labels = label_bytes(symbol="MiB")(x)
     assert labels == ["0 MiB", "1 MiB", "0 MiB"]
 
-    labels = number_bytes_format(symbol="MiB", fmt="{:.2f} ")(x)
+    labels = label_bytes(symbol="MiB", fmt="{:.2f} ")(x)
     assert labels == ["0.00 MiB", "0.95 MiB", "0.38 MiB"]
 
     with pytest.raises(ValueError):
-        number_bytes_format(symbol="Bad")(x)
+        label_bytes(symbol="Bad")(x)
 
 
 def test_empty_breaks():
     x = []
-    assert custom_format()(x) == []
-    assert comma_format()(x) == []
-    assert currency_format()(x) == []
-    assert percent_format()(x) == []
-    assert scientific_format()(x) == []
-    assert date_format()(x) == []
-    assert number_format()(x) == []
-    assert log_format()(x) == []
-    assert timedelta_format()(x) == []
-    assert pvalue_format()(x) == []
-    assert ordinal_format()(x) == []
-    assert number_bytes_format()(x) == []
+    assert label_custom()(x) == []
+    assert label_comma()(x) == []
+    assert label_currency()(x) == []
+    assert label_percent()(x) == []
+    assert label_scientific()(x) == []
+    assert label_date()(x) == []
+    assert label_number()(x) == []
+    assert label_log()(x) == []
+    assert label_timedelta()(x) == []
+    assert label_pvalue()(x) == []
+    assert label_ordinal()(x) == []
+    assert label_bytes()(x) == []

@@ -14,7 +14,7 @@ Contents
 
    bounds
    breaks
-   formatters
+   labels
    palettes
    transforms
    scale

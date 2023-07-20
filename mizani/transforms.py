@@ -38,11 +38,11 @@ from .breaks import (
     timedelta_breaks,
     trans_minor_breaks,
 )
-from .formatters import (
-    date_format,
-    log_format,
-    number_format,
-    timedelta_format,
+from .labels import (
+    label_date,
+    label_log,
+    label_number,
+    label_timedelta,
 )
 
 if typing.TYPE_CHECKING:
@@ -138,7 +138,7 @@ class trans:
     minor_breaks: MinorBreaksFunction = minor_breaks(1)
 
     #: Function to format breaks
-    format: FormatFunction = staticmethod(number_format())
+    format: FormatFunction = staticmethod(label_number())
 
     def __init__(self, **kwargs: Any):
         for k, v in kwargs.items():
@@ -328,7 +328,7 @@ def log_trans(base: Optional[float] = None, **kwargs: Any) -> trans:
         kwargs["breaks"] = log_breaks(base=base)  # type: ignore
 
     kwargs["base"] = base
-    kwargs["_format"] = log_format(base)  # type: ignore
+    kwargs["_format"] = label_log(base)  # type: ignore
 
     _trans = trans_new(name, transform, inverse, **kwargs)
 
@@ -673,7 +673,7 @@ class datetime_trans(trans):
         datetime(MAXYEAR, 12, 31, tzinfo=UTC),
     )
     breaks_ = staticmethod(date_breaks())
-    format = staticmethod(date_format())
+    format = staticmethod(label_date())
     tz = None
 
     def __init__(self, tz=None, **kwargs):
@@ -723,7 +723,7 @@ class timedelta_trans(trans):
     dataspace_is_numerical = False
     domain = (timedelta.min, timedelta.max)
     breaks_ = staticmethod(timedelta_breaks())
-    format = staticmethod(timedelta_format())
+    format = staticmethod(label_timedelta())
 
     @staticmethod
     def transform(x: AnyVector) -> FloatVector:
@@ -749,7 +749,7 @@ class pd_timedelta_trans(trans):
     dataspace_is_numerical = False
     domain = (pd.Timedelta.min, pd.Timedelta.max)
     breaks_ = staticmethod(timedelta_breaks())
-    format = staticmethod(timedelta_format())
+    format = staticmethod(label_timedelta())
 
     @staticmethod
     def transform(x: AnyVector) -> FloatVector:

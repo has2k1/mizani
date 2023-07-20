@@ -354,11 +354,11 @@ def get_timezone(x: SeqDatetime) -> tzinfo | None:
     if any(tzname0 != name for name in tznames):
         msg = (
             "Dates in column have different time zones. "
-            "Choosen `{}` the time zone of the first date. "
+            f"Choosen `{tzname0}` the time zone of the first date. "
             "To use a different time zone, create a "
-            "formatter and pass the time zone."
+            "labeller and pass the time zone."
         )
-        warn(msg.format(tzname0))
+        warn(msg)
     return info
 
 

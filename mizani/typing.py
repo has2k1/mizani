@@ -27,9 +27,6 @@ if typing.TYPE_CHECKING:
 
     T = TypeVar("T")
 
-    Int: TypeAlias = int  # | np.int64
-    Float: TypeAlias = float  # | np.float64
-
     # Tuples
     TupleT2: TypeAlias = tuple[T, T]
     TupleT3: TypeAlias = tuple[T, T, T]
@@ -58,9 +55,9 @@ if typing.TYPE_CHECKING:
     IntSeries: TypeAlias = pd.Series[int]
     FloatSeries: TypeAlias = pd.Series[float]
     DatetimeSeries: TypeAlias = pd.Series[datetime]
-    TimedeltaSeries: TypeAlias = pd.Series[
-        Any
-    ]  # cannot define pd.Series[timedelta]
+
+    # Use Any as cannot define pd.Series[timedelta]
+    TimedeltaSeries: TypeAlias = pd.Series[Any]
 
     # ArrayLikes
     AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]

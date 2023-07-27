@@ -85,6 +85,7 @@ __all__ = [
     "probit_trans",
     "reverse_trans",
     "sqrt_trans",
+    "symlog_trans",
     "timedelta_trans",
     "pd_timedelta_trans",
     "pseudo_log_trans",
@@ -867,6 +868,30 @@ class pseudo_log_trans(trans):
     ) -> NDArrayFloat:
         n = int(self.base) - 2 if n is None else n
         return super().minor_breaks(major, limits, n)
+
+
+class symlog_trans(trans):
+    """
+    Symmetric Log Transformation
+
+    They symmetric logarithmic transformation is defined as
+
+    ::
+
+        f(x) = log(x+1) for x >= 0
+               -log(-x+1) for x < 0
+
+    It can be useful for data that has a wide range of both positive
+    and negative values (including zero).
+    """
+
+    @staticmethod
+    def transform(x: FloatArrayLike) -> NDArrayFloat:
+        return np.sign(x) * np.log1p(np.abs(x))  # type: ignore
+
+    @staticmethod
+    def inverse(x: FloatArrayLike) -> NDArrayFloat:
+        return np.sign(x) * (np.exp(np.abs(x)) - 1)  # type: ignore
 
 
 def gettrans(t: str | Callable[[], Type[trans]] | Type[trans] | trans):

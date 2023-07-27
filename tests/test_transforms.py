@@ -28,6 +28,7 @@ from mizani.transforms import (
     reciprocal_trans,
     reverse_trans,
     sqrt_trans,
+    symlog_trans,
     timedelta_trans,
     trans,
     trans_new,
@@ -199,6 +200,13 @@ def test_pseudo_log_trans():
     arr = np.hstack([-np.array(pos[::-1]), pos])
     _test_trans(pseudo_log_trans, arr)
     _test_trans(pseudo_log_trans(base=16), arr)
+
+
+def test_symlog_trans():
+    p = np.arange(-4, 4)
+    pos = [10 ** int(x) for x in p]
+    arr = np.hstack([-np.array(pos[::-1]), pos])
+    _test_trans(symlog_trans, arr)
 
 
 def test_probability_trans():

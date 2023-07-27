@@ -57,6 +57,10 @@ API Changes
   are now calculated in dataspace. But only if the dataspace is
   numerical.
 
+New
+***
+- :class:`~mizani.transforms.symlog_trans` for symmetric log transformation
+
 v0.9.2
 ------
 

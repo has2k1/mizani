@@ -49,6 +49,12 @@ API Changes
   * `timedelta_breaks` is now :class:`~mizani.breaks. breaks_timedelta`
   * `extended_breaks` is now :class:`~mizani.breaks. breaks_extended`
 
+- :class:`~mizani.transforms.trans` has gained
+  :class:`~mizani.transforms.TransformProperties`
+  to record of key properties of the transformation.
+  :class:`~mizani.transforms.TransformProperties.numerical`
+  replaces `trans.dataspace_is_numerical`.
+
 v0.9.2
 ------
 

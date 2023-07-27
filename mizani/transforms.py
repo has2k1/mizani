@@ -23,6 +23,7 @@ from __future__ import annotations
 import sys
 import typing
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
 from types import MethodType
 from zoneinfo import ZoneInfo
@@ -91,9 +92,30 @@ __all__ = [
     "trans",
     "trans_new",
     "gettrans",
+    "TransformProperties",
 ]
 
 UTC = ZoneInfo("UTC")
+
+
+@dataclass
+class TransformProperties:
+    """
+    Properties of a transformation function
+
+    Parameters
+    ----------
+    numerical :
+        Whether the transformation acts on numerical data.
+        e.g. int, float, and imag are numerical but datetime
+        is not.
+    linear :
+        Whether the transformation over the whole domain is linear.
+        e.g. `2x` is linear while `1/x` and `log(x)` are not.
+    """
+
+    numerical: bool = True
+    linear: bool = False
 
 
 class trans(ABC):
@@ -115,8 +137,8 @@ class trans(ABC):
 
     """
 
-    #: Whether the untransformed data is numerical
-    dataspace_is_numerical = True
+    #: Propeties of the transformation
+    properties = TransformProperties()
 
     domain: DomainType = (-np.inf, np.inf)
 
@@ -418,6 +440,7 @@ class reverse_trans(trans):
     Reverse Transformation
     """
 
+    properties = TransformProperties(linear=True)
     transform = staticmethod(np.negative)  # type: ignore
     inverse = staticmethod(np.negative)  # type: ignore
 
@@ -682,7 +705,7 @@ class datetime_trans(trans):
     'EST'
     """
 
-    dataspace_is_numerical = False
+    properties = TransformProperties(numerical=False)
     domain = (
         datetime(MINYEAR, 1, 1, tzinfo=UTC),
         datetime(MAXYEAR, 12, 31, tzinfo=UTC),
@@ -735,7 +758,7 @@ class timedelta_trans(trans):
     Timedelta Transformation
     """
 
-    dataspace_is_numerical = False
+    properties = TransformProperties(numerical=False)
     domain = (timedelta.min, timedelta.max)
     breaks_ = staticmethod(breaks_timedelta())
     format = staticmethod(label_timedelta())

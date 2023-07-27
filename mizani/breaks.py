@@ -358,7 +358,7 @@ class minor_breaks_trans:
         out : array_like
             Minor breaks
         """
-        if not self.trans.dataspace_is_numerical:
+        if not self.trans.properties.numerical:
             raise TypeError(
                 "trans_minor_breaks can only be used for data "
                 "whose format is numerical."

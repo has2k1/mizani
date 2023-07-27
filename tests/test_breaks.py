@@ -137,7 +137,6 @@ def test_minor_breaks_trans():
             self.minor_breaks = minor_breaks_trans(square_trans)
 
     class weird_trans(trans):
-        dataspace_is_numerical = False
         properties = TransformProperties(numerical=False)
         transform = staticmethod(lambda x: x)
         inverse = staticmethod(lambda x: x)

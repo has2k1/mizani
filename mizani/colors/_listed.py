@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
     from typing import Sequence
 
     from mizani.typing import (
-        FloatVector,
+        FloatArrayLike,
         RGBColor,
         RGBColorArray,
         RGBHexColor,
@@ -44,7 +44,9 @@ class ListedMap(ColorMap):
         self.n = len(colors)
         self._data = np.asarray(colors)
 
-    def _generate_colors(self, x: FloatVector) -> Sequence[RGBHexColor | None]:
+    def _generate_colors(
+        self, x: FloatArrayLike
+    ) -> Sequence[RGBHexColor | None]:
         """
         Lookup colors in the interpolated ranges
 
@@ -54,7 +56,8 @@ class ListedMap(ColorMap):
             Values in the range [0, 1]. O maps to the start of the
             gradient, and 1 to the end of the gradient.
         """
-        idx = (np.asarray(x) * self.n).astype(int)
+        x = np.asarray(x)
+        idx = (x * self.n).astype(int)
         idx[idx < 0] = 0
         idx[idx >= self.n] = self.n - 1
         arr = self._data.take(idx, axis=0, mode="clip")

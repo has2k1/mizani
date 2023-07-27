@@ -7,7 +7,12 @@ import numpy as np
 if typing.TYPE_CHECKING:
     from typing import Sequence
 
-    from mizani.typing import FloatVector, RGBColor, RGBColorArray, RGBHexColor
+    from mizani.typing import (
+        FloatArrayLike,
+        RGBColor,
+        RGBColorArray,
+        RGBHexColor,
+    )
 
 __all__ = ("ColorMap",)
 
@@ -19,7 +24,7 @@ class ColorMap:
 
     colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
 
-    def _generate_colors(self, x: FloatVector) -> Sequence[RGBHexColor]:
+    def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
         """
         Method to map [0, 1] values onto the a color range
 
@@ -48,7 +53,7 @@ class ColorMap:
         return self._generate_colors(x)
 
     def continuous_palette(
-        self, x: FloatVector
+        self, x: FloatArrayLike
     ) -> Sequence[RGBHexColor | None]:
         """
         Return colors correspondsing to proportions in x

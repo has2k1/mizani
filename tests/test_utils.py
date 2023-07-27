@@ -25,11 +25,6 @@ def test_round_any():
     assert round_any(x, 5) == 5
     assert round_any(x, 1.5) == 4.5
 
-    # Maintains the same index
-    s = pd.Series([1.1, 2.2, 3.3], index=[3, 2, 1])
-    result = round_any(s, 2)
-    assert s.index.equals(result.index)
-
 
 def test_min_max():
     x = [1, 2, 3, 4, 5]

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import sys
 import typing
+from abc import ABC, abstractmethod
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
 from types import MethodType
 from zoneinfo import ZoneInfo
@@ -44,18 +45,25 @@ from .labels import (
     label_number,
     label_timedelta,
 )
+from .utils import identity
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Callable, Optional, Type
+    from typing import Any, Callable, Optional, Sequence, Type
 
     from mizani.typing import (
-        AnyVector,
         BreaksFunction,
-        FloatVector,
+        DatetimeArrayLike,
+        DomainType,
+        FloatArrayLike,
         FormatFunction,
         InverseFunction,
         MinorBreaksFunction,
+        NDArrayAny,
         NDArrayDatetime,
+        NDArrayFloat,
+        NDArrayTimedelta,
+        TFloatArrayLike,
+        TimedeltaSeries,
         TransformFunction,
     )
 
@@ -88,7 +96,7 @@ __all__ = [
 UTC = ZoneInfo("UTC")
 
 
-class trans:
+class trans(ABC):
     """
     Base class for all transforms
 
@@ -105,31 +113,12 @@ class trans:
     kwargs : dict
         Attributes of the class to set/override
 
-    Examples
-    --------
-    By default trans returns one minor break between every pair
-    of major break
-
-    >>> major = [0, 1, 2]
-    >>> t = trans()
-    >>> t.minor_breaks(major)
-    array([0.5, 1.5])
-
-    Create a trans that returns 4 minor breaks
-
-    >>> t = trans(minor_breaks=minor_breaks(4))
-    >>> t.minor_breaks(major)
-    array([0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8])
     """
-
-    #: Aesthetic that the transform works on
-    aesthetic = None
 
     #: Whether the untransformed data is numerical
     dataspace_is_numerical = True
 
-    #: Limits of the transformed data
-    domain = (-np.inf, np.inf)
+    domain: DomainType = (-np.inf, np.inf)
 
     #: Callable to calculate breaks
     breaks_: BreaksFunction = breaks_extended(n=5)
@@ -147,21 +136,26 @@ class trans:
             else:
                 raise AttributeError(f"Unknown Parameter: {k}")
 
+    # Use type variables for trans.transform and trans.inverse
+    # to help upstream packages avoid type mismatches. e.g.
+    # transform(tuple[float, float]) -> tuple[float, float]
     @staticmethod
-    def transform(x: AnyVector) -> FloatVector:
+    @abstractmethod
+    def transform(x: TFloatArrayLike) -> TFloatArrayLike:
         """
         Transform of x
         """
-        return x
+        ...
 
     @staticmethod
-    def inverse(x: FloatVector) -> AnyVector:
+    @abstractmethod
+    def inverse(x: TFloatArrayLike) -> TFloatArrayLike:
         """
         Inverse of x
         """
-        return x
+        ...
 
-    def breaks(self, limits: tuple[Any, Any]) -> AnyVector:
+    def breaks(self, limits: tuple[Any, Any]) -> NDArrayAny:
         """
         Calculate breaks in data space and return them
         in transformed space.
@@ -191,9 +185,11 @@ class trans:
         """
         # clip the breaks to the domain,
         # e.g. probabilities will be in [0, 1] domain
-        vmin = np.max([self.domain[0], limits[0]])
-        vmax = np.min([self.domain[1], limits[1]])
-        breaks = np.asarray(self.breaks_((vmin, vmax)))
+        limits = (
+            max(self.domain[0], limits[0]),
+            min(self.domain[1], limits[1]),
+        )
+        breaks = np.asarray(self.breaks_(limits))
 
         # Some methods (e.g. breaks_extended) that
         # calculate breaks take the limits as guide posts and
@@ -314,7 +310,7 @@ def log_trans(base: Optional[float] = None, **kwargs: Any) -> trans:
     else:
         name = "log{}".format(base)
 
-        def transform(x: FloatVector) -> FloatVector:
+        def transform(x: FloatArrayLike) -> NDArrayFloat:
             return np.log(x) / np.log(base)
 
     # inverse function
@@ -394,9 +390,27 @@ class log1p_trans(trans):
 class identity_trans(trans):
     """
     Identity Transformation
+
+    Examples
+    --------
+    The default trans returns one minor break between every pair
+    of major break
+
+    >>> major = [0, 1, 2]
+    >>> t = identity_trans()
+    >>> t.minor_breaks(major)
+    array([0.5, 1.5])
+
+    Create a trans that returns 4 minor breaks
+
+    >>> t = identity_trans(minor_breaks=minor_breaks(4))
+    >>> t.minor_breaks(major)
+    array([0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8])
     """
 
-    ...
+    properties = TransformProperties(linear=True)
+    transform = staticmethod(identity)  # type: ignore
+    inverse = staticmethod(identity)  # type: ignore
 
 
 class reverse_trans(trans):
@@ -424,12 +438,13 @@ class asn_trans(trans):
     """
 
     @staticmethod
-    def transform(x):
-        return 2 * np.arcsin(np.sqrt(x))
+    def transform(x: FloatArrayLike) -> NDArrayFloat:
+        return 2 * np.arcsin(np.sqrt(x))  # type: ignore
 
     @staticmethod
-    def inverse(x):
-        return np.sin(x / 2) ** 2
+    def inverse(x: FloatArrayLike) -> NDArrayFloat:
+        x = np.asarray(x)
+        return np.sin(x / 2) ** 2  # type: ignore
 
 
 class atanh_trans(trans):
@@ -485,7 +500,7 @@ def boxcox_trans(p, offset=0, **kwargs):
 
     """
 
-    def transform(x):
+    def transform(x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
         if np.any((x + offset) < 0):
             raise ValueError(
@@ -497,10 +512,10 @@ def boxcox_trans(p, offset=0, **kwargs):
         else:
             return ((x + offset) ** p - 1) / p
 
-    def inverse(x):
+    def inverse(x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
         if np.abs(p) < 1e-7:
-            return np.exp(x) - offset
+            return np.exp(x) - offset  # type: ignore
         else:
             return (x * p + 1) ** (1 / p) - offset
 
@@ -559,21 +574,21 @@ def modulus_trans(p, offset=1, **kwargs):
     """
     if np.abs(p) < 1e-7:
 
-        def transform(x: AnyVector) -> FloatVector:
+        def transform(x: FloatArrayLike) -> NDArrayFloat:
             x = np.asarray(x)
             return np.sign(x) * np.log(np.abs(x) + offset)  # type: ignore
 
-        def inverse(x: FloatVector) -> AnyVector:
+        def inverse(x: FloatArrayLike) -> NDArrayFloat:
             x = np.asarray(x)
-            return np.sign(x) * (np.exp(np.abs(x)) - offset)
+            return np.sign(x) * (np.exp(np.abs(x)) - offset)  # type: ignore
 
     else:
 
-        def transform(x: AnyVector) -> FloatVector:
+        def transform(x: FloatArrayLike) -> NDArrayFloat:
             x = np.asarray(x)
             return np.sign(x) * ((np.abs(x) + offset) ** p - 1) / p
 
-        def inverse(x: FloatVector) -> AnyVector:
+        def inverse(x: FloatArrayLike) -> NDArrayFloat:
             x = np.asarray(x)
             return np.sign(x) * ((np.abs(x) * p + 1) ** (1 / p) - offset)
 
@@ -623,10 +638,10 @@ def probability_trans(distribution: str, *args, **kwargs) -> trans:
     except KeyError:
         name = "prob_{}".format(distribution)
 
-    def transform(x: AnyVector) -> FloatVector:
+    def transform(x: FloatArrayLike) -> NDArrayFloat:
         return getattr(stats, distribution).cdf(x, *args, **kwargs)
 
-    def inverse(x: FloatVector) -> AnyVector:
+    def inverse(x: FloatArrayLike) -> NDArrayFloat:
         return getattr(stats, distribution).ppf(x, *args, **kwargs)
 
     return trans_new(name, transform, inverse, domain=(0, 1), doc=doc)
@@ -683,7 +698,7 @@ class datetime_trans(trans):
         super().__init__(**kwargs)
         self.tz = tz
 
-    def transform(self, x: AnyVector) -> FloatVector:
+    def transform(self, x: DatetimeArrayLike) -> NDArrayFloat:
         """
         Transform from date to a numerical format
         """
@@ -692,7 +707,7 @@ class datetime_trans(trans):
 
         x0 = next(iter(x))
         try:
-            tz = x0.tzinfo
+            tz = x0.tzinfo  # type: ignore
         except AttributeError:
             tz = None
 
@@ -701,7 +716,7 @@ class datetime_trans(trans):
 
         return datetime_to_num(x)  # type: ignore
 
-    def inverse(self, x: FloatVector) -> NDArrayDatetime:
+    def inverse(self, x: FloatArrayLike) -> NDArrayDatetime:
         """
         Transform to date from numerical format
         """
@@ -726,7 +741,7 @@ class timedelta_trans(trans):
     format = staticmethod(label_timedelta())
 
     @staticmethod
-    def transform(x: AnyVector) -> FloatVector:
+    def transform(x: NDArrayTimedelta | Sequence[timedelta]) -> NDArrayFloat:
         """
         Transform from Timeddelta to numerical format
         """
@@ -734,7 +749,7 @@ class timedelta_trans(trans):
         return np.array([_x.total_seconds() * 10**6 for _x in x])
 
     @staticmethod
-    def inverse(x: FloatVector) -> AnyVector:
+    def inverse(x: FloatArrayLike) -> NDArrayTimedelta:
         """
         Transform to Timedelta from numerical format
         """
@@ -746,13 +761,13 @@ class pd_timedelta_trans(trans):
     Pandas timedelta Transformation
     """
 
-    dataspace_is_numerical = False
+    properties = TransformProperties(numerical=False)
     domain = (pd.Timedelta.min, pd.Timedelta.max)
     breaks_ = staticmethod(breaks_timedelta())
     format = staticmethod(label_timedelta())
 
     @staticmethod
-    def transform(x: AnyVector) -> FloatVector:
+    def transform(x: TimedeltaSeries) -> NDArrayFloat:
         """
         Transform from Timeddelta to numerical format
         """
@@ -760,7 +775,7 @@ class pd_timedelta_trans(trans):
         return np.array([_x.value for _x in x])
 
     @staticmethod
-    def inverse(x: FloatVector) -> AnyVector:
+    def inverse(x: FloatArrayLike) -> NDArrayTimedelta:
         """
         Transform to Timedelta from numerical format
         """
@@ -773,14 +788,12 @@ class reciprocal_trans(trans):
     """
 
     @staticmethod
-    def transform(x):
-        x = np.asarray(x)
-        return 1 / x
+    def transform(x: FloatArrayLike) -> NDArrayFloat:
+        return 1 / np.asarray(x)
 
     @staticmethod
-    def inverse(x):
-        x = np.asarray(x)
-        return 1 / x
+    def inverse(x: FloatArrayLike) -> NDArrayFloat:
+        return 1 / np.asarray(x)
 
 
 def pseudo_log_trans(sigma=1, base=None, **kwargs):
@@ -805,11 +818,11 @@ def pseudo_log_trans(sigma=1, base=None, **kwargs):
     if base is None:
         base = np.exp(1)
 
-    def transform(x):
+    def transform(x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
         return np.arcsinh(x / (2 * sigma)) / np.log(base)
 
-    def inverse(x):
+    def inverse(x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
         return 2 * sigma * np.sinh(x * np.log(base))
 

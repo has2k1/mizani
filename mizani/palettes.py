@@ -41,8 +41,8 @@ if typing.TYPE_CHECKING:
         Callable,
         ColorScheme,
         ColorSchemeShort,
-        FloatVector,
-        NumVector,
+        FloatArrayLike,
+        NDArrayFloat,
         RGBHexColor,
         TupleFloat2,
         TupleFloat3,
@@ -86,7 +86,7 @@ class _continuous_pal:
     Continuous palette maker
     """
 
-    def __call__(self, x: Sequence[Any]) -> FloatVector:
+    def __call__(self, x: Sequence[Any]) -> NDArrayFloat:
         """
         Palette method
         """
@@ -220,7 +220,7 @@ class rescale_pal(_continuous_pal):
 
     range: TupleFloat2 = (0.1, 1)
 
-    def __call__(self, x: FloatVector) -> FloatVector:
+    def __call__(self, x: FloatArrayLike) -> NDArrayFloat:
         return rescale(x, self.range, _from=(0, 1))
 
 
@@ -255,7 +255,7 @@ class area_pal(_continuous_pal):
 
     range: TupleFloat2 = (1, 6)
 
-    def __call__(self, x: FloatVector) -> FloatVector:
+    def __call__(self, x: FloatArrayLike) -> NDArrayFloat:
         return rescale(np.sqrt(x), to=self.range, _from=(0, 1))
 
 
@@ -291,7 +291,7 @@ class abs_area(_continuous_pal):
 
     max: float
 
-    def __call__(self, x: NumVector) -> NumVector:
+    def __call__(self, x: FloatArrayLike) -> NDArrayFloat:
         return rescale(np.sqrt(np.abs(x)), to=(0, self.max), _from=(0, 1))
 
 
@@ -515,7 +515,7 @@ class gradient_n_pal(_continuous_pal):
     def __post_init__(self):
         self._gmap = GradientMap(self.colors, self.values)
 
-    def __call__(self, x: FloatVector) -> Sequence[RGBHexColor | None]:
+    def __call__(self, x: FloatArrayLike) -> Sequence[RGBHexColor | None]:
         return self._gmap.continuous_palette(x)
 
 
@@ -550,7 +550,7 @@ class cmap_pal(_continuous_pal):
     def __post_init__(self):
         self.cm = get_colormap(self.name)
 
-    def __call__(self, x: FloatVector) -> Sequence[RGBHexColor | None]:
+    def __call__(self, x: FloatArrayLike) -> Sequence[RGBHexColor | None]:
         return self.cm.continuous_palette(x)
 
 

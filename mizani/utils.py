@@ -8,17 +8,19 @@ from typing import overload
 from warnings import warn
 
 import numpy as np
+import pandas as pd
 import pandas.api.types as pdtypes
 
 if typing.TYPE_CHECKING:
     from datetime import tzinfo
-    from typing import Any, Optional, Sequence
+    from typing import Any, Optional, Sequence, TypeGuard
 
     from mizani.typing import (
         AnyArrayLike,
         DurationUnit,
         FloatArrayLike,
-        FloatVector,
+        FloatSeries,
+        NDArrayFloat,
         NullType,
         NumericUFunction,
         SeqDatetime,
@@ -78,7 +80,7 @@ NANOSECONDS: dict[DurationUnit, float] = {
 @overload
 def round_any(
     x: FloatArrayLike, accuracy: float, f: NumericUFunction = np.round
-) -> FloatVector:
+) -> NDArrayFloat:
     ...
 
 
@@ -91,14 +93,13 @@ def round_any(
 
 def round_any(
     x: FloatArrayLike | float, accuracy: float, f: NumericUFunction = np.round
-) -> FloatVector | float:
+) -> NDArrayFloat | float:
     """
     Round to multiple of any number.
     """
-    if not hasattr(x, "dtype"):
+    if not is_vector(x):
         x = np.asarray(x)
-
-    return f(x / accuracy) * accuracy  # type: ignore
+    return f(x / accuracy) * accuracy
 
 
 def min_max(
@@ -133,7 +134,7 @@ def min_max(
         x = x[~np.isinf(x)]
 
     if len(x):
-        return np.min(x), np.max(x)
+        return np.min(x), np.max(x)  # type: ignore
     else:
         return float("-inf"), float("inf")
 
@@ -396,3 +397,10 @@ def isclose_abs(a: float, b: float, tol: float = ABS_TOL) -> bool:
     Return True if a and b are close given the absolute tolerance
     """
     return math.isclose(a, b, rel_tol=0, abs_tol=ABS_TOL)
+
+
+def is_vector(x: Any) -> TypeGuard[NDArrayFloat | FloatSeries]:
+    """
+    Return True if x is a numpy array or a pandas series
+    """
+    return isinstance(x, (np.ndarray, pd.Series))

@@ -23,21 +23,21 @@ from __future__ import annotations
 import datetime
 import sys
 import typing
+from copy import copy
+from typing import overload
 
 import numpy as np
 import pandas as pd
 
-from .utils import get_null_value
+from .utils import get_null_value, is_vector
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Optional
+    from typing import Any, Optional, Sequence
 
     from mizani.typing import (
-        AnyVector,
-        Float,
-        FloatVector,
+        FloatArrayLike,
+        FloatSeries,
         NDArrayFloat,
-        NumVector,
         TupleFloat2,
         TupleFloat4,
     )
@@ -59,7 +59,7 @@ EPSILON = sys.float_info.epsilon
 
 
 def rescale(
-    x: FloatVector,
+    x: FloatArrayLike,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
 ) -> NDArrayFloat:
@@ -96,7 +96,7 @@ def rescale(
 
 
 def rescale_mid(
-    x: NumVector,
+    x: FloatArrayLike,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
     mid: float = 0,
@@ -143,7 +143,7 @@ def rescale_mid(
 
 
 def rescale_max(
-    x: FloatVector,
+    x: FloatArrayLike,
     to: TupleFloat2 = (0, 1),
     _from: Optional[TupleFloat2] = None,
 ) -> NDArrayFloat:
@@ -195,21 +195,23 @@ def rescale_max(
     >>> rescale_max(np.array([0, 0, 0]))
     array([1, 1, 1])
     """
-    __from = (np.min(x), np.max(x)) if _from is None else _from
-    _x = np.asarray(x)
+    x = np.asarray(x)
+    if _from is None:
+        _from = np.min(x), np.max(x)  # type: ignore
+        assert _from is not None  # type narrowing
 
-    if np.any(_x < 0):
-        out = rescale(x, (0, to[1]), __from)  # type: ignore
-    elif np.all(_x == 0) and __from[1] == 0:
-        out = np.repeat(to[1], len(_x))
+    if np.any(x < 0):
+        out = rescale(x, (0, to[1]), _from)
+    elif np.all(x == 0) and _from[1] == 0:
+        out = np.repeat(to[1], len(x))
     else:
-        out = _x / __from[1] * to[1]
+        out = x / _from[1] * to[1]
 
     return out
 
 
 def squish_infinite(
-    x: FloatVector, range: TupleFloat2 = (0, 1)
+    x: FloatArrayLike, range: TupleFloat2 = (0, 1)
 ) -> NDArrayFloat:
     """
     Truncate infinite values to a range.
@@ -243,7 +245,7 @@ def squish_infinite(
 
 
 def squish(
-    x: FloatVector, range: TupleFloat2 = (0, 1), only_finite: bool = True
+    x: FloatArrayLike, range: TupleFloat2 = (0, 1), only_finite: bool = True
 ) -> NDArrayFloat:
     """
     Squish values into range.
@@ -277,9 +279,27 @@ def squish(
     return _x
 
 
+@overload
 def censor(
-    x: NumVector, range: TupleFloat2 = (0, 1), only_finite: bool = True
-) -> AnyVector:
+    x: NDArrayFloat | Sequence[float],
+    range: TupleFloat2 = (0, 1),
+    only_finite: bool = True,
+) -> NDArrayFloat:
+    ...
+
+
+@overload
+def censor(
+    x: FloatSeries, range: TupleFloat2 = (0, 1), only_finite: bool = True
+) -> FloatSeries:
+    ...
+
+
+def censor(
+    x: NDArrayFloat | Sequence[float] | FloatSeries,
+    range: TupleFloat2 = (0, 1),
+    only_finite: bool = True,
+) -> NDArrayFloat | FloatSeries:
     """
     Convert any values outside of range to a **NULL** type object.
 
@@ -324,6 +344,9 @@ def censor(
     if not len(x):
         return np.array([])
 
+    if not is_vector(x):
+        x = np.asarray(x)
+
     null = get_null_value(x)
 
     if only_finite:
@@ -336,9 +359,9 @@ def censor(
 
     # Ignore RuntimeWarning when x contains nans
     with np.errstate(invalid="ignore"):
-        outside = (x < range[0]) | (x > range[1])  # type: ignore
+        outside = (x < range[0]) | (x > range[1])
     bool_idx = finite & outside
-    res = x.copy()
+    res = copy(x)
     if bool_idx.any():
         if res.dtype.kind == "i":
             res = np.asarray(res, dtype=float)
@@ -418,7 +441,7 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
 
 
 def expand_range(
-    range: TupleFloat2, mul: Float = 0, add: Float = 0, zero_width: float = 1
+    range: TupleFloat2, mul: float = 0, add: float = 0, zero_width: float = 1
 ) -> TupleFloat2:
     """
     Expand a range with a multiplicative or additive constant
@@ -474,7 +497,7 @@ def expand_range(
         dx = (high - low) * mul + add
         new = low - dx, high + dx
 
-    return new  # type: ignore
+    return new
 
 
 def expand_range_distinct(
@@ -538,4 +561,4 @@ def expand_range_distinct(
 
     lower = expand_range(range, low_mul, low_add, zero_width)[0]
     upper = expand_range(range, high_mul, high_add, zero_width)[1]
-    return (lower, upper)  # type: ignore
+    return (lower, upper)

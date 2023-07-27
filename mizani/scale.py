@@ -45,18 +45,21 @@ from .utils import (
 )
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Optional, Sequence
+    from typing import Any, Optional, Sequence, TypeVar
 
     from mizani.typing import (
         AnyArrayLike,
-        AnyVector,
         Callable,
         ContinuousPalette,
         DiscretePalette,
-        FloatVector,
+        FloatArrayLike,
+        NDArrayFloat,
         Trans,
         TupleFloat2,
     )
+
+    TVector = TypeVar("TVector", NDArrayFloat, pd.Series[float])
+
 
 __all__ = ["scale_continuous", "scale_discrete"]
 
@@ -69,11 +72,11 @@ class scale_continuous:
     @classmethod
     def apply(
         cls,
-        x: FloatVector,
+        x: FloatArrayLike,
         palette: ContinuousPalette,
         na_value: Any = None,
         trans: Optional[Trans] = None,
-    ) -> FloatVector:
+    ) -> NDArrayFloat:
         """
         Scale data continuously
 
@@ -102,7 +105,7 @@ class scale_continuous:
 
     @classmethod
     def train(
-        cls, new_data: FloatVector, old: Optional[TupleFloat2] = None
+        cls, new_data: FloatArrayLike, old: Optional[TupleFloat2] = None
     ) -> TupleFloat2:
         """
         Train a continuous scale
@@ -136,12 +139,12 @@ class scale_continuous:
     @classmethod
     def map(
         cls,
-        x: FloatVector,
+        x: FloatArrayLike,
         palette: ContinuousPalette,
         limits: TupleFloat2,
         na_value: Any = None,
-        oob: Callable[[AnyVector], AnyVector] = censor,
-    ) -> FloatVector:
+        oob: Callable[[TVector], TVector] = censor,
+    ) -> NDArrayFloat:
         """
         Map values to a continuous palette
 
@@ -162,7 +165,7 @@ class scale_continuous:
         out : array_like
             Values mapped onto a palette
         """
-        x = oob(rescale(x, _from=limits))
+        x = oob(rescale(x, _from=limits))  # pyright: ignore
         pal = np.asarray(palette(x))
         pal[pd.isna(x)] = na_value
         return pal

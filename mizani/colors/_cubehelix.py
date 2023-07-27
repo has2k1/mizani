@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
     from typing import Sequence
 
     from mizani.typing import (
-        FloatVector,
+        FloatArrayLike,
         RGBHexColor,
     )
 
@@ -33,7 +33,8 @@ class CubeHelixMap(ColorMap):
     dark: float = 0.15
     reverse: bool = False
 
-    def _generate_colors(self, x: FloatVector) -> Sequence[RGBHexColor]:
+    def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
+        x = np.asarray(x)
         # Apply gamma factor to emphasise low or high intensity values
         xg = x**self.gamma
 

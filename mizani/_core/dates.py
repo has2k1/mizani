@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
     from mizani.typing import (
         Datetime,
         DatetimeBreaksUnits,
-        FloatVector,
+        FloatArrayLike,
         NDArrayDatetime,
         NDArrayFloat,
         SeqDatetime,
@@ -145,7 +145,7 @@ def datetime64_to_num(x: NDArrayDatetime) -> NDArrayFloat:
 
 
 def num_to_datetime(
-    x: FloatVector, tz: Optional[str | TzInfo] = None
+    x: FloatArrayLike, tz: Optional[str | TzInfo] = None
 ) -> NDArrayDatetime:
     """
     Convert any float array to numpy datetime64 array

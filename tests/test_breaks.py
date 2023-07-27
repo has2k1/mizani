@@ -15,7 +15,7 @@ from mizani.breaks import (
     minor_breaks,
     minor_breaks_trans,
 )
-from mizani.transforms import log_trans, trans
+from mizani.transforms import TransformProperties, log_trans, trans
 
 
 def test_log_breaks():
@@ -123,6 +123,9 @@ def test_minor_breaks():
 
 def test_minor_breaks_trans():
     class identity_trans(trans):
+        transform = staticmethod(lambda x: x)
+        inverse = staticmethod(lambda x: x)
+
         def __init__(self):
             self.minor_breaks = minor_breaks_trans(identity_trans)
 
@@ -135,13 +138,16 @@ def test_minor_breaks_trans():
 
     class weird_trans(trans):
         dataspace_is_numerical = False
+        properties = TransformProperties(numerical=False)
+        transform = staticmethod(lambda x: x)
+        inverse = staticmethod(lambda x: x)
 
         def __init__(self):
             self.minor_breaks = minor_breaks_trans(weird_trans)
 
     major = [1, 2, 3, 4]
     limits = [0, 5]
-    regular_minors = trans().minor_breaks(major, limits)
+    regular_minors = trans.minor_breaks(major, limits)
     npt.assert_allclose(
         regular_minors, identity_trans().minor_breaks(major, limits)
     )

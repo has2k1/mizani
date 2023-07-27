@@ -37,8 +37,11 @@ arr = np.arange(1, 100)
 
 
 def test_trans():
+    with pytest.raises(TypeError):
+        trans()  # type: ignore
+
     with pytest.raises(AttributeError):
-        trans(universe=True)
+        identity_trans(universe=True)
 
 
 def test_trans_new():

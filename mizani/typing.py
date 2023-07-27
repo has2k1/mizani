@@ -10,6 +10,8 @@ if typing.TYPE_CHECKING:
         Callable,
         Literal,
         Optional,
+        Protocol,
+        Self,
         Sequence,
         TypeAlias,
         TypeVar,
@@ -25,8 +27,8 @@ if typing.TYPE_CHECKING:
 
     T = TypeVar("T")
 
-    Int: TypeAlias = int | np.int64
-    Float: TypeAlias = float | np.float64
+    Int: TypeAlias = int  # | np.int64
+    Float: TypeAlias = float  # | np.float64
 
     # Tuples
     TupleT2: TypeAlias = tuple[T, T]
@@ -35,10 +37,10 @@ if typing.TYPE_CHECKING:
     TupleT5: TypeAlias = tuple[T, T, T, T, T]
 
     TupleInt2: TypeAlias = TupleT2[int]
-    TupleFloat2: TypeAlias = TupleT2[float] | TupleT2[np.float64]
-    TupleFloat3: TypeAlias = TupleT3[float] | TupleT3[np.float64]
-    TupleFloat4: TypeAlias = TupleT4[float] | TupleT4[np.float64]
-    TupleFloat5: TypeAlias = TupleT5[float] | TupleT5[np.float64]
+    TupleFloat2: TypeAlias = TupleT2[float]
+    TupleFloat3: TypeAlias = TupleT3[float]
+    TupleFloat4: TypeAlias = TupleT4[float]
+    TupleFloat5: TypeAlias = TupleT5[float]
     TupleDatetime2: TypeAlias = TupleT2[datetime]
     TupleDate2: TypeAlias = TupleT2[date]
 
@@ -55,25 +57,27 @@ if typing.TYPE_CHECKING:
     AnySeries: TypeAlias = pd.Series[Any]
     IntSeries: TypeAlias = pd.Series[int]
     FloatSeries: TypeAlias = pd.Series[float]
-
-    # Sequences that support vectorized operations
-    IntVector: TypeAlias = NDArrayInt | IntSeries
-    FloatVector: TypeAlias = NDArrayFloat | FloatSeries
-    AnyVector: TypeAlias = NDArrayAny | AnySeries
-    NumVector: TypeAlias = IntVector | FloatVector
+    DatetimeSeries: TypeAlias = pd.Series[datetime]
+    TimedeltaSeries: TypeAlias = pd.Series[
+        Any
+    ]  # cannot define pd.Series[timedelta]
 
     # ArrayLikes
     AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]
     IntArrayLike: TypeAlias = NDArrayInt | IntSeries | Sequence[int]
     FloatArrayLike: TypeAlias = NDArrayFloat | FloatSeries | Sequence[float]
     NumArrayLike: TypeAlias = IntArrayLike | FloatArrayLike
-
-    NumericUFunction: TypeAlias = (
-        Callable[[FloatVector], FloatVector]
-        | Callable[[IntVector], FloatVector]
-        | Callable[[float], float]
-        | Callable[[int], float]
+    DatetimeArrayLike: TypeAlias = (
+        NDArrayDatetime | DatetimeSeries | Sequence[datetime]
     )
+    TimedeltArrayLike: TypeAlias = (
+        NDArrayTimedelta | TimedeltaSeries | Sequence[timedelta]
+    )
+
+    # Type variable
+    TFloatLike = TypeVar("TFloatLike", bound=NDArrayFloat | float)
+    TFloatArrayLike = TypeVar("TFloatArrayLike", bound=FloatArrayLike)
+    NumericUFunction: TypeAlias = Callable[[TFloatLike], TFloatLike]
 
     # Nulls for different types
     # float("nan"), np.timedelta64("NaT") & np.datetime64("NaT") do not
@@ -159,12 +163,31 @@ if typing.TYPE_CHECKING:
 
     # Mizani
     Trans: TypeAlias = trans
-    TransformFunction: TypeAlias = Callable[[AnyVector], FloatVector]
-    InverseFunction: TypeAlias = Callable[[FloatVector], AnyVector]
+    TransformFunction: TypeAlias = Callable[[AnyArrayLike], NDArrayFloat]
+    InverseFunction: TypeAlias = Callable[[FloatArrayLike], NDArrayAny]
     BreaksFunction: TypeAlias = Callable[[tuple[Any, Any]], AnyArrayLike]
     MinorBreaksFunction: TypeAlias = Callable[
-        [FloatVector, Optional[TupleFloat2], Optional[int]], FloatVector
+        [FloatArrayLike, Optional[TupleFloat2], Optional[int]], NDArrayFloat
     ]
+
+    # Any type that has comparison operators can be used to define
+    # the domain of a transformation. And implicitly the type of the
+    # dataspace.
+    class PComparison(Protocol):
+        """
+        Objects that can be compaired
+        """
+
+        def __eq__(self, other: Self, /) -> bool:
+            ...
+
+        def __lt__(self, other: Self, /) -> bool:
+            ...
+
+        def __gt__(self, other: Self, /) -> bool:
+            ...
+
+    DomainType: TypeAlias = TupleT2[PComparison]
 
     # This does not work probably due to a bug in the typechecker
     # FormatFunction: TypeAlias = Callable[[AnyArrayLike], Sequence[str]]

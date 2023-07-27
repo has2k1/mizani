@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
     from mizani.typing import (
         DatetimeBreaksUnits,
         DurationUnit,
-        FloatVector,
+        FloatArrayLike,
         NDArrayFloat,
         NDArrayTimedelta,
         Timedelta,
@@ -81,7 +81,7 @@ class breaks_log:
         self.n = n
         self.base = base
 
-    def __call__(self, limits: TupleFloat2) -> FloatVector:
+    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
         """
         Compute breaks
 
@@ -149,7 +149,7 @@ class _breaks_log_sub:
         self.n = n
         self.base = base
 
-    def __call__(self, limits: TupleFloat2) -> FloatVector:
+    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
         base = self.base
         n = self.n
         rng = log(limits, base)
@@ -237,10 +237,10 @@ class minor_breaks:
 
     def __call__(
         self,
-        major: FloatVector,
+        major: FloatArrayLike,
         limits: Optional[TupleFloat2] = None,
         n: Optional[int] = None,
-    ) -> FloatVector:
+    ) -> NDArrayFloat:
         """
         Minor breaks
 
@@ -334,10 +334,10 @@ class minor_breaks_trans:
 
     def __call__(
         self,
-        major: FloatVector,
+        major: FloatArrayLike,
         limits: Optional[TupleFloat2] = None,
         n: Optional[int] = None,
-    ) -> FloatVector:
+    ) -> NDArrayFloat:
         """
         Minor breaks for transformed scales
 
@@ -372,11 +372,11 @@ class minor_breaks_trans:
 
         major = self._extend_breaks(major)
         major = self.trans.inverse(major)
-        limits = self.trans.inverse(limits)  # type: ignore
+        limits = self.trans.inverse(limits)
         minor = minor_breaks(n)(major, limits)
         return self.trans.transform(minor)
 
-    def _extend_breaks(self, major: FloatVector) -> FloatVector:
+    def _extend_breaks(self, major: FloatArrayLike) -> FloatArrayLike:
         """
         Append 2 extra breaks at either end of major
 
@@ -499,7 +499,7 @@ class breaks_timedelta:
     [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
     """
 
-    _calculate_breaks: Callable[[TupleFloat2], FloatVector]
+    _calculate_breaks: Callable[[TupleFloat2], NDArrayFloat]
 
     def __init__(self, n: int = 5, Q: Sequence[float] = (1, 2, 5, 10)):
         self._calculate_breaks = breaks_extended(n=n, Q=Q)
@@ -655,7 +655,7 @@ class timedelta_helper:
         """
         _min = self.limits[0] / self.factor
         _max = self.limits[1] / self.factor
-        return _min, _max  # type: ignore
+        return _min, _max
 
     def timedelta_to_numeric(
         self, timedeltas: NDArrayTimedelta
@@ -665,7 +665,7 @@ class timedelta_helper:
         """
         return np.array([self.to_numeric(td) for td in timedeltas])
 
-    def numeric_to_timedelta(self, values: FloatVector) -> NDArrayTimedelta:
+    def numeric_to_timedelta(self, values: NDArrayFloat) -> NDArrayTimedelta:
         """
         Convert sequence of numerical values to timedelta
         """
@@ -804,7 +804,7 @@ class breaks_extended:
         # a score. Return 1 ignores all that.
         return 1
 
-    def __call__(self, limits: TupleFloat2) -> FloatVector:
+    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
         """
         Calculate the breaks
 

@@ -23,7 +23,6 @@ from __future__ import annotations
 import sys
 import typing
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
 from types import MethodType
 from zoneinfo import ZoneInfo
@@ -66,6 +65,7 @@ if typing.TYPE_CHECKING:
         TFloatArrayLike,
         TimedeltaSeries,
         TransformFunction,
+        TupleFloat2,
     )
 
 __all__ = [
@@ -92,30 +92,9 @@ __all__ = [
     "trans",
     "trans_new",
     "gettrans",
-    "TransformProperties",
 ]
 
 UTC = ZoneInfo("UTC")
-
-
-@dataclass
-class TransformProperties:
-    """
-    Properties of a transformation function
-
-    Parameters
-    ----------
-    numerical :
-        Whether the transformation acts on numerical data.
-        e.g. int, float, and imag are numerical but datetime
-        is not.
-    linear :
-        Whether the transformation over the whole domain is linear.
-        e.g. `2x` is linear while `1/x` and `log(x)` are not.
-    """
-
-    numerical: bool = True
-    linear: bool = False
 
 
 class trans(ABC):
@@ -137,16 +116,14 @@ class trans(ABC):
 
     """
 
-    #: Propeties of the transformation
-    properties = TransformProperties()
+    #: Whether the transformation over the whole domain is linear.
+    #: e.g. `2x` is linear while `1/x` and `log(x)` are not.
+    transform_is_linear: bool = False
 
     domain: DomainType = (-np.inf, np.inf)
 
     #: Callable to calculate breaks
     breaks_: BreaksFunction = breaks_extended(n=5)
-
-    #: Callable to calculate minor_breaks
-    minor_breaks: MinorBreaksFunction = minor_breaks(1)
 
     #: Function to format breaks
     format: FormatFunction = staticmethod(label_number())
@@ -157,6 +134,36 @@ class trans(ABC):
                 setattr(self, k, v)
             else:
                 raise AttributeError(f"Unknown Parameter: {k}")
+
+    @property
+    def domain_is_numerical(self) -> bool:
+        """
+        Return True if transformation acts on numerical data.
+        e.g. int, float, and imag are numerical but datetime
+        is not.
+
+        """
+        return isinstance(self.domain[0], (int, float, np.number))
+
+    def minor_breaks(
+        self,
+        major: FloatArrayLike,
+        limits: Optional[TupleFloat2] = None,
+        n: Optional[int] = None,
+    ) -> NDArrayFloat:
+        """
+        Calculate minor_breaks
+        """
+        n = 1 if n is None else n
+
+        # minor_breaks_trans undoes the transformation and
+        # then calculates the breaks. If the domain/dataspace
+        # numerical, the calculation will fail.
+        if self.transform_is_linear or not self.domain_is_numerical:
+            func = minor_breaks(n=n)
+        else:
+            func = minor_breaks_trans(self, n=n)
+        return func(major, limits, n)
 
     # Use type variables for trans.transform and trans.inverse
     # to help upstream packages avoid type mismatches. e.g.
@@ -430,7 +437,7 @@ class identity_trans(trans):
     array([0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8])
     """
 
-    properties = TransformProperties(linear=True)
+    transform_is_linear = True
     transform = staticmethod(identity)  # type: ignore
     inverse = staticmethod(identity)  # type: ignore
 
@@ -440,7 +447,7 @@ class reverse_trans(trans):
     Reverse Transformation
     """
 
-    properties = TransformProperties(linear=True)
+    transform_is_linear = True
     transform = staticmethod(np.negative)  # type: ignore
     inverse = staticmethod(np.negative)  # type: ignore
 
@@ -705,7 +712,6 @@ class datetime_trans(trans):
     'EST'
     """
 
-    properties = TransformProperties(numerical=False)
     domain = (
         datetime(MINYEAR, 1, 1, tzinfo=UTC),
         datetime(MAXYEAR, 12, 31, tzinfo=UTC),
@@ -758,7 +764,6 @@ class timedelta_trans(trans):
     Timedelta Transformation
     """
 
-    properties = TransformProperties(numerical=False)
     domain = (timedelta.min, timedelta.max)
     breaks_ = staticmethod(breaks_timedelta())
     format = staticmethod(label_timedelta())
@@ -784,7 +789,6 @@ class pd_timedelta_trans(trans):
     Pandas timedelta Transformation
     """
 
-    properties = TransformProperties(numerical=False)
     domain = (pd.Timedelta.min, pd.Timedelta.max)
     breaks_ = staticmethod(breaks_timedelta())
     format = staticmethod(label_timedelta())
@@ -819,7 +823,7 @@ class reciprocal_trans(trans):
         return 1 / np.asarray(x)
 
 
-def pseudo_log_trans(sigma=1, base=None, **kwargs):
+class pseudo_log_trans(trans):
     """
     Pseudo-log transformation
 
@@ -838,26 +842,31 @@ def pseudo_log_trans(sigma=1, base=None, **kwargs):
         :func:`trans_new`. Should not include
         the `transform` or `inverse`.
     """
-    if base is None:
-        base = np.exp(1)
 
-    def transform(x: FloatArrayLike) -> NDArrayFloat:
+    def __init__(self, sigma=1, base=None, **kwargs):
+        if base is None:
+            base = np.exp(1)
+
+        self.sigma = sigma
+        self.base = base
+        super().__init__(**kwargs)
+
+    def transform(self, x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
-        return np.arcsinh(x / (2 * sigma)) / np.log(base)
+        return np.arcsinh(x / (2 * self.sigma)) / np.log(self.base)
 
-    def inverse(x: FloatArrayLike) -> NDArrayFloat:
+    def inverse(self, x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
-        return 2 * sigma * np.sinh(x * np.log(base))
+        return 2 * self.sigma * np.sinh(x * np.log(self.base))
 
-    kwargs["base"] = base
-    kwargs["sigma"] = sigma
-    _trans = trans_new("pseudo_log", transform, inverse, **kwargs)
-
-    if "minor_breaks" not in kwargs:
-        n = int(base) - 2
-        _trans.minor_breaks = minor_breaks_trans(_trans, n=n)
-
-    return _trans
+    def minor_breaks(
+        self,
+        major: FloatArrayLike,
+        limits: Optional[TupleFloat2] = None,
+        n: Optional[int] = None,
+    ) -> NDArrayFloat:
+        n = int(self.base) - 2 if n is None else n
+        return super().minor_breaks(major, limits, n)
 
 
 def gettrans(t: str | Callable[[], Type[trans]] | Type[trans] | trans):

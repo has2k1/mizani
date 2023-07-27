@@ -81,8 +81,8 @@ def test_gettrans():
         gettrans(object)
 
 
-def _test_trans(trans, x):
-    t = gettrans(trans())
+def _test_trans(trans, x, *args, **kwargs):
+    t = gettrans(trans)
     xt = t.transform(x)
     x2 = t.inverse(xt)
     is_log_trans = "log" in t.__class__.__name__ and hasattr(t, "base")
@@ -199,7 +199,6 @@ def test_pseudo_log_trans():
     arr = np.hstack([-np.array(pos[::-1]), pos])
     _test_trans(pseudo_log_trans, arr)
     _test_trans(pseudo_log_trans(base=16), arr)
-    _test_trans(pseudo_log_trans(base=10, minor_breaks=minor_breaks(n=5)), arr)
 
 
 def test_probability_trans():

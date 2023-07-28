@@ -17,11 +17,18 @@ jobs:
     outputs:
       tag_type: ${{ steps.check-tag.outputs.tag_type }}
       publish_on: ${{ steps.check-tag.outputs.publish_on }}
+
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Setup Python
+        with:
+          python-version: ${{ matrix.python-version }}
         uses: actions/setup-python@v4
 
       - name: Check for semantic version tag

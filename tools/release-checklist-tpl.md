@@ -113,4 +113,4 @@ Release: mizani-<VERSION>
 
   </details>
 
-- [ ] Add [zenodo badge](https://zenodo.org/account/settings/github/repository/has2k1/mizani) to the changelog.
+- [ ] Add [zenodo badge](https://doi.org/10.5281/zenodo.592370) to the changelog.

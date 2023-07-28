@@ -366,12 +366,6 @@ class minor_breaks_trans:
         out : array_like
             Minor breaks
         """
-        if not self.trans.domain_is_numerical:
-            raise TypeError(
-                "trans_minor_breaks can only be used for data "
-                "whose format is numerical."
-            )
-
         if limits is None:
             limits = min_max(major)
 

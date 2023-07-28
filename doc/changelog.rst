@@ -3,7 +3,7 @@ Changelog
 
 v0.10.0
 -------
-*not-yet-released*
+*2023-07-28*
 
 API Changes
 ************

@@ -38,6 +38,7 @@ __all__ = [
     "identity",
     "get_categories",
     "get_timezone",
+    "has_dtype",
 ]
 
 # Use sqrt(epsilon) to correct for loss of precision due floating point
@@ -404,3 +405,12 @@ def is_vector(x: Any) -> TypeGuard[NDArrayFloat | FloatSeries]:
     Return True if x is a numpy array or a pandas series
     """
     return isinstance(x, (np.ndarray, pd.Series))
+
+
+def has_dtype(
+    x: Any,
+) -> TypeGuard[np.ndarray | pd.Series | pd.Categorical | pd.Index]:
+    """
+    Return True if x has the dtype property
+    """
+    return hasattr(x, "dtype")

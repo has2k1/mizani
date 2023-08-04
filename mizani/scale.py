@@ -40,6 +40,7 @@ from .utils import (
     CONTINUOUS_KINDS,
     DISCRETE_KINDS,
     get_categories,
+    has_dtype,
     match,
     min_max,
 )
@@ -244,12 +245,14 @@ class scale_discrete:
         # Get the missing values (NaN & Nones) locations and remove them
         nan_bool_idx = pd.isna(new_data)  # type: ignore
         has_na = np.any(nan_bool_idx)
-        if not hasattr(new_data, "dtype"):
+
+        if not has_dtype(new_data):
             new_data = np.asarray(new_data)
-        new_data = new_data[~nan_bool_idx]
 
         if new_data.dtype.kind not in DISCRETE_KINDS:
             raise TypeError("Continuous value supplied to discrete scale")
+
+        new_data = new_data[~nan_bool_idx]
 
         # 1. Train i.e. get the new values
         # 2. Update old

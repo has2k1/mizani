@@ -737,7 +737,7 @@ class datetime_trans(trans):
 
         x0 = next(iter(x))
         try:
-            tz = x0.tzinfo  # type: ignore
+            tz = x0.tzinfo
         except AttributeError:
             tz = None
 

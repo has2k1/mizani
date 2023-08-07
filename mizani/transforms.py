@@ -35,6 +35,7 @@ from .breaks import (
     breaks_date,
     breaks_extended,
     breaks_log,
+    breaks_symlog,
     breaks_timedelta,
     minor_breaks,
     minor_breaks_trans,
@@ -884,6 +885,8 @@ class symlog_trans(trans):
     It can be useful for data that has a wide range of both positive
     and negative values (including zero).
     """
+
+    breaks_: BreaksFunction = breaks_symlog()
 
     @staticmethod
     def transform(x: FloatArrayLike) -> NDArrayFloat:

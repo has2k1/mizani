@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v0.10.1
+-------
+*not-yet-released*
+
+New
+---
+
+- Added :class:`~mizani.breaks.breaks_symlog` to calculate
+  breaks for the symmetric logarithm transformation.
+
 v0.10.0
 -------
 *2023-07-28*

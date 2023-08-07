@@ -46,6 +46,7 @@ if typing.TYPE_CHECKING:
 
 __all__ = [
     "breaks_log",
+    "breaks_symlog",
     "minor_breaks",
     "minor_breaks_trans",
     "breaks_date",
@@ -905,6 +906,33 @@ class breaks_extended:
 
         locs = best[0] + np.arange(best[4]) * best[2]
         return locs
+
+
+class breaks_symlog:
+    """
+    Breaks for the Symmetric Logarithm Transform
+
+    Parameters
+    ----------
+    n : int
+        Desired number of breaks
+    base : int
+        Base of logarithm
+
+    Examples
+    --------
+    >>> limits = (-100, 100)
+    >>> breaks_symlog()(limits)
+    array([-100,  -10,    0,   10,  100])
+    """
+
+    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
+        def _signed_log10(x):
+            return np.round(np.sign(x) * np.log10(np.sign(x) * x)).astype(int)
+
+        l, h = _signed_log10(limits)
+        exps = np.arange(l, h + 1, 1)
+        return np.sign(exps) * (10 ** np.abs(exps))
 
 
 # Deprecated

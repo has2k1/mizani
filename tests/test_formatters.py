@@ -63,7 +63,7 @@ def test_label_percent():
     assert label([0.12, 0.23, 0.34, 4.5]) == ["12%", "23%", "34%", "450%"]
 
     # mixed precision values
-    assert label([0.12, 0.23, 0.34, 45]) == ["12%", "23%", "34%", "4,500%"]
+    assert label([0.12, 0.23, 0.34, 45]) == ["12%", "23%", "34%", "4500%"]
 
 
 def test_label_scientific():
@@ -84,7 +84,7 @@ def test_label_scientific():
 
 
 def test_label_number():
-    label = label_number()
+    label = label_number(big_mark=",")
     assert label([5, 10, 100, 150]) == ["5", "10", "100", "150"]
     assert label([5, 10, 100, 150e8]) == [
         "5",

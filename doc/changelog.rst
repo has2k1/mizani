@@ -11,6 +11,12 @@ New
 - Added :class:`~mizani.breaks.breaks_symlog` to calculate
   breaks for the symmetric logarithm transformation.
 
+Changes
+-------
+- The default `big_mark` for :class:`~mizani.labels.label_number`
+  has been changed from a comma to nothing.
+
+
 v0.10.0
 -------
 *2023-07-28*
@@ -19,7 +25,7 @@ v0.10.0
    :target: https://doi.org/10.5281/zenodo.8193394
 
 API Changes
-************
+***********
 
 - :class:`~mizani.formatters.mpl_format` has been removed,
   :class:`~mizani.formatters.number_format` takes its place.

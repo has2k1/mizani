@@ -83,9 +83,9 @@ class label_number:
     >>> label_number(big_mark="_")([1e3, 1e4, 1e5, 1e6])
     ['1_000', '10_000', '100_000', '1_000_000']
     >>> label_number(width=3)([1, 10, 100, 1000])
-    ['  1', ' 10', '100', '1,000']
+    ['  1', ' 10', '100', '1000']
     >>> label_number(align="^", width=5)([1, 10, 100, 1000])
-    ['  1  ', ' 10  ', ' 100 ', '1,000']
+    ['  1  ', ' 10  ', ' 100 ', '1000 ']
     >>> label_number(style_positive=" ")([5, 24, -42])
     [' 5', ' 24', '-42']
     >>> label_number(style_positive="+")([5, 24, -42])
@@ -99,7 +99,7 @@ class label_number:
     scale: float = 1
     prefix: str = ""
     suffix: str = ""
-    big_mark: str = ","
+    big_mark: str = ""
     decimal_mark: str = "."
     fill: str = ""
     style_negative: Literal["-", "hyphen", "parens"] = "-"
@@ -120,7 +120,8 @@ class label_number:
 
         # python format only accepts ",", "_" to separate the thousands
         # if we have a non-standard value, we use "," & replace it after
-        sep = self.big_mark if self.big_mark in (",", "", "_") else ","
+        valid_big_mark = self.big_mark in ("", ",", "_")
+        sep = self.big_mark if valid_big_mark else ","
 
         fmt = (
             f"{self.prefix}" f"{{num:{sep}.{{precision}}f}}" f"{self.suffix}"
@@ -139,7 +140,7 @@ class label_number:
         digits = np.minimum(np.maximum(digits, 0), 20)
 
         res = [fmt(num=abs(n), precision=digits) for n in x_scaled]
-        if self.big_mark not in (",", "_"):
+        if not valid_big_mark:
             res = [s.replace(",", self.big_mark) for s in res]
 
         if self.decimal_mark != ".":

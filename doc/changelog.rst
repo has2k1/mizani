@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v0.9.3
+------
+*not-yet-released*
+
+Enhancements
+************
+
+- Removed FutureWarnings when using pandas 2.1.0
+
 v0.9.2
 ------
 

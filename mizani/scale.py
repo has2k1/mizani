@@ -29,7 +29,6 @@ The **apply** methods are simple examples of how to put it all together.
 """
 import numpy as np
 import pandas as pd
-import pandas.api.types as pdtypes
 
 from .bounds import censor, rescale
 from .utils import (
@@ -207,7 +206,7 @@ class scale_discrete:
             raise TypeError("Continuous value supplied to discrete scale")
 
         # Train i.e. get the new values
-        if pdtypes.is_categorical_dtype(new_data):
+        if isinstance(new_data.dtype, pd.CategoricalDtype):
             categories = get_categories(new_data)
             if drop:
                 present = set(new_data.drop_duplicates())
@@ -220,7 +219,8 @@ class scale_discrete:
 
         # update old
         old_set = set(old)
-        if pdtypes.is_categorical_dtype(new_data):
+
+        if isinstance(new_data.dtype, pd.CategoricalDtype):
             # The limits are in the order of the categories
             all_set = old_set | set(new)
             ordered_cats = categories.union(old, sort=False)

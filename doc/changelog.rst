@@ -5,6 +5,11 @@ v0.10.1
 -------
 *not-yet-released*
 
+Enhancements
+------------
+
+- Removed FutureWarnings when using pandas 2.1.0
+
 New
 ---
 

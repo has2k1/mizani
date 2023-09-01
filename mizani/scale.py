@@ -33,7 +33,6 @@ import typing
 
 import numpy as np
 import pandas as pd
-import pandas.api.types as pdtypes
 
 from .bounds import censor, rescale
 from .utils import (
@@ -256,7 +255,7 @@ class scale_discrete:
 
         # 1. Train i.e. get the new values
         # 2. Update old
-        if pdtypes.is_categorical_dtype(new_data):
+        if isinstance(new_data.dtype, pd.CategoricalDtype):
             categories = get_categories(new_data)
             if drop:
                 present = set(new_data)

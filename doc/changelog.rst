@@ -3,7 +3,7 @@ Changelog
 
 v0.9.3
 ------
-*not-yet-released*
+*2023-09-01*
 
 Enhancements
 ************

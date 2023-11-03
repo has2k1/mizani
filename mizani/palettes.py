@@ -448,7 +448,7 @@ class brewer_pal(_discrete_pal):
     """
 
     type: ColorScheme | ColorSchemeShort = "seq"
-    palette: int = 1
+    palette: int | str = 1
     direction: Literal[1, -1] = 1
 
     def __post_init__(self):

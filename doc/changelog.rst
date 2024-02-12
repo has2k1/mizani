@@ -1,9 +1,9 @@
 Changelog
 =========
 
-v0.10.1
+v0.11.0
 -------
-*not-yet-released*
+*2024-02-12*
 
 Enhancements
 ------------

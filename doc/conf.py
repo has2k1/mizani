@@ -82,7 +82,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Mizani"
-copyright = "2023, Hassan Kibirige"
+copyright = "2024, Hassan Kibirige"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -91,7 +91,9 @@ copyright = "2023, Hassan Kibirige"
 # The short X.Y version.
 try:
     from importlib.metadata import version as _version
-finally:
+except ImportError:
+    version = "0.0.0"
+else:
     version = _version("mizani")
 
 # readthedocs modifies the repository which messes up the version.

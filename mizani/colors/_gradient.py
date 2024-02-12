@@ -13,6 +13,7 @@ if typing.TYPE_CHECKING:
     from typing import Optional, Sequence
 
     from mizani.typing import (
+        FloatArrayLike,
         NDArrayFloat,
         RGBColor,
         RGBColorArray,
@@ -65,9 +66,7 @@ class GradientMap(ColorMap):
         self._g_lookup = interp_lookup(values, self._data[:, 1])
         self._b_lookup = interp_lookup(values, self._data[:, 2])
 
-    def _generate_colors(
-        self, x: NDArrayFloat
-    ) -> Sequence[RGBHexColor | None]:
+    def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
         """
         Lookup colors in the interpolated ranges
 

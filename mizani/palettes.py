@@ -16,8 +16,8 @@ functions that create and return the actual palette functions.
 from __future__ import annotations
 
 import colorsys
-import typing
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Protocol
 from warnings import warn
 
 import numpy as np
@@ -34,7 +34,7 @@ from .colors import (
 )
 from .utils import identity
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Any, Literal, Optional, Sequence
 
     from mizani.typing import (
@@ -69,7 +69,7 @@ __all__ = [
 ]
 
 
-class _discrete_pal:
+class _discrete_pal(Protocol):
     """
     Discrete palette maker
     """
@@ -78,9 +78,10 @@ class _discrete_pal:
         """
         Palette method
         """
+        ...
 
 
-class _continuous_pal:
+class _continuous_pal(Protocol):
     """
     Continuous palette maker
     """
@@ -89,6 +90,19 @@ class _continuous_pal:
         """
         Palette method
         """
+        ...
+
+
+class _continuous_color_pal(Protocol):
+    """
+    Continuous color palette maker
+    """
+
+    def __call__(self, x: FloatArrayLike) -> Sequence[RGBHexColor | None]:
+        """
+        Palette method
+        """
+        ...
 
 
 def hls_palette(
@@ -323,7 +337,8 @@ class grey_pal(_discrete_pal):
     end: float = 0.8
 
     def __post_init__(self):
-        colors = (self.start,) * 3, (self.end,) * 3
+        start, end = self.start, self.end
+        colors = (start, start, start), (end, end, end)
         self._gmap = GradientMap(colors)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor | None]:
@@ -476,7 +491,7 @@ class brewer_pal(_discrete_pal):
 
 
 @dataclass
-class gradient_n_pal(_continuous_pal):
+class gradient_n_pal(_continuous_color_pal):
     """
     Create a n color gradient palette
 
@@ -518,7 +533,7 @@ class gradient_n_pal(_continuous_pal):
 
 
 @dataclass
-class cmap_pal(_continuous_pal):
+class cmap_pal(_continuous_color_pal):
     """
     Create a continuous palette using a colormap
 

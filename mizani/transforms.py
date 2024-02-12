@@ -440,8 +440,8 @@ class identity_trans(trans):
     """
 
     transform_is_linear = True
-    transform = staticmethod(identity)  # type: ignore
-    inverse = staticmethod(identity)  # type: ignore
+    transform = staticmethod(identity)
+    inverse = staticmethod(identity)
 
 
 class reverse_trans(trans):
@@ -729,7 +729,7 @@ class datetime_trans(trans):
         super().__init__(**kwargs)
         self.tz = tz
 
-    def transform(self, x: DatetimeArrayLike) -> NDArrayFloat:
+    def transform(self, x: DatetimeArrayLike) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform from date to a numerical format
         """
@@ -747,7 +747,7 @@ class datetime_trans(trans):
 
         return datetime_to_num(x)  # type: ignore
 
-    def inverse(self, x: FloatArrayLike) -> NDArrayDatetime:
+    def inverse(self, x: FloatArrayLike) -> NDArrayDatetime:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform to date from numerical format
         """
@@ -771,7 +771,7 @@ class timedelta_trans(trans):
     format = staticmethod(label_timedelta())
 
     @staticmethod
-    def transform(x: NDArrayTimedelta | Sequence[timedelta]) -> NDArrayFloat:
+    def transform(x: NDArrayTimedelta | Sequence[timedelta]) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform from Timeddelta to numerical format
         """
@@ -796,7 +796,7 @@ class pd_timedelta_trans(trans):
     format = staticmethod(label_timedelta())
 
     @staticmethod
-    def transform(x: TimedeltaSeries) -> NDArrayFloat:
+    def transform(x: TimedeltaSeries) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform from Timeddelta to numerical format
         """
@@ -853,11 +853,11 @@ class pseudo_log_trans(trans):
         self.base = base
         super().__init__(**kwargs)
 
-    def transform(self, x: FloatArrayLike) -> NDArrayFloat:
+    def transform(self, x: FloatArrayLike) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         x = np.asarray(x)
         return np.arcsinh(x / (2 * self.sigma)) / np.log(self.base)
 
-    def inverse(self, x: FloatArrayLike) -> NDArrayFloat:
+    def inverse(self, x: FloatArrayLike) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         x = np.asarray(x)
         return 2 * self.sigma * np.sinh(x * np.log(self.base))
 

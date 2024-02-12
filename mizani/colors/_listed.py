@@ -44,9 +44,7 @@ class ListedMap(ColorMap):
         self.n = len(colors)
         self._data = np.asarray(colors)
 
-    def _generate_colors(
-        self, x: FloatArrayLike
-    ) -> Sequence[RGBHexColor | None]:
+    def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
         """
         Lookup colors in the interpolated ranges
 

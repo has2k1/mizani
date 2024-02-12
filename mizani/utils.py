@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import math
 import sys
-import typing
 from datetime import datetime, timezone
-from typing import overload
+from typing import TYPE_CHECKING, cast, overload
 from warnings import warn
 
 import numpy as np
 import pandas as pd
 import pandas.api.types as pdtypes
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from datetime import tzinfo
     from typing import Any, Optional, Sequence, TypeGuard
 
@@ -343,16 +342,14 @@ def get_timezone(x: SeqDatetime) -> tzinfo | None:
     if not isinstance(x0, datetime):
         return None
 
+    x = cast(list[datetime], x)
     info = x0.tzinfo
     if info is None:
         return timezone.utc
 
     # Consistency check
     tzname0 = info.tzname(x0)
-    tznames = (
-        dt.tzinfo.tzname(dt) if dt.tzinfo else None
-        for dt in x  # type: ignore
-    )
+    tznames = (dt.tzinfo.tzname(dt) if dt.tzinfo else None for dt in x)
 
     if any(tzname0 != name for name in tznames):
         msg = (

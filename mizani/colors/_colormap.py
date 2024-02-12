@@ -36,6 +36,7 @@ class ColorMap:
             Values in the range [0, 1]. O maps to the start of the
             gradient, and 1 to the end of the gradient.
         """
+        return []
 
     def discrete_palette(self, n: int) -> Sequence[RGBHexColor]:
         """

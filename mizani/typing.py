@@ -11,7 +11,6 @@ if typing.TYPE_CHECKING:
         Literal,
         Optional,
         Protocol,
-        Self,
         Sequence,
         TypeAlias,
         TypeVar,
@@ -52,6 +51,7 @@ if typing.TYPE_CHECKING:
 
     # Series
     AnySeries: TypeAlias = pd.Series[Any]
+    BoolSeries: TypeAlias = pd.Series[bool]
     IntSeries: TypeAlias = pd.Series[int]
     FloatSeries: TypeAlias = pd.Series[float]
     DatetimeSeries: TypeAlias = pd.Series[datetime]
@@ -175,13 +175,13 @@ if typing.TYPE_CHECKING:
         Objects that can be compaired
         """
 
-        def __eq__(self, other: Self, /) -> bool:
+        def __eq__(self, other, /) -> bool:
             ...
 
-        def __lt__(self, other: Self, /) -> bool:
+        def __lt__(self, other, /) -> bool:
             ...
 
-        def __gt__(self, other: Self, /) -> bool:
+        def __gt__(self, other, /) -> bool:
             ...
 
     DomainType: TypeAlias = TupleT2[PComparison]

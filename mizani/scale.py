@@ -29,7 +29,7 @@ The **apply** methods are simple examples of how to put it all together.
 """
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
@@ -44,7 +44,7 @@ from .utils import (
     min_max,
 )
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Any, Optional, Sequence, TypeVar
 
     from mizani.typing import (
@@ -244,6 +244,8 @@ class scale_discrete:
 
         if not has_dtype(new_data):
             new_data = np.asarray(new_data)
+
+        new_data = cast(np.ndarray, new_data)
 
         if new_data.dtype.kind not in DISCRETE_KINDS:
             raise TypeError("Continuous value supplied to discrete scale")

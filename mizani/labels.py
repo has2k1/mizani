@@ -65,8 +65,15 @@ class label_number:
 
     Parameters
     ----------
-    digits : int
+    precision : int
         Number of digits after the decimal point.
+    suffix : str
+        What to put after the value.
+    big_mark : str
+        The thousands separator. This is usually
+        a comma or a dot.
+    decimal_mark : str
+        What to use to separate the decimals digits.
 
     Examples
     --------
@@ -224,13 +231,6 @@ class label_currency(label_number):
     ----------
     prefix : str
         What to put before the value.
-    suffix : str
-        What to put after the value.
-    digits : int
-        Number of significant digits
-    big_mark : str
-        The thousands separator. This is usually
-        a comma or a dot.
 
     Examples
     --------
@@ -242,9 +242,11 @@ class label_currency(label_number):
     """
 
     prefix: str = "$"
-    suffix: str = ""
-    precision: int = 2
-    big_mark: str = ""
+
+    def __post_init__(self):
+        if self.precision is None and self.accuracy is None:
+            self.precision = 2
+        super().__post_init__()
 
 
 label_dollar = label_currency
@@ -258,7 +260,7 @@ class label_comma(label_currency):
 
     Parameters
     ----------
-    digits : int
+    precision : int
         Number of digits after the decimal point.
 
     Examples
@@ -278,12 +280,6 @@ class label_percent(label_number):
     Labelling percentages
 
     Multiply by one hundred and display percent sign
-
-    Parameters
-    ----------
-    use_comma : bool
-        If True, use a comma to separate the thousands.
-        Default is False.
 
     Examples
     --------

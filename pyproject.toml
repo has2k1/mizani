@@ -56,6 +56,7 @@ test = [
 dev = [
     "notebook",
     "twine",
+    "pre-commit",
     "mizani[typing]",
 ]
 

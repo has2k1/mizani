@@ -241,7 +241,7 @@ def test_datetime_trans():
     assert all(isinstance(val, datetime) for val in x2)
 
     # pandas timestamp
-    x = pd.date_range(start="1/1/2022", end="1/2/2022", freq="3H", tz="EST")
+    x = pd.date_range(start="1/1/2022", end="1/2/2022", freq="3h", tz="EST")
     t = datetime_trans()
     xt = t.transform(x)
     x2 = t.inverse(xt)

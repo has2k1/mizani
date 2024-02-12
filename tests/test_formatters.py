@@ -155,7 +155,7 @@ def test_label_log():
 
 
 def test_label_date():
-    x = pd.date_range("1/1/2010", periods=4, freq="4AS")
+    x = pd.date_range("1/1/2010", periods=4, freq="4YS")
     result = label_date("%Y")(x)
     assert result == ["2010", "2014", "2018", "2022"]
 

@@ -40,6 +40,10 @@ doc = [
     "numpydoc>=1.6.0",
 ]
 
+rtd = [
+    "mock",
+]
+
 build = [
     "build",
     "wheel",

@@ -22,5 +22,4 @@ python:
       path: .
       extra_requirements:
         - doc
-    - method: pip
-      path: mock
+        - rtd

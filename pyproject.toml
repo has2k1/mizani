@@ -123,6 +123,7 @@ exclude_also = [
    "^def test_",
    "if __name__ == .__main__.:",
    "while k < float\\('inf'\\):",
+   "if TYPE_CHECKING:",
    "if typing.TYPE_CHECKING:",
    "except ImportError:",
    "except PackageNotFoundError:",

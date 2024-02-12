@@ -31,14 +31,14 @@ def test_censor():
     assert np.isnan(xx[1])
     assert np.isnan(xx[9])
 
-    df = pd.DataFrame({"x": x, "y": range(10)})
-    df["x"] = censor(df["x"], (2, 8))
-    assert np.isnan(df["x"][0])
-    assert np.isnan(df["x"][1])
-    assert np.isnan(df["x"][9])
+    data = pd.DataFrame({"x": x, "y": range(10)})
+    data["x"] = censor(data["x"], (2, 8))
+    assert np.isnan(data["x"][0])
+    assert np.isnan(data["x"][1])
+    assert np.isnan(data["x"][9])
 
-    df["y"] = censor(df["y"], (-2, 18))
-    assert issubclass(df["y"].dtype.type, np.integer)
+    data["y"] = censor(data["y"], (-2, 18))
+    assert issubclass(data["y"].dtype.type, np.integer)
 
     # datetime
     limits = datetime(2010, 1, 1), datetime(2020, 1, 1)

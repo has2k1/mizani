@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from mizani._core.date_utils import expand_datetime_limits, shift_limits_down
 

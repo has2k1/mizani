@@ -412,10 +412,7 @@ class label_log:
             if len(tup) == 2:
                 mantissa = tup[0].rstrip("0").rstrip(".")
                 exponent = int(tup[1])
-                if exponent:
-                    s = "%se%d" % (mantissa, exponent)
-                else:
-                    s = mantissa
+                s = f"{mantissa}e{exponent}" if exponent else mantissa
             return s
 
         def as_exp(s: str) -> str:
@@ -484,10 +481,7 @@ class label_log:
             def _exp(num, base):
                 e = np.log(num) / np.log(base)
                 e_round = np.round(e)
-                if np.isclose(e, e_round):
-                    e = int(e_round)
-                else:
-                    e = np.round(e, 3)
+                e = int(e_round) if np.isclose(e, e_round) else np.round(e, 3)
                 return e
 
             base_txt = f"{self.base}"

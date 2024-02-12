@@ -78,7 +78,6 @@ class _discrete_pal:
         """
         Palette method
         """
-        ...
 
 
 class _continuous_pal:
@@ -90,7 +89,6 @@ class _continuous_pal:
         """
         Palette method
         """
-        ...
 
 
 def hls_palette(

@@ -19,6 +19,7 @@ clean: clean-build clean-pyc clean-test
 clean-build:
 	rm -fr build/
 	rm -fr dist/
+	find . -name '*.egg-info' -exec rm -fr {} +
 
 clean-pyc:
 	find . -name '__pycache__' -exec rm -fr {} +
@@ -29,18 +30,15 @@ clean-test:
 	rm -fr htmlcov/
 
 ruff:
-	ruff mizani $(args)
-
-ruff-isort:
-	ruff --select I001 --quiet mizani $(args)
+	ruff . $(args)
 
 format:
-	black . --check
+	ruff format . --check
 
 format-fix:
-	black .
+	ruff format .
 
-lint: ruff ruff-isort
+lint: ruff
 
 lint-fix:
 	make lint args="--fix"
@@ -50,10 +48,10 @@ fix: format-fix lint-fix
 typecheck:
 	pyright
 
-test:
+test: clean-test
 	pytest --runslow
 
-test-fast:
+test-fast: clean-test
 	pytest
 
 coverage:

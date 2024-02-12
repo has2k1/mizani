@@ -78,7 +78,7 @@ class breaks_log:
     array([0.1, 0.3, 1. , 3. ])
     """
 
-    def __init__(self, n: int = 5, base: int | float = 10):
+    def __init__(self, n: int = 5, base: float = 10):
         self.n = n
         self.base = base
 
@@ -146,7 +146,7 @@ class _breaks_log_sub:
     algorithm in the r-scales package.
     """
 
-    def __init__(self, n: int = 5, base: int | float = 10):
+    def __init__(self, n: int = 5, base: float = 10):
         self.n = n
         self.base = base
 
@@ -176,7 +176,7 @@ class _breaks_log_sub:
 
         candidate = np.arange(base + 1)
         candidate = np.compress(
-            (1 < candidate) & (candidate < base), candidate
+            (candidate > 1) & (candidate < base), candidate
         )
 
         while len(candidate):
@@ -464,7 +464,7 @@ class breaks_date:
         out : array_like
             Sequence of break points.
         """
-        if any(pd.isnull(x) for x in limits):
+        if any(pd.isna(x) for x in limits):
             return []
 
         if isinstance(limits[0], np.datetime64) and isinstance(
@@ -523,7 +523,7 @@ class breaks_timedelta:
         out : array_like
             Sequence of break points.
         """
-        if any(pd.isnull(x) for x in limits):
+        if any(pd.isna(x) for x in limits):
             return np.array([])
 
         helper = timedelta_helper(limits)

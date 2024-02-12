@@ -9,7 +9,6 @@ yourself, clone https://github.com/hsluv/hsluv and run:
 
 from __future__ import annotations
 
-import math
 import math as _math  # unexport, see #17
 import typing
 from functools import partial as _partial
@@ -96,10 +95,8 @@ def _length_of_ray_until_intersect(theta: float, line: Line) -> float:
 def _get_bounds(l: float) -> list[Line]:
     result = []
     sub1 = ((l + 16) ** 3) / 1560896
-    if sub1 > _epsilon:
-        sub2 = sub1
-    else:
-        sub2 = l / _kappa
+    sub2 = sub1 if sub1 > _epsilon else l / _kappa
+
     for m1, m2, m3 in _m:
         for t in (0, 1):
             top1 = (284517 * m1 - 94839 * m3) * sub2

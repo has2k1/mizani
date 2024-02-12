@@ -267,10 +267,10 @@ def test_breaks_date_week_auto():
     limits = (datetime(2020, 1, 1), datetime(2020, 2, 15))
 
     breaks = breaks_date()(limits)
-    assert set(b.day for b in breaks) == set([1, 15])
+    assert {b.day for b in breaks} == {1, 15}
 
     breaks = breaks_date(n=8)(limits)
-    assert set(b.day for b in breaks) == set([1, 8, 15, 22])
+    assert {b.day for b in breaks} == {1, 8, 15, 22}
 
 
 def test_breaks_date_day_width():
@@ -330,15 +330,15 @@ def test_breaks_date_month_width():
     limits = (datetime(2020, 1, 1), datetime(2021, 2, 28))
 
     breaks = breaks_date(width="1 month")(limits)
-    assert all([28 <= d.days <= 31 for d in np.diff(breaks)])
+    assert all(28 <= d.days <= 31 for d in np.diff(breaks))
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
     breaks = breaks_date(width="2 month")(limits)
-    assert all([59 <= d.days <= 62 for d in np.diff(breaks)])
+    assert all(59 <= d.days <= 62 for d in np.diff(breaks))
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
     #
     breaks = breaks_date(width="3 month")(limits)
-    assert all([90 <= d.days <= 92 for d in np.diff(breaks)])
+    assert all(90 <= d.days <= 92 for d in np.diff(breaks))
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
 

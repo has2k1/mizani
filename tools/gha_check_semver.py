@@ -22,6 +22,7 @@ and to what index.
 """
 import os
 import re
+from pathlib import Path
 from typing import Literal, TypeAlias
 
 TagType: TypeAlias = Literal[
@@ -72,13 +73,10 @@ def output_tag_type(tag_type: TagType | None):
     """
     Write tag_type to the GHA output
     """
-    output_file = os.environ.get("GITHUB_OUTPUT")
-
-    # Probably not on GHA
-    if not output_file:
+    if not (output_file := os.environ.get("GITHUB_OUTPUT")):
         return
 
-    with open(output_file, "a") as f:
+    with Path(output_file).open("a") as f:
         print(f"tag_type={tag_type}", file=f)
 
 
@@ -88,7 +86,8 @@ def output_publish_on(tag_type: TagType | None):
 
     i.e. Where to release
     """
-    output_file = os.environ.get("GITHUB_OUTPUT")
+    if not (output_file := os.environ.get("GITHUB_OUTPUT")):
+        return
 
     # Probably not on GHA
     if not output_file:
@@ -101,7 +100,7 @@ def output_publish_on(tag_type: TagType | None):
     else:
         publish_on = ""
 
-    with open(output_file, "a") as f:
+    with Path(output_file).open("a") as f:
         print(f"publish_on={publish_on}", file=f)
 
 

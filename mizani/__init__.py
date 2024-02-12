@@ -1,7 +1,5 @@
+from contextlib import suppress
 from importlib.metadata import PackageNotFoundError, version
 
-try:
+with suppress(PackageNotFoundError):
     __version__ = version("mizani")
-except PackageNotFoundError:
-    # package is not installed
-    pass

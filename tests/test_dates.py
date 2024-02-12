@@ -77,7 +77,6 @@ def test_num_to_datetime():
 
 
 def test_datetime_to_num():
-    x = []
     res = datetime_to_num([])
     assert len(res) == 0
 

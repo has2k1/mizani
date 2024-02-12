@@ -27,7 +27,7 @@ def test_rgb_range():
 def test_snapshort():
     # Load snapshot into memory
     filename = Path(__file__).parent / "data/hsluv-snapshot-rev4.json"
-    with open(filename) as f:
+    with filename.open() as f:
         snapshot = json.load(f)
 
     for hex_color, colors in snapshot.items():

@@ -16,8 +16,8 @@ class _color_lookup(dict):
     def __getitem__(self, key: str) -> RGBHexColor:
         try:
             return super().__getitem__(key)
-        except KeyError:
-            raise ValueError(f"Unknown name '{key}' for a color.")
+        except KeyError as err:
+            raise ValueError(f"Unknown name '{key}' for a color.") from err
 
 
 class _colormap_lookup(dict[str, ColorMap]):
@@ -40,8 +40,8 @@ class _colormap_lookup(dict[str, ColorMap]):
 
         try:
             return self.d[name]
-        except KeyError:
-            raise ValueError(f"Unknow colormap: {name}")
+        except KeyError as err:
+            raise ValueError(f"Unknow colormap: {name}") from err
 
 
 NAMED_COLORS = _color_lookup(**SHORT, **CSS4, **XKCD, **CRAYON)

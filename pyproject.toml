@@ -45,7 +45,6 @@ build = [
 ]
 
 lint = [
-    "black>=23.1.0",
     "ruff",
 ]
 
@@ -178,13 +177,31 @@ stubPath = ""
 ########## Tool - Ruff ##########
 [tool.ruff]
 line-length = 79
-select = ["E", "F", "C"]
+
+[tool.ruff.lint]
+select = [
+   "E",
+   "F",
+   "C",
+   "I",
+   "Q",
+   "PIE",
+   "PTH",
+   "PD",
+   "PYI",
+   "RSE",
+   "SIM",
+   "B904",
+   "FLY",
+   "NPY",
+   "PERF102"
+]
 ignore = [
     "E741",  # Ambiguous l
     "C901",  # Function is too complex
 ]
 # Allow autofix for all enabled rules (when `--fix`) is provided
-fixable = ["A", "B", "C", "E", "F", "I"]
+fixable = ["ALL"]
 unfixable = []
 exclude = [
     "mizani/external/*"
@@ -192,15 +209,3 @@ exclude = [
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-# Assume Python 3.9.
-target-version = "py39"
-
-########## Tool - Black ##########
-[tool.black]
-line-length = 79
-extend-exclude = '''
-(
- external/
-)
-'''

@@ -298,8 +298,8 @@ def get_categories(x):
     except AttributeError:
         try:
             return x.categories  # plain categorical
-        except AttributeError:
-            raise TypeError("x is the wrong type, it has no categories")
+        except AttributeError as err:
+            raise TypeError("x is not a categorical") from err
 
 
 def log(x, base):
@@ -350,7 +350,8 @@ def get_timezone(x: SeqDatetime) -> tzinfo | None:
     # Consistency check
     tzname0 = info.tzname(x0)
     tznames = (
-        dt.tzinfo.tzname(dt) if dt.tzinfo else None for dt in x  # type: ignore
+        dt.tzinfo.tzname(dt) if dt.tzinfo else None
+        for dt in x  # type: ignore
     )
 
     if any(tzname0 != name for name in tznames):

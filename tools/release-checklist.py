@@ -4,7 +4,6 @@ import os
 import re
 import shlex
 import sys
-from enum import IntEnum
 from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Literal, Optional, Sequence, TypeAlias
@@ -58,8 +57,9 @@ def copy_to_clipboard(s: str):
     except ImportError:
         try:
             cmd = platform_cmds[plat]
-        except KeyError:
-            raise RuntimeError(f"No clipboard for this system: {plat}")
+        except KeyError as err:
+            msg = f"No clipboard for this system: {plat}"
+            raise RuntimeError(msg) from err
         run(cmd, input=s)
     else:
         clipboard.copy(s)  # type: ignore
@@ -88,7 +88,7 @@ def bump_version(version: str, part: VersionPart) -> str:
     """
     Bump version
     """
-    parts = [x for x in version.split(".")]
+    parts = version.split(".")
     i = ("major", "minor", "patch").index(part)
     parts[i] = str(int(parts[i]) + 1)
     # Zero-out the smaller parts
@@ -107,7 +107,7 @@ def generate_checklist(version: str) -> str:
         r"\n-+\n(?P<tpl>.+)",
         flags=re.MULTILINE | re.DOTALL,
     )
-    with open(path, "r") as f:
+    with Path(path).open("r") as f:
         contents = f.read()
 
     m = pattern.search(contents)

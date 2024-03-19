@@ -132,7 +132,8 @@ exclude_also = [
    "except ImportError:",
    "except PackageNotFoundError:",
    "@overload",
-   "\\s{4,}\\.\\.\\."
+   "\\s{4,}\\.\\.\\.",
+   ": lambda x: .+?,$",
 ]
 precision = 1
 

@@ -1,4 +1,5 @@
-from ..color_palette import palette
+from .. import palette
+from .._palette import PaletteKind as pk
 
 __all__ = [
     "Blues",
@@ -74,6 +75,7 @@ Blues = palette(
             (8, 48, 107),
         ],
     ],
+    kind=pk.sequential,
 )
 
 BuGn = palette(
@@ -129,6 +131,7 @@ BuGn = palette(
             (0, 68, 27),
         ],
     ],
+    kind=pk.sequential,
 )
 
 BuPu = palette(
@@ -184,6 +187,7 @@ BuPu = palette(
             (77, 0, 75),
         ],
     ],
+    kind=pk.sequential,
 )
 
 GnBu = palette(
@@ -239,6 +243,7 @@ GnBu = palette(
             (8, 64, 129),
         ],
     ],
+    kind=pk.sequential,
 )
 
 Greens = palette(
@@ -294,6 +299,7 @@ Greens = palette(
             (0, 68, 27),
         ],
     ],
+    kind=pk.sequential,
 )
 
 Greys = palette(
@@ -349,6 +355,7 @@ Greys = palette(
             (0, 0, 0),
         ],
     ],
+    kind=pk.sequential,
 )
 
 Oranges = palette(
@@ -404,6 +411,7 @@ Oranges = palette(
             (127, 39, 4),
         ],
     ],
+    kind=pk.sequential,
 )
 
 OrRd = palette(
@@ -459,6 +467,7 @@ OrRd = palette(
             (127, 0, 0),
         ],
     ],
+    kind=pk.sequential,
 )
 
 PuBu = palette(
@@ -514,6 +523,7 @@ PuBu = palette(
             (2, 56, 88),
         ],
     ],
+    kind=pk.sequential,
 )
 
 PuBuGn = palette(
@@ -569,6 +579,7 @@ PuBuGn = palette(
             (1, 70, 54),
         ],
     ],
+    kind=pk.sequential,
 )
 
 PuRd = palette(
@@ -624,6 +635,7 @@ PuRd = palette(
             (103, 0, 31),
         ],
     ],
+    kind=pk.sequential,
 )
 
 Purples = palette(
@@ -679,6 +691,7 @@ Purples = palette(
             (63, 0, 125),
         ],
     ],
+    kind=pk.sequential,
 )
 
 RdPu = palette(
@@ -734,6 +747,7 @@ RdPu = palette(
             (73, 0, 106),
         ],
     ],
+    kind=pk.sequential,
 )
 
 Reds = palette(
@@ -789,6 +803,7 @@ Reds = palette(
             (103, 0, 13),
         ],
     ],
+    kind=pk.sequential,
 )
 
 YlGn = palette(
@@ -844,6 +859,7 @@ YlGn = palette(
             (0, 69, 41),
         ],
     ],
+    kind=pk.sequential,
 )
 
 YlGnBu = palette(
@@ -899,6 +915,7 @@ YlGnBu = palette(
             (8, 29, 88),
         ],
     ],
+    kind=pk.sequential,
 )
 
 YlOrBr = palette(
@@ -954,6 +971,7 @@ YlOrBr = palette(
             (102, 37, 6),
         ],
     ],
+    kind=pk.sequential,
 )
 
 YlOrRd = palette(
@@ -1009,4 +1027,5 @@ YlOrRd = palette(
             (128, 0, 38),
         ],
     ],
+    kind=pk.sequential,
 )

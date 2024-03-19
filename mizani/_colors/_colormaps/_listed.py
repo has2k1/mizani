@@ -5,9 +5,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ._colormap import ColorMap
-from .hsluv import hex_to_rgb, rgb_to_hex
-from .named_colors import get_named_color
+from ..hsluv import hex_to_rgb, rgb_to_hex
+from ._colormap import ColorMap, ColorMapKind
 
 if typing.TYPE_CHECKING:
     from typing import Sequence
@@ -30,8 +29,11 @@ __all__ = ("ListedMap",)
 @dataclass
 class ListedMap(ColorMap):
     colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
+    kind: ColorMapKind = ColorMapKind.miscellaneous
 
     def __post_init__(self):
+        from ..named_colors import get_named_color
+
         self.values = np.linspace(0, 1, len(self.colors))
         if isinstance(self.colors[0], str):
             colors = [

@@ -1,16 +1,22 @@
-from .. import ListedMap
+from mizani._colors import ColorMapKind as cmk
+from mizani._colors import ListedMap
 
 __all__ = (
+    # sequential & perceptually Uniform
     "magma",
     "inferno",
     "plasma",
     "viridis",
     "cividis",
+    # cyclic
     "twilight",
     "twilight_shifted",
+    # miscalleneous
     "turbo",
+    "brg",
 )
 
+# Perceptually Uniform
 _magma = (
     (0.001462, 0.000466, 0.013866),
     (0.002258, 0.001295, 0.018331),
@@ -1306,6 +1312,8 @@ _cividis = (
     (0.995737, 0.909344, 0.217772),
 )
 
+# cyclic
+
 _twilight = (
     (0.88575015840754434, 0.85000924943067835, 0.8879736506427196),
     (0.88378520195539056, 0.85072940540310626, 0.88723222096949894),
@@ -1823,6 +1831,9 @@ _twilight_shifted = (
     _twilight[len(_twilight) // 2 :] + _twilight[: len(_twilight) // 2]
 )[::-1]
 
+
+# miscellaneous
+
 _turbo = (
     (0.18995, 0.07176, 0.23217),
     (0.19483, 0.08339, 0.26149),
@@ -2082,12 +2093,20 @@ _turbo = (
     (0.47960, 0.01583, 0.01055),
 )
 
+_brg = (
+    (0.0, 0.0, 1.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+)
 
-magma = ListedMap(_magma)
-inferno = ListedMap(_inferno)
-plasma = ListedMap(_plasma)
-viridis = ListedMap(_viridis)
-cividis = ListedMap(_cividis)
-twilight = ListedMap(_twilight)
-twilight_shifted = ListedMap(_twilight_shifted)
+magma = ListedMap(_magma, cmk.sequential)
+inferno = ListedMap(_inferno, cmk.sequential)
+plasma = ListedMap(_plasma, cmk.sequential)
+viridis = ListedMap(_viridis, cmk.sequential)
+cividis = ListedMap(_cividis, cmk.sequential)
+
+twilight = ListedMap(_twilight, cmk.cyclic)
+twilight_shifted = ListedMap(_twilight_shifted, cmk.cyclic)
+
 turbo = ListedMap(_turbo)
+brg = ListedMap(_brg)

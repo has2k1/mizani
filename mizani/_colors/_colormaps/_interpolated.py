@@ -5,9 +5,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ._colormap import ColorMap
-from .hsluv import hex_to_rgb, rgb_to_hex
-from .named_colors import get_named_color
+from ..hsluv import hex_to_rgb, rgb_to_hex
+from ._colormap import ColorMap, ColorMapKind
 
 if typing.TYPE_CHECKING:
     from typing import Optional, Sequence
@@ -25,15 +24,39 @@ SPACE256 = np.arange(256)
 INNER_SPACE256 = SPACE256[1:-1]
 ROUNDING_JITTER = 1e-12
 
-__all__ = ("GradientMap",)
+
+class _InterpolatedGen(ColorMap):
+    _r_lookup: NDArrayFloat
+    _g_lookup: NDArrayFloat
+    _b_lookup: NDArrayFloat
+
+    def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
+        """
+        Lookup colors in the interpolated ranges
+
+        Parameters
+        ----------
+        x :
+            Values in the range [0, 1]. O maps to the start of the
+            gradient, and 1 to the end of the gradient.
+        """
+        x = np.asarray(x)
+        idx = np.round((x * 255) + ROUNDING_JITTER).astype(int)
+        arr = np.column_stack(
+            [self._r_lookup[idx], self._g_lookup[idx], self._b_lookup[idx]],
+        )
+        return [rgb_to_hex(c) for c in arr]
 
 
 @dataclass
-class GradientMap(ColorMap):
+class InterpolatedMap(_InterpolatedGen):
     colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
     values: Optional[Sequence[float]] = None
+    kind: ColorMapKind = ColorMapKind.miscellaneous
 
     def __post_init__(self):
+        from ..named_colors import get_named_color
+
         if self.values is None:
             values = np.linspace(0, 1, len(self.colors))
         elif len(self.colors) < 2:
@@ -66,25 +89,12 @@ class GradientMap(ColorMap):
         self._g_lookup = interp_lookup(values, self._data[:, 1])
         self._b_lookup = interp_lookup(values, self._data[:, 2])
 
-    def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
-        """
-        Lookup colors in the interpolated ranges
 
-        Parameters
-        ----------
-        x :
-            Values in the range [0, 1]. O maps to the start of the
-            gradient, and 1 to the end of the gradient.
-        """
-        x = np.asarray(x)
-        idx = np.round((x * 255) + ROUNDING_JITTER).astype(int)
-        arr = np.column_stack(
-            [self._r_lookup[idx], self._g_lookup[idx], self._b_lookup[idx]]
-        )
-        return [rgb_to_hex(c) for c in arr]
-
-
-def interp_lookup(x: NDArrayFloat, values: NDArrayFloat) -> NDArrayFloat:
+def interp_lookup(
+    x: NDArrayFloat,
+    values: NDArrayFloat,
+    values_alt: Optional[NDArrayFloat] = None,
+) -> NDArrayFloat:
     """
     Create an interpolation lookup array
 
@@ -98,7 +108,25 @@ def interp_lookup(x: NDArrayFloat, values: NDArrayFloat) -> NDArrayFloat:
         should be sorted.
     values:
         In the range [0, 1]. Must be the same length as x.
+    values_alt:
+        In the range [0, 1]. Must be the same length as x.
+        Makes it possible to have adjacent interpolation regions
+        that with gaps in them numbers. e.g.
+
+            values = [0, 0.1, 0.5, 1]
+            values_alt = [0, 0.1, 0.6, 1]
+
+        Creates the regions
+
+            [(0, 0.1), (0.1, 0.5), (0.6, 1)]
+
+        If values_alt is None the region would be
+
+            [(0, 0.1), (0.1, 0.5), (0.5, 1)]
     """
+    if values_alt is None:
+        values_alt = values
+
     # - Map x from [0, 1] onto [0, 255] i.e. the color channel
     #   breaks (continuous)
     # - Find where x would be mapped onto the grid (discretizing)
@@ -111,10 +139,12 @@ def interp_lookup(x: NDArrayFloat, values: NDArrayFloat) -> NDArrayFloat:
     ind = np.searchsorted(x256, SPACE256)[1:-1]
     ind_prev = ind - 1
     distance = (INNER_SPACE256 - x256[ind_prev]) / (x256[ind] - x256[ind_prev])
+    stop = values[ind]
+    start = values_alt[ind_prev]
     lut = np.concatenate(
         [
             [values[0]],
-            distance * (values[ind] - values[ind_prev]) + values[ind_prev],
+            start + distance * (stop - start),
             [values[-1]],
         ]
     )

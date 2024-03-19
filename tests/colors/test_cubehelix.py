@@ -1,4 +1,4 @@
-from mizani.colors import CubeHelixMap
+from mizani._colors import CubeHelixMap
 
 
 def test_continuous():

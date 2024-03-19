@@ -1,6 +1,6 @@
 import pytest
 
-from mizani.colors import get_named_color
+from mizani._colors import get_named_color
 
 
 def test_bad_name():

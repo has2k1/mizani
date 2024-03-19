@@ -1,4 +1,5 @@
-from ..color_palette import palette
+from .. import palette
+from .._palette import PaletteKind as pk
 
 __all__ = [
     "Accent",
@@ -53,6 +54,7 @@ Accent = palette(
             (102, 102, 102),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Dark2 = palette(
@@ -97,6 +99,7 @@ Dark2 = palette(
             (102, 102, 102),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Paired = palette(
@@ -191,6 +194,7 @@ Paired = palette(
             (177, 89, 40),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Pastel1 = palette(
@@ -246,6 +250,7 @@ Pastel1 = palette(
             (242, 242, 242),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Pastel2 = palette(
@@ -290,6 +295,7 @@ Pastel2 = palette(
             (204, 204, 204),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Set1 = palette(
@@ -345,6 +351,7 @@ Set1 = palette(
             (153, 153, 153),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Set2 = palette(
@@ -389,6 +396,7 @@ Set2 = palette(
             (179, 179, 179),
         ],
     ],
+    kind=pk.qualitative,
 )
 
 Set3 = palette(
@@ -483,4 +491,5 @@ Set3 = palette(
             (255, 237, 111),
         ],
     ],
+    kind=pk.qualitative,
 )

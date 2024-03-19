@@ -7,7 +7,7 @@ if typing.TYPE_CHECKING:
 
     from mizani.typing import ColorPalette, ColorScheme, ColorSchemeShort
 
-__all__ = ["get_palette_names"]
+__all__ = ["get_brewer_palette"]
 
 
 def get_palette_names(scheme: ColorScheme | ColorSchemeShort) -> list[str]:
@@ -55,7 +55,7 @@ def number_to_name(scheme: ColorScheme | ColorSchemeShort, n: int) -> str:
     return names[n - 1]
 
 
-def get_color_palette(
+def get_brewer_palette(
     scheme: ColorScheme | ColorSchemeShort, palette: int | str
 ) -> ColorPalette:
     """

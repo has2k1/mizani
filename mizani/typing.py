@@ -13,6 +13,7 @@ if typing.TYPE_CHECKING:
         Protocol,
         Sequence,
         TypeAlias,
+        TypedDict,
         TypeVar,
     )
 
@@ -21,7 +22,7 @@ if typing.TYPE_CHECKING:
     from numpy.typing import NDArray
     from pandas._libs import NaTType
 
-    from mizani.colors.color_palette import palette
+    from mizani._colors._palettes import palette
     from mizani.transforms import trans
 
     T = TypeVar("T")
@@ -96,16 +97,26 @@ if typing.TYPE_CHECKING:
     RGBColor: TypeAlias = tuple[float, float, float] | NDArrayFloat
 
     RGB256Color: TypeAlias = tuple[int, int, int]
-    RGB256Swatch: TypeAlias = list[RGB256Color]
-    RGB256Swatches: TypeAlias = list[RGB256Swatch]
+    RGB256Swatch: TypeAlias = Sequence[RGB256Color]
+    RGB256Swatches: TypeAlias = Sequence[RGB256Swatch]
 
     RGBHexColor: TypeAlias = str
-    RGBHexSwatch: TypeAlias = list[RGBHexColor]
-    RGBHexSwatches: TypeAlias = list[RGBHexSwatch]
+    RGBHexSwatch: TypeAlias = Sequence[RGBHexColor]
+    RGBHexSwatches: TypeAlias = Sequence[RGBHexSwatch]
 
     # Change this when numpy gets support for type-hinting shapes
     # Ref: https://github.com/numpy/numpy/issues/16544
     RGBColorArray: TypeAlias = NDArrayFloat
+
+    class SegmentedColorMapData(TypedDict):
+        red: Sequence[tuple[float, float, float]]
+        green: Sequence[tuple[float, float, float]]
+        blue: Sequence[tuple[float, float, float]]
+
+    class SegmentFunctionColorMapData(TypedDict):
+        red: Callable[[NDArrayFloat], NDArrayFloat]
+        green: Callable[[NDArrayFloat], NDArrayFloat]
+        blue: Callable[[NDArrayFloat], NDArrayFloat]
 
     ColorScheme: TypeAlias = Literal[
         "diverging",

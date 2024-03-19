@@ -22,16 +22,16 @@ from warnings import warn
 
 import numpy as np
 
-from .bounds import rescale
-from .colors import (
+from ._colors import (
     CubeHelixMap,
-    GradientMap,
+    InterpolatedMap,
     get_colormap,
     get_named_color,
     hex_to_rgb,
     hsluv,
     rgb_to_hex,
 )
+from .bounds import rescale
 from .utils import identity
 
 if TYPE_CHECKING:
@@ -339,7 +339,7 @@ class grey_pal(_discrete_pal):
     def __post_init__(self):
         start, end = self.start, self.end
         colors = (start, start, start), (end, end, end)
-        self._gmap = GradientMap(colors)
+        self._cmap = InterpolatedMap(colors)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor | None]:
         gamma = 2.2
@@ -348,7 +348,7 @@ class grey_pal(_discrete_pal):
         space = np.linspace(self.start**gamma, self.end**gamma, n)
         # Map points onto the [0, 1] palette domain
         x = (space ** (1.0 / gamma) - self.start) / (self.end - self.start)
-        return self._gmap.continuous_palette(x)
+        return self._cmap.continuous_palette(x)
 
 
 @dataclass
@@ -453,7 +453,7 @@ class brewer_pal(_discrete_pal):
     The available color names for each palette type can be
     obtained using the following code::
 
-        from mizani.colors.brewer import get_palette_names
+        from mizani._colors.brewer import get_palette_names
 
         print(get_palette_names("sequential"))
         print(get_palette_names("qualitative"))
@@ -465,12 +465,12 @@ class brewer_pal(_discrete_pal):
     direction: Literal[1, -1] = 1
 
     def __post_init__(self):
-        from .colors import brewer
+        from mizani._colors._palettes.brewer import get_brewer_palette
 
         if self.direction not in (1, -1):
             raise ValueError("direction should be 1 or -1.")
 
-        self.bpal = brewer.get_color_palette(self.type, self.palette)
+        self.bpal = get_brewer_palette(self.type, self.palette)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor | None]:
         # Only draw the maximum allowable colors from the palette
@@ -486,7 +486,7 @@ class brewer_pal(_discrete_pal):
                 "palette you asked for with that many colors"
             )
             warn(msg)
-            colors = colors + [None] * (n - self.bpal.max_colors)
+            colors = list(colors) + [None] * (n - self.bpal.max_colors)
         return colors[:: self.direction]
 
 
@@ -526,10 +526,10 @@ class gradient_n_pal(_continuous_color_pal):
     values: Optional[Sequence[float]] = None
 
     def __post_init__(self):
-        self._gmap = GradientMap(self.colors, self.values)
+        self._cmap = InterpolatedMap(self.colors, self.values)
 
     def __call__(self, x: FloatArrayLike) -> Sequence[RGBHexColor | None]:
-        return self._gmap.continuous_palette(x)
+        return self._cmap.continuous_palette(x)
 
 
 @dataclass
@@ -597,16 +597,7 @@ class cmap_d_pal(_discrete_pal):
     def __post_init__(self):
         self.cm = get_colormap(self.name)
 
-        # Currently all named colormaps have an array of colors
-        # We do not expect CubeHelixMap
-        self.num_colors = len(self.cm.colors)
-
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
-        if n > self.num_colors:
-            raise ValueError(
-                f"cmap {self.name} has {self.num_colors} colors you "
-                f"requested {n} colors."
-            )
         return self.cm.discrete_palette(n)
 
 
@@ -717,7 +708,7 @@ def xkcd_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
     >>> palette
     ['#E50000', '#15B01A', '#0343DF']
 
-    >>> from mizani.colors.named_colors import XKCD
+    >>> from mizani._colors.named_colors import XKCD
     >>> list(sorted(XKCD.keys()))[:4]
     ['xkcd:acid green', 'xkcd:adobe', 'xkcd:algae', 'xkcd:algae green']
     """
@@ -747,7 +738,7 @@ def crayon_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
     >>> palette
     ['#EED9C4', '#C9C0BB', '#FBE870']
 
-    >>> from mizani.colors.named_colors import CRAYON
+    >>> from mizani._colors.named_colors import CRAYON
     >>> list(sorted(CRAYON.keys()))[:3]
     ['crayon:almond', 'crayon:antique brass', 'crayon:apricot']
     """

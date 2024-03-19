@@ -1,29 +1,33 @@
 from __future__ import annotations
 
-import typing
+import abc
+from enum import Enum
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Sequence
 
-    from mizani.typing import (
-        FloatArrayLike,
-        RGBColor,
-        RGBColorArray,
-        RGBHexColor,
-    )
+    from mizani.typing import FloatArrayLike, RGBHexColor
 
 __all__ = ("ColorMap",)
 
 
-class ColorMap:
+class ColorMapKind(Enum):
+    sequential = "sequential"
+    diverging = "diverging"
+    qualitative = "qualitative"
+    cyclic = "cyclic"
+    miscellaneous = "miscellaneous"
+
+
+class ColorMap(abc.ABC):
     """
     Base color for all color maps
     """
 
-    colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
-
+    @abc.abstractmethod
     def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
         """
         Method to map [0, 1] values onto the a color range
@@ -36,7 +40,6 @@ class ColorMap:
             Values in the range [0, 1]. O maps to the start of the
             gradient, and 1 to the end of the gradient.
         """
-        return []
 
     def discrete_palette(self, n: int) -> Sequence[RGBHexColor]:
         """

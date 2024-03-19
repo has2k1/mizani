@@ -5,11 +5,11 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ._colormap import ColorMap
-from .hsluv import rgb_to_hex
+from ..hsluv import rgb_to_hex
+from ._colormap import ColorMap, ColorMapKind
 
 if typing.TYPE_CHECKING:
-    from typing import Sequence
+    from typing import ClassVar, Sequence
 
     from mizani.typing import (
         FloatArrayLike,
@@ -32,6 +32,8 @@ class CubeHelixMap(ColorMap):
     light: float = 0.85
     dark: float = 0.15
     reverse: bool = False
+
+    kind: ClassVar[ColorMapKind] = ColorMapKind.miscellaneous
 
     def _generate_colors(self, x: FloatArrayLike) -> Sequence[RGBHexColor]:
         x = np.asarray(x)

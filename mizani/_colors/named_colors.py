@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import typing
 
-from ._colormap import ColorMap
+from ._colormaps import ColorMap
 from ._named_color_values import CRAYON, CSS4, SHORT, XKCD
 
 if typing.TYPE_CHECKING:
+    from types import ModuleType
+
     from mizani.typing import RGBHexColor
 
 
@@ -21,22 +23,35 @@ class _color_lookup(dict):
 
 
 class _colormap_lookup(dict[str, ColorMap]):
+    """
+    Lookup (by name) for all available colormaps
+    """
+
     d: dict[str, ColorMap] = {}
 
-    def _init(self):
-        from . import diverging as div
-        from . import qualitative as qual
-        from . import sequential as seq
+    def _lazy_init(self):
+        from ._colormaps._maps import (
+            _interpolated,
+            _listed,
+            _palette_interpolated,
+            _segment_function,
+            _segment_interpolated,
+        )
+
+        def _get(mod: ModuleType) -> dict[str, ColorMap]:
+            return {name: getattr(mod, name) for name in mod.__all__}
 
         self.d = {
-            **{name: getattr(seq, name) for name in seq.__all__},
-            **{name: getattr(div, name) for name in div.__all__},
-            **{name: getattr(qual, name) for name in qual.__all__},
+            **_get(_interpolated),
+            **_get(_listed),
+            **_get(_palette_interpolated),
+            **_get(_segment_function),
+            **_get(_segment_interpolated),
         }
 
     def __getitem__(self, name: str) -> ColorMap:
         if not self.d:
-            self._init()
+            self._lazy_init()
 
         try:
             return self.d[name]

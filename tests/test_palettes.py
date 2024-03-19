@@ -115,7 +115,7 @@ def test_brewer_pal():
 
 
 def test_brewer_palette_names():
-    from mizani.colors.brewer import get_palette_names
+    from mizani._colors._palettes.brewer import get_palette_names
 
     names = get_palette_names("sequential")
     assert len(names) > 0
@@ -128,10 +128,14 @@ def test_brewer_palette_names():
 
 
 def test_brewer_palette_modules():
-    from mizani.colors.brewer import get_palette_module
+    from mizani._colors._palettes.brewer import get_palette_module
 
     with pytest.raises(ValueError):
         get_palette_module("cyclic")
+
+
+def assert_hex_colors(lst):
+    assert all(s[0] == "#" and len(s) == 7 for s in lst)
 
 
 def test_gradient_n_pal():
@@ -150,7 +154,7 @@ def test_gradient_n_pal():
 def test_cmap_pal():
     palette = cmap_pal("viridis")
     result = palette([0, 0.25, 0.5, 0.75, 1])
-    assert all(s[0] == "#" and len(s) == 7 for s in result)
+    assert_hex_colors(result)
 
 
 def test_cmap_d_pal():
@@ -159,13 +163,14 @@ def test_cmap_d_pal():
     assert all(s[0] == "#" and len(s) == 7 for s in result)
     assert len(result) == 6
 
-    # More colors than palette
+    # From a row palette
     palette = cmap_d_pal("Accent")
     result = palette(5)
-    assert all(s[0] == "#" and len(s) == 7 for s in result)
+    assert_hex_colors(result)
 
-    with pytest.raises(ValueError):
-        result = palette(10)
+    # More colors than palette
+    result = palette(20)
+    assert_hex_colors(result)
 
     # Bad palette
     with pytest.raises(ValueError):
@@ -208,20 +213,20 @@ def test_manual_pal():
 def test_xkcd_palette():
     values = xkcd_palette(["apple green", "red", "tan brown"])
     assert len(values) == 3
-    assert all(s[0] == "#" and len(s) == 7 for s in values)
+    assert_hex_colors(values)
 
 
 def test_crayon_palette():
     values = crayon_palette(["banana mania", "red", "yellow"])
     assert len(values) == 3
-    assert all(s[0] == "#" and len(s) == 7 for s in values)
+    assert_hex_colors(values)
 
 
 def test_cubehelix_pal():
     palette = cubehelix_pal()
     values = palette(5)
     assert len(values) == 5
-    assert all(s[0] == "#" and len(s) == 7 for s in values)
+    assert_hex_colors(values)
 
 
 def test_identity_pal():

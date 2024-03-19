@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from numpy.testing import assert_allclose
 
-from mizani.colors import hsluv
+from mizani._colors import hsluv
 
 ATOL = 1e-11
 

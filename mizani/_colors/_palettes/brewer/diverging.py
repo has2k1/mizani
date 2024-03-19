@@ -1,4 +1,5 @@
-from ..color_palette import palette
+from .. import palette
+from .._palette import PaletteKind as pk
 
 __all__ = [
     "BrBG",
@@ -90,6 +91,7 @@ BrBG = palette(
             (0, 60, 48),
         ],
     ],
+    kind=pk.diverging,
 )
 
 PiYG = palette(
@@ -170,6 +172,7 @@ PiYG = palette(
             (39, 100, 25),
         ],
     ],
+    kind=pk.diverging,
 )
 
 PRGn = palette(
@@ -250,6 +253,7 @@ PRGn = palette(
             (0, 68, 27),
         ],
     ],
+    kind=pk.diverging,
 )
 
 PuOr = palette(
@@ -330,6 +334,7 @@ PuOr = palette(
             (45, 0, 75),
         ],
     ],
+    kind=pk.diverging,
 )
 
 RdBu = palette(
@@ -410,6 +415,7 @@ RdBu = palette(
             (5, 48, 97),
         ],
     ],
+    kind=pk.diverging,
 )
 
 RdGy = palette(
@@ -490,6 +496,7 @@ RdGy = palette(
             (26, 26, 26),
         ],
     ],
+    kind=pk.diverging,
 )
 
 RdYlBu = palette(
@@ -570,6 +577,7 @@ RdYlBu = palette(
             (49, 54, 149),
         ],
     ],
+    kind=pk.diverging,
 )
 
 RdYlGn = palette(
@@ -650,6 +658,7 @@ RdYlGn = palette(
             (0, 104, 55),
         ],
     ],
+    kind=pk.diverging,
 )
 
 Spectral = palette(
@@ -730,4 +739,5 @@ Spectral = palette(
             (94, 79, 162),
         ],
     ],
+    kind=pk.diverging,
 )

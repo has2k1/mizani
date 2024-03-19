@@ -1,6 +1,6 @@
 import numpy as np
 
-from mizani.colors import ListedMap
+from mizani._colors import ListedMap
 
 
 def test_continuous():

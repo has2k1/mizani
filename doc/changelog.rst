@@ -1,6 +1,33 @@
 Changelog
 =========
 
+v0.11.1
+-------
+*not-yet-released*
+
+Bug Fixes
+---------
+
+- Fix :class:`mizani.palettes.brewer_pal` to return exact colors in the when
+  the requested colors are less than or equal to those in the palette.
+
+- Add all matplotlib colormap and make them avalaible from
+  :class:`~mizani.palettes.cmap_pal` and
+  :class:`~mizani.palettes.cmap_d_pal` (:issue:`39`).
+
+New
+---
+
+- Added :class:`~mizani.breaks.breaks_symlog` to calculate
+  breaks for the symmetric logarithm transformation.
+
+Changes
+-------
+- The default `big_mark` for :class:`~mizani.labels.label_number`
+  has been changed from a comma to nothing.
+
+
+
 v0.11.0
 -------
 *2024-02-12*

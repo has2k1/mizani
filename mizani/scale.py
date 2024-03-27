@@ -27,6 +27,7 @@ concept unpinning a scale.
 
 The **apply** methods are simple examples of how to put it all together.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast

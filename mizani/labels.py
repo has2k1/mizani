@@ -9,6 +9,7 @@ values as understood by a specific scale and return string
 representations of those values. Manipulating the string
 representation of a value helps improve readability of the guide.
 """
+
 from __future__ import annotations
 
 import re

@@ -80,15 +80,13 @@ NANOSECONDS: dict[DurationUnit, float] = {
 @overload
 def round_any(
     x: FloatArrayLike, accuracy: float, f: NumericUFunction = np.round
-) -> NDArrayFloat:
-    ...
+) -> NDArrayFloat: ...
 
 
 @overload
 def round_any(
     x: float, accuracy: float, f: NumericUFunction = np.round
-) -> float:
-    ...
+) -> float: ...
 
 
 def round_any(

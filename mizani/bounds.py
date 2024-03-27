@@ -18,6 +18,7 @@ will be invisible. The solution is to restrict the lower bound
 e.g. :math:`[0.1, 1]`. Similarly you can restrict the upper bound
 -- using these functions.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -284,15 +285,13 @@ def censor(
     x: NDArrayFloat | Sequence[float],
     range: TupleFloat2 = (0, 1),
     only_finite: bool = True,
-) -> NDArrayFloat:
-    ...
+) -> NDArrayFloat: ...
 
 
 @overload
 def censor(
     x: FloatSeries, range: TupleFloat2 = (0, 1), only_finite: bool = True
-) -> FloatSeries:
-    ...
+) -> FloatSeries: ...
 
 
 def censor(

@@ -97,13 +97,11 @@ def get_tzinfo(tz: Optional[str | TzInfo] = None) -> TzInfo | None:
 
 
 @overload
-def datetime_to_num(x: SeqDatetime) -> NDArrayFloat:
-    ...
+def datetime_to_num(x: SeqDatetime) -> NDArrayFloat: ...
 
 
 @overload
-def datetime_to_num(x: Datetime) -> float:
-    ...
+def datetime_to_num(x: Datetime) -> float: ...
 
 
 def datetime_to_num(x: SeqDatetime | Datetime) -> NDArrayFloat | float:

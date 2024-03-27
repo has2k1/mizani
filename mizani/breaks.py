@@ -10,6 +10,7 @@ The named markers are what we call breaks. Properly calculated
 breaks make interpretation straight forward. These functions
 provide ways to calculate good(hopefully) breaks.
 """
+
 from __future__ import annotations
 
 import sys

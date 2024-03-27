@@ -9,6 +9,7 @@ means that the palette space is sparsely sampled.
 All swatches of a palette have different lengths, are listed shortest to
 longest and each swatch is longer than the previous by one color.
 """
+
 from __future__ import annotations
 
 import typing

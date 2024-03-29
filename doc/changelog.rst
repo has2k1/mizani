@@ -5,6 +5,9 @@ v0.11.1
 -------
 *2024-03-27*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.10893760.svg
+  :target: https://doi.org/10.5281/zenodo.10893760
+
 Bug Fixes
 ---------
 

@@ -10,34 +10,25 @@ Release: mizani-<VERSION>
 
 - [ ] Run tests and coverage locally
 
-  <details>
-
   ```sh
   git switch main
   git pull origin/main
   make test
   make coverage
   ```
+
   - [ ] The tests pass
   - [ ] The coverage is acceptable
-
-  </details>
 
 - [ ] The latest [online documentation](https://mizani.readthedocs.io/en/latest/) builds, be sure to browse
 
 - [ ] Create a release branch
 
-  <details>
-
   ```sh
   git switch -c release-v<VERSION>
   ```
 
-  </details>
-
 - [ ] Tag a pre-release version. These are automatically deployed on `testpypi`
-
-  <details>
 
   ```sh
   git tag -as v<VERSION>a1 -m "Version <VERSION>a1"  # e.g. <VERSION>a1, <VERSION>b1, <VERSION>rc1
@@ -46,12 +37,8 @@ Release: mizani-<VERSION>
   - [ ] GHA [release job](https://github.com/has2k1/mizani/actions/workflows/release.yml) passes
   - [ ] Mizani test release is on [TestPyPi](https://test.pypi.org/project/mizani)
 
-  </details>
-
 
 - [ ] Update changelog
-
-  <details>
 
   ```sh
   nvim doc/changelog.rst
@@ -62,11 +49,7 @@ Release: mizani-<VERSION>
   - [ ] Add a release date
   - [ ] The [GHA tests](https://github.com/has2k1/mizani/actions/workflows/testing.yml) pass
 
-  </details>
-
 - [ ] Tag final version and release
-
-  <details>
 
   ```sh
   git tag -as v<VERSION> -m "Version <VERSION>"
@@ -76,11 +59,7 @@ Release: mizani-<VERSION>
   - [ ] The [GHA Release](https://github.com/has2k1/mizani/actions/workflows/release.yml) job passes
   - [ ] [PyPi](https://pypi.org/project/mizani) shows the new release
 
-  </details>
-
 - [ ] Update `main` branch
-
-  <details>
 
   ```sh
   git switch main
@@ -88,12 +67,7 @@ Release: mizani-<VERSION>
   git push
   ```
 
-  </details>
-
 - [ ] Create conda release
-
-  <details>
-
 
   - [ ] Copy _SHA256 hash_. Click view hashes, for the [Source Distribution](https://pypi.org/project/mizani/<VERSION>/#files) (`.tar.gz`).
 
@@ -110,7 +84,5 @@ Release: mizani-<VERSION>
     ```
   - [ ] Create a [PR](https://github.com/conda-forge/mizani-feedstock/pulls)
   - [ ] Complete PR (follow the steps and merge)
-
-  </details>
 
 - [ ] Add [zenodo badge](https://doi.org/10.5281/zenodo.592370) to the changelog.

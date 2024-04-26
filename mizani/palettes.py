@@ -562,9 +562,17 @@ class cmap_pal(_continuous_color_pal):
     name: str
 
     def __post_init__(self):
+        self._direction: Literal[1, -1] = 1
+        # Accomodate matplotlib naming convention and allow
+        # names that end with _r to return reversed colormaps
+        if self.name.endswith("_r"):
+            self._direction = -1
+            self.name = self.name[:-2]
         self.cm = get_colormap(self.name)
 
     def __call__(self, x: FloatArrayLike) -> Sequence[RGBHexColor | None]:
+        if self._direction == -1:
+            x = 1.0 - np.asarray(x)
         return self.cm.continuous_palette(x)
 
 
@@ -596,10 +604,16 @@ class cmap_d_pal(_discrete_pal):
     name: str
 
     def __post_init__(self):
+        self._direction: Literal[1, -1] = 1
+        # Accomodate matplotlib naming convention and allow
+        # names that end with _r to return reversed colormaps
+        if self.name.endswith("_r"):
+            self._direction = -1
+            self.name = self.name[:-2]
         self.cm = get_colormap(self.name)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
-        return self.cm.discrete_palette(n)
+        return self.cm.discrete_palette(n)[:: self._direction]
 
 
 class desaturate_pal(gradient_n_pal):

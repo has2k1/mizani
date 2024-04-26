@@ -156,12 +156,20 @@ def test_cmap_pal():
     result = palette([0, 0.25, 0.5, 0.75, 1])
     assert_hex_colors(result)
 
+    palette_r = cmap_pal("viridis_r")
+    result_r = palette_r([0, 0.25, 0.5, 0.75, 1])
+    assert result == result_r[::-1]
+
 
 def test_cmap_d_pal():
     palette = cmap_d_pal("viridis")
     result = palette(6)
     assert all(s[0] == "#" and len(s) == 7 for s in result)
     assert len(result) == 6
+
+    palette_r = cmap_d_pal("viridis_r")
+    result_r = palette_r(6)
+    assert result == result_r[::-1]
 
     # From a row palette
     palette = cmap_d_pal("Accent")

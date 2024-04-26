@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.11.2
+-------
+(not-released-yet)
+
+Bug Fixes
+---------
+
+- Added the ability to create reversed colormap for
+  :class:`~mizani.palettes.cmap_pal` and
+  :class:`~mizani.palettes.cmap_d_pal` using the matplotlib convention
+  of `name_r`.
+
+
 v0.11.1
 -------
 *2024-03-27*

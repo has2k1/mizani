@@ -3,7 +3,7 @@ Changelog
 
 v0.11.2
 -------
-(not-released-yet)
+*2024-04-26*
 
 Bug Fixes
 ---------

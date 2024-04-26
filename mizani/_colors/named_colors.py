@@ -56,7 +56,7 @@ class _colormap_lookup(dict[str, ColorMap]):
         try:
             return self.d[name]
         except KeyError as err:
-            raise ValueError(f"Unknow colormap: {name}") from err
+            raise ValueError(f"Unknown colormap: {name}") from err
 
 
 NAMED_COLORS = _color_lookup(**SHORT, **CSS4, **XKCD, **CRAYON)

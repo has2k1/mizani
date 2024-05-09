@@ -273,7 +273,7 @@ def identity(*args):
     """
     Return whatever is passed in
     """
-    return args if len(args) > 1 else args[0]
+    return args[0] if len(args) == 1 else args
 
 
 def get_categories(x):

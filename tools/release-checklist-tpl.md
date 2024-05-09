@@ -74,11 +74,11 @@ Release: mizani-<VERSION>
   - [ ] Update [mizani-feedsock](https://github.com/conda-forge/mizani-feedstock)
 
     ```sh
-    cd ../mizani-feestock
+    cd ../mizani-feedstock
     git switch main
     git pull upstream main
     git switch -c v<VERSION>
-    nvim recipe/meta.yml
+    nvim recipe/meta.yaml
     git commit -am  "Version <VERSION>"
     git push -u origin v<VERSION>
     ```

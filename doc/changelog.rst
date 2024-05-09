@@ -5,8 +5,8 @@ v0.11.3
 -------
 *2024-05-09*
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.11074548.svg
-  :target: https://doi.org/10.5281/zenodo.11074548
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.11167016.svg
+  :target: https://doi.org/10.5281/zenodo.11167016
 
 Bug Fixes
 ---------

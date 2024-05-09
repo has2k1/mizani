@@ -1,6 +1,10 @@
 from datetime import datetime
 
-from mizani._core.date_utils import expand_datetime_limits, shift_limits_down
+from mizani._core.date_utils import (
+    ceil_month,
+    expand_datetime_limits,
+    shift_limits_down,
+)
 
 
 def test_shift_limits_down():
@@ -19,3 +23,11 @@ def test_expand_datetime_limits():
         datetime(2000, 1, 1, microsecond=1300),
     )
     assert expand_datetime_limits(limits, 200, "microsecond") == limits
+
+
+def test_ceil_month():
+    d = datetime(2020, 1, 11)
+    assert ceil_month(d) == datetime(2020, 2, 1)
+
+    d = datetime(2020, 1, 1)
+    assert ceil_month(d) == d

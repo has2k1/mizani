@@ -155,7 +155,7 @@ def num_to_datetime(
 WIDTHS: dict[DateFrequency, Sequence[int]] = {
     DF.YEARLY: (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000),
     DF.MONTHLY: (1, 2, 3, 4, 6),
-    DF.DAILY: (1, 2, 4, 7, 14, 21),
+    DF.DAILY: (1, 2, 4, 7, 14),
     DF.HOURLY: (1, 2, 3, 4, 6, 12),
     DF.MINUTELY: (1, 5, 10, 15, 30),
     DF.SECONDLY: (1, 5, 10, 15, 30),
@@ -383,7 +383,6 @@ def monthly_breaks(info: date_breaks_info) -> Sequence[datetime]:
         interval=info.width,
         dtstart=info.start,
         until=info.until,
-        bymonth=range(1, 13, info.width),
     )
     return list(r)
 
@@ -393,15 +392,18 @@ def daily_breaks(info: date_breaks_info) -> Sequence[datetime]:
     Calculate daily breaks
     """
     if info.width == 7:
+        interval = 1
         bymonthday = (1, 8, 15, 22)
     elif info.width == 14:
+        interval = 1
         bymonthday = (1, 15)
     else:
-        bymonthday = range(1, 31, info.width)
+        interval = info.width
+        bymonthday = None
 
     r = rrule(
         info.frequency,
-        interval=1,
+        interval=interval,
         dtstart=info.start,
         until=info.until,
         bymonthday=bymonthday,

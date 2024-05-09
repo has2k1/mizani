@@ -152,7 +152,7 @@ class Interval:
         return floor_year(self.start), ceil_year(self.end)
 
     def limits_month(self) -> TupleDatetime2:
-        return floor_month(self.start), ceil_month(self.end)
+        return round_month(self.start), round_month(self.end)
 
     def limits_week(self) -> TupleDatetime2:
         return floor_week(self.start), ceil_week(self.end)
@@ -243,6 +243,13 @@ def ceil_month(d: datetime) -> datetime:
         return d
 
     return _d_floor + ONE_MONTH
+
+
+def round_month(d: datetime) -> datetime:
+    """
+    Round date to the "nearest" start of the month
+    """
+    return floor_month(d) if d.day <= 15 else ceil_month(d)
 
 
 def floor_week(d: datetime) -> datetime:

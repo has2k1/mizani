@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.11.3
+-------
+*not-yet-released*
+
+Bug Fixes
+---------
+
+- Fixed bug when calculating monthly breaks where when the limits are narrow
+  and do not align with the start and end of the month, there were no
+  dates returned. (:issue:`42`)
+
+
 v0.11.2
 -------
 *2024-04-26*

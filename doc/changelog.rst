@@ -1,6 +1,21 @@
 Changelog
 =========
 
+v0.11.4
+-------
+*not-yet-released*
+
+Bug Fixes
+---------
+
+- Fixed :class:`~mizani.bounds.squish` and
+  :class:`~mizani.bounds.squish_infinite` so that they do not reuse
+  numpy arrays. The users object is not modified.
+
+  This also prevents exceptions where the numpy array backs a pandas
+  object and it is protected by copy-on-write.
+
+
 v0.11.3
 -------
 *2024-05-09*

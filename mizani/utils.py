@@ -19,7 +19,6 @@ if TYPE_CHECKING:
         DurationUnit,
         FloatArrayLike,
         FloatSeries,
-        NDArrayAny,
         NDArrayFloat,
         NullType,
         NumericUFunction,

@@ -441,8 +441,8 @@ class identity_trans(trans):
     """
 
     transform_is_linear = True
-    transform = staticmethod(identity)
-    inverse = staticmethod(identity)
+    transform = staticmethod(identity)  # type: ignore
+    inverse = staticmethod(identity)  # type: ignore
 
 
 class reverse_trans(trans):

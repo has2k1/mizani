@@ -75,6 +75,11 @@ if typing.TYPE_CHECKING:
     # Type variable
     TFloatLike = TypeVar("TFloatLike", bound=NDArrayFloat | float)
     TFloatArrayLike = TypeVar("TFloatArrayLike", bound=FloatArrayLike)
+    TFloatVector = TypeVar("TFloatVector", bound=NDArrayFloat | FloatSeries)
+    TConstrained = TypeVar(
+        "TConstrained", int, float, bool, str, complex, datetime, timedelta
+    )
+
     NumericUFunction: TypeAlias = Callable[[TFloatLike], TFloatLike]
 
     # Nulls for different types
@@ -177,6 +182,25 @@ if typing.TYPE_CHECKING:
     MinorBreaksFunction: TypeAlias = Callable[
         [FloatArrayLike, Optional[TupleFloat2], Optional[int]], NDArrayFloat
     ]
+
+    # Rescale functions
+    # This Protocol does not apply to rescale_mid
+    class PRescale(Protocol):
+        def __call__(
+            self,
+            x: FloatArrayLike,
+            to: TupleFloat2 = (0, 1),
+            _from: TupleFloat2 | None = None,
+        ) -> NDArrayFloat: ...
+
+    # Censor functions
+    class PCensor(Protocol):
+        def __call__(
+            self,
+            x: NDArrayFloat,
+            range: TupleFloat2 = (0, 1),
+            only_finite: bool = True,
+        ) -> NDArrayFloat: ...
 
     # Any type that has comparison operators can be used to define
     # the domain of a transformation. And implicitly the type of the

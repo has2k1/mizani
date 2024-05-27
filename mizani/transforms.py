@@ -60,7 +60,6 @@ if typing.TYPE_CHECKING:
         FormatFunction,
         InverseFunction,
         MinorBreaksFunction,
-        NDArrayAny,
         NDArrayDatetime,
         NDArrayFloat,
         NDArrayTimedelta,
@@ -69,6 +68,7 @@ if typing.TYPE_CHECKING:
         TransformFunction,
         TupleFloat2,
     )
+
 
 __all__ = [
     "asn_trans",
@@ -187,7 +187,7 @@ class trans(ABC):
         """
         ...
 
-    def breaks(self, limits: tuple[Any, Any]) -> NDArrayAny:
+    def breaks(self, limits: DomainType) -> NDArrayFloat:
         """
         Calculate breaks in data space and return them
         in transformed space.
@@ -898,14 +898,17 @@ class symlog_trans(trans):
         return np.sign(x) * (np.exp(np.abs(x)) - 1)  # type: ignore
 
 
-def gettrans(t: str | Callable[[], Type[trans]] | Type[trans] | trans):
+def gettrans(
+    t: str | Callable[[], Type[trans]] | Type[trans] | trans | None = None,
+):
     """
     Return a trans object
 
     Parameters
     ----------
     t : str | callable | type | trans
-        name of transformation function
+        Name of transformation function. If None, returns an
+        identity transform.
 
     Returns
     -------
@@ -913,6 +916,9 @@ def gettrans(t: str | Callable[[], Type[trans]] | Type[trans] | trans):
     """
     obj = t
     # Make sure trans object is instantiated
+    if t is None:
+        return identity_trans()
+
     if isinstance(obj, str):
         name = "{}_trans".format(obj)
         obj = globals()[name]()

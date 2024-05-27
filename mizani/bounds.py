@@ -25,20 +25,19 @@ import datetime
 import sys
 import typing
 from copy import copy
-from typing import overload
 
 import numpy as np
 import pandas as pd
 
-from .utils import get_null_value, is_vector
+from .utils import get_null_value
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Optional, Sequence
+    from typing import Any, Optional
 
     from mizani.typing import (
         FloatArrayLike,
-        FloatSeries,
         NDArrayFloat,
+        TFloatVector,
         TupleFloat2,
         TupleFloat4,
     )
@@ -128,6 +127,19 @@ def rescale_mid(
     >>> rescale_mid([1, 2, 3], mid=1)
     array([0.5 , 0.75, 1.  ])
     >>> rescale_mid([1, 2, 3], mid=2)
+    array([0. , 0.5, 1. ])
+
+    `rescale_mid` does have the same signature as `rescale` and
+    `rescale_max`. In cases where we need a compatible function with
+    the same signature, we use a closure around the extra `mid` argument.
+
+    >>> def rescale_mid_compat(mid):
+    ...     def _rescale(x, to=(0, 1), _from=None):
+    ...         return rescale_mid(x, to, _from, mid=mid)
+    ...     return _rescale
+
+    >>> rescale_mid2 = rescale_mid_compat(mid=2)
+    >>> rescale_mid2([1, 2, 3])
     array([0. , 0.5, 1. ])
     """
     __from: NDArrayFloat = np.array(
@@ -280,25 +292,11 @@ def squish(
     return _x
 
 
-@overload
 def censor(
-    x: NDArrayFloat | Sequence[float],
+    x: TFloatVector,
     range: TupleFloat2 = (0, 1),
     only_finite: bool = True,
-) -> NDArrayFloat: ...
-
-
-@overload
-def censor(
-    x: FloatSeries, range: TupleFloat2 = (0, 1), only_finite: bool = True
-) -> FloatSeries: ...
-
-
-def censor(
-    x: NDArrayFloat | Sequence[float] | FloatSeries,
-    range: TupleFloat2 = (0, 1),
-    only_finite: bool = True,
-) -> NDArrayFloat | FloatSeries:
+) -> TFloatVector:
     """
     Convert any values outside of range to a **NULL** type object.
 
@@ -340,11 +338,9 @@ def censor(
     - :class:`datetime.timedelta` : :py:`np.timedelta64(NaT)`
 
     """
+    res = copy(x)
     if not len(x):
-        return np.array([])
-
-    if not is_vector(x):
-        x = np.asarray(x)
+        return res
 
     null = get_null_value(x)
 
@@ -360,10 +356,9 @@ def censor(
     with np.errstate(invalid="ignore"):
         outside = (x < range[0]) | (x > range[1])
     bool_idx = finite & outside
-    res = copy(x)
     if bool_idx.any():
-        if res.dtype.kind == "i":
-            res = np.asarray(res, dtype=float)
+        if res.dtype == int:
+            res = res.astype(float)
         res[bool_idx] = null
     return res
 

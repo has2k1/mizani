@@ -36,7 +36,7 @@ from .bounds import rescale
 from .utils import identity
 
 if TYPE_CHECKING:
-    from typing import Any, Literal, Optional, Sequence
+    from typing import Any, Literal, Optional, Sequence, TypeVar
 
     from mizani.typing import (
         Callable,
@@ -48,6 +48,8 @@ if TYPE_CHECKING:
         TupleFloat2,
         TupleFloat3,
     )
+
+    T = TypeVar("T")
 
 
 __all__ = [
@@ -67,6 +69,8 @@ __all__ = [
     "xkcd_palette",
     "crayon_palette",
     "cubehelix_pal",
+    "identity_pal",
+    "none_pal",
 ]
 
 
@@ -831,7 +835,7 @@ class cubehelix_pal(_discrete_pal):
         return self._chmap.discrete_palette(n)
 
 
-def identity_pal() -> Callable[[], Any]:
+def identity_pal() -> Callable[[T], T]:
     """
     Create palette that maps values onto themselves
 
@@ -850,3 +854,19 @@ def identity_pal() -> Callable[[], Any]:
     [2, 4, 6]
     """
     return identity
+
+
+@dataclass
+class none_pal(_discrete_pal):
+    """
+    Discrete palette that returns only None values
+
+    Example
+    -------
+    >>> palette = none_pal()
+    >>> palette(5)
+    [None, None, None, None, None]
+    """
+
+    def __call__(self, n: int) -> Sequence[None]:
+        return [None] * n

@@ -291,7 +291,11 @@ def floor_day(d: datetime) -> datetime:
     """
     Round down to the start of the day
     """
-    return d.min.replace(d.year, d.month, d.day) if has_time(d) else d
+    return (
+        d.min.replace(d.year, d.month, d.day, tzinfo=d.tzinfo)
+        if has_time(d)
+        else d
+    )
 
 
 def ceil_day(d: datetime) -> datetime:

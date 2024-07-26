@@ -5,8 +5,15 @@ v0.12.0
 -------
 
 API Changes
------------
+***********
+
 - mizani now requires python 3.9 and above.
+
+Bug Fixes
+*********
+
+- Fixed bug where a date with a timezone could lose the timezone. :issue:`45`.
+
 
 v0.11.4
 -------

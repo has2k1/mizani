@@ -609,7 +609,7 @@ def modulus_trans(p, offset=1, **kwargs):
 
         def transform(x: FloatArrayLike) -> NDArrayFloat:
             x = np.asarray(x)
-            return np.sign(x) * np.log(np.abs(x) + offset)  # type: ignore
+            return np.sign(x) * np.log(np.abs(x) + offset)
 
         def inverse(x: FloatArrayLike) -> NDArrayFloat:
             x = np.asarray(x)
@@ -891,7 +891,7 @@ class symlog_trans(trans):
 
     @staticmethod
     def transform(x: FloatArrayLike) -> NDArrayFloat:
-        return np.sign(x) * np.log1p(np.abs(x))  # type: ignore
+        return np.sign(x) * np.log1p(np.abs(x))
 
     @staticmethod
     def inverse(x: FloatArrayLike) -> NDArrayFloat:

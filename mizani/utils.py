@@ -370,7 +370,14 @@ def get_null_value(x: Any) -> NullType:
     import pandas as pd
 
     x0 = next(iter(x))
-    numeric_types: Sequence[type] = (np.int32, np.int64, np.float64, int, float, bool)
+    numeric_types: Sequence[type] = (
+        np.int32,
+        np.int64,
+        np.float64,
+        int,
+        float,
+        bool,
+    )
 
     if pdtypes.is_object_dtype(x):
         return None

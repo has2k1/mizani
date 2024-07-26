@@ -12,19 +12,18 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Visualization"
 ]
 dependencies = [
-    "numpy>=1.23.0",
+    "numpy>=1.23.5",
     "scipy>=1.7.0",
-    "pandas>=2.1.0",
+    "pandas>=2.2.0",
     "tzdata;platform_system=='Windows' or platform_system=='Emscripten'"
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.optional-dependencies]
 all = [

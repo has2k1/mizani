@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.12.0
+-------
+
+API Changes
+-----------
+- mizani now requires python 3.9 and above.
+
 v0.11.4
 -------
 *2024-05-24*

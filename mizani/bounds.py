@@ -246,10 +246,10 @@ def squish_infinite(
     --------
     >>> arr1 = np.array([0, .5, .25, np.inf, .44])
     >>> arr2 = np.array([0, -np.inf, .5, .25, np.inf])
-    >>> list(squish_infinite(arr1))
-    [0.0, 0.5, 0.25, 1.0, 0.44]
-    >>> list(squish_infinite(arr2, (-10, 9)))
-    [0.0, -10.0, 0.5, 0.25, 9.0]
+    >>> squish_infinite(arr1)
+    array([0.  , 0.5 , 0.25, 1.  , 0.44])
+    >>> squish_infinite(arr2, (-10, 9))
+    array([  0.  , -10.  ,   0.5 ,   0.25,   9.  ])
     """
     _x = np.array(x, copy=True)
     _x[np.isneginf(_x)] = range[0]
@@ -279,11 +279,11 @@ def squish(
 
     Examples
     --------
-    >>> list(squish([-1.5, 0.2, 0.8, 1.0, 1.2]))
-    [0.0, 0.2, 0.8, 1.0, 1.0]
+    >>> squish([-1.5, 0.2, 0.8, 1.0, 1.2])
+    array([0. , 0.2, 0.8, 1. , 1. ])
 
-    >>> list(squish([-np.inf, -1.5, 0.2, 0.8, 1.0, np.inf], only_finite=False))
-    [0.0, 0.0, 0.2, 0.8, 1.0, 1.0]
+    >>> squish([-np.inf, -1.5, 0.2, 0.8, 1.0, np.inf], only_finite=False)
+    array([0. , 0. , 0.2, 0.8, 1. , 1. ])
     """
     _x = np.array(x, copy=True)
     finite = np.isfinite(_x) if only_finite else True
@@ -318,12 +318,12 @@ def censor(
     Examples
     --------
     >>> a = np.array([1, 2, np.inf, 3, 4, -np.inf, 5])
-    >>> list(censor(a, (0, 10)))
-    [1.0, 2.0, inf, 3.0, 4.0, -inf, 5.0]
-    >>> list(censor(a, (0, 10), False))
-    [1.0, 2.0, nan, 3.0, 4.0, nan, 5.0]
-    >>> list(censor(a, (2, 4)))
-    [nan, 2.0, inf, 3.0, 4.0, -inf, nan]
+    >>> censor(a, (0, 10))
+    array([  1.,   2.,  inf,   3.,   4., -inf,   5.])
+    >>> censor(a, (0, 10), False)
+    array([ 1.,  2., nan,  3.,  4., nan,  5.])
+    >>> censor(a, (2, 4))
+    array([ nan,   2.,  inf,   3.,   4., -inf,  nan])
 
     Notes
     -----
@@ -431,7 +431,7 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
     if low_abs == 0:
         return False
 
-    return ((high - low) / low_abs) < tol
+    return bool(((high - low) / low_abs) < tol)
 
 
 def expand_range(

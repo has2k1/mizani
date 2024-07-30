@@ -11,11 +11,11 @@ yourself, clone https://github.com/hsluv/hsluv and run:
 from __future__ import annotations
 
 import math as _math  # unexport, see #17
-import typing
 from functools import partial as _partial
 from functools import wraps as _wraps  # unexport, see #17
+from typing import TYPE_CHECKING
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Literal, TypeAlias
 
     from mizani.typing import RGBHexColor

@@ -13,9 +13,9 @@ representation of a value helps improve readability of the guide.
 from __future__ import annotations
 
 import re
-import typing
 from bisect import bisect_right
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -28,7 +28,7 @@ from .utils import (
     same_log10_order_of_magnitude,
 )
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from datetime import datetime, tzinfo
     from typing import Literal, Optional, Sequence
 

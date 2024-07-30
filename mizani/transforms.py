@@ -22,10 +22,10 @@ plot. The :class:`trans` is aimed at being useful for *scale* and
 from __future__ import annotations
 
 import sys
-import typing
 from abc import ABC, abstractmethod
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
 from types import MethodType
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -49,7 +49,7 @@ from .labels import (
 )
 from .utils import identity
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Any, Callable, Optional, Sequence, Type
 
     from mizani.typing import (

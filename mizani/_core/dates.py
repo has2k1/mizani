@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import math
-import typing
 from datetime import datetime, timedelta, tzinfo
-from typing import overload
+from typing import TYPE_CHECKING, overload
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -13,7 +12,7 @@ from ..utils import get_timezone, isclose_abs
 from .date_utils import Interval, align_limits, expand_datetime_limits
 from .types import DateFrequency, date_breaks_info
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Generator, Optional, Sequence
 
     from mizani.typing import (

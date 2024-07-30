@@ -23,15 +23,15 @@ from __future__ import annotations
 
 import datetime
 import sys
-import typing
 from copy import copy
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
 from .utils import get_null_value
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Any, Optional
 
     from mizani.typing import (

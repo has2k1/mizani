@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import typing
 from dataclasses import dataclass
 from datetime import datetime
 from enum import IntEnum
+from typing import TYPE_CHECKING
 
 import dateutil.rrule as rr
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mizani.typing import (
         TzInfo,
     )

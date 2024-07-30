@@ -14,9 +14,9 @@ provide ways to calculate good(hopefully) breaks.
 from __future__ import annotations
 
 import sys
-import typing
 from datetime import datetime, timedelta
 from itertools import product
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -28,7 +28,7 @@ from mizani._core.dates import (
 
 from .utils import NANOSECONDS, SECONDS, log, min_max
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Callable, Literal, Optional, Sequence
 
     from mizani.typing import (

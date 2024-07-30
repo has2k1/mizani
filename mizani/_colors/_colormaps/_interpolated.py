@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import typing
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ..hsluv import hex_to_rgb, rgb_to_hex
 from ._colormap import ColorMap, ColorMapKind
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Optional, Sequence
 
     from mizani.typing import (

@@ -95,6 +95,8 @@ fallback_version = "999"
 version_scheme = 'post-release'
 
 ########## Tool - pytest ##########
+# https://docs.pytest.org/en/stable/reference/customize.html
+# https://docs.pytest.org/en/stable/reference/reference.html#ini-options-ref
 [tool.pytest.ini_options]
 testpaths = [
     "mizani",

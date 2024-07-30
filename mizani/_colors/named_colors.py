@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 from ._colormaps import ColorMap
 from ._named_color_values import CRAYON, CSS4, SHORT, XKCD
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from types import ModuleType
 
     from mizani.typing import RGBHexColor

@@ -12,14 +12,14 @@ longest and each swatch is longer than the previous by one color.
 
 from __future__ import annotations
 
-import typing
 from dataclasses import dataclass
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from .._colormaps import PaletteInterpolatedMap
 from .._colormaps._colormap import ColorMapKind
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mizani.typing import (
         RGB256Color,
         RGB256Swatch,

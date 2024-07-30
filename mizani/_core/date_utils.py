@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import math
-import typing
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
+from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 
 from ..utils import isclose_abs
 from .types import DateFrequency
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from mizani.typing import (
         DatetimeBreaksUnits,
         TupleDatetime2,

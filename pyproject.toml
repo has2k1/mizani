@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.23.5",
-    "scipy>=1.7.0",
+    "scipy>=1.8.0",
     "pandas>=2.2.0",
     "tzdata;platform_system=='Windows' or platform_system=='Emscripten'"
 ]
@@ -36,7 +36,7 @@ all = [
 
 doc = [
     "sphinx>=7.2.0",
-    "numpydoc>=1.6.0",
+    "numpydoc>=1.7.0",
 ]
 
 rtd = [

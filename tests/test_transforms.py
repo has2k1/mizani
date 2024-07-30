@@ -73,7 +73,8 @@ def test_gettrans():
     t1 = gettrans(t0)
     t2 = gettrans(identity_trans)
     t3 = gettrans("identity")
-    assert all(isinstance(x, identity_trans) for x in (t0, t1, t2, t3))
+    t4 = gettrans()
+    assert all(isinstance(x, identity_trans) for x in (t0, t1, t2, t3, t4))
 
     t = gettrans(exp_trans)
     assert t.__class__.__name__ == "power_e_trans"

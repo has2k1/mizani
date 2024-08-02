@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.12.1
+-------
+
+Enhancements
+************
+- Renamed "husl" color palette type to "hsluv". "husl" is the old name but
+  we still work although not part of the API.
+
 v0.12.0
 -------
 *2024-07-30*

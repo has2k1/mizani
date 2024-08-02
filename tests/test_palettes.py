@@ -14,8 +14,8 @@ from mizani.palettes import (
     gradient_n_pal,
     grey_pal,
     hls_palette,
+    hsluv_palette,
     hue_pal,
-    husl_palette,
     identity_pal,
     manual_pal,
     rescale_pal,
@@ -29,8 +29,8 @@ def test_hls_palette():
     assert all(len(c) == 3 for c in colors)
 
 
-def test_husl_palette():
-    colors = husl_palette(5)
+def test_hsluv_palette():
+    colors = hsluv_palette(5)
     assert len(colors) == 5
     assert all(len(c) == 3 for c in colors)
 
@@ -81,7 +81,12 @@ def test_hue_pal():
         hue_pal(0.1, 2.3, 3)
 
     with pytest.raises(ValueError):
-        hue_pal(color_space="slh")
+        hue_pal(color_space="slh")  # pyright: ignore
+
+    # Backword compatibility check
+    palette = hue_pal(color_space="husl")  # pyright: ignore
+    result = palette(5)
+    assert all(s[0] == "#" and len(s) == 7 for s in result)
 
 
 def test_brewer_pal():

@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "hls_palette",
-    "husl_palette",
+    "hsluv_palette",
     "rescale_pal",
     "area_pal",
     "abs_area",
@@ -137,8 +137,8 @@ def hls_palette(
 
     See Also
     --------
-    husl_palette : Make a palette using evenly spaced circular
-        hues in the HUSL system.
+    hsluv_palette : Make a palette using evenly spaced circular
+        hues in the HSLuv system.
 
     Examples
     --------
@@ -155,11 +155,11 @@ def hls_palette(
     return palette
 
 
-def husl_palette(
+def hsluv_palette(
     n_colors: int = 6, h: float = 0.01, s: float = 0.9, l: float = 0.65
 ) -> Sequence[TupleFloat3]:
     """
-    Get a set of evenly spaced colors in HUSL hue space.
+    Get a set of evenly spaced colors in HSLuv hue space.
 
     h, s, and l should be between 0 and 1
 
@@ -187,9 +187,9 @@ def husl_palette(
 
     Examples
     --------
-    >>> len(husl_palette(3))
+    >>> len(hsluv_palette(3))
     3
-    >>> len(husl_palette(11))
+    >>> len(hsluv_palette(11))
     11
     """
     hues = np.linspace(0, 1, n_colors + 1)[:-1]
@@ -369,8 +369,10 @@ class hue_pal(_discrete_pal):
         lightness. In the [0, 1] range
     s : float
         saturation. In the [0, 1] range
-    color_space : 'hls' | 'husl'
-        Color space to use for the palette
+    color_space : 'hls' | 'hsluv'
+        Color space to use for the palette.
+        `hls` for https://en.wikipedia.org/wiki/HSL_and_HSV
+        or `hsluv` for https://www.hsluv.org/.
 
     Returns
     -------
@@ -386,14 +388,14 @@ class hue_pal(_discrete_pal):
     --------
     >>> hue_pal()(5)
     ['#db5f57', '#b9db57', '#57db94', '#5784db', '#c957db']
-    >>> hue_pal(color_space='husl')(5)
+    >>> hue_pal(color_space='hsluv')(5)
     ['#e0697e', '#9b9054', '#569d79', '#5b98ab', '#b675d7']
     """
 
     h: float = 0.01
     l: float = 0.6
     s: float = 0.65
-    color_space: Literal["hls", "husl"] = "hls"
+    color_space: Literal["hls", "hsluv"] = "hls"
 
     def __post_init__(self):
         h, l, s = self.h, self.l, self.s
@@ -404,12 +406,16 @@ class hue_pal(_discrete_pal):
             )
             raise ValueError(msg)
 
-        if self.color_space not in ("hls", "husl"):
-            msg = "color_space should be one of ['hls', 'husl']"
+        # For backward compatibility
+        if self.color_space == "husl":
+            self.color_space = "hsluv"
+
+        if self.color_space not in ("hls", "hsluv"):
+            msg = "color_space should be one of ['hls', 'hsluv']"
             raise ValueError(msg)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
-        lookup = {"husl": husl_palette, "hls": hls_palette}
+        lookup = {"hls": hls_palette, "hsluv": hsluv_palette}
         palette = lookup[self.color_space]
         colors = palette(n, h=self.h, l=self.l, s=self.s)
         return [hsluv.rgb_to_hex(c) for c in colors]

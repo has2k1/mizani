@@ -3,6 +3,7 @@ Changelog
 
 v0.12.1
 -------
+*2024-08-19*
 
 Enhancements
 ************

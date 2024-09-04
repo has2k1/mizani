@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.12.2
+-------
+
+Bug Fixes
+*********
+
+- Fixed :class:`~mizani.bounds.squish` and
+  :class:`~mizani.bounds.squish_infinite` to work for non writeable pandas
+  series. This is broken for numpy 2.1.0.
+
+
 v0.12.1
 -------
 *2024-08-19*

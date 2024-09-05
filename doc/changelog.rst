@@ -5,6 +5,9 @@ v0.12.2
 -------
 *2024-09-04*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.13688455.svg
+  :target: https://doi.org/10.5281/zenodo.13688455
+
 Bug Fixes
 *********
 
@@ -16,6 +19,9 @@ Bug Fixes
 v0.12.1
 -------
 *2024-08-19*
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.13346177.svg
+  :target: https://doi.org/10.5281/zenodo.13346177
 
 Enhancements
 ************

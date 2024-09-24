@@ -80,8 +80,8 @@ dist: build
 	ls -l dist
 
 develop: clean-pyc
-	pip install -e ".[all]"
+	uv pip install -e ".[all]"
 
 install: clean
 	ls -l dist
-	pip install .
+	uv pip install .

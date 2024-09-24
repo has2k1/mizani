@@ -19,7 +19,11 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.10", "3.12"]
+        include:
+          - python-version: "3.10"
+            resolution: "lowest-direct"
+          - python-version: 3.12
+            resolution: "highest"
 
     steps:
       - name: Checkout Code
@@ -30,18 +34,22 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Make uv use system python
+        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
+
       - name: Install Packages
-        shell: bash
-        run: |
-          pip install -e ".[test]"
+        # Install as an editable so that the coverage path is predicable
+        run: uv pip install --resolution=${{ matrix.resolution }} -e ".[test]"
 
       - name: Environment Information
-        shell: bash
-        run: |
-          pip list
+        run: uv pip list
 
       - name: Run Tests
-        shell: bash
         run: |
           coverage erase
           make test
@@ -61,7 +69,8 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: [3.12]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -71,22 +80,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Make uv use system python
+        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
+
       - name: Install Linting & Formatting Packages
-        shell: bash
-        run: |
-          pip install ruff
-          pip install black
+        run: uv pip install ruff
 
       - name: Environment Information
-        shell: bash
-        run: pip list
+        run: uv pip list
 
-      - name: Check lint with Ruff
-        shell: bash
+      - name: Check lint with ruff
         run: make lint
 
-      - name: Check format with Black
-        shell: bash
+      - name: Check format with ruff format
         run: make format
 
   typecheck:
@@ -98,7 +109,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: [3.12]
 
     steps:
       - name: Checkout Code
@@ -109,17 +120,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Make uv use system python
+        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
+
       - name: Install Packages
-        shell: bash
-        run: |
-          pip install ".[extra, typing]"
+        run: uv pip install ".[extra, typing]"
 
       - name: Environment Information
-        shell: bash
-        run: pip list
+        run: uv pip list
 
       - name: Run Tests
-        shell: bash
         run: make typecheck
 
   documentation:
@@ -131,7 +146,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.12"]
+        python-version: [3.12]
 
     steps:
       - name: Checkout Code
@@ -142,17 +157,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Make uv use system python
+        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
+
       - name: Install Packages
-        shell: bash
-        run: |
-          pip install -e ".[doc]"
+        run: uv pip install -e ".[doc]"
 
       - name: Environment Information
-        shell: bash
-        run: pip list
+        run: uv pip list
 
       - name: Build Documentation
-        shell: bash
         run: |
           pushd doc
           SPHINXOPTS=-W

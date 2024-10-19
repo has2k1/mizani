@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from types import FunctionType, MethodType
+from types import FunctionType
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -41,29 +41,26 @@ def test_trans():
     with pytest.raises(TypeError):
         trans()  # type: ignore
 
-    with pytest.raises(AttributeError):
-        identity_trans(universe=True)
-
 
 def test_trans_new():
     t = trans_new(
         "bounded_identity",
-        staticmethod(lambda x: x),
-        classmethod(lambda x: x),
-        _format=lambda x: str(x),
-        domain=(-999, 999),
+        transform=staticmethod(lambda x: x),
+        inverse=staticmethod(lambda x: x),
         doc="Bounded Identity transform",
     )
 
     assert t.__name__ == "bounded_identity_trans"
     assert isinstance(t.transform, FunctionType)
-    assert isinstance(t.inverse, MethodType)
-    assert isinstance(t.format, FunctionType)
-    assert t.domain == (-999, 999)
+    assert isinstance(t.inverse, FunctionType)
     assert t.__doc__ == "Bounded Identity transform"
 
-    # ticks do not go beyond the bounds
-    major = t().breaks((-1999, 1999))
+    # ticks do not go beyond the domain bounds
+    # major = t().breaks((-1999, 1999))
+    #
+    major = t(format_func=lambda x: str(x), domain=(-999, 999)).breaks(
+        (-1999, 1999)
+    )
     assert min(major) >= -999
     assert max(major) <= 999
 
@@ -75,9 +72,6 @@ def test_gettrans():
     t3 = gettrans("identity")
     t4 = gettrans()
     assert all(isinstance(x, identity_trans) for x in (t0, t1, t2, t3, t4))
-
-    t = gettrans(exp_trans)
-    assert t.__class__.__name__ == "power_e_trans"
 
     with pytest.raises(ValueError):
         gettrans(object)
@@ -188,8 +182,8 @@ def test_logn_trans():
     log4_trans = log_trans(
         4,
         domain=(0.1, 100),
-        breaks=breaks_extended(),
-        minor_breaks=minor_breaks(),
+        breaks_func=breaks_extended(),
+        minor_breaks_func=minor_breaks(),
     )
     _test_trans(log4_trans, arr)
 

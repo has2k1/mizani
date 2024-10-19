@@ -190,6 +190,8 @@ if TYPE_CHECKING:
 
     DomainType: TypeAlias = tuple[PComparison, PComparison]
 
+    TFloatTimedelta = TypeVar("TFloatTimedelta", float, timedelta)
+
     # This does not work probably due to a bug in the typechecker
     # FormatFunction: TypeAlias = Callable[[AnyArrayLike], Sequence[str]]
     FormatFunction: TypeAlias = (

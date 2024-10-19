@@ -109,11 +109,11 @@ def _test_trans(trans, x, *args, **kwargs):
 
 
 def test_asn_trans():
-    (_test_trans(asn_trans, arr * 0.01),)
+    _test_trans(asn_trans, arr * 0.01)
 
 
 def test_atanh_trans():
-    (_test_trans(atanh_trans, arr * 0.001),)
+    _test_trans(atanh_trans, arr * 0.001)
 
 
 def test_boxcox_trans():

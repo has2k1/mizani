@@ -36,7 +36,7 @@ from .bounds import rescale
 from .utils import identity
 
 if TYPE_CHECKING:
-    from typing import Any, Literal, Optional, Sequence, TypeVar
+    from typing import Any, Literal, Sequence, TypeVar
 
     from mizani.typing import (
         Callable,
@@ -45,8 +45,6 @@ if TYPE_CHECKING:
         FloatArrayLike,
         NDArrayFloat,
         RGBHexColor,
-        TupleFloat2,
-        TupleFloat3,
     )
 
     T = TypeVar("T")
@@ -112,7 +110,7 @@ class _continuous_color_pal(Protocol):
 
 def hls_palette(
     n_colors: int = 6, h: float = 0.01, l: float = 0.6, s: float = 0.65
-) -> Sequence[TupleFloat3]:
+) -> Sequence[tuple[float, float, float]]:
     """
     Get a set of evenly spaced colors in HLS hue space.
 
@@ -157,7 +155,7 @@ def hls_palette(
 
 def hsluv_palette(
     n_colors: int = 6, h: float = 0.01, s: float = 0.9, l: float = 0.65
-) -> Sequence[TupleFloat3]:
+) -> Sequence[tuple[float, float, float]]:
     """
     Get a set of evenly spaced colors in HSLuv hue space.
 
@@ -235,7 +233,7 @@ class rescale_pal(_continuous_pal):
     array([0.1 , 0.1 , 0.28, 0.46, 0.82, 1.  , 1.  ])
     """
 
-    range: TupleFloat2 = (0.1, 1)
+    range: tuple[float, float] = (0.1, 1)
 
     def __call__(self, x: FloatArrayLike) -> NDArrayFloat:
         return rescale(x, self.range, _from=(0, 1))
@@ -270,7 +268,7 @@ class area_pal(_continuous_pal):
     area space, i.e it is squared.
     """
 
-    range: TupleFloat2 = (1, 6)
+    range: tuple[float, float] = (1, 6)
 
     def __call__(self, x: FloatArrayLike) -> NDArrayFloat:
         return rescale(np.sqrt(x), to=self.range, _from=(0, 1))
@@ -534,7 +532,7 @@ class gradient_n_pal(_continuous_color_pal):
     """
 
     colors: Sequence[str]
-    values: Optional[Sequence[float]] = None
+    values: Sequence[float] | None = None
 
     def __post_init__(self):
         self._cmap = InterpolatedMap(self.colors, self.values)

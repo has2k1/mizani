@@ -15,7 +15,7 @@ from .date_utils import Interval, align_limits, expand_datetime_limits
 from .types import DateFrequency, date_breaks_info
 
 if TYPE_CHECKING:
-    from typing import Generator, Optional, Sequence
+    from typing import Generator, Sequence
 
     from mizani.typing import (
         Datetime,
@@ -26,7 +26,6 @@ if TYPE_CHECKING:
         SeqDatetime,
         Timedelta,
         TimedeltaArrayLike,
-        TzInfo,
     )
 
 
@@ -81,7 +80,7 @@ def _from_ordinalf(x: float, tz: tzinfo | None) -> datetime:
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf, otypes="O")
 
 
-def get_tzinfo(tz: Optional[str | TzInfo] = None) -> TzInfo | None:
+def get_tzinfo(tz: str | tzinfo | None = None) -> tzinfo | None:
     """
     Generate `~datetime.tzinfo` from a string or return `~datetime.tzinfo`.
 
@@ -146,7 +145,7 @@ def datetime64_to_num(x: NDArrayDatetime) -> NDArrayFloat:
 
 
 def num_to_datetime(
-    x: FloatArrayLike, tz: Optional[str | TzInfo] = None
+    x: FloatArrayLike, tz: str | tzinfo | None = None
 ) -> NDArrayDatetime:
     """
     Convert any float array to numpy datetime64 array
@@ -338,8 +337,8 @@ def calculate_date_breaks_byunits(
     limits,
     units: DatetimeBreaksUnits,
     width: int,
-    max_breaks: Optional[int] = None,
-    tz: Optional[TzInfo] = None,
+    max_breaks: int | None = None,
+    tz: tzinfo | None = None,
 ) -> Sequence[datetime]:
     """
     Calcuate date breaks using appropriate units

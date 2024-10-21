@@ -30,14 +30,13 @@ from .utils import (
 
 if TYPE_CHECKING:
     from datetime import datetime, tzinfo
-    from typing import Literal, Optional, Sequence
+    from typing import Literal, Sequence
 
     from mizani.typing import (
         BytesSymbol,
         DurationUnit,
         FloatArrayLike,
         TimedeltaArrayLike,
-        TupleInt2,
     )
 
 __all__ = [
@@ -102,8 +101,8 @@ class label_number:
     ['$5', '$24', '($42)']
     """
 
-    accuracy: Optional[float] = None
-    precision: Optional[int] = None
+    accuracy: float | None = None
+    precision: int | None = None
     scale: float = 1
     prefix: str = ""
     suffix: str = ""
@@ -113,7 +112,7 @@ class label_number:
     style_negative: Literal["-", "hyphen", "parens"] = "-"
     style_positive: Literal["", "+", " "] = ""
     align: Literal["<", ">", "=", "^"] = ">"
-    width: Optional[int] = None
+    width: int | None = None
 
     def __post_init__(self):
         if self.precision is not None:
@@ -381,7 +380,7 @@ class label_log:
     """
 
     base: float = 10
-    exponent_limits: TupleInt2 = (-4, 4)
+    exponent_limits: tuple[int, int] = (-4, 4)
     mathtex: bool = False
 
     def _tidyup_labels(self, labels: Sequence[str]) -> Sequence[str]:
@@ -547,7 +546,7 @@ class label_date:
     """
 
     fmt: str = "%Y-%m-%d"
-    tz: Optional[tzinfo] = None
+    tz: tzinfo | None = None
 
     def __post_init__(self):
         if isinstance(self.tz, str):
@@ -625,7 +624,7 @@ class label_timedelta:
     ['0', '31', '62', '93', '124']
     """
 
-    units: Optional[DurationUnit] = None
+    units: DurationUnit | None = None
     show_units: bool = True
     zero_has_units: bool = True
     usetex: bool = False

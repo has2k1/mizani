@@ -9,7 +9,7 @@ from ..hsluv import hex_to_rgb, rgb_to_hex
 from ._colormap import ColorMap, ColorMapKind
 
 if TYPE_CHECKING:
-    from typing import Optional, Sequence
+    from typing import Sequence
 
     from mizani.typing import (
         FloatArrayLike,
@@ -51,7 +51,7 @@ class _InterpolatedGen(ColorMap):
 @dataclass
 class InterpolatedMap(_InterpolatedGen):
     colors: Sequence[RGBHexColor] | Sequence[RGBColor] | RGBColorArray
-    values: Optional[Sequence[float]] = None
+    values: Sequence[float] | None = None
     kind: ColorMapKind = ColorMapKind.miscellaneous
 
     def __post_init__(self):
@@ -93,7 +93,7 @@ class InterpolatedMap(_InterpolatedGen):
 def interp_lookup(
     x: NDArrayFloat,
     values: NDArrayFloat,
-    values_alt: Optional[NDArrayFloat] = None,
+    values_alt: NDArrayFloat | None = None,
 ) -> NDArrayFloat:
     """
     Create an interpolation lookup array

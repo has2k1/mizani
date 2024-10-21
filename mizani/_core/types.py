@@ -8,9 +8,7 @@ from typing import TYPE_CHECKING
 import dateutil.rrule as rr
 
 if TYPE_CHECKING:
-    from mizani.typing import (
-        TzInfo,
-    )
+    from datetime import tzinfo
 
 
 class DateFrequency(IntEnum):
@@ -44,4 +42,4 @@ class date_breaks_info:
     width: int
     start: datetime
     until: datetime
-    tz: TzInfo | None
+    tz: tzinfo | None

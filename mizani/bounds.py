@@ -32,14 +32,12 @@ import pandas as pd
 from .utils import get_null_value
 
 if TYPE_CHECKING:
-    from typing import Any, Optional
+    from typing import Any
 
     from mizani.typing import (
         FloatArrayLike,
         NDArrayFloat,
         TFloatVector,
-        TupleFloat2,
-        TupleFloat4,
     )
 
 
@@ -60,8 +58,8 @@ EPSILON = sys.float_info.epsilon
 
 def rescale(
     x: FloatArrayLike,
-    to: TupleFloat2 = (0, 1),
-    _from: Optional[TupleFloat2] = None,
+    to: tuple[float, float] = (0, 1),
+    _from: tuple[float, float] | None = None,
 ) -> NDArrayFloat:
     """
     Rescale numeric vector to have specified minimum and maximum.
@@ -97,8 +95,8 @@ def rescale(
 
 def rescale_mid(
     x: FloatArrayLike,
-    to: TupleFloat2 = (0, 1),
-    _from: Optional[TupleFloat2] = None,
+    to: tuple[float, float] = (0, 1),
+    _from: tuple[float, float] | None = None,
     mid: float = 0,
 ) -> NDArrayFloat:
     """
@@ -157,8 +155,8 @@ def rescale_mid(
 
 def rescale_max(
     x: FloatArrayLike,
-    to: TupleFloat2 = (0, 1),
-    _from: Optional[TupleFloat2] = None,
+    to: tuple[float, float] = (0, 1),
+    _from: tuple[float, float] | None = None,
 ) -> NDArrayFloat:
     """
     Rescale numeric vector to have specified maximum.
@@ -224,7 +222,7 @@ def rescale_max(
 
 
 def squish_infinite(
-    x: FloatArrayLike, range: TupleFloat2 = (0, 1)
+    x: FloatArrayLike, range: tuple[float, float] = (0, 1)
 ) -> NDArrayFloat:
     """
     Truncate infinite values to a range.
@@ -261,7 +259,9 @@ def squish_infinite(
 
 
 def squish(
-    x: FloatArrayLike, range: TupleFloat2 = (0, 1), only_finite: bool = True
+    x: FloatArrayLike,
+    range: tuple[float, float] = (0, 1),
+    only_finite: bool = True,
 ) -> NDArrayFloat:
     """
     Squish values into range.
@@ -300,7 +300,7 @@ def squish(
 
 def censor(
     x: TFloatVector,
-    range: TupleFloat2 = (0, 1),
+    range: tuple[float, float] = (0, 1),
     only_finite: bool = True,
 ) -> TFloatVector:
     """
@@ -438,8 +438,11 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
 
 
 def expand_range(
-    range: TupleFloat2, mul: float = 0, add: float = 0, zero_width: float = 1
-) -> TupleFloat2:
+    range: tuple[float, float],
+    mul: float = 0,
+    add: float = 0,
+    zero_width: float = 1,
+) -> tuple[float, float]:
     """
     Expand a range with a multiplicative or additive constant
 
@@ -498,10 +501,15 @@ def expand_range(
 
 
 def expand_range_distinct(
-    range: TupleFloat2,
-    expand: TupleFloat2 | TupleFloat4 = (0, 0, 0, 0),
+    range: tuple[float, float],
+    expand: (tuple[float, float] | tuple[float, float, float, float]) = (
+        0,
+        0,
+        0,
+        0,
+    ),
     zero_width: float = 1,
-) -> TupleFloat2:
+) -> tuple[float, float]:
     """
     Expand a range with a multiplicative or additive constants
 

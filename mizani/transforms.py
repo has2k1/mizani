@@ -55,7 +55,7 @@ from .labels import (
 from .utils import identity
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Optional, Sequence, Type
+    from typing import Any, Callable, Sequence, Type
 
     from mizani.typing import (
         BreaksFunction,
@@ -70,7 +70,6 @@ if TYPE_CHECKING:
         TFloatArrayLike,
         TimedeltaArrayLike,
         TransformFunction,
-        TupleFloat2,
     )
 
 
@@ -155,8 +154,8 @@ class trans(ABC):
     def minor_breaks(
         self,
         major: FloatArrayLike,
-        limits: Optional[TupleFloat2] = None,
-        n: Optional[int] = None,
+        limits: tuple[float, float] | None = None,
+        n: int | None = None,
     ) -> NDArrayFloat:
         """
         Calculate minor_breaks
@@ -260,9 +259,9 @@ def trans_new(
     name: str,
     transform: TransformFunction,
     inverse: InverseFunction,
-    breaks: Optional[BreaksFunction] = None,
-    minor_breaks: Optional[MinorBreaksFunction] = None,
-    _format: Optional[FormatFunction] = None,
+    breaks: BreaksFunction | None = None,
+    minor_breaks: MinorBreaksFunction | None = None,
+    _format: FormatFunction | None = None,
     domain=(-np.inf, np.inf),
     doc: str = "",
     **kwargs,
@@ -333,7 +332,7 @@ def trans_new(
     return type(klass_name, (trans,), d)  # type: ignore
 
 
-def log_trans(base: Optional[float] = None, **kwargs: Any) -> trans:
+def log_trans(base: float | None = None, **kwargs: Any) -> trans:
     """
     Create a log transform class for *base*
 
@@ -395,7 +394,7 @@ log10_trans = log_trans(10, doc="Log 10 Transformation")
 log2_trans = log_trans(2, doc="Log 2 Transformation")
 
 
-def exp_trans(base: Optional[float] = None, **kwargs: Any):
+def exp_trans(base: float | None = None, **kwargs: Any):
     """
     Create a exponential transform class for *base*
 
@@ -890,8 +889,8 @@ class pseudo_log_trans(trans):
     def minor_breaks(
         self,
         major: FloatArrayLike,
-        limits: Optional[TupleFloat2] = None,
-        n: Optional[int] = None,
+        limits: tuple[float, float] | None = None,
+        n: int | None = None,
     ) -> NDArrayFloat:
         n = int(self.base) - 2 if n is None else n
         return super().minor_breaks(major, limits, n)

@@ -29,7 +29,7 @@ from mizani._core.dates import (
 from .utils import NANOSECONDS, SECONDS, log, min_max
 
 if TYPE_CHECKING:
-    from typing import Callable, Literal, Optional, Sequence
+    from typing import Callable, Literal, Sequence
 
     from mizani.typing import (
         DatetimeBreaksUnits,
@@ -39,9 +39,6 @@ if TYPE_CHECKING:
         Timedelta,
         TimedeltaArrayLike,
         Trans,
-        TupleFloat2,
-        TupleFloat5,
-        TupleT2,
     )
 
 
@@ -83,7 +80,7 @@ class breaks_log:
         self.n = n
         self.base = base
 
-    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
+    def __call__(self, limits: tuple[float, float]) -> NDArrayFloat:
         """
         Compute breaks
 
@@ -151,7 +148,7 @@ class _breaks_log_sub:
         self.n = n
         self.base = base
 
-    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
+    def __call__(self, limits: tuple[float, float]) -> NDArrayFloat:
         base = self.base
         n = self.n
         rng = log(limits, base)
@@ -243,8 +240,8 @@ class minor_breaks:
     def __call__(
         self,
         major: FloatArrayLike,
-        limits: Optional[TupleFloat2] = None,
-        n: Optional[int] = None,
+        limits: tuple[float, float] | None = None,
+        n: int | None = None,
     ) -> NDArrayFloat:
         """
         Minor breaks
@@ -345,8 +342,8 @@ class minor_breaks_trans:
     def __call__(
         self,
         major: FloatArrayLike,
-        limits: Optional[TupleFloat2] = None,
-        n: Optional[int] = None,
+        limits: tuple[float, float] | None = None,
+        n: int | None = None,
     ) -> NDArrayFloat:
         """
         Minor breaks for transformed scales
@@ -435,10 +432,10 @@ class breaks_date:
     """
 
     n: int
-    width: Optional[int] = None
-    units: Optional[DatetimeBreaksUnits] = None
+    width: int | None = None
+    units: DatetimeBreaksUnits | None = None
 
-    def __init__(self, n: int = 5, width: Optional[str] = None):
+    def __init__(self, n: int = 5, width: str | None = None):
         if isinstance(n, str):
             width = n
 
@@ -451,7 +448,9 @@ class breaks_date:
             self.width = int(_w)
             self.units = units.rstrip("s")  # type: ignore
 
-    def __call__(self, limits: TupleT2[datetime]) -> Sequence[datetime]:
+    def __call__(
+        self, limits: tuple[datetime, datetime]
+    ) -> Sequence[datetime]:
         """
         Compute breaks
 
@@ -503,7 +502,7 @@ class breaks_timedelta:
     [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
     """
 
-    _calculate_breaks: Callable[[TupleFloat2], NDArrayFloat]
+    _calculate_breaks: Callable[[tuple[float, float]], NDArrayFloat]
 
     def __init__(self, n: int = 5, Q: Sequence[float] = (1, 2, 5, 10)):
         self._calculate_breaks = breaks_extended(n=n, Q=Q)
@@ -563,14 +562,14 @@ class timedelta_helper:
 
     x: TimedeltaArrayLike
     units: DurationUnit
-    limits: TupleFloat2
+    limits: tuple[float, float]
     package: Literal["pandas", "cpython"]
     factor: float
 
     def __init__(
         self,
         x: TimedeltaArrayLike,
-        units: Optional[DurationUnit] = None,
+        units: DurationUnit | None = None,
     ):
         self.x = x
         self.package = self.determine_package(x[0])
@@ -592,7 +591,7 @@ class timedelta_helper:
 
     @classmethod
     def format_info(
-        cls, x: TimedeltaArrayLike, units: Optional[DurationUnit] = None
+        cls, x: TimedeltaArrayLike, units: DurationUnit | None = None
     ) -> tuple[NDArrayFloat, DurationUnit]:
         helper = cls(x, units)
         return helper.timedelta_to_numeric(x), helper.units
@@ -651,7 +650,7 @@ class timedelta_helper:
         else:
             return td.total_seconds()
 
-    def scaled_limits(self) -> TupleFloat2:
+    def scaled_limits(self) -> tuple[float, float]:
         """
         Minimum and Maximum to use for computing breaks
         """
@@ -805,7 +804,7 @@ class breaks_extended:
         # a score. Return 1 ignores all that.
         return 1
 
-    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
+    def __call__(self, limits: tuple[float, float]) -> NDArrayFloat:
         """
         Calculate the breaks
 
@@ -842,7 +841,7 @@ class breaks_extended:
             return np.array([dmin])
 
         best_score = -2.0
-        best: TupleFloat5 = (0, 0, 0, 0, 0)  # Gives Empty breaks
+        best = (0, 0, 0, 0, 0)  # Gives Empty breaks
         j = 1.0
 
         while j < float("inf"):
@@ -924,7 +923,7 @@ class breaks_symlog:
     array([-100,  -10,    0,   10,  100])
     """
 
-    def __call__(self, limits: TupleFloat2) -> NDArrayFloat:
+    def __call__(self, limits: tuple[float, float]) -> NDArrayFloat:
         def _signed_log10(x):
             return np.round(np.sign(x) * np.log10(np.sign(x) * x)).astype(int)
 

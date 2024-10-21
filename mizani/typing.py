@@ -3,13 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from datetime import date, datetime, timedelta, tzinfo
+    from datetime import date, datetime, timedelta
     from types import NoneType
     from typing import (
         Any,
         Callable,
         Literal,
-        Optional,
         Protocol,
         Sequence,
         TypeAlias,
@@ -27,41 +26,20 @@ if TYPE_CHECKING:
 
     T = TypeVar("T")
 
-    # Tuples
-    TupleT2: TypeAlias = tuple[T, T]
-    TupleT3: TypeAlias = tuple[T, T, T]
-    TupleT4: TypeAlias = tuple[T, T, T, T]
-    TupleT5: TypeAlias = tuple[T, T, T, T, T]
-
-    TupleInt2: TypeAlias = TupleT2[int]
-    TupleFloat2: TypeAlias = TupleT2[float]
-    TupleFloat3: TypeAlias = TupleT3[float]
-    TupleFloat4: TypeAlias = TupleT4[float]
-    TupleFloat5: TypeAlias = TupleT5[float]
-    TupleDatetime2: TypeAlias = TupleT2[datetime]
-    TupleDate2: TypeAlias = TupleT2[date]
-
     # Arrays (strictly numpy)
     NDArrayAny: TypeAlias = NDArray[Any]
-    NDArrayBool: TypeAlias = NDArray[np.bool_]
     NDArrayFloat: TypeAlias = NDArray[np.float64]
-    NDArrayInt: TypeAlias = NDArray[np.int64]
-    NDArrayStr: TypeAlias = NDArray[np.str_]
-    NDArrayDatetime: TypeAlias = NDArray[Any]
+    NDArrayDatetime: TypeAlias = NDArray[np.datetime64]
 
-    # Series
+    # Panda Series
     AnySeries: TypeAlias = pd.Series[Any]
-    BoolSeries: TypeAlias = pd.Series[bool]
-    IntSeries: TypeAlias = pd.Series[int]
     FloatSeries: TypeAlias = pd.Series[float]
     DatetimeSeries: TypeAlias = pd.Series[datetime]
     TimedeltaSeries: TypeAlias = pd.Series[pd.Timedelta]
 
     # ArrayLikes
     AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]
-    IntArrayLike: TypeAlias = NDArrayInt | IntSeries | Sequence[int]
     FloatArrayLike: TypeAlias = NDArrayFloat | FloatSeries | Sequence[float]
-    NumArrayLike: TypeAlias = IntArrayLike | FloatArrayLike
     DatetimeArrayLike: TypeAlias = (
         NDArrayDatetime | DatetimeSeries | Sequence[datetime]
     )
@@ -70,15 +48,9 @@ if TYPE_CHECKING:
     )
 
     # Type variable
-    TAnyArrayLike = TypeVar(
-        "TAnyArrayLike", NDArrayAny, pd.Series[Any], Sequence[Any]
-    )
     TFloatLike = TypeVar("TFloatLike", NDArrayFloat, float)
     TFloatArrayLike = TypeVar("TFloatArrayLike", bound=FloatArrayLike)
     TFloatVector = TypeVar("TFloatVector", NDArrayFloat, FloatSeries)
-    TConstrained = TypeVar(
-        "TConstrained", int, float, bool, str, complex, datetime, timedelta
-    )
 
     NumericUFunction: TypeAlias = Callable[[TFloatLike], TFloatLike]
 
@@ -88,11 +60,10 @@ if TYPE_CHECKING:
     NullType: TypeAlias = (
         NoneType
         | float
-        |
         # Cannot really use NaTType at the moment, e.g. directly
         # instantiating a NaTType is not the same as that from
         # pd.Timestamp("NaT"). Pandas chokes on it.
-        NaTType
+        | NaTType
         | pd.Timestamp
         | pd.Timedelta
         | np.timedelta64
@@ -154,7 +125,6 @@ if TYPE_CHECKING:
         Sequence[date] | Sequence[datetime] | Sequence[np.datetime64]
     )
     SeqDatetime64: TypeAlias = Sequence[np.datetime64]
-    TzInfo: TypeAlias = tzinfo
     SeqTimedelta: TypeAlias = Sequence[timedelta] | Sequence[pd.Timedelta]
 
     # dateutil.rrule.YEARLY, ..., but not including 2 weekly
@@ -181,7 +151,8 @@ if TYPE_CHECKING:
     InverseFunction: TypeAlias = Callable[[FloatArrayLike], NDArrayAny]
     BreaksFunction: TypeAlias = Callable[[tuple[Any, Any]], AnyArrayLike]
     MinorBreaksFunction: TypeAlias = Callable[
-        [FloatArrayLike, Optional[TupleFloat2], Optional[int]], NDArrayFloat
+        [FloatArrayLike, tuple[float, float] | None, int | None],
+        NDArrayFloat,
     ]
 
     # Rescale functions
@@ -190,8 +161,8 @@ if TYPE_CHECKING:
         def __call__(
             self,
             x: FloatArrayLike,
-            to: TupleFloat2 = (0, 1),
-            _from: TupleFloat2 | None = None,
+            to: tuple[float, float] = (0, 1),
+            _from: tuple[float, float] | None = None,
         ) -> NDArrayFloat: ...
 
     # Censor functions
@@ -199,7 +170,7 @@ if TYPE_CHECKING:
         def __call__(
             self,
             x: NDArrayFloat,
-            range: TupleFloat2 = (0, 1),
+            range: tuple[float, float] = (0, 1),
             only_finite: bool = True,
         ) -> NDArrayFloat: ...
 
@@ -217,7 +188,7 @@ if TYPE_CHECKING:
 
         def __gt__(self, other, /) -> bool: ...
 
-    DomainType: TypeAlias = TupleT2[PComparison]
+    DomainType: TypeAlias = tuple[PComparison, PComparison]
 
     # This does not work probably due to a bug in the typechecker
     # FormatFunction: TypeAlias = Callable[[AnyArrayLike], Sequence[str]]

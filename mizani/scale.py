@@ -46,7 +46,7 @@ from .utils import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Optional, Sequence, TypeVar
+    from typing import Any, Sequence, TypeVar
 
     from mizani.typing import (
         AnyArrayLike,
@@ -56,7 +56,6 @@ if TYPE_CHECKING:
         FloatArrayLike,
         NDArrayFloat,
         Trans,
-        TupleFloat2,
     )
 
     TVector = TypeVar("TVector", NDArrayFloat, pd.Series[float])
@@ -76,7 +75,7 @@ class scale_continuous:
         x: FloatArrayLike,
         palette: ContinuousPalette,
         na_value: Any = None,
-        trans: Optional[Trans] = None,
+        trans: Trans | None = None,
     ) -> NDArrayFloat:
         """
         Scale data continuously
@@ -106,8 +105,8 @@ class scale_continuous:
 
     @classmethod
     def train(
-        cls, new_data: FloatArrayLike, old: Optional[TupleFloat2] = None
-    ) -> TupleFloat2:
+        cls, new_data: FloatArrayLike, old: tuple[float, float] | None = None
+    ) -> tuple[float, float]:
         """
         Train a continuous scale
 
@@ -142,7 +141,7 @@ class scale_continuous:
         cls,
         x: FloatArrayLike,
         palette: ContinuousPalette,
-        limits: TupleFloat2,
+        limits: tuple[float, float],
         na_value: Any = None,
         oob: Callable[[TVector], TVector] = censor,
     ) -> NDArrayFloat:
@@ -208,7 +207,7 @@ class scale_discrete:
     def train(
         cls,
         new_data: AnyArrayLike,
-        old: Optional[Sequence[Any]] = None,
+        old: Sequence[Any] | None = None,
         drop: bool = False,
         na_rm: bool = False,
     ) -> Sequence[Any]:

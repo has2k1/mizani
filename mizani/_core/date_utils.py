@@ -13,9 +13,6 @@ from .types import DateFrequency
 if TYPE_CHECKING:
     from mizani.typing import (
         DatetimeBreaksUnits,
-        TupleDatetime2,
-        TupleFloat2,
-        TupleInt2,
     )
 
 
@@ -145,31 +142,33 @@ class Interval:
         return math.floor(self._tdelta.total_seconds() * 1e6)
 
     @property
-    def limits(self) -> TupleDatetime2:
+    def limits(self) -> tuple[datetime, datetime]:
         return self.start, self.end
 
-    def limits_year(self) -> TupleDatetime2:
+    def limits_year(self) -> tuple[datetime, datetime]:
         return floor_year(self.start), ceil_year(self.end)
 
-    def limits_month(self) -> TupleDatetime2:
+    def limits_month(self) -> tuple[datetime, datetime]:
         return round_month(self.start), round_month(self.end)
 
-    def limits_week(self) -> TupleDatetime2:
+    def limits_week(self) -> tuple[datetime, datetime]:
         return floor_week(self.start), ceil_week(self.end)
 
-    def limits_day(self) -> TupleDatetime2:
+    def limits_day(self) -> tuple[datetime, datetime]:
         return floor_day(self.start), ceil_day(self.end)
 
-    def limits_hour(self) -> TupleDatetime2:
+    def limits_hour(self) -> tuple[datetime, datetime]:
         return floor_hour(self.start), ceil_hour(self.end)
 
-    def limits_minute(self) -> TupleDatetime2:
+    def limits_minute(self) -> tuple[datetime, datetime]:
         return floor_minute(self.start), ceil_minute(self.end)
 
-    def limits_second(self) -> TupleDatetime2:
+    def limits_second(self) -> tuple[datetime, datetime]:
         return floor_second(self.start), ceil_second(self.end)
 
-    def limits_for_frequency(self, freq: DateFrequency) -> TupleDatetime2:
+    def limits_for_frequency(
+        self, freq: DateFrequency
+    ) -> tuple[datetime, datetime]:
         lookup = {
             DF.YEARLY: self.limits_year,
             DF.MONTHLY: self.limits_month,
@@ -389,7 +388,7 @@ def at_the_second(d: datetime) -> bool:
     return d.time().microsecond == 0
 
 
-def align_limits(limits: TupleInt2, width: float) -> TupleFloat2:
+def align_limits(limits: tuple[int, int], width: float) -> tuple[float, float]:
     """
     Return limits so that breaks should be multiples of the width
 
@@ -409,8 +408,10 @@ def align_limits(limits: TupleInt2, width: float) -> TupleFloat2:
 
 
 def shift_limits_down(
-    candidate_limits: TupleInt2, original_limits: TupleInt2, width: int
-) -> TupleInt2:
+    candidate_limits: tuple[int, int],
+    original_limits: tuple[int, int],
+    width: int,
+) -> tuple[int, int]:
     """
     Shift candidate limits down so that they can be a multiple of width
 
@@ -438,8 +439,10 @@ def shift_limits_down(
 
 
 def expand_datetime_limits(
-    limits: TupleDatetime2, width: int, units: DatetimeBreaksUnits
-) -> TupleDatetime2:
+    limits: tuple[datetime, datetime],
+    width: int,
+    units: DatetimeBreaksUnits,
+) -> tuple[datetime, datetime]:
     ival = Interval(*limits)
     if units == "year":
         start, end = ival.limits_year()

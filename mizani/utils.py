@@ -12,7 +12,7 @@ import pandas.api.types as pdtypes
 
 if TYPE_CHECKING:
     from datetime import tzinfo
-    from typing import Any, Optional, Sequence, TypeGuard, TypeVar
+    from typing import Any, Sequence, TypeGuard, TypeVar
 
     from mizani.typing import (
         AnyArrayLike,
@@ -23,7 +23,6 @@ if TYPE_CHECKING:
         NullType,
         NumericUFunction,
         SeqDatetime,
-        TupleFloat2,
     )
 
     T = TypeVar("T")
@@ -103,7 +102,7 @@ def round_any(
 
 def min_max(
     x: FloatArrayLike | float, na_rm: bool = False, finite: bool = True
-) -> TupleFloat2:
+) -> tuple[float, float]:
     """
     Return the minimum and maximum of x
 
@@ -142,7 +141,7 @@ def match(
     v1: AnyArrayLike,
     v2: AnyArrayLike,
     nomatch: int = -1,
-    incomparables: Optional[Any] = None,
+    incomparables: Any = None,
     start: int = 0,
 ) -> list[int]:
     """

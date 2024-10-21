@@ -1,6 +1,22 @@
 Changelog
 =========
 
+v0.12.3
+-------
+*not-yet-released*
+
+API Changes
+***********
+
+- Support for numpy `timedelta64` has been removed. It was not well supported
+  in the first place, so removing it should be of consequence.
+
+New
+***
+
+- :class:`~mizani.transforms.trans` gained new method `diff_type_to_num` that
+  should be helpful with some arithmetic operations for non-numeric domains.
+
 v0.12.2
 -------
 *2024-09-04*

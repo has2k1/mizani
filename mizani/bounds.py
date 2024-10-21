@@ -413,9 +413,6 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
     # timedelta - pandas, cpython
     elif isinstance(x[0], (pd.Timedelta, datetime.timedelta)):
         return x[0].total_seconds() == x[1].total_seconds()
-    # timedelta - numpy
-    elif isinstance(x[0], np.timedelta64):
-        return x[0] == x[1]
     elif not isinstance(x[0], (float, int, np.number)):
         raise TypeError(
             "zero_range objects cannot work with objects "

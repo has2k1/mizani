@@ -370,9 +370,9 @@ def test_breaks_timedelta():
     minutes = [val.total_seconds() / 60 for val in major]
     npt.assert_allclose(minutes, [0, 2, 4, 6, 8])
 
-    # numpy
+    # numpy timedelta64 is not supported
     x = [np.timedelta64(i * 10, "D") for i in range(1, 10)]
-    limits = min(x), max(x)
+    limits = x[0], x[-1]
     with pytest.raises(ValueError):
         breaks(limits)
 

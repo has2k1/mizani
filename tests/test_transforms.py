@@ -107,6 +107,10 @@ def _test_trans(trans, x, *args, **kwargs):
     assert all(minor >= t.domain[0])
     assert all(minor <= t.domain[1])
 
+    # We can convert the diff types to numerics
+    xdiff_num = t.diff_type_to_num(np.diff(x))
+    assert all(isinstance(val, (float, int, np.number)) for val in xdiff_num)
+
 
 def test_asn_trans():
     _test_trans(asn_trans, arr * 0.01)
@@ -254,6 +258,9 @@ def test_datetime_trans():
     s2 = t.inverse(st)
     assert all(s == s2)
 
+    sdiff_num = t.diff_type_to_num(s.diff())
+    assert all(isinstance(val, (float, int, np.number)) for val in sdiff_num)
+
 
 def test_datetime_trans_tz():
     EST = ZoneInfo("EST")
@@ -285,10 +292,26 @@ def test_timedelta_trans():
     x2 = t.inverse(xt)
     assert all(a == b for a, b in zip(x, x2))
 
+    s = pd.Series(x)
+    st = t.transform(s)
+    s2 = t.inverse(st)
+    assert all(a == b for a, b in zip(s, s2))
+
+    sdiff_num = t.diff_type_to_num(s.diff())
+    assert all(isinstance(val, (float, int, np.number)) for val in sdiff_num)
+
 
 def test_pd_timedelta_trans():
-    x = [pd.Timedelta(days=i) for i in range(1, 11)]
+    x = [timedelta(days=i) for i in range(1, 11)]
     t = pd_timedelta_trans()
     xt = t.transform(x)
     x2 = t.inverse(xt)
     assert all(a == b for a, b in zip(x, x2))
+
+    s = pd.Series(x)
+    st = t.transform(s)
+    s2 = t.inverse(st)
+    assert all(a == b for a, b in zip(s, s2))
+
+    sdiff_num = t.diff_type_to_num(s.diff())
+    assert all(isinstance(val, (float, int, np.number)) for val in sdiff_num)

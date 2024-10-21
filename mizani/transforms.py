@@ -31,7 +31,12 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 
-from ._core.dates import datetime_to_num, num_to_datetime
+from ._core.dates import (
+    datetime_to_num,
+    num_to_datetime,
+    num_to_timedelta,
+    timedelta_to_num,
+)
 from .breaks import (
     breaks_date,
     breaks_extended,
@@ -62,9 +67,8 @@ if TYPE_CHECKING:
         MinorBreaksFunction,
         NDArrayDatetime,
         NDArrayFloat,
-        NDArrayTimedelta,
         TFloatArrayLike,
-        TimedeltaSeries,
+        TimedeltaArrayLike,
         TransformFunction,
         TupleFloat2,
     )
@@ -230,6 +234,26 @@ class trans(ABC):
             (breaks >= self.domain[0]) & (breaks <= self.domain[1])
         )
         return breaks
+
+    def diff_type_to_num(self, x: Any) -> FloatArrayLike:
+        """
+        Convert the difference between two points in the domain to a numeric
+
+        This function is necessary for some arithmetic operations in the
+        transform space of a domain when the difference in between any two
+        points in that domain is not numeric.
+
+        For example for a domain of datetime value types, the difference on
+        the domain is of type timedelta. In this case this function should
+        expect timedeltas and convert them to float values that compatible
+        (same units) as the transform value of datetimes.
+
+        Parameters
+        ----------
+        x :
+            Differences
+        """
+        return x
 
 
 def trans_new(
@@ -733,13 +757,14 @@ class datetime_trans(trans):
     def transform(self, x: DatetimeArrayLike) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform from date to a numerical format
+
+        The transform values a unit of [days].
         """
         if not len(x):
             return np.array([])
 
-        x0 = next(iter(x))
         try:
-            tz = x0.tzinfo
+            tz = next(iter(x)).tzinfo
         except AttributeError:
             tz = None
 
@@ -761,6 +786,14 @@ class datetime_trans(trans):
         """
         return self.tz
 
+    def diff_type_to_num(self, x: TimedeltaArrayLike) -> FloatArrayLike:
+        """
+        Covert timedelta to numerical format
+
+        The timedeltas are converted to a unit of [days].
+        """
+        return timedelta_to_num(x)
+
 
 class timedelta_trans(trans):
     """
@@ -772,44 +805,36 @@ class timedelta_trans(trans):
     format = staticmethod(label_timedelta())
 
     @staticmethod
-    def transform(x: NDArrayTimedelta | Sequence[timedelta]) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def transform(x: TimedeltaArrayLike) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform from Timeddelta to numerical format
+
+        The transform values have a unit of [days]
         """
-        # microseconds
-        return np.array([_x.total_seconds() * 10**6 for _x in x])
+        return timedelta_to_num(x)
 
     @staticmethod
-    def inverse(x: FloatArrayLike) -> NDArrayTimedelta:
+    def inverse(x: FloatArrayLike) -> Sequence[pd.Timedelta]:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform to Timedelta from numerical format
         """
-        return np.array([timedelta(microseconds=i) for i in x])
+        return num_to_timedelta(x)
+
+    def diff_type_to_num(self, x: TimedeltaArrayLike) -> FloatArrayLike:
+        """
+        Covert timedelta to numerical format
+
+        The timedeltas are converted to a unit of [days].
+        """
+        return timedelta_to_num(x)
 
 
-class pd_timedelta_trans(trans):
+class pd_timedelta_trans(timedelta_trans):
     """
     Pandas timedelta Transformation
     """
 
     domain = (pd.Timedelta.min, pd.Timedelta.max)
-    breaks_ = staticmethod(breaks_timedelta())
-    format = staticmethod(label_timedelta())
-
-    @staticmethod
-    def transform(x: TimedeltaSeries) -> NDArrayFloat:  # pyright: ignore[reportIncompatibleMethodOverride]
-        """
-        Transform from Timeddelta to numerical format
-        """
-        # nanoseconds
-        return np.array([_x.value for _x in x])
-
-    @staticmethod
-    def inverse(x: FloatArrayLike) -> NDArrayTimedelta:
-        """
-        Transform to Timedelta from numerical format
-        """
-        return np.array([pd.Timedelta(int(i)) for i in x])
 
 
 class reciprocal_trans(trans):

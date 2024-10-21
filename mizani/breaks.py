@@ -36,8 +36,8 @@ if TYPE_CHECKING:
         DurationUnit,
         FloatArrayLike,
         NDArrayFloat,
-        NDArrayTimedelta,
         Timedelta,
+        TimedeltaArrayLike,
         Trans,
         TupleFloat2,
         TupleFloat5,
@@ -510,7 +510,7 @@ class breaks_timedelta:
 
     def __call__(
         self, limits: tuple[Timedelta, Timedelta]
-    ) -> NDArrayTimedelta:
+    ) -> TimedeltaArrayLike:
         """
         Compute breaks
 
@@ -525,7 +525,7 @@ class breaks_timedelta:
             Sequence of break points.
         """
         if any(pd.isna(x) for x in limits):
-            return np.array([])
+            return []
 
         helper = timedelta_helper(limits)
         scaled_limits = helper.scaled_limits()
@@ -561,7 +561,7 @@ class timedelta_helper:
     See, :class:`~mizani.labels.label_timedelta`
     """
 
-    x: NDArrayTimedelta | Sequence[Timedelta]
+    x: TimedeltaArrayLike
     units: DurationUnit
     limits: TupleFloat2
     package: Literal["pandas", "cpython"]
@@ -569,7 +569,7 @@ class timedelta_helper:
 
     def __init__(
         self,
-        x: NDArrayTimedelta | Sequence[Timedelta],
+        x: TimedeltaArrayLike,
         units: Optional[DurationUnit] = None,
     ):
         self.x = x
@@ -592,14 +592,12 @@ class timedelta_helper:
 
     @classmethod
     def format_info(
-        cls, x: NDArrayTimedelta, units: Optional[DurationUnit] = None
+        cls, x: TimedeltaArrayLike, units: Optional[DurationUnit] = None
     ) -> tuple[NDArrayFloat, DurationUnit]:
         helper = cls(x, units)
         return helper.timedelta_to_numeric(x), helper.units
 
-    def best_units(
-        self, x: NDArrayTimedelta | Sequence[Timedelta]
-    ) -> DurationUnit:
+    def best_units(self, x: TimedeltaArrayLike) -> DurationUnit:
         """
         Determine good units for representing a sequence of timedeltas
         """
@@ -662,25 +660,24 @@ class timedelta_helper:
         return _min, _max
 
     def timedelta_to_numeric(
-        self, timedeltas: NDArrayTimedelta
+        self, timedeltas: TimedeltaArrayLike
     ) -> NDArrayFloat:
         """
         Convert sequence of timedelta to numerics
         """
         return np.array([self.to_numeric(td) for td in timedeltas])
 
-    def numeric_to_timedelta(self, values: NDArrayFloat) -> NDArrayTimedelta:
+    def numeric_to_timedelta(self, values: NDArrayFloat) -> TimedeltaArrayLike:
         """
         Convert sequence of numerical values to timedelta
         """
         if self.package == "pandas":
-            return np.array(
-                [pd.Timedelta(int(x * self.factor), unit="ns") for x in values]
-            )
+            return [
+                pd.Timedelta(int(x * self.factor), unit="ns") for x in values
+            ]
+
         else:
-            return np.array(
-                [timedelta(seconds=x * self.factor) for x in values]
-            )
+            return [timedelta(seconds=x * self.factor) for x in values]
 
     def get_scaling_factor(self, units):
         if self.package == "pandas":

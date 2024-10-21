@@ -36,7 +36,7 @@ if TYPE_CHECKING:
         BytesSymbol,
         DurationUnit,
         FloatArrayLike,
-        NDArrayTimedelta,
+        TimedeltaArrayLike,
         TupleInt2,
     )
 
@@ -632,7 +632,7 @@ class label_timedelta:
     space: bool = True
     use_plurals: bool = True
 
-    def __call__(self, x: NDArrayTimedelta) -> Sequence[str]:
+    def __call__(self, x: TimedeltaArrayLike) -> Sequence[str]:
         if len(x) == 0:
             return []
 

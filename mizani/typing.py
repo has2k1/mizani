@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     NDArrayInt: TypeAlias = NDArray[np.int64]
     NDArrayStr: TypeAlias = NDArray[np.str_]
     NDArrayDatetime: TypeAlias = NDArray[Any]
-    NDArrayTimedelta: TypeAlias = NDArray[Any]
 
     # Series
     AnySeries: TypeAlias = pd.Series[Any]
@@ -56,9 +55,7 @@ if TYPE_CHECKING:
     IntSeries: TypeAlias = pd.Series[int]
     FloatSeries: TypeAlias = pd.Series[float]
     DatetimeSeries: TypeAlias = pd.Series[datetime]
-
-    # Use Any as cannot define pd.Series[timedelta]
-    TimedeltaSeries: TypeAlias = pd.Series[Any]
+    TimedeltaSeries: TypeAlias = pd.Series[pd.Timedelta]
 
     # ArrayLikes
     AnyArrayLike: TypeAlias = NDArrayAny | pd.Series[Any] | Sequence[Any]
@@ -68,14 +65,17 @@ if TYPE_CHECKING:
     DatetimeArrayLike: TypeAlias = (
         NDArrayDatetime | DatetimeSeries | Sequence[datetime]
     )
-    TimedeltArrayLike: TypeAlias = (
-        NDArrayTimedelta | TimedeltaSeries | Sequence[timedelta]
+    TimedeltaArrayLike: TypeAlias = (
+        Sequence[timedelta] | Sequence[pd.Timedelta] | TimedeltaSeries
     )
 
     # Type variable
-    TFloatLike = TypeVar("TFloatLike", bound=NDArrayFloat | float)
+    TAnyArrayLike = TypeVar(
+        "TAnyArrayLike", NDArrayAny, pd.Series[Any], Sequence[Any]
+    )
+    TFloatLike = TypeVar("TFloatLike", NDArrayFloat, float)
     TFloatArrayLike = TypeVar("TFloatArrayLike", bound=FloatArrayLike)
-    TFloatVector = TypeVar("TFloatVector", bound=NDArrayFloat | FloatSeries)
+    TFloatVector = TypeVar("TFloatVector", NDArrayFloat, FloatSeries)
     TConstrained = TypeVar(
         "TConstrained", int, float, bool, str, complex, datetime, timedelta
     )
@@ -155,6 +155,7 @@ if TYPE_CHECKING:
     )
     SeqDatetime64: TypeAlias = Sequence[np.datetime64]
     TzInfo: TypeAlias = tzinfo
+    SeqTimedelta: TypeAlias = Sequence[timedelta] | Sequence[pd.Timedelta]
 
     # dateutil.rrule.YEARLY, ..., but not including 2 weekly
     # adding 7 for our own MICROSECONDLY

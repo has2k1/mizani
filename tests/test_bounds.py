@@ -98,15 +98,6 @@ def test_censor():
     assert all(val is None for val in result[:2])
     assert all(val is None for val in result[-2:])
 
-    # np.timedelta64
-    limits = np.timedelta64(200, "D"), np.timedelta64(205, "D")
-    x = [np.timedelta64(i, "D") for i in range(198, 208)]
-    x5 = np.array(x)
-    result = censor(x5, limits)
-    npt.assert_array_equal(result[2:-2], x5[2:-2])
-    assert all(isinstance(val, np.timedelta64) for val in result[:2])
-    assert all(isinstance(val, np.timedelta64) for val in result[-2:])
-
     # branches #
     x = np.array([1, 2, np.inf, 3, 4, 11])
     result = censor(x, (0, 10), only_finite=False)
@@ -189,19 +180,6 @@ def test_expand_range():
     diff(result) == 2 * diff(limits) + 2 * one_day
 
     limits = pd.Timedelta(days=10), pd.Timedelta(days=10)
-    result = expand_range(limits, add=one_day, zero_width=30 * one_day)
-    diff(result) == diff(limits) + 30 * one_day
-
-    # timedelta64
-    one_day = np.timedelta64(1, "D")
-    limits = np.timedelta64(1, "D"), np.timedelta64(10, "D")
-    result = expand_range(limits, add=one_day, zero_width=30 * one_day)
-    diff(result) == diff(limits) + 2 * one_day
-
-    result = expand_range(limits, mul=0.5, add=one_day)
-    diff(result) == 2 * diff(limits) + 2 * one_day
-
-    limits = np.timedelta64(1, "D"), np.timedelta64(1, "D")
     result = expand_range(limits, add=one_day, zero_width=30 * one_day)
     diff(result) == diff(limits) + 30 * one_day
 
@@ -366,14 +344,6 @@ def test_zero_range():
     x3 = pd.Timedelta(200, "D"), pd.Timedelta(203, "D")
     assert zero_range(x)
     assert not zero_range(x2)
-    assert not zero_range(x3)
-
-    # timedelta - numpy
-    x = np.timedelta64(7, "D"), np.timedelta64(7, "D")
-    x2 = np.timedelta64(7, "D"), np.timedelta64(1, "W")
-    x3 = np.timedelta64(7, "D"), np.timedelta64(2, "D")
-    assert zero_range(x)
-    assert zero_range(x2)
     assert not zero_range(x3)
 
     # branches #

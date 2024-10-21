@@ -16,6 +16,7 @@ from mizani._core.dates import (
     datetime_to_num,
     get_tzinfo,
     num_to_datetime,
+    timedelta_to_num,
 )
 
 
@@ -78,6 +79,11 @@ def test_num_to_datetime():
 
 def test_datetime_to_num():
     res = datetime_to_num([])
+    assert len(res) == 0
+
+
+def test_timedelta_to_num():
+    res = timedelta_to_num([])
     assert len(res) == 0
 
 

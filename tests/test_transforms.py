@@ -20,9 +20,11 @@ from mizani.transforms import (
     log2_trans,
     log10_trans,
     log_trans,
+    logit_trans,
     modulus_trans,
     pd_timedelta_trans,
     probability_trans,
+    probit_trans,
     pseudo_log_trans,
     reciprocal_trans,
     reverse_trans,
@@ -46,7 +48,9 @@ def test_gettrans():
     t2 = gettrans(identity_trans)
     t3 = gettrans("identity")
     t4 = gettrans()
-    assert all(isinstance(x, identity_trans) for x in (t0, t1, t2, t3, t4))
+    assert all(
+        x.__class__.__name__ == "identity_trans" for x in (t0, t1, t2, t3, t4)
+    )
 
     with pytest.raises(ValueError):
         gettrans(object)
@@ -196,6 +200,10 @@ def test_probability_trans():
     assert xt[3] == 0.5
     npt.assert_allclose(xt[:3], 1 - xt[-3:][::-1])
     npt.assert_allclose(x, x2)
+
+    # Cover the paths these create as well
+    logit_trans()
+    probit_trans()
 
 
 def test_datetime_trans():

@@ -56,7 +56,7 @@ from .labels import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Sequence, Type
+    from typing import Any, Sequence, Type
 
     from mizani.typing import (
         BreaksFunction,
@@ -101,6 +101,7 @@ __all__ = [
 ]
 
 UTC = ZoneInfo("UTC")
+REGISTRY: dict[str, Type[trans]] = {}
 
 
 @dataclass(kw_only=True)
@@ -121,6 +122,11 @@ class trans(ABC):
 
     minor_breaks_func: MinorBreaksFunction | None = None
     "Callable to calculate minor breaks"
+
+    def __init_subclass__(cls, *args, **kwargs):
+        # Register all subclasses
+        super().__init_subclass__(*args, **kwargs)
+        REGISTRY[cls.__name__] = cls
 
     # Use type variables for trans.transform and trans.inverse
     # to help upstream packages avoid type mismatches. e.g.
@@ -907,15 +913,13 @@ class symlog_trans(trans):
         return np.sign(x) * (np.exp(np.abs(x)) - 1)  # type: ignore
 
 
-def gettrans(
-    t: str | Callable[[], Type[trans]] | Type[trans] | trans | None = None,
-):
+def gettrans(t: str | Type[trans] | trans | None = None):
     """
     Return a trans object
 
     Parameters
     ----------
-    t : str | callable | type | trans
+    t : str | type | trans
         Name of transformation function. If None, returns an
         identity transform.
 
@@ -923,20 +927,16 @@ def gettrans(
     -------
     out : trans
     """
-    obj = t
-    # Make sure trans object is instantiated
-    if t is None:
+    if isinstance(t, str):
+        names = (f"{t}_trans", t)
+        for name in names:
+            if t := REGISTRY.get(name):
+                return t()
+    elif isinstance(t, trans):
+        return t
+    elif isinstance(t, type) and issubclass(t, trans):
+        return t()
+    elif t is None:
         return identity_trans()
 
-    if isinstance(obj, str):
-        name = "{}_trans".format(obj)
-        obj = globals()[name]()
-    if callable(obj):
-        obj = obj()
-    if isinstance(obj, type):
-        obj = obj()
-
-    if not isinstance(obj, trans):
-        raise ValueError("Could not get transform object.")
-
-    return obj
+    raise ValueError(f"Could not get transform object. {t}")

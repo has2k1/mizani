@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v0.12.3
+v0.13.0
 -------
 *not-yet-released*
 
@@ -10,6 +10,8 @@ API Changes
 
 - Support for numpy `timedelta64` has been removed. It was not well supported
   in the first place, so removing it should be of consequence.
+
+- `mizani.transforms.trans_new` function has been deprecated.
 
 New
 ***

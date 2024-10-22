@@ -27,6 +27,7 @@ from dataclasses import KW_ONLY, dataclass, field
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta, tzinfo
 from types import MethodType
 from typing import TYPE_CHECKING
+from warnings import warn
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -96,7 +97,6 @@ __all__ = [
     "pseudo_log_trans",
     "reciprocal_trans",
     "trans",
-    "trans_new",
     "gettrans",
 ]
 
@@ -285,6 +285,12 @@ def trans_new(
     out : trans
         Transform class
     """
+    warn(
+        "This function has been deprecated and will be removed in a future "
+        "version. You should create transforms explicitly using the class "
+        "syntax.",
+        FutureWarning,
+    )
 
     def _get(func):
         if isinstance(func, (classmethod, staticmethod, MethodType)):
@@ -324,10 +330,6 @@ class log_trans(trans):
     base : float
         Base for the logarithm. If None, then
         the natural log is used.
-    kwargs : dict
-        Keyword arguments passed onto
-        :func:`trans_new`. Should not include
-        the `transform` or `inverse`.
 
     Returns
     -------
@@ -393,10 +395,6 @@ class exp_trans(trans):
     ----------
     base : float
         Base of the logarithm
-    kwargs : dict
-        Keyword arguments passed onto
-        :func:`trans_new`. Should not include
-        the `transform` or `inverse`.
 
     Returns
     -------
@@ -544,9 +542,6 @@ class boxcox_trans(trans):
         non-negative constant (Box-Cox type 2).
         The default is 0. :func:`~mizani.transforms.modulus_trans`
         sets the default to 1.
-    kwargs : dict
-        Keyword arguments passed onto :func:`trans_new`. Should not
-        include the `transform` or `inverse`.
 
     References
     ----------
@@ -615,9 +610,6 @@ class modulus_trans(trans):
         non-negative constant (Box-Cox type 2).
         The default is 1. :func:`~mizani.transforms.boxcox_trans`
         sets the default to 0.
-    kwargs : dict
-        Keyword arguments passed onto :func:`trans_new`.
-        Should not include the `transform` or `inverse`.
 
     References
     ----------
@@ -867,10 +859,6 @@ class pseudo_log_trans(trans):
     base : int
         Approximate logarithm used. If None, then
         the natural log is used.
-    kwargs : dict
-        Keyword arguments passed onto
-        :func:`trans_new`. Should not include
-        the `transform` or `inverse`.
     """
 
     sigma: float = 1

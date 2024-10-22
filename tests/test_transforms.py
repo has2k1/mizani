@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from types import FunctionType
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -31,7 +30,6 @@ from mizani.transforms import (
     symlog_trans,
     timedelta_trans,
     trans,
-    trans_new,
 )
 
 arr = np.arange(1, 100)
@@ -40,29 +38,6 @@ arr = np.arange(1, 100)
 def test_trans():
     with pytest.raises(TypeError):
         trans()  # type: ignore
-
-
-def test_trans_new():
-    t = trans_new(
-        "bounded_identity",
-        transform=staticmethod(lambda x: x),
-        inverse=staticmethod(lambda x: x),
-        doc="Bounded Identity transform",
-    )
-
-    assert t.__name__ == "bounded_identity_trans"
-    assert isinstance(t.transform, FunctionType)
-    assert isinstance(t.inverse, FunctionType)
-    assert t.__doc__ == "Bounded Identity transform"
-
-    # ticks do not go beyond the domain bounds
-    # major = t().breaks((-1999, 1999))
-    #
-    major = t(format_func=lambda x: str(x), domain=(-999, 999)).breaks(
-        (-1999, 1999)
-    )
-    assert min(major) >= -999
-    assert max(major) <= 999
 
 
 def test_gettrans():

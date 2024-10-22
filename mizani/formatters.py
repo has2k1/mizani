@@ -22,7 +22,7 @@ from .labels import (
 comma_format = label_comma
 custom_format = label_custom
 currency_format = label_currency
-label_dollar = label_dollar
+label_format = label_dollar
 percent_format = label_percent
 scientific_format = label_scientific
 date_format = label_date

@@ -222,6 +222,15 @@ class trans(ABC):
         )
         return breaks
 
+    def format(self, x: Any) -> Sequence[str]:
+        """
+        Format breaks
+
+        When subclassing, you can override this function, or you can
+        just define `format_func`.
+        """
+        return self.format_func(x)
+
     def diff_type_to_num(self, x: Any) -> FloatArrayLike:
         """
         Convert the difference between two points in the domain to a numeric

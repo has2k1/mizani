@@ -210,7 +210,7 @@ def test_breaks_date():
     # automatic monthly breaks with rounding
     limits = (datetime(2019, 12, 27), datetime(2020, 6, 3))
     breaks = breaks_date()(limits)
-    assert [dt.month for dt in breaks] == [1, 3, 5]
+    assert [dt.month for dt in breaks] == [12, 2, 4, 6]
 
     # automatic day breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 1, 15))
@@ -245,6 +245,10 @@ def test_breaks_date():
     limits = (datetime(1990, 1, 1, tzinfo=UG), datetime(2022, 1, 1, tzinfo=UG))
     breaks = breaks_date()(limits)
     assert breaks[0].tzinfo == UG
+
+    # date
+    limits = (date(2000, 4, 23), date(2000, 6, 15))
+    breaks = breaks_date()(limits)
 
     # Special cases
     limits = (datetime(2039, 12, 17), datetime(2045, 12, 16))

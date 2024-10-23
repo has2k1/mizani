@@ -3,6 +3,7 @@ from datetime import datetime
 from mizani._core.date_utils import (
     ceil_month,
     expand_datetime_limits,
+    round_month,
     shift_limits_down,
 )
 
@@ -31,3 +32,11 @@ def test_ceil_month():
 
     d = datetime(2020, 1, 1)
     assert ceil_month(d) == d
+
+
+def test_round_month():
+    d = datetime(2000, 4, 23)
+    assert round_month(d) == datetime(2000, 5, 1)
+
+    d = datetime(2000, 4, 14)
+    assert round_month(d) == datetime(2000, 4, 1)

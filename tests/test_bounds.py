@@ -255,7 +255,7 @@ def test_squish_infinite():
         squish_infinite(a, (-100, 100)), [-100, 100, -100, 100]
     )
 
-    b = np.array([5, -np.inf, 2, 3, 6])
+    b = pd.Series([5, -np.inf, 2, 3, 6])
     npt.assert_allclose(squish_infinite(b, (1, 10)), [5, 1, 2, 3, 6])
 
 
@@ -270,7 +270,7 @@ def test_squish():
     b = np.array([5, 0, -2, 3, 10])
     npt.assert_allclose(squish(b, (0, 5)), [5, 0, 0, 3, 5])
 
-    c = np.array([5, -np.inf, 2, 3, 6])
+    c = pd.Series([5, -np.inf, 2, 3, 6])
     npt.assert_allclose(squish(c, (1, 10), only_finite=False), [5, 1, 2, 3, 6])
     npt.assert_allclose(squish(c, (1, 10)), c)
 

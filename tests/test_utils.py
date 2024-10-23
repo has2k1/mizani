@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -133,7 +133,7 @@ def test_get_timezone():
     UTC = ZoneInfo("UTC")
     UG = ZoneInfo("Africa/Kampala")
 
-    x = [date(2022, 1, 1), date(2022, 12, 1)]
+    x = [datetime(2022, 1, 1), datetime(2022, 12, 1)]
     assert get_timezone(x) is None
 
     x = [datetime(2022, 1, 1, tzinfo=UTC), datetime(2022, 12, 1, tzinfo=UG)]

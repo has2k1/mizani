@@ -11,7 +11,12 @@ import pandas as pd
 from dateutil.rrule import rrule
 
 from ..utils import get_timezone, isclose_abs
-from .date_utils import Interval, align_limits, expand_datetime_limits
+from .date_utils import (
+    Interval,
+    align_limits,
+    as_datetime,
+    expand_datetime_limits,
+)
 from .types import DateFrequency, date_breaks_info
 
 if TYPE_CHECKING:
@@ -316,10 +321,13 @@ def calculate_date_breaks_info(
     return res
 
 
-def calculate_date_breaks_auto(limits, n: int = 5) -> Sequence[datetime]:
+def calculate_date_breaks_auto(
+    limits: tuple[datetime, datetime], n: int = 5
+) -> Sequence[datetime]:
     """
     Calcuate date breaks using appropriate units
     """
+    limits = as_datetime(limits)
     info = calculate_date_breaks_info(limits, n=n)
     lookup = {
         DF.YEARLY: yearly_breaks,
@@ -334,7 +342,7 @@ def calculate_date_breaks_auto(limits, n: int = 5) -> Sequence[datetime]:
 
 
 def calculate_date_breaks_byunits(
-    limits,
+    limits: tuple[datetime, datetime],
     units: DatetimeBreaksUnits,
     width: int,
     max_breaks: int | None = None,

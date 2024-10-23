@@ -13,6 +13,12 @@ API Changes
 
 - `mizani.transforms.trans_new` function has been deprecated.
 
+Enhancements
+************
+
+- `~mizani.breaks.breaks_date` has been slightly improved for the case when it
+  generates monthly breaks.
+
 New
 ***
 

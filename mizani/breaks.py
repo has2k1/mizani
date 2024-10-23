@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import KW_ONLY, dataclass, field
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from itertools import product
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -23,6 +23,7 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 
+from mizani._core.date_utils import as_datetime
 from mizani._core.dates import (
     calculate_date_breaks_auto,
     calculate_date_breaks_byunits,
@@ -460,7 +461,7 @@ class breaks_date:
             self._units = units.rstrip("s")  # type: ignore
 
     def __call__(
-        self, limits: tuple[datetime, datetime]
+        self, limits: tuple[datetime, datetime] | tuple[date, date]
     ) -> Sequence[datetime]:
         """
         Compute breaks
@@ -483,6 +484,7 @@ class breaks_date:
         ):
             limits = limits[0].astype(object), limits[1].astype(object)
 
+        limits = as_datetime(limits)
         if self._units and self._width:
             return calculate_date_breaks_byunits(
                 limits, self._units, self._width

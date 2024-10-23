@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import math
 import sys
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, cast, overload
+from datetime import datetime
+from typing import TYPE_CHECKING, overload
 from warnings import warn
 
 import numpy as np
@@ -22,7 +22,6 @@ if TYPE_CHECKING:
         NDArrayFloat,
         NullType,
         NumericUFunction,
-        SeqDatetime,
     )
 
     T = TypeVar("T")
@@ -327,28 +326,21 @@ def log(x, base):
     return res
 
 
-def get_timezone(x: SeqDatetime) -> tzinfo | None:
+def get_timezone(x: Sequence[datetime]) -> tzinfo | None:
     """
     Return a single timezone for the sequence of datetimes
 
     Returns the timezone of first item and warns if any other items
     have a different timezone
     """
-
     # Ref: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-    x0 = next(iter(x))
-    if not isinstance(x0, datetime):
+    if not len(x) or x[0].tzinfo is None:
         return None
 
-    x = cast(list[datetime], x)
-    info = x0.tzinfo
-    if info is None:
-        return timezone.utc
-
     # Consistency check
-    tzname0 = info.tzname(x0)
+    info = x[0].tzinfo
+    tzname0 = info.tzname(x[0])
     tznames = (dt.tzinfo.tzname(dt) if dt.tzinfo else None for dt in x)
-
     if any(tzname0 != name for name in tznames):
         msg = (
             "Dates in column have different time zones. "

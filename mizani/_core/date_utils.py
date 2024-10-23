@@ -34,12 +34,6 @@ class Interval:
     end: datetime
 
     def __post_init__(self):
-        if isinstance(self.start, date):
-            self.start = datetime.fromisoformat(self.start.isoformat())
-
-        if isinstance(self.end, date):
-            self.end = datetime.fromisoformat(self.end.isoformat())
-
         self._delta = relativedelta(self.end, self.start)
         self._tdelta = self.end - self.start
 
@@ -149,7 +143,7 @@ class Interval:
         return floor_year(self.start), ceil_year(self.end)
 
     def limits_month(self) -> tuple[datetime, datetime]:
-        return round_month(self.start), round_month(self.end)
+        return floor_month(self.start), ceil_month(self.end)
 
     def limits_week(self) -> tuple[datetime, datetime]:
         return floor_week(self.start), ceil_week(self.end)
@@ -481,3 +475,20 @@ def expand_datetime_limits(
         end = end.replace(y2)
 
     return start, end
+
+
+def as_datetime(
+    tup: tuple[datetime, datetime] | tuple[date, date],
+) -> tuple[datetime, datetime]:
+    """
+    Ensure that a tuple of datetime values
+    """
+    l, h = tup
+
+    if not isinstance(l, datetime):
+        l = datetime.fromisoformat(l.isoformat())
+
+    if not isinstance(h, datetime):
+        h = datetime.fromisoformat(h.isoformat())
+
+    return l, h

@@ -5,6 +5,9 @@ v0.13.0
 -------
 *2024-10-24*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.13986997.svg
+  :target: https://doi.org/10.5281/zenodo.13986997
+
 API Changes
 ***********
 

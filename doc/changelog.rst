@@ -5,6 +5,9 @@ v0.13.1
 -------
 *2024-12-10*
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14364079.svg
+  :target: https://doi.org/10.5281/zenodo.14364079
+
 Enhancements
 ************
 

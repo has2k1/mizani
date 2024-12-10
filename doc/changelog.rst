@@ -3,7 +3,12 @@ Changelog
 
 v0.13.1
 -------
-*not-yet-released*
+*2024-12-10*
+
+Enhancements
+************
+
+- Type checking pass with numpy 2.2.
 
 
 v0.13.0

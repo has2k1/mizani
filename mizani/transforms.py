@@ -648,7 +648,7 @@ class modulus_trans(trans):
         p, offset = self.p, self.offset
 
         if np.abs(self.p) < 1e-7:
-            return np.sign(x) * np.log(np.abs(x) + offset)
+            return np.sign(x) * np.log(np.abs(x) + offset)  # pyright: ignore[reportReturnType]
         else:
             return np.sign(x) * ((np.abs(x) + offset) ** p - 1) / p
 
@@ -916,7 +916,7 @@ class symlog_trans(trans):
     breaks_func: BreaksFunction = breaks_symlog()
 
     def transform(self, x: FloatArrayLike) -> NDArrayFloat:
-        return np.sign(x) * np.log1p(np.abs(x))
+        return np.sign(x) * np.log1p(np.abs(x))  # pyright: ignore[reportReturnType]
 
     def inverse(self, x: FloatArrayLike) -> NDArrayFloat:
         return np.sign(x) * (np.exp(np.abs(x)) - 1)  # type: ignore

@@ -365,7 +365,7 @@ def censor(
     if bool_idx.any():
         if res.dtype == int:
             res = res.astype(float)
-        res[bool_idx] = null
+        res[bool_idx] = null  # pyright: ignore[reportCallIssue,reportArgumentType]
     return res
 
 

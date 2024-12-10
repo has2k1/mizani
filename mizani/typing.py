@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     # Arrays (strictly numpy)
     NDArrayAny: TypeAlias = NDArray[Any]
-    NDArrayFloat: TypeAlias = NDArray[np.float64]
+    NDArrayFloat: TypeAlias = NDArray[np.floating]
     NDArrayDatetime: TypeAlias = NDArray[np.datetime64]
 
     # Panda Series

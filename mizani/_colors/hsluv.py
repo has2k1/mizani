@@ -75,7 +75,7 @@ def _normalize_output(conversion):
     normalize = _partial(round, ndigits=11 - 1)
 
     @_wraps(conversion)
-    def normalized(*args, **kwargs):
+    def normalized(*args, **kwargs) -> Triplet:
         color = conversion(*args, **kwargs)
         return tuple(normalize(c) for c in color)
 

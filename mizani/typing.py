@@ -19,7 +19,9 @@ if TYPE_CHECKING:
     import numpy as np
     import pandas as pd
     from numpy.typing import NDArray
-    from pandas._libs import NaTType
+    from pandas._libs import (
+        NaTType,  # pyright: ignore[reportPrivateImportUsage]
+    )
 
     from mizani._colors._palettes import palette
     from mizani.transforms import trans

@@ -509,11 +509,11 @@ class asn_trans(trans):
     transform_is_linear: bool = True
 
     def transform(self, x: FloatArrayLike) -> NDArrayFloat:
-        return 2 * np.arcsin(np.sqrt(x))  # type: ignore
+        return 2 * np.arcsin(np.sqrt(x))
 
     def inverse(self, x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
-        return np.sin(x / 2) ** 2  # type: ignore
+        return np.sin(x / 2) ** 2
 
 
 @dataclass(kw_only=True)
@@ -591,7 +591,7 @@ class boxcox_trans(trans):
     def inverse(self, x: FloatArrayLike) -> NDArrayFloat:
         x = np.asarray(x)
         if np.abs(self.p) < 1e-7:
-            return np.exp(x) - self.offset  # type: ignore
+            return np.exp(x) - self.offset
         else:
             return (x * self.p + 1) ** (1 / self.p) - self.offset
 
@@ -648,7 +648,7 @@ class modulus_trans(trans):
         p, offset = self.p, self.offset
 
         if np.abs(self.p) < 1e-7:
-            return np.sign(x) * np.log(np.abs(x) + offset)  # pyright: ignore[reportReturnType]
+            return np.sign(x) * np.log(np.abs(x) + offset)
         else:
             return np.sign(x) * ((np.abs(x) + offset) ** p - 1) / p
 
@@ -657,7 +657,7 @@ class modulus_trans(trans):
         p, offset = self.p, self.offset
 
         if np.abs(self.p) < 1e-7:
-            return np.sign(x) * (np.exp(np.abs(x)) - offset)  # type: ignore
+            return np.sign(x) * (np.exp(np.abs(x)) - offset)
         else:
             return np.sign(x) * ((np.abs(x) * p + 1) ** (1 / p) - offset)
 
@@ -916,10 +916,10 @@ class symlog_trans(trans):
     breaks_func: BreaksFunction = breaks_symlog()
 
     def transform(self, x: FloatArrayLike) -> NDArrayFloat:
-        return np.sign(x) * np.log1p(np.abs(x))  # pyright: ignore[reportReturnType]
+        return np.sign(x) * np.log1p(np.abs(x))
 
     def inverse(self, x: FloatArrayLike) -> NDArrayFloat:
-        return np.sign(x) * (np.exp(np.abs(x)) - 1)  # type: ignore
+        return np.sign(x) * (np.exp(np.abs(x)) - 1)
 
 
 def gettrans(t: str | Type[trans] | trans | None = None):

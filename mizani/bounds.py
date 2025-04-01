@@ -90,7 +90,7 @@ def rescale(
     array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
     """
     __from = (np.min(x), np.max(x)) if _from is None else _from
-    return np.interp(x, __from, to)
+    return np.interp(x, __from, to)  # pyright: ignore[reportReturnType]
 
 
 def rescale_mid(
@@ -365,7 +365,7 @@ def censor(
     if bool_idx.any():
         if res.dtype == int:
             res = res.astype(float)
-        res[bool_idx] = null  # pyright: ignore[reportCallIssue,reportArgumentType]
+        res[bool_idx] = null  # pyright: ignore[reportArgumentType]
     return res
 
 

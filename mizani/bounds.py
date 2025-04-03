@@ -415,8 +415,9 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
         return x[0].total_seconds() == x[1].total_seconds()
     elif not isinstance(x[0], (float, int, np.number)):
         raise TypeError(
-            "zero_range objects cannot work with objects "
-            "of type '{}'".format(type(x[0]))
+            "zero_range objects cannot work with objects of type '{}'".format(
+                type(x[0])
+            )
         )
     else:
         low, high = x

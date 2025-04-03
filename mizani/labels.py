@@ -131,7 +131,7 @@ class label_number:
         sep = self.big_mark if valid_big_mark else ","
 
         fmt = (
-            f"{self.prefix}" f"{{num:{sep}.{{precision}}f}}" f"{self.suffix}"
+            f"{self.prefix}{{num:{sep}.{{precision}}f}}{self.suffix}"
         ).format
 
         x = np.asarray(x)

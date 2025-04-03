@@ -1,3 +1,4 @@
+import sys
 import warnings
 from datetime import datetime, timedelta
 
@@ -257,6 +258,30 @@ def test_squish_infinite():
 
     b = pd.Series([5, -np.inf, 2, 3, 6])
     npt.assert_allclose(squish_infinite(b, (1, 10)), [5, 1, 2, 3, 6])
+
+
+@pytest.mark.skipif(
+    sys.version_info <= (3, 13),
+    reason="Warning is not triggered on python <= 3.13",
+)
+def test_squish_infinite_uint():
+    a = np.array([1, 2, 3], dtype=np.uint64)
+    range_ = (np.float64(-1), np.float64(10))
+    with warnings.catch_warnings(record=True) as record:
+        _ = squish_infinite(a, range_)
+        assert not record, record[0].message
+
+
+@pytest.mark.skipif(
+    sys.version_info <= (3, 13),
+    reason="Warning is not triggered on python <= 3.13",
+)
+def test_squish_uint():
+    a = np.array([1, 2, 3], dtype=np.uint64)
+    range_ = (np.float64(-1), np.float64(10))
+    with warnings.catch_warnings(record=True) as record:
+        _ = squish(a, range_)
+        assert not record, record[0].message
 
 
 def test_squish():

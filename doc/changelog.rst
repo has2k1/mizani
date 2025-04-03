@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.13.2
+-------
+*2025-04-03*
+
+Enhancements
+************
+
+- For python >=3.13 `~mizani.bounds.squish_infinite` and `~mizani.bounds.squish`
+  do not warning about invalid values when passed arrays with `dtype=uint64`
+  and a range with negative values.
+
 v0.13.1
 -------
 *2024-12-10*
@@ -12,7 +23,6 @@ Enhancements
 ************
 
 - Type checking pass with numpy 2.2.
-
 
 v0.13.0
 -------

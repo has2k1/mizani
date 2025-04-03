@@ -250,9 +250,9 @@ def squish_infinite(
     array([  0.  , -10.  ,   0.5 ,   0.25,   9.  ])
     """
     if isinstance(x, pd.Series):
-        _x = x.to_numpy().copy()
+        _x = x.to_numpy().copy().astype(float)
     else:
-        _x = np.array(x, copy=True)
+        _x = np.array(x, copy=True).astype(float)
     _x[np.isneginf(_x)] = range[0]
     _x[np.isposinf(_x)] = range[1]
     return _x
@@ -289,9 +289,9 @@ def squish(
     array([0. , 0. , 0.2, 0.8, 1. , 1. ])
     """
     if isinstance(x, pd.Series):
-        _x = x.to_numpy().copy()
+        _x = x.to_numpy().copy().astype(float)
     else:
-        _x = np.array(x, copy=True)
+        _x = np.array(x, copy=True).astype(float)
     finite = np.isfinite(_x) if only_finite else True
     _x[np.logical_and(_x < range[0], finite)] = range[0]
     _x[np.logical_and(_x > range[1], finite)] = range[1]

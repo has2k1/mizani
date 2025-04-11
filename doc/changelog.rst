@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.13.3
+-------
+
+*2025-04-11*
+
+Enhancements
+************
+
+- Make it possible to train discrete data that is a sequence of tuples.
+  (plotnine issue [#933](https://github.com/has2k1/plotnine/issues/933))
+
 v0.13.2
 -------
 *2025-04-03*

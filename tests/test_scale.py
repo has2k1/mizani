@@ -111,3 +111,10 @@ def test_scale_discrete():
     limits = scale_discrete.train(x2, old=limits)
     # assert limits == list('abcedf')
     assert limits == list("adefbc")
+
+    # Sequence of tuples
+    x1 = pd.Series([(1, 2), (3, 4), (5, 6)])
+    x2 = pd.Series([(1, 2), (7, 8)])
+    limits = scale_discrete.train(x1)
+    limits = scale_discrete.train(x2, old=limits)
+    assert limits == [(1, 2), (3, 4), (5, 6), (7, 8)]

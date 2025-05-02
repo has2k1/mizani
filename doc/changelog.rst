@@ -10,7 +10,7 @@ Enhancements
 ************
 
 - Added aliases to the vega colormaps for the names used in matplotlib.
-  (plotnine issue [#938](https://github.com/has2k1/plotnine/issues/938))
+  plotnine issue `[#938] <https://github.com/has2k1/plotnine/issues/938>`_
 
 v0.13.3
 -------
@@ -21,7 +21,7 @@ Enhancements
 ************
 
 - Make it possible to train discrete data that is a sequence of tuples.
-  (plotnine issue [#933](https://github.com/has2k1/plotnine/issues/933))
+  plotnine issue `[#933] <https://github.com/has2k1/plotnine/issues/933>`_
 
 v0.13.2
 -------

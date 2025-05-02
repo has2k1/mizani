@@ -12,7 +12,7 @@ longest and each swatch is longer than the previous by one color.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -36,17 +36,21 @@ class palette:
     #: Name of palette
     name: str
 
-    #: Number of colors in the shortest swatch
-    min_colors: int
-
-    #: Number of colors in the longest swatch
-    max_colors: int
-
     #: Discrete samplings of the palette space
     swatches: RGB256Swatches
 
     #: Kind of palette
     kind: PaletteKind
+
+    #: Number of colors in the shortest swatch
+    min_colors: int = field(init=False)
+
+    #: Number of colors in the longest swatch
+    max_colors: int = field(init=False)
+
+    def __post_init__(self):
+        self.min_colors = len(self.swatches[0])
+        self.max_colors = len(self.swatches[-1])
 
     def get_swatch(self, num_colors: int) -> RGB256Swatch:
         """

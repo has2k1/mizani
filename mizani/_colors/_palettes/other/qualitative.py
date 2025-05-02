@@ -14,8 +14,6 @@ __all__ = (
 # credit: https://vega.github.io/vega/docs/schemes/#category10
 category10 = palette(
     name="category10",
-    min_colors=10,
-    max_colors=10,
     swatches=[
         [
             (31, 119, 180),
@@ -36,8 +34,6 @@ category10 = palette(
 # credit: https://vega.github.io/vega/docs/schemes/#category20
 category20 = palette(
     name="category20",
-    min_colors=20,
-    max_colors=20,
     swatches=[
         [
             (31, 119, 180),
@@ -68,8 +64,6 @@ category20 = palette(
 # credit: https://vega.github.io/vega/docs/schemes/#category20b
 category20b = palette(
     name="category20b",
-    min_colors=20,
-    max_colors=20,
     swatches=[
         [
             (57, 59, 121),
@@ -100,8 +94,6 @@ category20b = palette(
 # credit: https://vega.github.io/vega/docs/schemes/#category20c
 category20c = palette(
     name="category20c",
-    min_colors=10,
-    max_colors=10,
     swatches=[
         [
             (49, 130, 189),
@@ -132,8 +124,6 @@ category20c = palette(
 # credit: https://vega.github.io/vega/docs/schemes/#observable10
 observable10 = palette(
     name="observable10",
-    min_colors=10,
-    max_colors=10,
     swatches=[
         [
             (66, 105, 208),
@@ -154,8 +144,6 @@ observable10 = palette(
 # credit: https://vega.github.io/vega/docs/schemes/#tableau10
 tableau10 = palette(
     name="tableau10",
-    min_colors=10,
-    max_colors=10,
     swatches=[
         [
             (76, 120, 168),
@@ -176,8 +164,6 @@ tableau10 = palette(
 # credit: https://vega.github.io/vega/docs/schemes/#tableau20
 tableau20 = palette(
     name="tableau20",
-    min_colors=20,
-    max_colors=20,
     swatches=[
         [
             (76, 120, 168),

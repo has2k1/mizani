@@ -24,8 +24,6 @@ __all__ = [
 
 Blues = palette(
     name="Blues",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(222, 235, 247), (158, 202, 225), (49, 130, 189)],
         [(239, 243, 255), (189, 215, 231), (107, 174, 214), (33, 113, 181)],
@@ -80,8 +78,6 @@ Blues = palette(
 
 BuGn = palette(
     name="BuGn",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(229, 245, 249), (153, 216, 201), (44, 162, 95)],
         [(237, 248, 251), (178, 226, 226), (102, 194, 164), (35, 139, 69)],
@@ -136,8 +132,6 @@ BuGn = palette(
 
 BuPu = palette(
     name="BuPu",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(224, 236, 244), (158, 188, 218), (136, 86, 167)],
         [(237, 248, 251), (179, 205, 227), (140, 150, 198), (136, 65, 157)],
@@ -192,8 +186,6 @@ BuPu = palette(
 
 GnBu = palette(
     name="GnBu",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(224, 243, 219), (168, 221, 181), (67, 162, 202)],
         [(240, 249, 232), (186, 228, 188), (123, 204, 196), (43, 140, 190)],
@@ -248,8 +240,6 @@ GnBu = palette(
 
 Greens = palette(
     name="Greens",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(229, 245, 224), (161, 217, 155), (49, 163, 84)],
         [(237, 248, 233), (186, 228, 179), (116, 196, 118), (35, 139, 69)],
@@ -304,8 +294,6 @@ Greens = palette(
 
 Greys = palette(
     name="Greys",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(240, 240, 240), (189, 189, 189), (99, 99, 99)],
         [(247, 247, 247), (204, 204, 204), (150, 150, 150), (82, 82, 82)],
@@ -360,8 +348,6 @@ Greys = palette(
 
 Oranges = palette(
     name="Oranges",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(254, 230, 206), (253, 174, 107), (230, 85, 13)],
         [(254, 237, 222), (253, 190, 133), (253, 141, 60), (217, 71, 1)],
@@ -416,8 +402,6 @@ Oranges = palette(
 
 OrRd = palette(
     name="OrRd",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(254, 232, 200), (253, 187, 132), (227, 74, 51)],
         [(254, 240, 217), (253, 204, 138), (252, 141, 89), (215, 48, 31)],
@@ -472,8 +456,6 @@ OrRd = palette(
 
 PuBu = palette(
     name="PuBu",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(236, 231, 242), (166, 189, 219), (43, 140, 190)],
         [(241, 238, 246), (189, 201, 225), (116, 169, 207), (5, 112, 176)],
@@ -528,8 +510,6 @@ PuBu = palette(
 
 PuBuGn = palette(
     name="PuBuGn",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(236, 226, 240), (166, 189, 219), (28, 144, 153)],
         [(246, 239, 247), (189, 201, 225), (103, 169, 207), (2, 129, 138)],
@@ -584,8 +564,6 @@ PuBuGn = palette(
 
 PuRd = palette(
     name="PuRd",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(231, 225, 239), (201, 148, 199), (221, 28, 119)],
         [(241, 238, 246), (215, 181, 216), (223, 101, 176), (206, 18, 86)],
@@ -640,8 +618,6 @@ PuRd = palette(
 
 Purples = palette(
     name="Purples",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(239, 237, 245), (188, 189, 220), (117, 107, 177)],
         [(242, 240, 247), (203, 201, 226), (158, 154, 200), (106, 81, 163)],
@@ -696,8 +672,6 @@ Purples = palette(
 
 RdPu = palette(
     name="RdPu",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(253, 224, 221), (250, 159, 181), (197, 27, 138)],
         [(254, 235, 226), (251, 180, 185), (247, 104, 161), (174, 1, 126)],
@@ -752,8 +726,6 @@ RdPu = palette(
 
 Reds = palette(
     name="Reds",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(254, 224, 210), (252, 146, 114), (222, 45, 38)],
         [(254, 229, 217), (252, 174, 145), (251, 106, 74), (203, 24, 29)],
@@ -808,8 +780,6 @@ Reds = palette(
 
 YlGn = palette(
     name="YlGn",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(247, 252, 185), (173, 221, 142), (49, 163, 84)],
         [(255, 255, 204), (194, 230, 153), (120, 198, 121), (35, 132, 67)],
@@ -864,8 +834,6 @@ YlGn = palette(
 
 YlGnBu = palette(
     name="YlGnBu",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(237, 248, 177), (127, 205, 187), (44, 127, 184)],
         [(255, 255, 204), (161, 218, 180), (65, 182, 196), (34, 94, 168)],
@@ -920,8 +888,6 @@ YlGnBu = palette(
 
 YlOrBr = palette(
     name="YlOrBr",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(255, 247, 188), (254, 196, 79), (217, 95, 14)],
         [(255, 255, 212), (254, 217, 142), (254, 153, 41), (204, 76, 2)],
@@ -976,8 +942,6 @@ YlOrBr = palette(
 
 YlOrRd = palette(
     name="YlOrRd",
-    min_colors=3,
-    max_colors=9,
     swatches=[
         [(255, 237, 160), (254, 178, 76), (240, 59, 32)],
         [(255, 255, 178), (254, 204, 92), (253, 141, 60), (227, 26, 28)],

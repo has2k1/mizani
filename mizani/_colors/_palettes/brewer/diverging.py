@@ -15,8 +15,6 @@ __all__ = [
 
 BrBG = palette(
     name="BrBG",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(216, 179, 101), (245, 245, 245), (90, 180, 172)],
         [(166, 97, 26), (223, 194, 125), (128, 205, 193), (1, 133, 113)],
@@ -96,8 +94,6 @@ BrBG = palette(
 
 PiYG = palette(
     name="PiYG",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(233, 163, 201), (247, 247, 247), (161, 215, 106)],
         [(208, 28, 139), (241, 182, 218), (184, 225, 134), (77, 172, 38)],
@@ -177,8 +173,6 @@ PiYG = palette(
 
 PRGn = palette(
     name="PRGn",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(175, 141, 195), (247, 247, 247), (127, 191, 123)],
         [(123, 50, 148), (194, 165, 207), (166, 219, 160), (0, 136, 55)],
@@ -258,8 +252,6 @@ PRGn = palette(
 
 PuOr = palette(
     name="PuOr",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(241, 163, 64), (247, 247, 247), (153, 142, 195)],
         [(230, 97, 1), (253, 184, 99), (178, 171, 210), (94, 60, 153)],
@@ -339,8 +331,6 @@ PuOr = palette(
 
 RdBu = palette(
     name="RdBu",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(239, 138, 98), (247, 247, 247), (103, 169, 207)],
         [(202, 0, 32), (244, 165, 130), (146, 197, 222), (5, 113, 176)],
@@ -420,8 +410,6 @@ RdBu = palette(
 
 RdGy = palette(
     name="RdGy",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(239, 138, 98), (255, 255, 255), (153, 153, 153)],
         [(202, 0, 32), (244, 165, 130), (186, 186, 186), (64, 64, 64)],
@@ -501,8 +489,6 @@ RdGy = palette(
 
 RdYlBu = palette(
     name="RdYlBu",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(252, 141, 89), (255, 255, 191), (145, 191, 219)],
         [(215, 25, 28), (253, 174, 97), (171, 217, 233), (44, 123, 182)],
@@ -582,8 +568,6 @@ RdYlBu = palette(
 
 RdYlGn = palette(
     name="RdYlGn",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(252, 141, 89), (255, 255, 191), (145, 207, 96)],
         [(215, 25, 28), (253, 174, 97), (166, 217, 106), (26, 150, 65)],
@@ -663,8 +647,6 @@ RdYlGn = palette(
 
 Spectral = palette(
     name="Spectral",
-    min_colors=3,
-    max_colors=11,
     swatches=[
         [(252, 141, 89), (255, 255, 191), (153, 213, 148)],
         [(215, 25, 28), (253, 174, 97), (171, 221, 164), (43, 131, 186)],

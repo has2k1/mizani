@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.13.4
+-------
+
+*2025-05-02*
+
+Enhancements
+************
+
+- Added aliases to the vega colormaps for the names used in matplotlib.
+  (plotnine issue [#938](https://github.com/has2k1/plotnine/issues/938))
+
 v0.13.3
 -------
 

@@ -54,6 +54,10 @@ __all__ = (
     "observable10",
     "tableau10",
     "tableau20",
+    "tab10",
+    "tab20",
+    "tab20b",
+    "tab20c",
 )
 
 BrBG = diverging.BrBG.colormap
@@ -101,3 +105,9 @@ category20c = other_qualitative.category20c.colormap
 observable10 = other_qualitative.observable10.colormap
 tableau10 = other_qualitative.tableau10.colormap
 tableau20 = other_qualitative.tableau20.colormap
+# Aliases to accomodate the names of the vega colormaps
+# according to matplotlib
+tab10 = other_qualitative.category10.colormap
+tab20 = other_qualitative.category20.colormap
+tab20b = other_qualitative.category20b.colormap
+tab20c = other_qualitative.category20c.colormap

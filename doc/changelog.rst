@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.13.5
+-------
+
+Bug Fixes
+*********
+
+- Fixed using a discrete palette and requesting less colours than
+  than the smallest swatch in the palette. Among the affected
+  palettes are `category10`, `category20`, `category20b`,
+  `category20c`.
+
 v0.13.4
 -------
 

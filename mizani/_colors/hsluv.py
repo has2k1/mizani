@@ -36,6 +36,7 @@ __all__ = (
     "hsluv_to_lch",
     "hsluv_to_rgb",
     "lch_to_hpluv",
+    "lch_to_hex",
     "lch_to_hsluv",
     "lch_to_luv",
     "lch_to_rgb",
@@ -339,3 +340,7 @@ def hex_to_hsluv(s: RGBHexColor) -> Triplet:
 
 def hex_to_hpluv(s: RGBHexColor) -> Triplet:
     return rgb_to_hpluv(hex_to_rgb(s))
+
+
+def lch_to_hex(_hx_tuple: Triplet) -> RGBHexColor:
+    return rgb_to_hex(lch_to_rgb(_hx_tuple))

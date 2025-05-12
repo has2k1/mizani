@@ -357,7 +357,67 @@ class grey_pal(_discrete_pal):
 @dataclass
 class hue_pal(_discrete_pal):
     """
-    Utility for making hue palettes for color schemes.
+    Make a hue palette in HCL colour space
+
+    Parameters
+    ----------
+    h : float | tuple[float, float]
+        If a float, it is the first hue value, in the range `[0, 360]`.
+        The range of the palette will be `[first, first + 360)`.
+
+        If a tuple, it is the range `[first, last)` of the hues.
+    c : float
+        The chroma value, in the range [0, 100].
+    l : float
+        The lightness value, in the range [0, 100].
+    direction : 1 | -1
+        The order of colours in the scale. If -1 the order
+        of colours is reversed. The default is 1.
+
+    Returns
+    -------
+    palette : Callable
+        A function that takes an integer and returns a that number of
+        colours from the HCL colour space.
+
+    Examples
+    --------
+    >>> hue_pal()(5)
+    ['#f8766d', '#a3a500', '#00bf7d', '#00b0f6', '#e76bf3']
+    >>> hue_pal((100, 300))(5)
+    ['#88ac00', '#00be67', '#00becd', '#3fa1ff', '#e36ef6']
+    """
+
+    h: float | tuple[float, float] = 15
+    c: float = 100
+    l: float = 65
+    direction: Literal[1, -1] = 1
+
+    def __post_init__(self):
+        # Ensure a proper range for the palette
+        if isinstance(self.h, tuple):
+            self._hue_range = self.h
+        else:
+            self._hue_range = self.h, self.h + 360
+
+    def __call__(self, n: int) -> Sequence[RGBHexColor]:
+        h = self._hue_range
+
+        # Make a hue range that is functionally zero wrap around and
+        # and cover the entire hue space.
+        # h = (0, 360) == (360, 360) == (720, 360)
+        # h = (200, 200) == (200, 200+360) == (200, 200+720)
+        if (h[1] - h[0]) % 360 < 1:
+            h = h[0] % 360, (h[1] - 360 / n) % 360
+
+        hues = np.linspace(h[0], h[1], n)[:: self.direction] % 360
+        return [hsluv.lch_to_hex((self.l, self.c, h)) for h in hues]
+
+
+@dataclass
+class hls_pal(_discrete_pal):
+    """
+    Make a hue palette in HLS or HSLUV colour space
 
     Parameters
     ----------
@@ -384,9 +444,9 @@ class hue_pal(_discrete_pal):
 
     Examples
     --------
-    >>> hue_pal()(5)
+    >>> hls_pal()(5)
     ['#db5f57', '#b9db57', '#57db94', '#5784db', '#c957db']
-    >>> hue_pal(color_space='hsluv')(5)
+    >>> hls_pal(color_space='hsluv')(5)
     ['#e0697e', '#9b9054', '#569d79', '#5b98ab', '#b675d7']
     """
 
@@ -399,7 +459,7 @@ class hue_pal(_discrete_pal):
         h, l, s = self.h, self.l, self.s
         if not all(0 <= val <= 1 for val in (h, l, s)):
             msg = (
-                "hue_pal expects values to be between 0 and 1. "
+                "hls_pal expects values to be between 0 and 1. "
                 f"I got {h=}, {l=}, {s=}"
             )
             raise ValueError(msg)

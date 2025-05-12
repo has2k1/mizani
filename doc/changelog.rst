@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.14.0
+-------
+
+*not-yet-released*
+
+API Changes
+***********
+
+- Changed :class:`~mizani.palettes.hue_pal` to use HCL color space
+  from HSL (or HSLuv) space. The previous functionality is now available
+  with :class:`~mizani.palettes.hls_pal`.
+
+
 v0.13.5
 -------
 

@@ -13,6 +13,7 @@ from mizani.palettes import (
     desaturate_pal,
     gradient_n_pal,
     grey_pal,
+    hls_pal,
     hls_palette,
     hsluv_palette,
     hue_pal,
@@ -71,22 +72,33 @@ def test_grey_pal():
     assert all(s[1:3] * 3 == s[1:] for s in result)
 
 
-def test_hue_pal():
-    palette = hue_pal()
+def test_hls_pal():
+    palette = hls_pal()
     result = palette(5)
     assert all(s[0] == "#" and len(s) == 7 for s in result)
 
     # branches #
     with pytest.raises(ValueError):
-        hue_pal(0.1, 2.3, 3)
+        hls_pal(0.1, 2.3, 3)
 
     with pytest.raises(ValueError):
-        hue_pal(color_space="slh")  # pyright: ignore
+        hls_pal(color_space="slh")  # pyright: ignore
 
     # Backword compatibility check
-    palette = hue_pal(color_space="husl")  # pyright: ignore
+    palette = hls_pal(color_space="husl")  # pyright: ignore
     result = palette(5)
     assert all(s[0] == "#" and len(s) == 7 for s in result)
+
+
+def test_hue_pal():
+    pal1, pal2 = hue_pal((0, 360)), hue_pal((360, 360))
+    assert pal1(5) == pal2(5)
+
+    pal1, pal2 = hue_pal((100, 100)), hue_pal((100, 100 + 360))
+    assert pal1(5) == pal2(5)
+
+    pal = hue_pal()
+    assert pal(3) == ["#f8766d", "#00ba38", "#619cff"]
 
 
 def test_brewer_pal():

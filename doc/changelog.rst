@@ -13,6 +13,17 @@ API Changes
   from HSL (or HSLuv) space. The previous functionality is now available
   with :class:`~mizani.palettes.hls_pal`.
 
+Enhancements
+************
+
+- Added name "gray" aliases to all XKCD colors partially named "grey".
+
+
+New
+***
+
+- Added tableau color in the "tab:*" colorname space. e.g. "tab:red". 
+
 
 v0.13.5
 -------

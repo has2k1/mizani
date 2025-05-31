@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._colormaps import ColorMap
-from ._named_color_values import CRAYON, CSS4, SHORT, XKCD
+from ._named_color_values import CRAYON, CSS4, SHORT, TABLEAU, XKCD
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -59,7 +59,7 @@ class _colormap_lookup(dict[str, ColorMap]):
             raise ValueError(f"Unknown colormap: {name}") from err
 
 
-NAMED_COLORS = _color_lookup(**SHORT, **CSS4, **XKCD, **CRAYON)
+NAMED_COLORS = _color_lookup(**SHORT, **CSS4, **XKCD, **CRAYON, **TABLEAU)
 
 
 def get_named_color(name: str) -> RGBHexColor:

@@ -1344,3 +1344,21 @@ CRAYON = {
 }
 
 CRAYON = {f"crayon:{k}": v for k, v in CRAYON.items()}
+
+# Colors from tableau
+
+TABLEAU = {
+    "blue": "#1F77B4",
+    "brown": "#8C564B",
+    "cyan": "#17BECF",
+    "gray": "#7F7F7F",
+    "green": "#2CA02C",
+    "grey": "#7F7F7F",
+    "olive": "#BCBD22",
+    "orange": "#FF7F0E",
+    "pink": "#E377C2",
+    "purple": "#9467BD",
+    "red": "#D62728",
+}
+
+TABLEAU = {f"tab:{k}": v for k, v in TABLEAU.items()}

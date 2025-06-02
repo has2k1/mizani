@@ -71,14 +71,18 @@ if TYPE_CHECKING:
     )
 
     RGBColor: TypeAlias = tuple[float, float, float] | NDArrayFloat
+    RGBAColor: TypeAlias = tuple[float, float, float, float] | NDArrayFloat
 
     RGB256Color: TypeAlias = tuple[int, int, int]
     RGB256Swatch: TypeAlias = Sequence[RGB256Color]
     RGB256Swatches: TypeAlias = Sequence[RGB256Swatch]
 
     RGBHexColor: TypeAlias = str
+    RGBAHexColor: TypeAlias = str
     RGBHexSwatch: TypeAlias = Sequence[RGBHexColor]
     RGBHexSwatches: TypeAlias = Sequence[RGBHexSwatch]
+
+    ColorType: TypeAlias = RGBColor | RGBAColor | RGBHexColor | RGBAHexColor
 
     # Change this when numpy gets support for type-hinting shapes
     # Ref: https://github.com/numpy/numpy/issues/16544

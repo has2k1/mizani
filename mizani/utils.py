@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import math
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, overload
 from warnings import warn
 
@@ -16,7 +15,6 @@ if TYPE_CHECKING:
 
     from mizani.typing import (
         AnyArrayLike,
-        DurationUnit,
         FloatArrayLike,
         FloatSeries,
         NDArrayFloat,
@@ -25,18 +23,19 @@ if TYPE_CHECKING:
     )
 
     T = TypeVar("T")
+    TC = TypeVar("TC", int, float, datetime, timedelta)
 
 __all__ = [
     "round_any",
     "min_max",
     "match",
     "precision",
-    "isclose_abs",
     "same_log10_order_of_magnitude",
     "identity",
     "get_categories",
     "get_timezone",
     "has_dtype",
+    "forward_fill",
 ]
 
 # Use sqrt(epsilon) to correct for loss of precision due floating point
@@ -48,32 +47,6 @@ ABS_TOL = 1e-10  # Absolute Tolerance
 
 DISCRETE_KINDS = "ObUS"
 CONTINUOUS_KINDS = "ifuc"
-
-SECONDS: dict[DurationUnit, float] = {
-    "ns": 1e-9,  # nanosecond
-    "us": 1e-6,  # microsecond
-    "ms": 1e-3,  # millisecond
-    "s": 1,  # second
-    "min": 60,  # minutes
-    "h": 3600,  # hour
-    "day": 24 * 3600,  # day
-    "week": 7 * 24 * 3600,  # week
-    "month": 31 * 24 * 3600,  # month
-    "year": 365 * 24 * 3600,  # year
-}
-
-NANOSECONDS: dict[DurationUnit, float] = {
-    "ns": 1,  # nanosecond
-    "us": 1e3,  # microsecond
-    "ms": 1e6,  # millisecond
-    "s": 1e9,  # second
-    "min": 60e9,  # minutes
-    "h": 3600e9,  # hour
-    "day": 24 * 3600e9,  # day
-    "week": 7 * 24 * 3600e9,  # week
-    "month": 31 * 24 * 3600e9,  # month
-    "year": 365 * 24 * 3600e9,  # year
-}
 
 
 @overload
@@ -356,7 +329,7 @@ def get_null_value(x: Any) -> NullType:
     """
     Return a Null value for the type of values
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     import pandas as pd
 
@@ -388,13 +361,6 @@ def get_null_value(x: Any) -> NullType:
         )
 
 
-def isclose_abs(a: float, b: float, tol: float = ABS_TOL) -> bool:
-    """
-    Return True if a and b are close given the absolute tolerance
-    """
-    return math.isclose(a, b, rel_tol=0, abs_tol=ABS_TOL)
-
-
 def is_vector(x: Any) -> TypeGuard[NDArrayFloat | FloatSeries]:
     """
     Return True if x is a numpy array or a pandas series
@@ -409,3 +375,108 @@ def has_dtype(
     Return True if x has the dtype property
     """
     return hasattr(x, "dtype")
+
+
+def forward_fill(seq: Sequence[T | None]) -> Sequence[T]:
+    """
+    Fill None values by propagating the last non-None values
+
+    This function assumes the first value is not None, so the returned
+    sequence has no Nones.
+    """
+    filled, prev = [], None
+    for value in seq:
+        if value is not None:
+            prev = value
+        filled.append(prev)
+    return filled
+
+
+def get_common_interval(breaks):
+    intervals = [(b2 - b1) for b1, b2 in zip(breaks[:-1], breaks[1:])]
+    first_interval = intervals[0]
+    if all(interval == first_interval for interval in intervals[1:]):
+        return first_interval
+
+
+def in_limits(limits: tuple[TC, TC], b: TC) -> bool:
+    """
+    Return True if break (b) is contained within the limits
+    """
+    return limits[0] <= b and b <= limits[1]
+
+
+def trim_breaks(breaks: Sequence[TC], limits: tuple[TC, TC]) -> Sequence[TC]:
+    """
+    Remove breaks that are more than 1 interval beyond the limits
+
+    This function expects the range of the breaks to be greater than or
+    equal to that of the limits.
+
+    Parameters
+    ----------
+    breaks :
+        Generated breaks
+    limits :
+        Limits that the breaks are generated for.
+    """
+    low_limit, high_limit = limits
+
+    # Mark the breaks that are within the limits
+    #     L--------L
+    #   bbbbbbbbbbbbbb
+    #     ^^^^^^^^^^
+    bool_idx = [in_limits(limits, b) for b in breaks]
+    idx = [i for i, v in enumerate(bool_idx) if v]
+
+    try:
+        start, stop = idx[0], idx[-1]
+    except IndexError:
+        # There are no breaks within the limits, so they are on
+        # either end (hopefully!) of the limits and we only need
+        # two of them.
+        return breaks[:2]
+
+    low_break, high_break = breaks[start], breaks[stop]
+
+    # For the start and end of the breaks within the limits,
+    # if that break is *strictly* within the limits, add the next
+    # break on the outside of the limits.
+    #
+    # 1. Good: Limits align with breaks
+    #     L--------L
+    #     BbbbbbbbbB
+    #
+    # 2. Good: The breaks contain the limits
+    #     L--------L
+    #    B bbbbbbbb B
+    #
+    # 3. Bad: Any of the end breaks are strictly within the limits
+    #     L--------L
+    #      BbbbbbbB
+    #
+    #     L--------L
+    #     BbbbbbbbB
+    #
+    #     L--------L
+    #      BbbbbbbbB
+    #
+    # The goal is (if possible) to turn any of the cases in 3 into 2.
+    if low_break > low_limit:
+        if start > 0:
+            start = start - 1
+        else:
+            interval = get_common_interval(breaks)
+            if interval is not None:
+                breaks = [low_break - interval, *breaks]
+
+    if high_break < high_limit:
+        if stop < (len(breaks) - 1):
+            stop = stop + 1
+        else:
+            interval = get_common_interval(breaks)
+            if interval is not None:
+                breaks = [*breaks, high_break + interval]
+            stop = stop + 1
+
+    return breaks[start : stop + 1]

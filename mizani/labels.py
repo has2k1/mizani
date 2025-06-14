@@ -20,7 +20,6 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 
-from .breaks import timedelta_helper
 from .utils import (
     match,
     precision,
@@ -34,9 +33,10 @@ if TYPE_CHECKING:
 
     from mizani.typing import (
         BytesSymbol,
-        DurationUnit,
         FloatArrayLike,
         TimedeltaArrayLike,
+        TimeIntervalSIUnits,
+        TimeIntervalUnits,
     )
 
 __all__ = [
@@ -583,19 +583,30 @@ class label_timedelta:
         If None, they are decided automatically. Otherwise,
         the value should be one of::
 
-            'ns'    # nanoseconds
-            'us'    # microseconds
-            'ms'    # milliseconds
-            's'     # seconds
-            'min'   # minute
-            'h'     # hour
-            'day'     # day
-            'week'  # week
-            'month' # month
-            'year'  # year
+            'nanoseconds'
+            'microseconds'
+            'milliseconds'
+            'seconds'
+            'minutes'
+            'hours'
+            'days'
+            'weeks'
+
+        Or the SI form::
+
+            'ns'
+            'us'
+            'ms'
+            's'
+            'min'
+            'h'
+            'd'
+            'week'
 
     show_units : bool
         Whether to append the units symbol to the values.
+    use_si_units : bool
+        Whether to use the SI units symbols.
     zero_has_units : bool
         If True a value of zero
     usetex : bool
@@ -611,20 +622,21 @@ class label_timedelta:
     Examples
     --------
     >>> from datetime import timedelta
-    >>> x = [timedelta(days=31*i) for i in range(5)]
+    >>> x = [timedelta(days=7*i) for i in range(5)]
     >>> label_timedelta()(x)
-    ['0 months', '1 month', '2 months', '3 months', '4 months']
-    >>> label_timedelta(use_plurals=False)(x)
-    ['0 month', '1 month', '2 month', '3 month', '4 month']
+    ['0 weeks', '1 week', '2 weeks', '3 weeks', '4 weeks']
     >>> label_timedelta(units='day')(x)
-    ['0 days', '31 days', '62 days', '93 days', '124 days']
+    ['0 d', '7 d', '14 d', '21 d', '28 d']
+    >>> label_timedelta(units='day', use_si_units=False)(x)
+    ['0 days', '7 days', '14 days', '21 days', '28 days']
     >>> label_timedelta(units='day', zero_has_units=False)(x)
-    ['0', '31 days', '62 days', '93 days', '124 days']
+    ['0', '7 d', '14 d', '21 d', '28 d']
     >>> label_timedelta(units='day', show_units=False)(x)
-    ['0', '31', '62', '93', '124']
+    ['0', '7', '14', '21', '28']
     """
 
-    units: DurationUnit | None = None
+    units: TimeIntervalUnits | TimeIntervalSIUnits | None = None
+    use_si_units: bool = True
     show_units: bool = True
     zero_has_units: bool = True
     usetex: bool = False
@@ -632,32 +644,37 @@ class label_timedelta:
     use_plurals: bool = True
 
     def __call__(self, x: TimedeltaArrayLike) -> Sequence[str]:
+        from ._timedelta.breaks import Helper
+
         if len(x) == 0:
             return []
 
-        values, units = timedelta_helper.format_info(x, self.units)
+        values, si_units, units = Helper.format_info(x, self.units)
         labels = list(label_number()(values))
 
         if self.show_units:
-            if self.usetex and units == "us":
-                units = r"$\mu s$"
+            space = " " if self.space else ""
 
-            if self.use_plurals and units in ("day", "week", "month", "year"):
-                units_plural = f"{units}s"
+            if self.use_si_units:
+                _units = (
+                    r"$\mu s$"
+                    if self.usetex and si_units == "us"
+                    else si_units
+                )
+                _units_plural = _units
+                if _units == "weeks":
+                    _units = "week"
             else:
-                units_plural = units
+                _units = units.rstrip("s")
+                _units_plural = units if self.use_plurals else _units
 
-            if self.space:
-                units = f" {units}"
-                units_plural = f" {units_plural}"
             for i, (num, label) in enumerate(zip(values, labels)):
                 if num == 0 and not self.zero_has_units:
                     continue
                 elif num == 1:
-                    labels[i] = f"{label}{units}"
+                    labels[i] = f"{label}{space}{_units}"
                 else:
-                    labels[i] = f"{label}{units_plural}"
-
+                    labels[i] = f"{label}{space}{_units_plural}"
         return labels
 
 

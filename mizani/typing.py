@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dateutil.relativedelta import relativedelta
+
 if TYPE_CHECKING:
     from datetime import date, datetime, timedelta
     from types import NoneType
@@ -110,19 +112,6 @@ if TYPE_CHECKING:
     ]
     ColorPalette: TypeAlias = palette
 
-    # Use SI Units where applica
-    DurationUnit: TypeAlias = Literal[
-        "ns",  # nanosecond
-        "us",  # microsecond
-        "ms",  # millisecond
-        "s",  # second
-        "min",  # minute
-        "h",  # hour
-        "day",  # day
-        "week",  # week
-        "month",  # month
-        "year",  # year
-    ]
     Timedelta: TypeAlias = timedelta | pd.Timedelta
     Datetime: TypeAlias = date | datetime | np.datetime64
     SeqDatetime: TypeAlias = (
@@ -133,18 +122,46 @@ if TYPE_CHECKING:
 
     # dateutil.rrule.YEARLY, ..., but not including 2 weekly
     # adding 7 for our own MICROSECONDLY
-    DateFreq: TypeAlias = Literal[0, 1, 3, 4, 5, 6, 7]
-    DatetimeBreaksUnits: TypeAlias = Literal[
-        "auto",
-        "microsecond",
-        "second",
-        "minute",
-        "hour",
-        "day",
-        "week",
-        "month",
-        "year",
+    DateFreq: TypeAlias = Literal[0, 1, 2, 3, 4, 5, 6, 7]
+    DatetimeWidthUnits: TypeAlias = Literal[
+        "microseconds",
+        "seconds",
+        "minutes",
+        "hours",
+        "days",
+        "weeks",
+        "months",
+        "years",
     ]
+    TimeIntervalUnits: TypeAlias = Literal[
+        "nanoseconds",
+        "microseconds",
+        "milliseconds",
+        "seconds",
+        "minutes",
+        "hours",
+        "days",
+        "weeks",
+        "months",
+        "years",
+    ]
+
+    TimeIntervalSIUnits: TypeAlias = Literal[
+        "ns",
+        "us",
+        "ms",
+        "s",
+        "min",
+        "h",
+        "d",
+        "weeks",
+        "mon",
+        "Y",
+    ]
+    DatetimeOffset: TypeAlias = (
+        timedelta | str | Sequence[str] | relativedelta | None
+    )
+    TimedeltaOffset: TypeAlias = timedelta | str | Sequence[str] | None
 
     ContinuousPalette: TypeAlias = Callable[[FloatArrayLike], Sequence[Any]]
     DiscretePalette: TypeAlias = Callable[[int], NDArrayAny | AnySeries]

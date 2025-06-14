@@ -403,7 +403,7 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
 
     # datetime - pandas, cpython
     if isinstance(x[0], (pd.Timestamp, datetime.datetime)):
-        from mizani._core.dates import datetime_to_num
+        from mizani._datetime.utils import datetime_to_num
 
         l, h = datetime_to_num(x)
         return l == h

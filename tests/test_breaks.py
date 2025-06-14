@@ -6,12 +6,13 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from mizani._core.dates import _from_ordinalf
 from mizani.breaks import (
     breaks_date,
+    breaks_date_width,
     breaks_extended,
     breaks_log,
     breaks_timedelta,
+    breaks_timedelta_width,
     minor_breaks,
     minor_breaks_trans,
 )
@@ -181,56 +182,35 @@ def test_minor_breaks_trans():
 
 def test_breaks_date():
     # cpython
-    limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
-    breaks = breaks_date(width="5 Years")
-    assert [d.year for d in breaks(limits)] == [2010, 2015, 2020, 2025, 2030]
-
-    breaks = breaks_date(width="10 Years")(limits)
-    assert [d.year for d in breaks] == [2010, 2020, 2030]
-
-    with pytest.warns(FutureWarning):
-        breaks = breaks_date("10 Years")(limits)
-        assert [d.year for d in breaks] == [2010, 2020, 2030]
-
-    # numpy datetime64
-    limits = (np.datetime64("1973"), np.datetime64("1997"))
-    breaks = breaks_date(width="10 Years")(limits)
-    assert [d.year for d in breaks] == [1970, 1980, 1990, 2000]
-
-    # NaT
-    limits = np.datetime64("NaT"), datetime(2017, 1, 1)
-    breaks = breaks_date(width="10 Years")(limits)
-    assert len(breaks) == 0
-
     # automatic monthly breaks
     limits = (datetime(2020, 1, 1), datetime(2021, 1, 15))
     breaks = breaks_date()(limits)
-    assert [dt.month for dt in breaks] == [1, 4, 7, 10, 1]
+    assert [dt.month for dt in breaks] == [1, 4, 7, 10, 1, 4]
 
     # automatic monthly breaks with rounding
     limits = (datetime(2019, 12, 27), datetime(2020, 6, 3))
     breaks = breaks_date()(limits)
-    assert [dt.month for dt in breaks] == [12, 2, 4, 6]
+    assert [dt.month for dt in breaks] == [12, 1, 2, 3, 4, 5, 6, 7]
 
     # automatic day breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 1, 15))
     breaks = breaks_date()(limits)
-    assert [dt.day for dt in breaks] == [1, 5, 9, 13]
+    assert [dt.day for dt in breaks] == [1, 3, 5, 7, 9, 11, 13, 15]
 
     # automatic second breaks
     limits = (datetime(2020, 1, 1, hour=0), datetime(2020, 1, 1, hour=19))
     breaks = breaks_date()(limits)
-    assert [dt.hour for dt in breaks] == [0, 4, 8, 12, 16]
+    assert [dt.hour for dt in breaks] == [0, 4, 8, 12, 16, 20]
 
     # automatic minute breaks
     limits = (datetime(2020, 1, 1, minute=0), datetime(2020, 1, 1, minute=50))
     breaks = breaks_date()(limits)
-    assert [dt.minute for dt in breaks] == [0, 15, 30, 45]
+    assert [dt.minute for dt in breaks] == [0, 10, 20, 30, 40, 50]
 
     # automatic second breaks
     limits = (datetime(2020, 1, 1, second=20), datetime(2020, 1, 1, second=50))
     breaks = breaks_date()(limits)
-    assert [dt.second for dt in breaks] == [20, 30, 40, 50]
+    assert [dt.second for dt in breaks] == [20, 25, 30, 35, 40, 45, 50]
 
     # automatic microsecond breaks
     limits = (
@@ -238,7 +218,7 @@ def test_breaks_date():
         datetime(2020, 1, 1, microsecond=25),
     )
     breaks = breaks_date()(limits)
-    assert [dt.microsecond for dt in breaks] == [5, 10, 15, 20, 25, 30]
+    assert [dt.microsecond for dt in breaks] == [10, 15, 20, 25]
 
     # timezone
     UG = ZoneInfo("Africa/Kampala")
@@ -248,16 +228,46 @@ def test_breaks_date():
 
     # date
     limits = (date(2000, 4, 23), date(2000, 6, 15))
-    breaks = breaks_date()(limits)
+    assert breaks_date()(limits) == [
+        datetime(2000, 4, 15, 0, 0),
+        datetime(2000, 5, 1, 0, 0),
+        datetime(2000, 5, 15, 0, 0),
+        datetime(2000, 6, 1, 0, 0),
+        datetime(2000, 6, 15, 0, 0),
+    ]
 
-    # Special cases
-    limits = (datetime(2039, 12, 17), datetime(2045, 12, 16))
-    breaks = breaks_date()(limits)
-    assert [dt.year for dt in breaks] == [2038, 2040, 2042, 2044, 2046]
+    # numpy
+    limits = (np.datetime64("1983"), np.datetime64("1997"))
+    assert breaks_date(4)(limits) == [  # pyright: ignore[reportArgumentType]
+        datetime(1980, 1, 1, 0, 0),
+        datetime(1985, 1, 1, 0, 0),
+        datetime(1990, 1, 1, 0, 0),
+        datetime(1995, 1, 1, 0, 0),
+        datetime(2000, 1, 1, 0, 0),
+    ]
 
-    # error cases
-    with pytest.raises(ValueError):
-        _from_ordinalf(2.933e6, None)
+    # branch
+    limits = (None, date(2000, 6, 15))
+    assert breaks_date()(limits) == []
+
+
+def test_breaks_date_width():
+    limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
+    breaks = breaks_date_width("5 Years")
+    assert [d.year for d in breaks(limits)] == [2010, 2015, 2020, 2025, 2030]
+
+    breaks = breaks_date_width("10 Years", 1)(limits)
+    assert [d.year for d in breaks] == [2011, 2021, 2031]
+
+    # numpy datetime64
+    limits = (np.datetime64("1973"), np.datetime64("1997"))
+    breaks = breaks_date_width("10 Years")(limits)  # pyright: ignore[reportArgumentType]
+    assert [d.year for d in breaks] == [1970, 1980, 1990, 2000]
+
+    # NaT
+    limits = np.datetime64("NaT"), datetime(2017, 1, 1)
+    breaks = breaks_date_width("10 Years")(limits)  # pyright: ignore[reportArgumentType]
+    assert len(breaks) == 0
 
 
 def test_date_type_breaks():
@@ -276,81 +286,71 @@ def _check_width(limits, breaks, td: timedelta):
     assert padding < td
 
 
-def test_breaks_date_week_auto():
-    limits = (datetime(2020, 1, 1), datetime(2020, 2, 15))
-
-    breaks = breaks_date()(limits)
-    assert {b.day for b in breaks} == {1, 15}
-
-    breaks = breaks_date(n=8)(limits)
-    assert {b.day for b in breaks} == {1, 8, 15, 22}
-
-
-def test_breaks_date_day_width():
+def test_breaks_date_width_day():
     # days
     # 1. The width should be as specified
     # 2. The breaks should encloses the limits
     # 3. The breaks the padding added around the limits should be less than
     #    the width of the breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
-    breaks = breaks_date(width="10 days")(limits)
+    breaks = breaks_date_width("10 days")(limits)
     _check_width(limits, breaks, timedelta(days=10))
 
-    breaks = breaks_date(width="11 days")(limits)
+    breaks = breaks_date_width("11 days")(limits)
     _check_width(limits, breaks, timedelta(days=11))
 
-    breaks = breaks_date(width="12 days")(limits)
+    breaks = breaks_date_width("12 days")(limits)
     _check_width(limits, breaks, timedelta(days=12))
 
     limits = (
         datetime(2000, 1, 1, hour=2),
         datetime(2000, 1, 1, hour=16, second=13),
     )
-    breaks = breaks_date(width="2 hour")(limits)
+    breaks = breaks_date_width("2 hour")(limits)
     _check_width(limits, breaks, timedelta(hours=2))
 
-    breaks = breaks_date(width="100 minutes")(limits)
+    breaks = breaks_date_width("100 minutes")(limits)
     _check_width(limits, breaks, timedelta(minutes=100))
 
-    breaks = breaks_date(width="5000 seconds")(limits)
+    breaks = breaks_date_width("5000 seconds")(limits)
     _check_width(limits, breaks, timedelta(seconds=5000))
 
-    breaks = breaks_date(width="5000 seconds")(limits)
+    breaks = breaks_date_width("5000 seconds")(limits)
     _check_width(limits, breaks, timedelta(seconds=5000))
 
 
-def test_breaks_date_week_width():
+def test_breaks_date_width_week():
     # weeks
     # 1. The width should be as specified
     # 2. The breaks should encloses the limits
     # 3. The breaks the padding added around the limits should be less than
     #    the width of the breaks
     limits = (datetime(2020, 1, 1), datetime(2020, 2, 28))
-    breaks = breaks_date(width="1 week")(limits)
+    breaks = breaks_date_width("1 week")(limits)
     _check_width(limits, breaks, timedelta(days=7))
 
-    breaks = breaks_date(width="2 weeks")(limits)
+    breaks = breaks_date_width("2 weeks")(limits)
     _check_width(limits, breaks, timedelta(days=14))
 
-    breaks = breaks_date(width="3 weeks")(limits)
+    breaks = breaks_date_width("3 weeks")(limits)
     _check_width(limits, breaks, timedelta(days=21))
 
 
-def test_breaks_date_month_width():
+def test_breaks_date_width_month():
     # months
     # 1. The width is within any combination of sequential months
     # 2. The breaks should enclose the limits
     limits = (datetime(2020, 1, 1), datetime(2021, 2, 28))
 
-    breaks = breaks_date(width="1 month")(limits)
+    breaks = breaks_date_width("1 month")(limits)
     assert all(28 <= d.days <= 31 for d in np.diff(breaks))
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
-    breaks = breaks_date(width="2 month")(limits)
+    breaks = breaks_date_width("2 month")(limits)
     assert all(59 <= d.days <= 62 for d in np.diff(breaks))
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
     #
-    breaks = breaks_date(width="3 month")(limits)
+    breaks = breaks_date_width("3 month")(limits)
     assert all(90 <= d.days <= 92 for d in np.diff(breaks))
     assert breaks[0] <= limits[0] and limits[-1] <= breaks[-1]
 
@@ -359,34 +359,58 @@ def test_breaks_timedelta():
     breaks = breaks_timedelta()
 
     # cpython
-    x = [timedelta(days=i * 365) for i in range(25)]
-    limits = min(x), max(x)
-    major = breaks(limits)
-    years = [val.total_seconds() / (365 * 24 * 60 * 60) for val in major]
-    npt.assert_array_equal(years, [0, 5, 10, 15, 20, 25])
+    limits = (timedelta(days=0), timedelta(days=24 * 365))
+    assert list(breaks(limits)) == [
+        timedelta(0),
+        timedelta(days=2000),
+        timedelta(days=4000),
+        timedelta(days=6000),
+        timedelta(days=8000),
+        timedelta(days=10000),
+    ]
 
-    x = [timedelta(microseconds=i) for i in range(25)]
-    limits = min(x), max(x)
-    major = breaks(limits)
-    mseconds = [val.total_seconds() * 10**6 for val in major]
-    npt.assert_array_equal(mseconds, [0, 5, 10, 15, 20, 25])
+    limits = (timedelta(), timedelta(microseconds=25))
+    assert list(breaks(limits)) == [
+        timedelta(0),
+        timedelta(microseconds=5),
+        timedelta(microseconds=10),
+        timedelta(microseconds=15),
+        timedelta(microseconds=20),
+        timedelta(microseconds=25),
+    ]
 
     # pandas
-    x = [pd.Timedelta(seconds=i * 60) for i in range(10)]
-    limits = min(x), max(x)
-    major = breaks(limits)
-    minutes = [val.total_seconds() / 60 for val in major]
-    npt.assert_allclose(minutes, [0, 2, 4, 6, 8])
+    limits = (pd.Timedelta("0 days 00:00:00"), pd.Timedelta("0 days 00:09:00"))
+    assert list(breaks(limits)) == [
+        pd.Timedelta("0 days 00:00:00"),
+        pd.Timedelta("0 days 00:02:00"),
+        pd.Timedelta("0 days 00:04:00"),
+        pd.Timedelta("0 days 00:06:00"),
+        pd.Timedelta("0 days 00:08:00"),
+        pd.Timedelta("0 days 00:10:00"),
+    ]
 
     # numpy timedelta64 is not supported
-    x = [np.timedelta64(i * 10, "D") for i in range(1, 10)]
-    limits = x[0], x[-1]
+    limits = (np.timedelta64(1, "D"), np.timedelta64(100, "D"))
     with pytest.raises(ValueError):
-        breaks(limits)
+        breaks(limits)  # pyright: ignore[reportArgumentType]
 
     # NaT
-    limits = pd.NaT, pd.Timedelta(seconds=9 * 60)
-    assert len(breaks(limits)) == 0
+    limits = (pd.NaT, pd.Timedelta(seconds=9 * 60))
+    assert len(breaks(limits)) == 0  # pyright: ignore[reportArgumentType]
+
+
+def test_breaks_timedelta_width():
+    limits = (timedelta(seconds=10), timedelta(seconds=25))
+    breaks = breaks_timedelta_width("4 seconds")
+    assert list(breaks(limits)) == [
+        timedelta(seconds=8),
+        timedelta(seconds=12),
+        timedelta(seconds=16),
+        timedelta(seconds=20),
+        timedelta(seconds=24),
+        timedelta(seconds=28),
+    ]
 
 
 def test_breaks_extended():

@@ -14,33 +14,30 @@ provide ways to calculate good(hopefully) breaks.
 from __future__ import annotations
 
 import sys
-from dataclasses import KW_ONLY, dataclass, field
-from datetime import date, datetime, timedelta
+from dataclasses import dataclass
+from datetime import date, datetime
 from itertools import product
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import numpy as np
 import pandas as pd
 
-from mizani._core.date_utils import as_datetime
-from mizani._core.dates import (
-    calculate_date_breaks_auto,
-    calculate_date_breaks_byunits,
+from .utils import (
+    log,
+    min_max,
+    round_any,
 )
 
-from .utils import NANOSECONDS, SECONDS, log, min_max
-
 if TYPE_CHECKING:
-    from typing import Literal, Sequence
+    from typing import Sequence
 
     from mizani.typing import (
-        DatetimeBreaksUnits,
-        DurationUnit,
+        DatetimeOffset,
         FloatArrayLike,
         NDArrayFloat,
         Timedelta,
         TimedeltaArrayLike,
+        TimedeltaOffset,
         Trans,
     )
 
@@ -51,7 +48,10 @@ __all__ = [
     "minor_breaks",
     "minor_breaks_trans",
     "breaks_date",
+    "breaks_date_width",
+    "breaks_width",
     "breaks_timedelta",
+    "breaks_timedelta_width",
     "breaks_extended",
 ]
 
@@ -411,10 +411,6 @@ class breaks_date:
     ----------
     n :
         Desired number of breaks.
-    width : str | None
-        An interval specification. Must be one of
-        [second, minute, hour, day, week, month, year]
-        If ``None``, the interval automatic.
 
     Examples
     --------
@@ -427,38 +423,9 @@ class breaks_date:
     >>> breaks = breaks_date(9)
     >>> [d.year for d in breaks(limits)]
     [2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
-
-    Breaks at 4 year intervals
-
-    >>> breaks = breaks_date(width='4 year')
-    >>> [d.year for d in breaks(limits)]
-    [2010, 2014, 2018, 2022, 2026]
     """
 
     n: int = 5
-    _: KW_ONLY
-    width: str | None = None
-
-    _width: int | None = field(init=False, default=None)
-    _units: DatetimeBreaksUnits | None = field(init=False, default=None)
-
-    def __post_init__(self):
-        # For backwards compatibility
-        if isinstance(self.n, str) and self.width is None:
-            warn(
-                "Passing the width as the parameter has been deprecated "
-                "and will not work in a future version. "
-                'Use breaks_date(width="4 years")',
-                FutureWarning,
-            )
-            self.width = self.n
-
-        if self.width:
-            # Parse the width specification
-            # e.g. '10 months' => (10, month)
-            _w, units = self.width.strip().lower().split()
-            self._width = int(_w)
-            self._units = units.rstrip("s")  # type: ignore
 
     def __call__(
         self, limits: tuple[datetime, datetime] | tuple[date, date]
@@ -476,7 +443,10 @@ class breaks_date:
         out : array_like
             Sequence of break points.
         """
-        if any(pd.isna(x) for x in limits):
+        from mizani._datetime.breaks import by_n
+        from mizani._datetime.utils import as_datetime
+
+        if pd.isna(limits[0]) or pd.isna(limits[1]):
             return []
 
         if isinstance(limits[0], np.datetime64) and isinstance(
@@ -485,12 +455,89 @@ class breaks_date:
             limits = limits[0].astype(object), limits[1].astype(object)
 
         limits = as_datetime(limits)
-        if self._units and self._width:
-            return calculate_date_breaks_byunits(
-                limits, self._units, self._width
-            )
-        else:
-            return calculate_date_breaks_auto(limits, self.n)
+        return by_n(limits, self.n)
+
+
+@dataclass
+class breaks_date_width:
+    """
+    Regularly spaced dates by width
+
+    Parameters
+    ----------
+    width : str
+        The interval between the  breaks. A string of the form,
+        "<number> <units>"`. The units are one of:
+
+            microseconds
+            milliseconds
+            seconds
+            minutes
+            hours
+            days
+            weeks
+            months
+            years
+            decades
+            centuries
+
+        or their singular forms. `secs` and `mins` or their singular forms
+        are also recognised as abbreviations for seconds and minutes.
+
+    offset : int | timedelta | str | Sequence[str] | relativedelta | None
+        The breaks are set to start at some "nice" value but apply an
+        offset you can shift them to a value you may prefer..
+
+        - If an `int`, the units will be the same as the width.
+        - If a `Sequence`, it is of the form
+          `("[+-]<number> <units>", "[+-]<number> <units>", ...)`
+          e.g. `("1 year", "2 months", ...)`.
+        - If a `str`, it is of the form `"[+-]<number> <units>"`
+          e.g. `"2 years"`.
+        - If `None`, do not shift.
+
+    Examples
+    --------
+    Breaks at 4 year intervals
+
+    >>> limits = [datetime(2010, 1, 1), datetime(2025, 1, 1)]
+    >>> breaks = breaks_date_width("4 years")
+    >>> [d.year for d in breaks(limits)]
+    [2010, 2014, 2018, 2022, 2026]
+    >>> breaks = breaks_date_width("4 years", offset=1)
+    >>> [d.year for d in breaks(limits)]
+    [2011, 2015, 2019, 2023, 2027]
+    """
+
+    width: str
+    offset: int | DatetimeOffset = None
+
+    def __call__(
+        self, limits: tuple[datetime, datetime] | tuple[date, date]
+    ) -> Sequence[datetime]:
+        """
+        Compute breaks
+
+        Parameters
+        ----------
+        limits :
+            Minimum and maximum :class:`datetime.datetime` values.
+
+        Returns
+        -------
+        out :
+            Sequence of break points.
+        """
+        from mizani._datetime.breaks import by_width
+        from mizani._datetime.utils import as_datetime
+
+        if isinstance(limits[0], np.datetime64) and isinstance(
+            limits[1], np.datetime64
+        ):
+            limits = limits[0].astype(object), limits[1].astype(object)
+
+        limits = as_datetime(limits)
+        return by_width(limits, self.width, self.offset)
 
 
 @dataclass
@@ -509,18 +556,13 @@ class breaks_timedelta:
     --------
     >>> from datetime import timedelta
     >>> breaks = breaks_timedelta()
-    >>> x = [timedelta(days=i*365) for i in range(25)]
-    >>> limits = min(x), max(x)
+    >>> limits = (timedelta(days=0), timedelta(days=345))
     >>> major = breaks(limits)
-    >>> [val.total_seconds()/(365*24*60*60)for val in major]
-    [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]
+    >>> [b.days for b in major]
+    [0, 70, 140, 210, 280, 350]
     """
 
     n: int = 5
-    Q: Sequence[float] = (1, 2, 5, 10)
-
-    def __post_init__(self):
-        self._calculate_breaks = breaks_extended(n=self.n, Q=self.Q)
 
     def __call__(
         self, limits: tuple[Timedelta, Timedelta]
@@ -538,170 +580,65 @@ class breaks_timedelta:
         out : array_like
             Sequence of break points.
         """
-        if any(pd.isna(x) for x in limits):
-            return []
+        from mizani._timedelta.breaks import by_n
 
-        helper = timedelta_helper(limits)
-        scaled_limits = helper.scaled_limits()
-        scaled_breaks = self._calculate_breaks(scaled_limits)
-        breaks = helper.numeric_to_timedelta(scaled_breaks)
-        return breaks
+        return by_n(limits, self.n)
 
 
-# This could be cleaned up, state overload?
 @dataclass
-class timedelta_helper:
+class breaks_timedelta_width:
     """
-    Helper for computing timedelta breaks
-    and labels.
+    Regularly spaced timedeltas by width
 
-    How to use - breaks?
+    Parameters
+    ----------
+    width : str
+        The interval between the  breaks. A string of the form,
+        "<number> <units>"`. The units are one of:
 
-    1. Initialise with a timedelta sequence/limits.
-    2. Get the scaled limits and use those to calculate
-       breaks using a general purpose breaks calculating
-       routine. The scaled limits are in numerical format.
-    3. Convert the computed breaks from numeric into timedelta.
+            microseconds
+            milliseconds
+            seconds
+            minutes
+            hours
+            days
+            weeks
 
-    See, :class:`breaks_timedelta`
+    offset :
+        Use this to shift the calculated breaks so that they start at
+        a value you may prefer.
 
-    How to use - formating?
-
-    1. Call :meth:`format_info` with the timedelta values to be
-       formatted and get back a tuple of numeric values and
-       the units for those values.
-    2. Format the values with a general purpose formatting
-       routing.
-
-    See, :class:`~mizani.labels.label_timedelta`
+        - If an `int`, the units will be the same as the width.
+        - If a `Sequence`, it is of the form
+          `("[+-]<number> <units>", "[+-]<number> <units>", ...)`
+          e.g. `("2 days", "12 hours", ...)`.
+        - If a `str`, it is of the form `"[+-]<number> <units>"`
+          e.g. `"4 hours"`
+        - If `None`, do not shift.
     """
 
-    x: TimedeltaArrayLike
-    units: DurationUnit | None = None
+    width: str
+    offset: int | TimedeltaOffset = None
 
-    def __post_init__(self):
-        l, h = min(self.x), max(self.x)
-        self.package = self.determine_package(self.x[0])
-        self.limits = self.value(l), self.value(h)
-        self._units: DurationUnit = self.units or self.best_units((l, h))
-        self.factor = self.get_scaling_factor(self._units)
-
-    @classmethod
-    def determine_package(cls, td: Timedelta) -> Literal["pandas", "cpython"]:
-        if hasattr(td, "components"):
-            package = "pandas"
-        elif hasattr(td, "total_seconds"):
-            package = "cpython"
-        else:
-            msg = f"{td.__class__} format not yet supported."
-            raise ValueError(msg)
-        return package
-
-    @classmethod
-    def format_info(
-        cls, x: TimedeltaArrayLike, units: DurationUnit | None = None
-    ) -> tuple[NDArrayFloat, DurationUnit]:
-        helper = cls(x, units)
-        return helper.timedelta_to_numeric(x), helper._units
-
-    def best_units(self, x: TimedeltaArrayLike) -> DurationUnit:
+    def __call__(
+        self, limits: tuple[Timedelta, Timedelta]
+    ) -> TimedeltaArrayLike:
         """
-        Determine good units for representing a sequence of timedeltas
-        """
-        # Read
-        #   [(0.9, 's'),
-        #    (9, 'm)]
-        # as, break ranges between 0.9 seconds (inclusive)
-        # and 9 minutes are represented in seconds. And so on.
-        ts_range = self.value(max(x)) - self.value(min(x))
-        package = self.determine_package(x[0])
-        if package == "pandas":
-            cuts: list[tuple[float, DurationUnit]] = [
-                (0.9, "us"),
-                (0.9, "ms"),
-                (0.9, "s"),
-                (9, "min"),
-                (6, "h"),
-                (4, "day"),
-                (4, "week"),
-                (4, "month"),
-                (3, "year"),
-            ]
-            denomination = NANOSECONDS
-            base_units = "ns"
-        else:
-            cuts = [
-                (0.9, "s"),
-                (9, "min"),
-                (6, "h"),
-                (4, "day"),
-                (4, "week"),
-                (4, "month"),
-                (3, "year"),
-            ]
-            denomination = SECONDS
-            base_units = "ms"
+        Compute breaks
 
-        for size, units in reversed(cuts):
-            if ts_range >= size * denomination[units]:
-                return units
+        Parameters
+        ----------
+        limits :
+            Minimum and maximum :class:`datetime.timedelta` values.
 
-        return base_units
+        Returns
+        -------
+        out :
+            Sequence of break points.
+        """
+        from mizani._timedelta.breaks import by_width
 
-    @staticmethod
-    def value(td: Timedelta) -> float:
-        """
-        Return the numeric value representation on a timedelta
-        """
-        if isinstance(td, pd.Timedelta):
-            return td.value
-        else:
-            return td.total_seconds()
-
-    def scaled_limits(self) -> tuple[float, float]:
-        """
-        Minimum and Maximum to use for computing breaks
-        """
-        _min = self.limits[0] / self.factor
-        _max = self.limits[1] / self.factor
-        return _min, _max
-
-    def timedelta_to_numeric(
-        self, timedeltas: TimedeltaArrayLike
-    ) -> NDArrayFloat:
-        """
-        Convert sequence of timedelta to numerics
-        """
-        return np.array([self.to_numeric(td) for td in timedeltas])
-
-    def numeric_to_timedelta(self, values: NDArrayFloat) -> TimedeltaArrayLike:
-        """
-        Convert sequence of numerical values to timedelta
-        """
-        if self.package == "pandas":
-            return [
-                pd.Timedelta(int(x * self.factor), unit="ns") for x in values
-            ]
-
-        else:
-            return [timedelta(seconds=x * self.factor) for x in values]
-
-    def get_scaling_factor(self, units):
-        if self.package == "pandas":
-            return NANOSECONDS[units]
-        else:
-            return SECONDS[units]
-
-    def to_numeric(self, td: Timedelta) -> float:
-        """
-        Convert timedelta to a number corresponding to the
-        appropriate units. The appropriate units are those
-        determined with the object is initialised.
-        """
-        if isinstance(td, pd.Timedelta):
-            return td.value / NANOSECONDS[self._units]
-        else:
-            return td.total_seconds() / SECONDS[self._units]
+        return by_width(limits, self.width, self.offset)
 
 
 @dataclass
@@ -930,9 +867,47 @@ class breaks_symlog:
         return np.sign(exps) * (10 ** np.abs(exps))
 
 
+@dataclass
+class breaks_width:
+    """
+    Regularly spaced dates by width
+
+    Parameters
+    ----------
+    width :
+        The interval between the breaks.
+
+    offset :
+        Shift the calculated breaks by this much.
+
+    Examples
+    --------
+    Breaks at 4 year intervals
+
+    >>> limits = [3, 14]
+    >>> breaks = breaks_width(width=4)
+    >>> breaks(limits)
+    array([ 0,  4,  8, 12, 16])
+    """
+
+    width: float
+    offset: float | None = None
+
+    def __call__(self, limits: tuple[float, float]) -> NDArrayFloat:
+        offset = 0 if self.offset is None else self.offset
+        start = round_any(limits[0], self.width, np.floor) + offset
+        end = round_any(limits[1], self.width, np.ceil) + self.width
+        dtype = (
+            int
+            if isinstance(self.width, int) and isinstance(offset, int)
+            else float
+        )
+        return np.arange(start, end, self.width, dtype=dtype)
+
+
 # Deprecated
 log_breaks = breaks_log
 trans_minor_breaks = minor_breaks_trans
-date_breaks = breaks_date
-timedelta_breaks = breaks_timedelta
+date_breaks = breaks_width
+breaks_timedelta = breaks_timedelta
 extended_breaks = breaks_extended

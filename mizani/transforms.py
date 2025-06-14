@@ -33,7 +33,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 
-from ._core.dates import (
+from ._datetime.utils import (
     datetime_to_num,
     num_to_datetime,
     num_to_timedelta,

@@ -189,7 +189,7 @@ def test_label_date():
 def test_label_timedelta():
     x = [timedelta(days=7 * i) for i in range(5)]
     labels = label_timedelta()(x)
-    assert labels == ["0 weeks", "1 week", "2 weeks", "3 weeks", "4 weeks"]
+    assert labels == ["0 wk", "1 wk", "2 wk", "3 wk", "4 wk"]
 
     x = [pd.Timedelta(seconds=600 * i) for i in range(5)]
     labels = label_timedelta()(x)

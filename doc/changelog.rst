@@ -13,16 +13,30 @@ API Changes
   from HSL (or HSLuv) space. The previous functionality is now available
   with :class:`~mizani.palettes.hls_pal`.
 
-Enhancements
-************
-
-- Added name "gray" aliases to all XKCD colors partially named "grey".
-
+- :class:`~mizani.breaks.breaks_date` now only accepts parameter `n`, the
+  desired number of breaks. To generate breaks by the `width`, use
+  :class:`~mizani.breaks.breaks_date_width`.
 
 New
 ***
 
 - Added tableau color in the "tab:*" colorname space. e.g. "tab:red". 
+
+- :class:`~mizani.breaks.breaks_width` to generate numeric breaks by
+  specifying the width (interval between the breaks).
+
+- :class:`~mizani.breaks.breaks_timedelta_width` to generate timedelta
+  breaks by specifying the width (interval between the breaks).
+
+Enhancements
+************
+
+- Added name "gray" aliases to all XKCD colors partially named "grey".
+
+- New algorithms to calculate datetime breaks by either `n` the desired
+  number of breaks or `width` the interval between the breaks.
+  When using the new :class:`~mizani.breaks.breaks_date_width`, you can
+  align the dates by using an `offset`. (:issue:`58`)
 
 
 v0.13.5

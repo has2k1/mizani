@@ -774,7 +774,7 @@ class datetime_trans(trans):
             return np.array([])
 
         try:
-            tz = next(iter(x)).tzinfo
+            tz = next(iter(x)).tzinfo  # pyright: ignore[reportAttributeAccessIssue]
         except AttributeError:
             tz = None
 

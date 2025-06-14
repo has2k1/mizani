@@ -45,7 +45,7 @@ class _InterpolatedGen(ColorMap):
         arr = np.column_stack(
             [self._r_lookup[idx], self._g_lookup[idx], self._b_lookup[idx]],
         )
-        return [rgb_to_hex(c) for c in arr]
+        return [rgb_to_hex(c) for c in arr]  # pyright: ignore[reportArgumentType]
 
 
 @dataclass

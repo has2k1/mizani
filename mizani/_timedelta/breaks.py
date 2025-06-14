@@ -228,7 +228,7 @@ class Helper:
 
         else:
             units = FROM_SI[self._units]
-            return [timedelta(**{units: x}) for x in values]
+            return [timedelta(**{units: x}) for x in values]  # pyright: ignore[reportArgumentType]
 
     def get_scaling_factor(self, units):
         if self.package == "pandas":

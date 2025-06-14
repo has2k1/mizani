@@ -1,7 +1,12 @@
+import sys
 from datetime import datetime, timedelta
+
+import pytest
 
 from mizani._datetime.breaks import by_n, by_width
 from mizani._datetime.utils import dt
+
+LT_PY311 = sys.version_info < (3, 11)
 
 
 def test_by_n_microseconds():
@@ -450,6 +455,9 @@ def test_by_width_century():
     ]
 
 
+@pytest.mark.skipif(
+    LT_PY311, reason="python < 3.11 does not support some isoformats"
+)
 def test_breaks_timezone():
     l1 = dt(("2025-01-01 01:10:30+03", "2025-01-03 05:10:30+03"))
     assert all(b.tzinfo is not None for b in by_n(l1))

@@ -3,16 +3,29 @@ from datetime import datetime
 from mizani._datetime import rounding
 
 
+def test_microseconds():
+    d = datetime(2025, 6, 10, 10, 10, 24, 1)
+    assert rounding.microseconds.floor(d) == d
+    assert rounding.microseconds.ceil(d) == d
+
+
 def test_seconds():
-    d = datetime(2025, 6, 10, 10, 10, 24, 1000)
-    assert rounding.seconds.floor(d) == datetime(2025, 6, 10, 10, 10, 24)
-    assert rounding.seconds.ceil(d) == datetime(2025, 6, 10, 10, 10, 25)
+    d1 = datetime(2025, 6, 10, 10, 10, 24, 1000)
+    d2 = d1.replace(microsecond=0)
+
+    assert rounding.seconds.floor(d1) == datetime(2025, 6, 10, 10, 10, 24)
+    assert rounding.seconds.ceil(d1) == datetime(2025, 6, 10, 10, 10, 25)
+    assert rounding.seconds.floor(d2) == d2
+    assert rounding.seconds.ceil(d2) == d2
 
 
 def test_minutes():
-    d = datetime(2025, 6, 10, 10, 10, 24, 1000)
-    assert rounding.minutes.floor(d) == datetime(2025, 6, 10, 10, 10)
-    assert rounding.minutes.ceil(d) == datetime(2025, 6, 10, 10, 11)
+    d1 = datetime(2025, 6, 10, 10, 10, 24, 1000)
+    d2 = datetime(2025, 6, 10, 10, 10)
+    assert rounding.minutes.floor(d1) == datetime(2025, 6, 10, 10, 10)
+    assert rounding.minutes.ceil(d1) == datetime(2025, 6, 10, 10, 11)
+    assert rounding.minutes.floor(d2) == d2
+    assert rounding.minutes.ceil(d2) == d2
 
 
 def test_hours():

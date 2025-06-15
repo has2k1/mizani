@@ -50,16 +50,6 @@ FREQ_LOOKUP_INV: dict[int, DatetimeWidthUnits] = {
 }
 
 
-def _to_seconds(
-    steps: Sequence[int | float],
-    seconds_per_step: float,
-) -> Sequence[float]:
-    """
-    Convert each step to seconds
-    """
-    return tuple(x * seconds_per_step for x in steps)
-
-
 class Helper:
     """
     Helper for datetime intervals
@@ -146,6 +136,59 @@ class Helper:
         }
         return forward_fill([lookup_unit.get(i) for i in self.intervals_sec])
 
+    def breaks_given_n(
+        self, limits: tuple[datetime, datetime], n: int = 5
+    ) -> Sequence[datetime]:
+        span = (limits[1] - limits[0]).total_seconds()
+        ns = span / np.array(H.intervals_sec)
+        idx = cast("int", np.argmin(np.abs(ns - n)))
+        freq, rounding = self.freq[idx], self.rounders[idx]
+        interval = self.intervals[idx]
+        units = FREQ_LOOKUP_INV[freq]
+        if units == "microseconds":
+            return microsecondly_breaks(limits, interval)
+
+        bymonthday = None
+
+        # Reinterprete any float intervals in the declarations as integers.
+        # e.g. half-month intervals becomes daily interval with the 1st & 15th
+        # of the month as the only permitted days.
+        if isinstance(interval, float):
+            if (interval, freq) == (0.5, rr.MONTHLY):
+                interval = 1
+                freq = rr.DAILY
+                bymonthday = (1, 15)
+            assert isinstance(interval, int), (
+                f"{interval=} should be an integer"
+            )
+
+        # Add a padding the end limit so that the generated breaks include
+        pad = as_relativedelta(f"{interval} {units}")
+        dtstart = rounding.floor(limits[0])
+        until = rounding.ceil(limits[1] + pad)
+        r = rrule(freq, dtstart, interval, until=until, bymonthday=bymonthday)
+        return list(r)
+
+    def breaks_given_width(
+        self, limits: tuple[datetime, datetime], width: str
+    ) -> Sequence[datetime]:
+        from .._timedelta.utils import SI_LOOKUP
+
+        units, interval = parse_datetime_width(width)
+        if units == "microseconds":
+            return microsecondly_breaks(limits, interval)
+
+        si_units = SI_LOOKUP[units]
+        freq = FREQ_LOOKUP[units]
+        s = per_sec(interval, si_units)
+        idx = int(np.array(H.intervals_sec).searchsorted(s))
+        rounding = self.rounders[idx]
+        pad = as_relativedelta(f"{interval} {units}")
+        dtstart = rounding.floor(limits[0])
+        until = rounding.ceil(limits[1] + pad)
+        r = rrule(freq, dtstart, interval, until=until)
+        return list(r)
+
     @cached_property
     def freq(self) -> Sequence[int]:
         """
@@ -170,34 +213,7 @@ def by_n(limits: tuple[datetime, datetime], n: int = 5) -> Sequence[datetime]:
     """
     Calculate date breaks with roughly n intervals
     """
-    span = (limits[1] - limits[0]).total_seconds()
-    ns = span / np.array(H.intervals_sec)
-    idx = cast("int", np.argmin(np.abs(ns - n)))
-    freq, interval, round = H.freq[idx], H.intervals[idx], H.rounders[idx]
-    units = FREQ_LOOKUP_INV[freq]
-
-    if units == "microseconds":
-        return microsecondly_breaks(limits, interval)
-
-    bymonthday = None
-
-    # Reinterprete any float intervals in the declarations as integers.
-    # e.g. half-month intervals becomes daily interval with the 1st & 15th
-    # of the month as the only permitted days.
-    if isinstance(interval, float):
-        if (interval, freq) == (0.5, rr.MONTHLY):
-            interval = 1
-            freq = rr.DAILY
-            bymonthday = (1, 15)
-
-        assert isinstance(interval, int), f"{interval=} should be an integer"
-
-    # Add a padding the end limit so that the generated breaks include
-    pad = as_relativedelta(f"{interval} {units}")
-    dtstart = round.floor(limits[0])
-    until = round.ceil(limits[1] + pad)
-    r = rrule(freq, dtstart, interval, until=until, bymonthday=bymonthday)
-    breaks = list(r)
+    breaks = H.breaks_given_n(limits, n)
     return trim_breaks(breaks, limits) if len(breaks) > n else breaks
 
 
@@ -209,25 +225,12 @@ def by_width(
     """
     Calculate date breaks of a given width
     """
-    from . import rounding
-
-    units, interval = parse_datetime_width(width)
     if isinstance(offset, int):
+        units, _ = parse_datetime_width(width)
         offset = f"{offset} {units}"
     offset = as_relativedelta(offset)
-
-    if units == "microseconds":
-        breaks = microsecondly_breaks(limits, interval)
-    else:
-        round = cast("DateTimeRounder", getattr(rounding, units))
-        freq = FREQ_LOOKUP[units]
-        pad = as_relativedelta(f"{interval} {units}")
-        dtstart = round.floor(limits[0])
-        until = round.ceil(limits[1] + pad)
-        r = rrule(freq, dtstart, interval, until=until)
-        breaks = trim_breaks(list(r), limits)
-
-    return [b + offset for b in breaks]
+    breaks = H.breaks_given_width(limits, width)
+    return [b + offset for b in trim_breaks(breaks, limits)]
 
 
 def microsecondly_breaks(limits: tuple[datetime, datetime], interval: float):
@@ -247,5 +250,4 @@ def microsecondly_breaks(limits: tuple[datetime, datetime], interval: float):
     # and generate the sequence of breaks.
     span = (stop - start).total_seconds() * 1_000_000
     n = int(np.ceil(span / interval)) + 1
-    breaks = [start + timedelta(microseconds=interval * i) for i in range(n)]
-    return trim_breaks(breaks, limits)
+    return [start + timedelta(microseconds=interval * i) for i in range(n)]

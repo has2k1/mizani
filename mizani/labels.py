@@ -645,11 +645,13 @@ class label_timedelta:
 
     def __call__(self, x: TimedeltaArrayLike) -> Sequence[str]:
         from ._timedelta.breaks import Helper
+        from ._timedelta.utils import SI_LOOKUP_INV
 
         if len(x) == 0:
             return []
 
-        values, si_units, units = Helper.format_info(x, self.units)
+        values, si_units = Helper.format_info(x, self.units)
+        units = SI_LOOKUP_INV[si_units]
         labels = list(label_number()(values))
 
         if self.show_units:

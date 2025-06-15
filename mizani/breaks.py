@@ -531,6 +531,9 @@ class breaks_date_width:
         from mizani._datetime.breaks import by_width
         from mizani._datetime.utils import as_datetime
 
+        if pd.isna(limits[0]) or pd.isna(limits[1]):
+            return []
+
         if isinstance(limits[0], np.datetime64) and isinstance(
             limits[1], np.datetime64
         ):

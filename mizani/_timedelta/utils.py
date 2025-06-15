@@ -16,6 +16,7 @@ if TYPE_CHECKING:
         Timedelta,
         TimedeltaArrayLike,
         TimedeltaOffset,
+        TimeIntervalSIUnits,
         TimeIntervalUnits,
     )
 
@@ -27,6 +28,74 @@ __all__ = (
 
 SECONDS_PER_DAY = 24 * 60 * 60
 MICROSECONDS_PER_DAY = SECONDS_PER_DAY * (10**6)
+SI_LOOKUP: dict[str, TimeIntervalSIUnits] = {
+    # plural
+    "nanoseconds": "ns",
+    "microseconds": "us",
+    "milliseconds": "ms",
+    "seconds": "s",
+    "minutes": "min",
+    "hours": "h",
+    "days": "d",
+    "weeks": "weeks",
+    "months": "mon",
+    "years": "Y",
+    # singular
+    "nanosecond": "ns",
+    "microsecond": "us",
+    "millisecond": "ms",
+    "second": "s",
+    "minute": "min",
+    "hour": "h",
+    "day": "d",
+    "week": "weeks",
+    "year": "Y",
+    # identity
+    "ns": "ns",
+    "us": "us",
+    "ms": "ms",
+    "s": "s",
+    "min": "min",
+    "h": "h",
+    "d": "d",
+    "Y": "Y",
+}
+
+SI_LOOKUP_INV: dict[str, TimeIntervalUnits] = {
+    # si
+    "ns": "nanoseconds",
+    "us": "microseconds",
+    "ms": "milliseconds",
+    "s": "seconds",
+    "min": "minutes",
+    "h": "hours",
+    "d": "days",
+    "weeks": "weeks",
+    "mon": "months",
+    "Y": "years",
+    # singular
+    "nanosecond": "nanoseconds",
+    "microsecond": "microseconds",
+    "millisecond": "milliseconds",
+    "second": "seconds",
+    "minute": "minutes",
+    "hour": "hours",
+    "day": "days",
+    "week": "weeks",
+    "month": "months",
+    "year": "years",
+    # identity
+    "nanoseconds": "nanoseconds",
+    "microseconds": "microseconds",
+    "milliseconds": "milliseconds",
+    "seconds": "seconds",
+    "minutes": "minutes",
+    "hours": "hours",
+    "days": "days",
+    # "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+}
 
 # NOTE: We only deal with timedelta and pd.Timedelta
 

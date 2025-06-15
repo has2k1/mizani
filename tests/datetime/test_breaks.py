@@ -302,40 +302,42 @@ def test_by_width_seconds():
 
 
 def test_by_width_minutes():
-    l1 = dt(("2025-01-01 01:10:30", "2025-01-01 04:00:30"))
+    l1 = dt(("2025-01-01 01:11:30", "2025-01-01 04:00:30"))
     assert by_width(l1, "45 mins") == [
-        datetime(2025, 1, 1, 1, 10),
-        datetime(2025, 1, 1, 1, 55),
-        datetime(2025, 1, 1, 2, 40),
-        datetime(2025, 1, 1, 3, 25),
-        datetime(2025, 1, 1, 4, 10),
-    ]
-    assert by_width(l1, "45 mins", -10) == [
         datetime(2025, 1, 1, 1, 0),
         datetime(2025, 1, 1, 1, 45),
         datetime(2025, 1, 1, 2, 30),
         datetime(2025, 1, 1, 3, 15),
         datetime(2025, 1, 1, 4, 0),
+        datetime(2025, 1, 1, 4, 45),
+    ]
+    assert by_width(l1, "45 mins", -10) == [
+        datetime(2025, 1, 1, 0, 50),
+        datetime(2025, 1, 1, 1, 35),
+        datetime(2025, 1, 1, 2, 20),
+        datetime(2025, 1, 1, 3, 5),
+        datetime(2025, 1, 1, 3, 50),
+        datetime(2025, 1, 1, 4, 35),
     ]
 
 
 def test_by_width_hours():
     l1 = dt(("2025-01-01 01:10:30", "2025-01-03 05:10:30"))
     assert by_width(l1, "12 hours") == [
-        datetime(2025, 1, 1, 1, 0),
-        datetime(2025, 1, 1, 13, 0),
-        datetime(2025, 1, 2, 1, 0),
-        datetime(2025, 1, 2, 13, 0),
-        datetime(2025, 1, 3, 1, 0),
-        datetime(2025, 1, 3, 13, 0),
-    ]
-    assert by_width(l1, "12 hours", "-1 hour") == [
         datetime(2025, 1, 1, 0, 0),
         datetime(2025, 1, 1, 12, 0),
         datetime(2025, 1, 2, 0, 0),
         datetime(2025, 1, 2, 12, 0),
         datetime(2025, 1, 3, 0, 0),
         datetime(2025, 1, 3, 12, 0),
+    ]
+    assert by_width(l1, "12 hours", "-12 hours") == [
+        datetime(2024, 12, 31, 12, 0),
+        datetime(2025, 1, 1, 0, 0),
+        datetime(2025, 1, 1, 12, 0),
+        datetime(2025, 1, 2, 0, 0),
+        datetime(2025, 1, 2, 12, 0),
+        datetime(2025, 1, 3, 0, 0),
     ]
 
 
@@ -372,10 +374,10 @@ def test_by_width_weeks():
         datetime(2025, 2, 3, 0, 0),
     ]
     assert by_width(l1, "2 weeks") == [
-        datetime(2024, 12, 30, 0, 0),
-        datetime(2025, 1, 13, 0, 0),
-        datetime(2025, 1, 27, 0, 0),
-        datetime(2025, 2, 10, 0, 0),
+        datetime(2025, 1, 1, 0, 0),
+        datetime(2025, 1, 15, 0, 0),
+        datetime(2025, 1, 29, 0, 0),
+        datetime(2025, 2, 12, 0, 0),
     ]
 
 
@@ -414,28 +416,29 @@ def test_by_width_years():
 def test_by_width_decades():
     l1 = dt(("2025-01-01 01:10:30", "2250-01-20 05:10:30"))
     assert by_width(l1, "2 decades") == [
-        datetime(2025, 1, 1, 0, 0),
-        datetime(2045, 1, 1, 0, 0),
-        datetime(2065, 1, 1, 0, 0),
-        datetime(2085, 1, 1, 0, 0),
-        datetime(2105, 1, 1, 0, 0),
-        datetime(2125, 1, 1, 0, 0),
-        datetime(2145, 1, 1, 0, 0),
-        datetime(2165, 1, 1, 0, 0),
-        datetime(2185, 1, 1, 0, 0),
-        datetime(2205, 1, 1, 0, 0),
-        datetime(2225, 1, 1, 0, 0),
-        datetime(2245, 1, 1, 0, 0),
-        datetime(2265, 1, 1, 0, 0),
+        datetime(2020, 1, 1, 0, 0),
+        datetime(2040, 1, 1, 0, 0),
+        datetime(2060, 1, 1, 0, 0),
+        datetime(2080, 1, 1, 0, 0),
+        datetime(2100, 1, 1, 0, 0),
+        datetime(2120, 1, 1, 0, 0),
+        datetime(2140, 1, 1, 0, 0),
+        datetime(2160, 1, 1, 0, 0),
+        datetime(2180, 1, 1, 0, 0),
+        datetime(2200, 1, 1, 0, 0),
+        datetime(2220, 1, 1, 0, 0),
+        datetime(2240, 1, 1, 0, 0),
+        datetime(2260, 1, 1, 0, 0),
     ]
     assert by_width(l1, "4 decades", 5) == [
-        datetime(2030, 1, 1, 0, 0),
-        datetime(2070, 1, 1, 0, 0),
-        datetime(2110, 1, 1, 0, 0),
-        datetime(2150, 1, 1, 0, 0),
-        datetime(2190, 1, 1, 0, 0),
-        datetime(2230, 1, 1, 0, 0),
-        datetime(2270, 1, 1, 0, 0),
+        datetime(2005, 1, 1, 0, 0),
+        datetime(2045, 1, 1, 0, 0),
+        datetime(2085, 1, 1, 0, 0),
+        datetime(2125, 1, 1, 0, 0),
+        datetime(2165, 1, 1, 0, 0),
+        datetime(2205, 1, 1, 0, 0),
+        datetime(2245, 1, 1, 0, 0),
+        datetime(2285, 1, 1, 0, 0),
     ]
 
 

@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
 from ..utils import round_any, trim_breaks
 from .utils import (
+    SI_LOOKUP,
+    SI_LOOKUP_INV,
     as_timedelta,
     parse_timedelta_width,
     timedelta_to_microseconds,
@@ -63,21 +65,6 @@ MICROSECONDS: dict[TimeIntervalSIUnits, int] = {
     "weeks": 1_000_000 * 60 * 60 * 24 * 7,
 }
 
-TO_SI: dict[TimeIntervalUnits, TimeIntervalSIUnits] = {
-    "nanoseconds": "ns",
-    "microseconds": "us",
-    "milliseconds": "ms",
-    "seconds": "s",
-    "minutes": "min",
-    "hours": "h",
-    "days": "d",
-    "weeks": "weeks",
-}
-
-FROM_SI: dict[TimeIntervalSIUnits, TimeIntervalUnits] = {
-    v: k for k, v in TO_SI.items()
-}
-
 
 # This could be cleaned up, state overload?
 @dataclass()
@@ -114,19 +101,9 @@ class Helper:
         l, h = min(self.x), max(self.x)
         self.package = self.determine_package(self.x[0])
         self.limits = self.value(l), self.value(h)
-
-        if self.units:
-            if self.units not in FROM_SI:
-                s = f"{self.units.rstrip('s')}s"
-                self._units: TimeIntervalSIUnits = cast(
-                    "TimeIntervalSIUnits",
-                    TO_SI.get(s, s),  # pyright: ignore[reportCallIssue,reportArgumentType]
-                )
-            else:
-                self._units = self.units
-        else:
-            self._units = self.best_units((l, h))
-
+        self._units: TimeIntervalSIUnits = (
+            SI_LOOKUP[self.units] if self.units else self.best_units((l, h))
+        )
         self.factor = self.get_scaling_factor(self._units)
 
     @classmethod
@@ -145,9 +122,9 @@ class Helper:
         cls,
         x: TimedeltaArrayLike,
         units: TimeIntervalUnits | TimeIntervalSIUnits | None = None,
-    ) -> tuple[Sequence[int | float], TimeIntervalSIUnits, TimeIntervalUnits]:
+    ) -> tuple[Sequence[int | float], TimeIntervalSIUnits]:
         ins = cls(x, units)
-        return ins.timedelta_to_numeric(x), ins._units, FROM_SI[ins._units]
+        return ins.timedelta_to_numeric(x), ins._units
 
     def best_units(self, x: TimedeltaArrayLike) -> TimeIntervalSIUnits:
         """
@@ -227,7 +204,7 @@ class Helper:
             ]
 
         else:
-            units = FROM_SI[self._units]
+            units = SI_LOOKUP_INV[self._units]
             return [timedelta(**{units: x}) for x in values]  # pyright: ignore[reportArgumentType]
 
     def get_scaling_factor(self, units):
@@ -276,7 +253,7 @@ def by_width(
     Calculate timedelta breaks of a given width
     """
     units, interval = parse_timedelta_width(width)
-    interval = MICROSECONDS[TO_SI[units]] * interval
+    interval = MICROSECONDS[SI_LOOKUP[units]] * interval
 
     us0 = timedelta_to_microseconds(limits[0])
     us1 = timedelta_to_microseconds(limits[1])

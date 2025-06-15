@@ -1,15 +1,17 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import numpy as np
 import pytest
+from dateutil.relativedelta import relativedelta
 
 from mizani._datetime.utils import (
+    as_relativedelta,
     datetime_to_num,
     dt,
     get_tzinfo,
     num_to_datetime,
     parse_datetime_width,
-    timedelta_to_num,
 )
 
 
@@ -21,6 +23,10 @@ def test_tzinfo():
         assert get_tzinfo(10)  # type: ignore
 
 
+def test_datetime_to_num():
+    assert len(datetime_to_num([])) == 0
+
+
 def test_num_to_datetime():
     limits = num_to_datetime((25552, 27743))
     assert limits[0] == datetime(2039, 12, 17, tzinfo=ZoneInfo("UTC"))
@@ -29,15 +35,10 @@ def test_num_to_datetime():
     d = num_to_datetime((27742 + 1.9999999999,))[0]
     assert d.microsecond == 0
 
+    limits = (np.datetime64("10000-01-02"), np.datetime64("10000-01-02"))
 
-def test_datetime_to_num():
-    res = datetime_to_num([])
-    assert len(res) == 0
-
-
-def test_timedelta_to_num():
-    res = timedelta_to_num([])
-    assert len(res) == 0
+    with pytest.raises(ValueError):
+        num_to_datetime(datetime_to_num(limits))
 
 
 def test_dt():
@@ -47,3 +48,8 @@ def test_dt():
 def test_parse_datetime_width():
     assert parse_datetime_width("2 sec") == ("seconds", 2)
     assert parse_datetime_width("2 milliseconds") == ("microseconds", 2000)
+
+
+def test_as_relativedelta():
+    rd = relativedelta(days=2, hours=6)
+    assert as_relativedelta(rd) == rd

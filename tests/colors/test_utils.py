@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from mizani._colors.utils import to_rgba
 
@@ -21,3 +22,15 @@ def test_to_rgba():
         "#00800080",
         "#0000FF99",
     ]
+
+    assert to_rgba((0, 0, 1, 0.2), 1) == (0, 0, 1, 0.2)
+    assert to_rgba("none", 0.5) == "none"
+
+    with pytest.raises(ValueError):
+        to_rgba("red", "0")  # pyright: ignore[reportCallIssue,reportArgumentType]
+
+    with pytest.raises(ValueError):
+        to_rgba((1, 0, 0), "0")  # pyright: ignore[reportCallIssue,reportArgumentType]
+
+    with pytest.raises(ValueError):
+        to_rgba((0, 0, 1, 0.2, 0.2), 1)  # pyright: ignore[reportCallIssue,reportArgumentType]

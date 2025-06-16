@@ -128,6 +128,7 @@ def test_exp_trans():
 
 def test_identity_trans():
     _test_trans(identity_trans, arr)
+    assert identity_trans().format([1, 2, 3]) == ["1", "2", "3"]
 
 
 def test_log10_trans():

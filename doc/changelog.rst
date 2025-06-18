@@ -4,7 +4,7 @@ Changelog
 v0.14.0
 -------
 
-*not-yet-released*
+2025-06-18
 
 API Changes
 ***********

@@ -782,8 +782,7 @@ class label_ordinal:
 
     def __call__(self, x: FloatArrayLike) -> Sequence[str]:
         labels = [
-            ordinal(num, self.prefix, self.suffix, self.big_mark)  # pyright: ignore[reportArgumentType]
-            for num in x
+            ordinal(num, self.prefix, self.suffix, self.big_mark) for num in x
         ]
         return labels
 

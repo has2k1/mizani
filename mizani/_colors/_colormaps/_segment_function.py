@@ -39,4 +39,4 @@ class SegmentFunctionMap(ColorMap):
                 self.data["green"](x),
             ]
         )
-        return [rgb_to_hex(c) for c in arr]  # pyright: ignore[reportArgumentType]
+        return [rgb_to_hex(c) for c in arr]

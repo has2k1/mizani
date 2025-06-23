@@ -17,11 +17,15 @@ def float_to_hex(f: float) -> str:
     return f"{round(f * 255):02x}"
 
 
-def is_rgbcolor(c) -> TypeGuard[RGBColor | RGBAColor]:
+def is_color_tuple(obj: Any) -> TypeGuard[RGBColor | RGBAColor]:
     """
-    Return True if c is a color tuple
+    Return True if obj a tuple with 3 or 4 floats
     """
-    return isinstance(c, tuple) and isinstance(c[0], (float, int))
+    return (
+        isinstance(obj, tuple)
+        and (len(obj) == 3 or len(obj) == 4)
+        and all(isinstance(x, (float, int)) for x in obj)
+    )
 
 
 @overload
@@ -70,7 +74,7 @@ def to_rgba(
         if colors == "none" or colors == "None":
             return "none"
 
-        if isinstance(alpha, float):
+        if isinstance(alpha, (float, int)):
             c = get_named_color(colors)
             if len(c) > 7:
                 return c
@@ -78,15 +82,13 @@ def to_rgba(
             return f"{c}{a}"
         else:
             raise ValueError(f"Expected {alpha=} to be a float.")
-    elif is_rgbcolor(colors):
+    elif is_color_tuple(colors):
         if not isinstance(alpha, (float, int)):
             raise ValueError(f"Expected {alpha=} to be a float.")
         if len(colors) == 3:
             return (*colors, alpha)  # pyright: ignore[reportReturnType]
-        elif len(colors) == 4:
-            return colors
         else:
-            raise ValueError(f"Expected {colors=} to be of length 3.")
+            return colors
 
     if isinstance(alpha, (float, int)):
         return [to_rgba(c, alpha) for c in colors]  # pyright: ignore[reportCallIssue,reportArgumentType]

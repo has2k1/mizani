@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -26,6 +27,8 @@ def test_to_rgba():
 
     assert to_rgba((0, 0, 1, 0.2), 1) == (0, 0, 1, 0.2)
     assert to_rgba("none", 0.5) == "none"
+    assert to_rgba("red", np.float64(0.5)) == "#FF000080"
+    assert to_rgba("red", np.int64(1)) == "#FF0000FF"  # pyright: ignore[reportCallIssue,reportArgumentType]
 
     with pytest.raises(ValueError):
         to_rgba("red", "0")  # pyright: ignore[reportCallIssue,reportArgumentType]

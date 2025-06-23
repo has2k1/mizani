@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, overload
 
+import numpy as np
+
 from mizani._colors.named_colors import get_named_color
 
 if TYPE_CHECKING:
@@ -104,7 +106,7 @@ def to_rgba(
         if colors == "none" or colors == "None":
             return "none"
 
-        if isinstance(alpha, (float, int)):
+        if isinstance(alpha, (float, int, np.floating, np.integer)):
             c = get_named_color(colors)
             if len(c) > 7:
                 return c

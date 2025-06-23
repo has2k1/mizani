@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from mizani._colors.utils import to_rgba
+from mizani._colors.utils import color_tuple_to_hex, to_rgba
 
 
 def test_to_rgba():
@@ -35,3 +35,8 @@ def test_to_rgba():
 
     with pytest.raises(TypeError):
         to_rgba((0, 0, 1, 0.2, 0.2), 1)  # pyright: ignore[reportCallIssue,reportArgumentType]
+
+
+def test_color_tuple_to_hex():
+    assert color_tuple_to_hex((1, 0, 0)) == "#FF0000"
+    assert color_tuple_to_hex((1, 0, 0, 0.5)) == "#FF000080"

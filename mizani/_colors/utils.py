@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, overload
 from mizani._colors.named_colors import get_named_color
 
 if TYPE_CHECKING:
-    from typing import Sequence, TypeGuard
+    from typing import Any, Sequence, TypeGuard
 
     from mizani.typing import AnySeries, ColorType, RGBAColor, RGBColor
 
@@ -14,7 +14,7 @@ def float_to_hex(f: float) -> str:
     """
     Convert f in [0, 1] to a hex value in range ["00", "FF"]
     """
-    return f"{round(f * 255):02x}"
+    return f"{round(f * 255):02X}"
 
 
 def is_color_tuple(obj: Any) -> TypeGuard[RGBColor | RGBAColor]:
@@ -26,6 +26,36 @@ def is_color_tuple(obj: Any) -> TypeGuard[RGBColor | RGBAColor]:
         and (len(obj) == 3 or len(obj) == 4)
         and all(isinstance(x, (float, int)) for x in obj)
     )
+
+
+def rgb_to_hex(t: RGBColor) -> str:
+    """
+    Convert rgb color tuple to hex
+    """
+    return "#{:02X}{:02X}{:02X}".format(
+        round(t[0] * 255),
+        round(t[1] * 255),
+        round(t[2] * 255),
+    )
+
+
+def rgba_to_hex(t: RGBAColor) -> str:
+    """
+    Convert rgba color tuple to hex
+    """
+    return "#{:02X}{:02X}{:02X}{:02X}".format(
+        round(t[0] * 255),
+        round(t[1] * 255),
+        round(t[2] * 255),
+        round(t[3] * 255),
+    )
+
+
+def color_tuple_to_hex(t: RGBColor | RGBAColor) -> str:
+    """
+    Convert a color tuple to hex
+    """
+    return rgb_to_hex(t) if len(t) == 3 else rgba_to_hex(t)
 
 
 @overload

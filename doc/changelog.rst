@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.14.1
+-------
+
+2025-06-24
+
+Bug Fixes
+*********
+
+- Fixed but in :func:`~mizani._colors.to_rgba` used by plotnine to recognise
+  numpy integers and floats as alpha values. And also to recognise `None` and
+  and an empty string to also mean `"none"`, which is recognised by Matplotlib.
+
 v0.14.0
 -------
 

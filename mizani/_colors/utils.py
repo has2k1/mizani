@@ -103,7 +103,7 @@ def to_rgba(
         RGBA color(s)
     """
     if isinstance(colors, str):
-        if colors == "none" or colors == "None":
+        if colors in ("none", "None", ""):
             return "none"
 
         if isinstance(alpha, (float, int, np.floating, np.integer)):

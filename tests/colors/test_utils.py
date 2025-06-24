@@ -30,6 +30,9 @@ def test_to_rgba():
     assert to_rgba("red", np.float64(0.5)) == "#FF000080"
     assert to_rgba("red", np.int64(1)) == "#FF0000FF"  # pyright: ignore[reportCallIssue,reportArgumentType]
 
+    assert to_rgba(None, 1) == "none"
+    assert to_rgba([None, None], 1) == ["none", "none"]  # pyright: ignore[reportCallIssue,reportArgumentType]
+
     with pytest.raises(ValueError):
         to_rgba("red", "0")  # pyright: ignore[reportCallIssue,reportArgumentType]
 

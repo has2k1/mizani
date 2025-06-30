@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.14.2
+-------
+
+2025-06-30
+
+
+Enhancements
+************
+Fixed test cases that were failing for the upcoming python 3.14 release.
+
+
 v0.14.1
 -------
 

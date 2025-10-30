@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import colorsys
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, Protocol
 from warnings import warn
 
 import numpy as np

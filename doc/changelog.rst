@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v0.14.3
+-------
+
+2025-10-30
+
+Bug Fixes
+*********
+
+- Fixed bug in :func:`~mizani.palettes.hue_pal` where drawing 24 or more colors
+  broke the palette and you got colors from a very narrow hue band close to
+  the first color.
+
 v0.14.2
 -------
 

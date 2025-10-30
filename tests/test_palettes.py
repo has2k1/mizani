@@ -100,6 +100,10 @@ def test_hue_pal():
     pal = hue_pal()
     assert pal(3) == ["#f8766d", "#00ba38", "#619cff"]
 
+    # We can draw upto 311 unique colors from the default hue_pal
+    # we can start getting duplicate colors
+    assert len(set(hue_pal()(311))) == 311
+
 
 def test_brewer_pal():
     result = brewer_pal()(5)

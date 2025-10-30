@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import colorsys
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 from warnings import warn
 
 import numpy as np
@@ -393,23 +393,13 @@ class hue_pal(_discrete_pal):
     l: float = 65
     direction: Literal[1, -1] = 1
 
-    def __post_init__(self):
-        # Ensure a proper range for the palette
-        if isinstance(self.h, tuple):
-            self._hue_range = self.h
-        else:
-            self._hue_range = self.h, self.h + 360
-
     def __call__(self, n: int) -> Sequence[RGBHexColor]:
-        h = self._hue_range
+        h = self.h if isinstance(self.h, tuple) else (self.h, self.h)
 
-        # Make a hue range that is functionally zero wrap around and
-        # and cover the entire hue space.
-        # h = (0, 360) == (360, 360) == (720, 360)
-        # h = (200, 200) == (200, 200+360) == (200, 200+720)
+        # A hue range that is functionally zero wraps around upto
+        # 1 step (360/n) less than a complete wrap around.
         if (h[1] - h[0]) % 360 < 1:
-            h = h[0] % 360, (h[1] - 360 / n) % 360
-
+            h = h[0] % 360, h[1] % 360 + 360 * (n - 1) / n
         hues = np.linspace(h[0], h[1], n)[:: self.direction] % 360
         return [hsluv.lch_to_hex((self.l, self.c, h)) for h in hues]
 

@@ -59,4 +59,7 @@ doc/generated/
 # PyBuilder
 target/
 
+# local dev things
+.local/
+
 .DS_Store

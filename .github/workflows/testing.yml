@@ -29,30 +29,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-
-      - name: Make uv use system python
-        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
-
       - name: Install Packages
         # Install as an editable so that the coverage path is predicable
-        run: uv pip install --resolution=${{ matrix.resolution }} -e ".[test]"
+        run: |
+          uv sync
+          uv pip install --resolution=${{ matrix.resolution }} -e ".[test]"
 
       - name: Environment Information
         run: uv pip list
 
       - name: Run Tests
-        run: |
-          coverage erase
-          make test
+        run: make test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -75,21 +67,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-
-      - name: Make uv use system python
-        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
-
       - name: Install Linting & Formatting Packages
-        run: uv pip install ruff
+
+        run: |
+          uv sync
+          uv pip install ruff
 
       - name: Environment Information
         run: uv pip list
@@ -115,21 +102,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-
-      - name: Make uv use system python
-        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
-
       - name: Install Packages
-        run: uv pip install ".[extra, typing]"
+        run: |
+          uv sync
+          uv pip install ".[extra, typing]"
 
       - name: Environment Information
         run: uv pip list
@@ -152,21 +133,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-
-      - name: Make uv use system python
-        run: echo "UV_SYSTEM_PYTHON=true" >> $GITHUB_ENV
-
       - name: Install Packages
-        run: uv pip install -e ".[doc]"
+        run: |
+          uv sync
+          uv pip install -e ".[doc]"
 
       - name: Environment Information
         run: uv pip list

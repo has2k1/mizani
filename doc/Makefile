@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
+SPHINXBUILD   = uv run sphinx-build
 SPHINXPROJ    = mizani
 SOURCEDIR     = .
 PAPER         =

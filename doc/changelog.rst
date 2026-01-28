@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.14.4
+-------
+
+2026-01-28
+
+Bug Fixes
+*********
+
+- Fixed handling of null types so that we can recognise as null whatever pandas
+  sees as null. This resolves
+  `(plotnine #1021) <https://github.com/has2k1/plotnine/issues/1021>`_.
+
+
 v0.14.3
 -------
 

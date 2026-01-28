@@ -355,6 +355,8 @@ def get_null_value(x: Any) -> NullType:
         return None
     elif isinstance(x0, (np.datetime64, np.timedelta64)):
         return type(x0)("NaT")
+    elif pd.isna(x0):
+        return x0
     else:
         raise ValueError(
             "Cannot get a null value for type: {}".format(type(x[0]))

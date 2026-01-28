@@ -6,7 +6,6 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import pytest
-import pytz
 
 from mizani.labels import (
     label_bytes,
@@ -165,12 +164,6 @@ def test_label_date():
 
     # Timezone with Daylight time
     NY = ZoneInfo("America/New_York")
-    x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]
-    result = label_date()(x)
-    assert result == ["2023-10-01", "2023-11-01"]
-
-    # Same as above, but different tz library
-    NY = pytz.timezone("America/New_York")
     x = [datetime(2023, 10, 1, tzinfo=NY), datetime(2023, 11, 1, tzinfo=NY)]
     result = label_date()(x)
     assert result == ["2023-10-01", "2023-11-01"]

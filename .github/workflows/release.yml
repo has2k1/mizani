@@ -33,7 +33,7 @@ jobs:
 
       - name: Check for semantic version tag
         id: check-tag
-        run: python tools/gha_check_semver.py
+        run: uv run python tools/gha_check_semver.py
 
       - name: See outputs
         shell: bash
@@ -69,9 +69,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-
       - name: Install Packages
-        run: python -m pip install build
+        run: |
+          uv sync
+          uv pip install build
 
       - name: Build a wheel and a source tarball
         run: make dist

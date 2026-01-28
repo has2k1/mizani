@@ -144,3 +144,6 @@ def test_get_timezone():
 def test_get_null_value():
     x = [datetime(2022, 3, 24)]
     assert get_null_value(x) is None
+
+    x = pd.Series([None, 1, 2, 3], dtype="Int64")
+    assert get_null_value(x) is pd.NA

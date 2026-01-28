@@ -24,6 +24,7 @@ if TYPE_CHECKING:
         DatetimeWidthUnits,
     )
 
+    from ..typing import DateFreq
     from .types import DateTimeRounder
 
 __all__ = (
@@ -34,7 +35,7 @@ __all__ = (
 MICROSECONDLY = 7
 per_sec = PerSecond()
 
-FREQ_LOOKUP: dict[DatetimeWidthUnits, int] = {
+FREQ_LOOKUP: dict[DatetimeWidthUnits, DateFreq] = {
     "microseconds": MICROSECONDLY,
     "seconds": rr.SECONDLY,
     "minutes": rr.MINUTELY,
@@ -145,7 +146,7 @@ class Helper:
         freq, rounding = self.freq[idx], self.rounders[idx]
         interval = self.intervals[idx]
         units = FREQ_LOOKUP_INV[freq]
-        if units == "microseconds":
+        if freq == MICROSECONDLY:
             return microsecondly_breaks(limits, interval)
 
         bymonthday = None
@@ -175,11 +176,11 @@ class Helper:
         from .._timedelta.utils import SI_LOOKUP
 
         units, interval = parse_datetime_width(width)
-        if units == "microseconds":
+        freq = FREQ_LOOKUP[units]
+        if freq == MICROSECONDLY:
             return microsecondly_breaks(limits, interval)
 
         si_units = SI_LOOKUP[units]
-        freq = FREQ_LOOKUP[units]
         s = per_sec(interval, si_units)
         idx = int(np.array(H.intervals_sec).searchsorted(s))
         rounding = self.rounders[idx]
@@ -190,10 +191,11 @@ class Helper:
         return list(r)
 
     @cached_property
-    def freq(self) -> Sequence[int]:
+    def freq(self) -> Sequence[DateFreq]:
         """
         RRule frequency at each interval
         """
+        rr.SECONDLY
         return [
             *(MICROSECONDLY,) * len(self.microseconds),
             *(rr.SECONDLY,) * len(self.seconds),
@@ -203,7 +205,7 @@ class Helper:
             *(rr.WEEKLY,) * len(self.weeks),
             *(rr.MONTHLY,) * len(self.months),
             *(rr.YEARLY,) * len(self.years),
-        ]
+        ]  # pyright: ignore[reportReturnType]
 
 
 H = Helper()

@@ -22,15 +22,15 @@ jobs:
         include:
           - python-version: "3.10"
             resolution: "lowest-direct"
-          - python-version: 3.13
+          - python-version: 3.14
             resolution: "highest"
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -47,7 +47,7 @@ jobs:
         run: make test
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           name: "py${{ matrix.python-version }}"
@@ -61,14 +61,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.13]
+        python-version: [3.14]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -96,14 +96,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.13]
+        python-version: [3.14]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -127,14 +127,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.13]
+        python-version: [3.14]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install a specific version of uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
 

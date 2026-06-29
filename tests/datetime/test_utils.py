@@ -27,6 +27,13 @@ def test_datetime_to_num():
     assert len(datetime_to_num([])) == 0
 
 
+def test_datetime_to_num_handles_nat():
+    result = datetime_to_num(
+        np.array(["2020-01-01", "NaT"], dtype="datetime64[ns]")
+    )
+    assert np.isnan(result[1])
+
+
 def test_num_to_datetime():
     limits = num_to_datetime((25552, 27743))
     assert limits[0] == datetime(2039, 12, 17, tzinfo=ZoneInfo("UTC"))

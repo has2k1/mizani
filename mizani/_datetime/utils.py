@@ -29,7 +29,6 @@ EPOCH64 = np.datetime64("1970", "Y")
 SECONDS_PER_DAY = 24 * 60 * 60
 MICROSECONDS_PER_DAY = SECONDS_PER_DAY * (10**6)
 
-NaT_int = np.datetime64("NaT").astype(np.int64)
 MIN_DATETIME64 = np.datetime64("0001-01-01")
 MAX_DATETIME64 = np.datetime64("10000-01-01")
 UTC = ZoneInfo("UTC")
@@ -162,8 +161,7 @@ def datetime64_to_num(x: NDArrayDatetime) -> NDArrayFloat:
         + diff_ns.astype(np.float64) / 1.0e9
     ) / SECONDS_PER_DAY
 
-    x_int = x.astype(np.int64)
-    res[x_int == NaT_int] = np.nan
+    res[np.isnat(x)] = np.nan
     return res
 
 

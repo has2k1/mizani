@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import colorsys
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 from warnings import warn
 
 import numpy as np
@@ -477,15 +477,14 @@ class brewer_pal(_discrete_pal):
     Parameters
     ----------
     type : 'sequential' | 'qualitative' | 'diverging'
-        Type of palette. Sequential, Qualitative or
-        Diverging. The following abbreviations may
-        be used, ``seq``, ``qual`` or ``div``.
+        Type from which to choose a numeric `palette`. The abbreviations
+        `seq`, `qual`, and `div` are supported. A named palette selects its
+        own type, and `type` becomes its long form, such as `'qualitative'`.
     palette : int | str
-        Which palette to choose from. If is an integer,
-        it must be in the range ``[0, m]``, where ``m``
-        depends on the number sequential, qualitative or
-        diverging palettes. If it is a string, then it
-        is the name of the palette.
+        Palette to choose. An integer must be in the range `[0, m]`, where
+        `m` depends on the number of sequential, qualitative, or diverging
+        palettes. A string must be a palette name; an unknown name raises a
+        `ValueError`.
     direction : int
         The order of colours in the scale. If -1 the order
         of colors is reversed. The default is 1.
@@ -509,10 +508,18 @@ class brewer_pal(_discrete_pal):
     >>> brewer_pal('seq', 'PuBuGn')(5)
     ['#F6EFF7', '#BDC9E1', '#67A9CF', '#1C9099', '#016C59']
 
+    A named palette does not need a matching `type`.
+
+    >>> pal = brewer_pal(palette='Set2')
+    >>> pal(3)
+    ['#66C2A5', '#FC8D62', '#8DA0CB']
+    >>> pal.type
+    'qualitative'
+
     The available color names for each palette type can be
     obtained using the following code::
 
-        from mizani._colors.brewer import get_palette_names
+        from mizani._colors._palettes.brewer import get_palette_names
 
         print(get_palette_names("sequential"))
         print(get_palette_names("qualitative"))
@@ -530,6 +537,7 @@ class brewer_pal(_discrete_pal):
             raise ValueError("direction should be 1 or -1.")
 
         self.bpal = get_brewer_palette(self.type, self.palette)
+        self.type = cast("ColorScheme", self.bpal.kind.value)
 
     def __call__(self, n: int) -> Sequence[RGBHexColor | None]:
         # Only draw the maximum allowable colors from the palette

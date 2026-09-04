@@ -1,6 +1,22 @@
 Changelog
 =========
 
+v0.14.5
+-------
+
+2026-09-04
+
+Bug Fixes
+*********
+
+- :func:`~mizani.palettes.brewer_pal` now resolves a named palette to its own
+  type, so the name no longer has to match the ``type`` argument.
+  ``brewer_pal(palette="Set2")`` now works even though ``type`` defaults to
+  sequential and ``Set2`` is qualitative. An unknown name raises a
+  ``ValueError`` listing the valid names. This resolves `(plotnine #1048)
+  <https://github.com/has2k1/plotnine/issues/1048>`_.
+
+
 v0.14.4
 -------
 

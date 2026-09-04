@@ -135,6 +135,28 @@ def test_brewer_pal():
         brewer_pal(direction=-2)(100)
 
 
+def test_brewer_pal_named_palette_selects_its_type():
+    # A unique name identifies the palette type and overrides the default or
+    # explicitly supplied type.
+    result = brewer_pal(palette="Set2")(3)
+    assert all(s[0] == "#" and len(s) == 7 for s in result)
+
+    result = brewer_pal("div", "Blues")(3)
+    assert all(s[0] == "#" and len(s) == 7 for s in result)
+
+    assert brewer_pal(palette="Set2").type == "qualitative"
+    assert brewer_pal("div", "Blues").type == "sequential"
+
+    with pytest.raises(ValueError, match="Nonesuch"):
+        brewer_pal(palette="Nonesuch")
+
+
+def test_brewer_pal_number_out_of_range():
+    # Report the number of available palettes, not the requested number.
+    with pytest.raises(ValueError, match="only '8' palettes of type qual"):
+        brewer_pal("qual", 20)
+
+
 def test_brewer_palette_names():
     from mizani._colors._palettes.brewer import get_palette_names
 

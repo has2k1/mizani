@@ -23,6 +23,14 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+__pypackages__/
+node_modules/
+
+# Environments
+.direnv
+.venv
+venv
+uv.lock
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

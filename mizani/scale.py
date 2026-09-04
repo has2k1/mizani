@@ -54,6 +54,7 @@ if TYPE_CHECKING:
         ContinuousPalette,
         DiscretePalette,
         FloatArrayLike,
+        NDArrayAny,
         NDArrayFloat,
         Trans,
     )
@@ -76,7 +77,7 @@ class scale_continuous:
         palette: ContinuousPalette,
         na_value: Any = None,
         trans: Trans | None = None,
-    ) -> NDArrayFloat:
+    ) -> NDArrayAny:
         """
         Scale data continuously
 
@@ -144,7 +145,7 @@ class scale_continuous:
         limits: tuple[float, float],
         na_value: Any = None,
         oob: Callable[[TVector], TVector] = censor,
-    ) -> NDArrayFloat:
+    ) -> NDArrayAny:
         """
         Map values to a continuous palette
 

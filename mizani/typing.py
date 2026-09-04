@@ -163,7 +163,9 @@ if TYPE_CHECKING:
     )
     TimedeltaOffset: TypeAlias = timedelta | str | Sequence[str] | None
 
-    ContinuousPalette: TypeAlias = Callable[[FloatArrayLike], Sequence[Any]]
+    ContinuousPalette: TypeAlias = Callable[
+        [FloatArrayLike], NDArrayAny | Sequence[Any]
+    ]
     DiscretePalette: TypeAlias = Callable[[int], NDArrayAny | AnySeries]
 
     # Mizani

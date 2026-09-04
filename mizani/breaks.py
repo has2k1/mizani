@@ -193,13 +193,13 @@ class _breaks_log_sub:
                 lower_end = np.max(
                     [
                         np.min(np.where(limits[0] <= breaks)) - 1,
-                        0,  # type: ignore
+                        0,
                     ]
                 )
                 upper_end = np.min(
                     [
                         np.max(np.where(breaks <= limits[1])) + 1,
-                        len(breaks),  # type: ignore
+                        len(breaks),
                     ]
                 )
                 return breaks[lower_end : upper_end + 1]

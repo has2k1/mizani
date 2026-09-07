@@ -438,3 +438,32 @@ def test_breaks_extended():
     limits = [np.pi, np.pi]
     assert len(breaks(limits)) == 1
     assert breaks(limits)[0] == limits[1]
+
+
+def test_breaks_extended_only_inside_per_end():
+    limits = (-7.7, 196.9)
+
+    # A pair of equal flags is the same as the single flag
+    for flag in (True, False):
+        npt.assert_array_equal(
+            breaks_extended(n=3, only_inside=(flag, flag))(limits),
+            breaks_extended(n=3, only_inside=flag)(limits),
+        )
+
+    # Each end honours its own flag: the constrained end stays inside,
+    # the free end may go past its limit
+    breaks = breaks_extended(n=3, only_inside=(True, False))(limits)
+    npt.assert_array_equal(breaks, [0, 100, 200])
+    breaks = breaks_extended(n=3, only_inside=(False, True))((3.1, 207.7))
+    npt.assert_array_equal(breaks, [0, 100, 200])
+
+    # Over many ranges the constrained end never crosses its limit
+    rng = np.random.default_rng(0)
+    for _ in range(200):
+        lo = rng.uniform(-50, 50)
+        hi = lo + 10 ** rng.uniform(-1, 3)
+        n = int(rng.integers(2, 9))
+        breaks = breaks_extended(n=n, only_inside=(True, False))((lo, hi))
+        assert breaks[0] >= lo
+        breaks = breaks_extended(n=n, only_inside=(False, True))((lo, hi))
+        assert breaks[-1] <= hi

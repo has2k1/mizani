@@ -655,9 +655,14 @@ class breaks_extended:
         Desired number of breaks
     Q : list
         List of nice numbers
-    only_inside : bool
+    only_inside : bool | tuple[bool, bool]
         If ``True``, then all the breaks will be within the given
-        range.
+        range. A pair ``(lower, upper)`` constrains each end on its
+        own, so ``(True, False)`` keeps the first break at or above
+        the lower limit while the last break may lie beyond the
+        upper limit. The coverage score treats the two ends
+        separately (Talbot et al., 2010), so the search is unchanged;
+        only the candidates it admits are.
     w : list
         Weights applied to the four optimization components
         (simplicity, coverage, density, and legibility). They
@@ -670,6 +675,8 @@ class breaks_extended:
     array([  0. ,   2.5,   5. ,   7.5,  10. ])
     >>> breaks_extended(n=6)(limits)
     array([  0.,   2.,   4.,   6.,   8.,  10.])
+    >>> breaks_extended(n=3, only_inside=(True, False))((-7.7, 196.9))
+    array([  0., 100., 200.])
 
     References
     ----------
@@ -683,12 +690,16 @@ class breaks_extended:
 
     n: int = 5
     Q: Sequence[float] = (1, 5, 2, 2.5, 4, 3)
-    only_inside: bool = False
+    only_inside: bool | tuple[bool, bool] = False
     w: Sequence[float] = (0.25, 0.2, 0.5, 0.05)
 
     def __post_init__(self):
         # Used for lookups during the computations
         self.Q_index = {q: i for i, q in enumerate(self.Q)}
+        if isinstance(self.only_inside, bool):
+            self._inside = (self.only_inside, self.only_inside)
+        else:
+            self._inside = tuple(self.only_inside)
 
     def coverage(
         self, dmin: float, dmax: float, lmin: float, lmax: float
@@ -764,7 +775,7 @@ class breaks_extended:
         """
         Q = self.Q
         w = self.w
-        only_inside = self.only_inside
+        inside_lower, inside_upper = self._inside
         simplicity_max = self.simplicity_max
         density_max = self.density_max
         coverage_max = self.coverage_max
@@ -835,9 +846,10 @@ class breaks_extended:
 
                             score = w[0] * s + w[1] * c + w[2] * d + w[3] * l
 
-                            if score > best_score and (
-                                not only_inside
-                                or (lmin >= dmin and lmax <= dmax)
+                            if (
+                                score > best_score
+                                and (not inside_lower or lmin >= dmin)
+                                and (not inside_upper or lmax <= dmax)
                             ):
                                 best_score = score
                                 best = (lmin, lmax, lstep, q, k)

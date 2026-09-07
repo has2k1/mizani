@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.14.6
+-------
+
+Enhancements
+************
+
+- :class:`~mizani.breaks.breaks_extended` accepts a pair for
+  ``only_inside``, one flag per end, so a break sequence can be held
+  inside the limits at one end and allowed past them at the other.
+
+
 v0.14.5
 -------
 

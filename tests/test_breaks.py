@@ -1,3 +1,4 @@
+import signal
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -467,3 +468,33 @@ def test_breaks_extended_only_inside_per_end():
         assert breaks[0] >= lo
         breaks = breaks_extended(n=n, only_inside=(False, True))((lo, hi))
         assert breaks[-1] <= hi
+
+
+def test_breaks_extended_zero_pruning_weight_terminates():
+    # Zero simplicity, coverage or density weights stop the pruning
+    # bounds from shrinking, so the search never returns (#79).
+    weights = (
+        (0.00, 0.20, 0.50, 0.05),  # simplicity
+        (0.25, 0.00, 0.50, 0.05),  # coverage
+        (0.25, 0.20, 0.00, 0.05),  # density
+    )
+    limits = (43.0, 96.0)
+
+    def handle_alarm(signum, frame):
+        raise TimeoutError(
+            "breaks_extended did not return for a zero pruning weight"
+        )
+
+    previous = signal.signal(signal.SIGALRM, handle_alarm)
+    signal.setitimer(signal.ITIMER_REAL, 2.0)
+    try:
+        for w in weights:
+            try:
+                breaks = breaks_extended(n=5, w=w)(limits)
+            except ValueError:
+                continue
+            assert len(breaks) > 0
+            assert np.all(np.isfinite(breaks))
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)

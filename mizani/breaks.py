@@ -666,7 +666,9 @@ class breaks_extended:
     w : list
         Weights applied to the four optimization components
         (simplicity, coverage, density, and legibility). They
-        should add up to 1.
+        should add up to 1. The first three must be positive;
+        a zero (or negative) value disables pruning and the
+        search does not terminate.
 
     Examples
     --------
@@ -700,6 +702,12 @@ class breaks_extended:
             self._inside = (self.only_inside, self.only_inside)
         else:
             self._inside = tuple(self.only_inside)
+        # Pruning bounds shrink with w[0], w[1] and w[2]. At 0 they
+        # never drop below best_score, so the search loops never exit.
+        if any(x <= 0 for x in self.w[:3]):
+            raise ValueError(
+                "the simplicity, coverage and density weights must be positive"
+            )
 
     def coverage(
         self, dmin: float, dmax: float, lmin: float, lmax: float
@@ -819,6 +827,8 @@ class breaks_extended:
 
                     while z < float("inf"):
                         step = j * q * (10**z)
+                        if not np.isfinite(step):
+                            break
                         cm = coverage_max(dmin, dmax, step * (k - 1))
 
                         if (

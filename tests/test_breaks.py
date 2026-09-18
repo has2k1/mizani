@@ -469,6 +469,67 @@ def test_breaks_extended_only_inside_per_end():
         assert breaks[-1] <= hi
 
 
+def test_breaks_extended_loose_placement_matches_r():
+    # This result matches R's `only.loose=TRUE` mode.
+    breaks = breaks_extended(n=5, placement="loose")((1.6, 5.1))
+    npt.assert_array_equal(breaks, [1.5, 2.5, 3.5, 4.5, 5.5])
+
+    # Explicit flexible placement preserves the default result.
+    breaks = breaks_extended(n=5, placement="flexible")((1.6, 5.1))
+    npt.assert_array_equal(breaks, [2, 3, 4, 5])
+
+    breaks = breaks_extended(n=5, placement=("loose", "inside"))((1.6, 5.1))
+    npt.assert_array_equal(breaks, [1, 2, 3, 4, 5])
+
+
+def test_breaks_extended_placement_matches_only_inside():
+    # The new modes preserve the legacy per-end constraints from v0.14.6.
+    breaks = breaks_extended(n=3, placement=("inside", "flexible"))(
+        (-7.7, 196.9)
+    )
+    npt.assert_array_equal(breaks, [0, 100, 200])
+    breaks = breaks_extended(n=3, placement=("flexible", "inside"))(
+        (3.1, 207.7)
+    )
+    npt.assert_array_equal(breaks, [0, 100, 200])
+
+    rng = np.random.default_rng(0)
+    for _ in range(200):
+        lo = rng.uniform(-50, 50)
+        hi = lo + 10 ** rng.uniform(-1, 3)
+        n = int(rng.integers(2, 9))
+        only_inside_breaks = breaks_extended(n=n, only_inside=(True, False))(
+            (lo, hi)
+        )
+        placement_breaks = breaks_extended(
+            n=n, placement=("inside", "flexible")
+        )((lo, hi))
+        npt.assert_array_equal(only_inside_breaks, placement_breaks)
+
+
+def test_breaks_extended_placement_overrides_only_inside():
+    breaks = breaks_extended(n=5, only_inside=True, placement="loose")(
+        (1.6, 5.1)
+    )
+    npt.assert_array_equal(breaks, [1.5, 2.5, 3.5, 4.5, 5.5])
+
+
+def test_breaks_extended_loose_placement_brackets_range():
+    rng = np.random.default_rng(1)
+    for _ in range(200):
+        lo = rng.uniform(-50, 50)
+        hi = lo + 10 ** rng.uniform(-1, 3)
+        n = int(rng.integers(2, 9))
+        breaks = breaks_extended(n=n, placement="loose")((lo, hi))
+        assert breaks[0] <= lo
+        assert breaks[-1] >= hi
+
+
+def test_breaks_extended_rejects_unknown_placement():
+    with pytest.raises(ValueError, match="placement"):
+        breaks_extended(n=5, placement="outside")
+
+
 @pytest.mark.parametrize(
     "w",
     [

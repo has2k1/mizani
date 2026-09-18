@@ -177,6 +177,7 @@ if TYPE_CHECKING:
         [FloatArrayLike, tuple[float, float] | None, int | None],
         NDArrayFloat,
     ]
+    BreaksExtendedPlacement: TypeAlias = Literal["inside", "flexible", "loose"]
 
     # Rescale functions
     # This Protocol does not apply to rescale_mid

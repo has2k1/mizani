@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from typing import Sequence
 
     from mizani.typing import (
+        BreaksExtendedPlacement,
         DatetimeOffset,
         FloatArrayLike,
         NDArrayFloat,
@@ -656,13 +657,19 @@ class breaks_extended:
     Q : list
         List of nice numbers
     only_inside : bool | tuple[bool, bool]
-        If ``True``, then all the breaks will be within the given
-        range. A pair ``(lower, upper)`` constrains each end on its
-        own, so ``(True, False)`` keeps the first break at or above
-        the lower limit while the last break may lie beyond the
-        upper limit. The coverage score treats the two ends
-        separately (Talbot et al., 2010), so the search is unchanged;
-        only the candidates it admits are.
+        Whether to keep the breaks at the extreme ends within the
+        given range. A pair ``(lower, upper)`` controls each end
+        independently. For example, ``(True, False)`` keeps the first
+        break at or above the lower limit and leaves the last break
+        unconstrained. Prefer ``placement`` for new code because it
+        also supports loose placement. An explicit ``placement``
+        takes precedence.
+    placement : "inside" | "flexible" | "loose" | tuple
+        Constraint on the breaks at the extreme ends. A pair
+        ``(lower, upper)`` controls each end independently.
+        ``"inside"`` keeps an end within the range, ``"flexible"``
+        applies no constraint and ``"loose"`` places an end at or
+        beyond its limit.
     w : list
         Weights applied to the four optimization components
         (simplicity, coverage, density, and legibility). They
@@ -679,6 +686,8 @@ class breaks_extended:
     array([  0.,   2.,   4.,   6.,   8.,  10.])
     >>> breaks_extended(n=3, only_inside=(True, False))((-7.7, 196.9))
     array([  0., 100., 200.])
+    >>> breaks_extended(n=5, placement="loose")((1.6, 5.1))
+    array([1.5, 2.5, 3.5, 4.5, 5.5])
 
     References
     ----------
@@ -694,14 +703,36 @@ class breaks_extended:
     Q: Sequence[float] = (1, 5, 2, 2.5, 4, 3)
     only_inside: bool | tuple[bool, bool] = False
     w: Sequence[float] = (0.25, 0.2, 0.5, 0.05)
+    placement: (
+        BreaksExtendedPlacement
+        | tuple[BreaksExtendedPlacement, BreaksExtendedPlacement]
+        | None
+    ) = None
 
     def __post_init__(self):
         # Used for lookups during the computations
         self.Q_index = {q: i for i, q in enumerate(self.Q)}
-        if isinstance(self.only_inside, bool):
-            self._inside = (self.only_inside, self.only_inside)
+
+        valid = ("inside", "flexible", "loose")
+        if self.placement is None:
+            if isinstance(self.only_inside, bool):
+                flags = (self.only_inside, self.only_inside)
+            else:
+                flags = tuple(self.only_inside)
+            self._placement = tuple(
+                "inside" if flag else "flexible" for flag in flags
+            )
         else:
-            self._inside = tuple(self.only_inside)
+            if isinstance(self.placement, str):
+                placement = (self.placement, self.placement)
+            else:
+                placement = tuple(self.placement)
+            for mode in placement:
+                if mode not in valid:
+                    raise ValueError(
+                        f"placement must be one of {valid}, got {mode!r}"
+                    )
+            self._placement = placement
         # Pruning bounds shrink with w[0], w[1] and w[2]. At 0 they
         # never drop below best_score, so the search loops never exit.
         if any(x <= 0 for x in self.w[:3]):
@@ -783,7 +814,15 @@ class breaks_extended:
         """
         Q = self.Q
         w = self.w
-        inside_lower, inside_upper = self._inside
+        lower_mode, upper_mode = self._placement
+
+        def end_ok(mode: str, l: float, d: float, is_lower: bool) -> bool:
+            if mode == "flexible":
+                return True
+            if mode == "inside":
+                return l >= d if is_lower else l <= d
+            return l <= d if is_lower else l >= d
+
         simplicity_max = self.simplicity_max
         density_max = self.density_max
         coverage_max = self.coverage_max
@@ -856,8 +895,8 @@ class breaks_extended:
 
                             if (
                                 score > best_score
-                                and (not inside_lower or lmin >= dmin)
-                                and (not inside_upper or lmax <= dmax)
+                                and end_ok(lower_mode, lmin, dmin, True)
+                                and end_ok(upper_mode, lmax, dmax, False)
                             ):
                                 best_score = score
                                 best = (lmin, lmax, lstep, q, k)

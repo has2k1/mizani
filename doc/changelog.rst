@@ -1,6 +1,20 @@
 Changelog
 =========
 
+v0.15.0
+-------
+(upcoming)
+
+Enhancements
+************
+
+- :class:`~mizani.breaks.breaks_extended` accepts a ``placement`` mode
+  for each end of the break sequence. Use ``"inside"`` to keep an end
+  within the range, ``"flexible"`` to leave it unconstrained or
+  ``"loose"`` to place it at or beyond the range.
+  This resolves `(#80) <https://github.com/has2k1/mizani/issues/80>`_.
+
+
 v0.14.6
 -------
 

@@ -827,8 +827,6 @@ class breaks_extended:
 
                     while z < float("inf"):
                         step = j * q * (10**z)
-                        if not np.isfinite(step):
-                            break
                         cm = coverage_max(dmin, dmax, step * (k - 1))
 
                         if (

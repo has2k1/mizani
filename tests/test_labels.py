@@ -211,7 +211,7 @@ def test_label_number_rejects_invalid_scale_cut(
     scale_cut: object, message: str
 ) -> None:
     with pytest.raises(ValueError, match=message):
-        label_number(scale_cut=scale_cut)([1])
+        label_number(scale_cut=scale_cut)
 
 
 def test_label_number_with_short_and_long_scale_cuts() -> None:

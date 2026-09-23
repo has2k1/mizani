@@ -17,7 +17,7 @@ from bisect import bisect_right
 from collections.abc import Mapping
 from dataclasses import dataclass
 from numbers import Real
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -264,10 +264,13 @@ class label_number:
                 raise ValueError("Specify only one of precision or accuracy")
             self.accuracy = 10**-self.precision
 
-    def _resolve_scale_cut(
-        self, x: NDArrayFloat
-    ) -> tuple[NDArrayFloat, list[str], NDArrayFloat]:
+        self._validate_scale_cut()
+
+    def _validate_scale_cut(self) -> None:
         scale_cut = self.scale_cut
+        if scale_cut is None:
+            return
+
         if not isinstance(scale_cut, Mapping):
             raise ValueError("`scale_cut` must be a mapping")
         if not scale_cut:
@@ -282,6 +285,11 @@ class label_number:
                 raise ValueError("`scale_cut` thresholds must be non-negative")
             if not isinstance(suffix, str):
                 raise ValueError("`scale_cut` suffixes must be strings")
+
+    def _resolve_scale_cut(
+        self, x: NDArrayFloat
+    ) -> tuple[NDArrayFloat, list[str], NDArrayFloat]:
+        scale_cut = cast("Mapping[float, str]", self.scale_cut)
 
         pairs = sorted((float(k), v) for k, v in scale_cut.items())
         thresholds = np.array([threshold for threshold, _ in pairs])

@@ -9,6 +9,11 @@ import pandas as pd
 import pytest
 
 from mizani.labels import (
+    cut_bytes,
+    cut_long_scale,
+    cut_short_scale,
+    cut_si,
+    cut_time_scale,
     label_bytes,
     label_comma,
     label_currency,
@@ -207,6 +212,50 @@ def test_label_number_rejects_invalid_scale_cut(
 ) -> None:
     with pytest.raises(ValueError, match=message):
         label_number(scale_cut=scale_cut)([1])
+
+
+def test_label_number_with_short_and_long_scale_cuts() -> None:
+    assert label_number(scale_cut=cut_short_scale())([999, 1e3, 1e9]) == [
+        "999",
+        "1K",
+        "1B",
+    ]
+    assert label_number(scale_cut=cut_long_scale())([1e9, 1e12]) == [
+        "1000M",
+        "1B",
+    ]
+    assert label_number(scale_cut=cut_short_scale(space=True))([1, 1000]) == [
+        "1 ",
+        "1 K",
+    ]
+
+
+def test_label_number_with_time_and_si_scale_cuts() -> None:
+    assert label_number(scale_cut=cut_time_scale())([1e-6, 691200]) == [
+        "1μs",
+        "8d",
+    ]
+    assert label_number(scale_cut=cut_si("m"))([1e-6, 1, 1000]) == [
+        "1 µm",
+        "1 m",
+        "1 km",
+    ]
+
+
+def test_label_number_with_byte_scale_cuts() -> None:
+    assert label_number(scale_cut=cut_bytes())([1, 1000, 1000**2]) == [
+        "1 B",
+        "1 kB",
+        "1 MB",
+    ]
+    assert label_number(scale_cut=cut_bytes("binary"))([1, 1024, 1024**2]) == [
+        "1 iB",
+        "1 kiB",
+        "1 MiB",
+    ]
+
+    with pytest.raises(ValueError, match="units"):
+        cut_bytes("decimal")
 
 
 def test_label_log():

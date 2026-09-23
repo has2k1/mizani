@@ -43,6 +43,11 @@ if TYPE_CHECKING:
     )
 
 __all__ = [
+    "cut_bytes",
+    "cut_long_scale",
+    "cut_short_scale",
+    "cut_si",
+    "cut_time_scale",
     "label_comma",
     "label_custom",
     "label_currency",
@@ -59,6 +64,132 @@ __all__ = [
 ]
 
 UTC = ZoneInfo("UTC")
+
+
+def cut_short_scale(space: bool = False) -> dict[float, str]:
+    """
+    Create magnitude cuts for short-scale abbreviations
+
+    Parameters
+    ----------
+    space
+        Prefix each suffix with a space.
+    """
+    prefix = " " if space else ""
+    return {
+        0: prefix,
+        1e3: f"{prefix}K",
+        1e6: f"{prefix}M",
+        1e9: f"{prefix}B",
+        1e12: f"{prefix}T",
+    }
+
+
+def cut_long_scale(space: bool = False) -> dict[float, str]:
+    """
+    Create magnitude cuts for long-scale abbreviations
+
+    Parameters
+    ----------
+    space
+        Prefix each suffix with a space.
+    """
+    prefix = " " if space else ""
+    return {
+        0: prefix,
+        1e3: f"{prefix}K",
+        1e6: f"{prefix}M",
+        1e12: f"{prefix}B",
+        1e18: f"{prefix}T",
+    }
+
+
+def cut_time_scale(space: bool = False) -> dict[float, str]:
+    """
+    Create magnitude cuts from nanoseconds through weeks
+
+    Parameters
+    ----------
+    space
+        Prefix each suffix with a space.
+    """
+    prefix = " " if space else ""
+    return {
+        0: prefix,
+        1e-9: f"{prefix}ns",
+        1e-6: f"{prefix}μs",
+        1e-3: f"{prefix}ms",
+        1: f"{prefix}s",
+        60: f"{prefix}m",
+        3600: f"{prefix}h",
+        24 * 3600: f"{prefix}d",
+        7 * 24 * 3600: f"{prefix}w",
+    }
+
+
+def cut_si(unit: str) -> dict[float, str]:
+    """
+    Create SI magnitude cuts for a unit
+
+    Parameters
+    ----------
+    unit
+        Unit abbreviation to append to every prefix.
+    """
+    return {
+        0: f" {unit}",
+        1e-24: f" y{unit}",
+        1e-21: f" z{unit}",
+        1e-18: f" a{unit}",
+        1e-15: f" f{unit}",
+        1e-12: f" p{unit}",
+        1e-9: f" n{unit}",
+        1e-6: f" µ{unit}",
+        1e-3: f" m{unit}",
+        1: f" {unit}",
+        1e3: f" k{unit}",
+        1e6: f" M{unit}",
+        1e9: f" G{unit}",
+        1e12: f" T{unit}",
+        1e15: f" P{unit}",
+        1e18: f" E{unit}",
+        1e21: f" Z{unit}",
+        1e24: f" Y{unit}",
+    }
+
+
+def cut_bytes(
+    units: Literal["si", "binary"] = "si",
+) -> dict[float, str]:
+    """
+    Create byte magnitude cuts with decimal or binary units
+
+    Parameters
+    ----------
+    units
+        Use `si` for powers of 1000 or `binary` for powers of 1024.
+
+    Raises
+    ------
+    ValueError
+        If `units` is not `si` or `binary`.
+    """
+    if units == "si":
+        base, suffix = 1000, "B"
+    elif units == "binary":
+        base, suffix = 1024, "iB"
+    else:
+        raise ValueError("`units` must be either `si` or `binary`")
+
+    prefixes = ("k", "M", "G", "T", "P", "E", "Z", "Y")
+    cuts: dict[float, str] = {0: f" {suffix}"}
+    cuts.update(
+        {
+            base**power: f" {prefix}{suffix}"
+            for power, prefix in enumerate(prefixes, start=1)
+        }
+    )
+    return cuts
 
 
 @dataclass
@@ -136,7 +267,7 @@ class label_number:
         for threshold, suffix in scale_cut.items():
             if isinstance(threshold, bool) or not isinstance(threshold, Real):
                 raise ValueError("`scale_cut` thresholds must be real numbers")
-            if not np.isfinite(threshold):
+            if not np.isfinite(float(threshold)):
                 raise ValueError("`scale_cut` thresholds must be finite")
             if threshold < 0:
                 raise ValueError("`scale_cut` thresholds must be non-negative")

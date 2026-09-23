@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import warnings
 from datetime import datetime, timedelta, tzinfo
+from types import MappingProxyType
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -103,6 +104,109 @@ def test_label_number():
 
     with pytest.raises(ValueError):
         label_number(accuracy=0.01, precision=2)
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        assert label_number(scale=0)([1]) == ["0"]
+
+
+def test_label_number_scale_cut_uses_magnitude_thresholds() -> None:
+    cuts = {0: "", 1e3: "K", 1e6: "M"}
+    x = np.array([0, 250, 500, 750, 1250, 1500]) * 1e3
+    assert label_number(scale_cut=cuts)(x) == [
+        "0",
+        "250K",
+        "500K",
+        "750K",
+        "1.25M",
+        "1.50M",
+    ]
+
+    assert label_number(scale=2, scale_cut=cuts)([500]) == ["1K"]
+    assert label_number(scale_cut=cuts)([1e9]) == ["1000M"]
+
+
+def test_label_number_scale_cut_prefers_exact_smaller_units() -> None:
+    time_cuts = {0: "", 86400: "d", 604800: "w"}
+    assert label_number(scale_cut=time_cuts)([518400, 691200]) == [
+        "6d",
+        "8d",
+    ]
+
+    decimal_cuts = {0: "", 1000: "K"}
+    assert label_number(scale_cut=decimal_cuts)(
+        [0, 500, 1500, 2000, 2500]
+    ) == ["0", "500", "1.5K", "2.0K", "2.5K"]
+
+
+def test_label_number_scale_cut_handles_boundaries_and_signs() -> None:
+    cuts = {1000: "K", 0: ""}
+    original_items = list(cuts.items())
+    read_only_cuts = MappingProxyType(cuts)
+
+    assert label_number(scale_cut=read_only_cuts)(
+        [-1000, -999, 999, 1000]
+    ) == ["-1K", "-999", "999", "1K"]
+    assert list(cuts.items()) == original_items
+
+    out_of_order = {1000: "k", 100: "h"}
+    assert label_number(scale_cut=out_of_order)([50, 100, 1000]) == [
+        "50",
+        "1h",
+        "1k",
+    ]
+
+
+def test_label_number_scale_cut_preserves_formatting_options() -> None:
+    cuts = {0: "", 1000: "K"}
+    label = label_number(
+        prefix="$",
+        suffix=" USD",
+        scale_cut=cuts,
+        style_negative="hyphen",
+    )
+    assert label([-1000, 1000]) == ["−$1K USD", "$1K USD"]
+    assert label_currency(scale_cut=cuts)([1, 1000]) == [
+        "$1.00",
+        "$1.00K",
+    ]
+    assert label_number(width=5, scale_cut=cuts)([1000]) == ["   1K"]
+    assert label_number(precision=2, scale_cut=cuts)([1500]) == ["1.50K"]
+    assert label_number(style_positive="+", scale_cut=cuts)([1000]) == ["+1K"]
+
+
+def test_label_number_scale_cut_formats_non_finite_and_empty_values() -> None:
+    label = label_number(
+        prefix="$",
+        suffix=" USD",
+        scale_cut={0: "", 1000: "K"},
+    )
+    with warnings.catch_warnings(record=True) as record:
+        assert label([np.nan, np.inf, -np.inf]) == [
+            "$nan USD",
+            "$inf USD",
+            "-$inf USD",
+        ]
+    assert not record
+    assert label([]) == []
+
+
+@pytest.mark.parametrize(
+    ("scale_cut", "message"),
+    [
+        ([], "mapping"),
+        ({}, "at least one"),
+        ({True: ""}, "real numbers"),
+        ({np.nan: ""}, "finite"),
+        ({np.inf: ""}, "finite"),
+        ({-1: ""}, "non-negative"),
+        ({0: 1}, "suffixes must be strings"),
+    ],
+)
+def test_label_number_rejects_invalid_scale_cut(
+    scale_cut: object, message: str
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        label_number(scale_cut=scale_cut)([1])
 
 
 def test_label_log():

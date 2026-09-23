@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import re
 from bisect import bisect_right
+from collections.abc import Mapping
 from dataclasses import dataclass
+from numbers import Real
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
@@ -34,6 +36,7 @@ if TYPE_CHECKING:
     from mizani.typing import (
         BytesSymbol,
         FloatArrayLike,
+        NDArrayFloat,
         TimedeltaArrayLike,
         TimeIntervalSIUnits,
         TimeIntervalUnits,
@@ -113,12 +116,73 @@ class label_number:
     style_positive: Literal["", "+", " "] = ""
     align: Literal["<", ">", "=", "^"] = ">"
     width: int | None = None
+    scale_cut: Mapping[float, str] | None = None
 
     def __post_init__(self):
         if self.precision is not None:
             if self.accuracy is not None:
                 raise ValueError("Specify only one of precision or accuracy")
             self.accuracy = 10**-self.precision
+
+    def _resolve_scale_cut(
+        self, x: NDArrayFloat
+    ) -> tuple[NDArrayFloat, list[str], NDArrayFloat]:
+        scale_cut = self.scale_cut
+        if not isinstance(scale_cut, Mapping):
+            raise ValueError("`scale_cut` must be a mapping")
+        if not scale_cut:
+            raise ValueError("`scale_cut` must contain at least one entry")
+
+        for threshold, suffix in scale_cut.items():
+            if isinstance(threshold, bool) or not isinstance(threshold, Real):
+                raise ValueError("`scale_cut` thresholds must be real numbers")
+            if not np.isfinite(threshold):
+                raise ValueError("`scale_cut` thresholds must be finite")
+            if threshold < 0:
+                raise ValueError("`scale_cut` thresholds must be non-negative")
+            if not isinstance(suffix, str):
+                raise ValueError("`scale_cut` suffixes must be strings")
+
+        pairs = sorted((float(k), v) for k, v in scale_cut.items())
+        thresholds = np.array([threshold for threshold, _ in pairs])
+        cut_suffixes = [suffix for _, suffix in pairs]
+        magnitude = np.abs(x * self.scale)
+        indices = np.searchsorted(thresholds, magnitude, side="right") - 1
+        indices[~np.isfinite(magnitude)] = -1
+
+        scales = np.full(x.shape, self.scale, dtype=float)
+        suffixes = [self.suffix] * len(x)
+
+        for position, raw_index in enumerate(indices):
+            index = int(raw_index)
+            if index < 0:
+                continue
+
+            threshold = thresholds[index]
+            if threshold and magnitude[position] / threshold % 1 and index:
+                lower_threshold = thresholds[index - 1]
+                lower_divisor = lower_threshold or 1
+                improved = magnitude[position] / lower_divisor % 1 == 0
+                step = threshold / lower_divisor
+                power_of_ten = np.log10(step) % 1 == 0
+                if improved and not power_of_ten:
+                    index -= 1
+                    threshold = lower_threshold
+
+            suffixes[position] = cut_suffixes[index] + self.suffix
+            if threshold:
+                scales[position] = self.scale / threshold
+
+        scales[x == 0] = 1
+        accuracies = np.empty(x.shape, dtype=float)
+        if self.accuracy is not None:
+            accuracies.fill(self.accuracy)
+        else:
+            for value in np.unique(scales):
+                mask = scales == value
+                accuracies[mask] = precision(x[mask] * value)
+
+        return scales, suffixes, accuracies
 
     def __call__(self, x: FloatArrayLike) -> Sequence[str]:
         # Construct formatting according to
@@ -130,23 +194,37 @@ class label_number:
         valid_big_mark = self.big_mark in ("", ",", "_")
         sep = self.big_mark if valid_big_mark else ","
 
-        fmt = (
-            f"{self.prefix}{{num:{sep}.{{precision}}f}}{self.suffix}"
-        ).format
+        fmt = (f"{self.prefix}{{num:{sep}.{{precision}}f}}{{suffix}}").format
 
-        x = np.asarray(x)
-        x_scaled = x * self.scale
-
-        if self.accuracy is None:
-            accuracy = precision(x_scaled)
+        x = np.asarray(x, dtype=float)
+        if self.scale_cut is None:
+            scales = np.full(x.shape, self.scale, dtype=float)
+            suffixes = [self.suffix] * len(x)
+            accuracy = (
+                precision(x * self.scale)
+                if self.accuracy is None
+                else self.accuracy
+            )
+            accuracies = np.full(x.shape, accuracy, dtype=float)
         else:
-            accuracy = self.accuracy
+            scales, suffixes, accuracies = self._resolve_scale_cut(x)
 
-        x = round_any(x, accuracy / self.scale)
-        digits = -np.floor(np.log10(accuracy)).astype(int)
+        x_scaled = x * scales
+        rounding = accuracies / scales
+        x_rounded = x.copy()
+        finite = np.isfinite(x_rounded)
+        x_rounded[finite] = (
+            np.round(x_rounded[finite] / rounding[finite]) * rounding[finite]
+        )
+        if self.scale_cut is not None:
+            x_scaled = x_rounded * scales
+        digits = -np.floor(np.log10(accuracies)).astype(int)
         digits = np.minimum(np.maximum(digits, 0), 20)
 
-        res = [fmt(num=abs(n), precision=digits) for n in x_scaled]
+        res = [
+            fmt(num=abs(num), precision=int(ndigits), suffix=suffix)
+            for num, ndigits, suffix in zip(x_scaled, digits, suffixes)
+        ]
         if not valid_big_mark:
             res = [s.replace(",", self.big_mark) for s in res]
 
@@ -163,7 +241,8 @@ class label_number:
             neg_fmt = "({s})".format
 
         res = [
-            neg_fmt(s=s) if num < 0 else pos_fmt(s=s) for num, s in zip(x, res)
+            neg_fmt(s=s) if num < 0 else pos_fmt(s=s)
+            for num, s in zip(x_rounded, res)
         ]
 
         if self.width is not None:

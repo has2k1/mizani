@@ -14,6 +14,15 @@ Enhancements
   ``"loose"`` to place it at or beyond the range.
   This resolves `(#80) <https://github.com/has2k1/mizani/issues/80>`_.
 
+- :class:`~mizani.labels.label_number` can rescale each value by magnitude and
+  append the corresponding suffix from a ``scale_cut`` mapping. The new
+  :func:`~mizani.labels.cut_short_scale`,
+  :func:`~mizani.labels.cut_long_scale`,
+  :func:`~mizani.labels.cut_time_scale`, :func:`~mizani.labels.cut_si`, and
+  :func:`~mizani.labels.cut_bytes` helpers provide standard short-scale,
+  long-scale, time, SI, and byte mappings.
+  This resolves `(#71) <https://github.com/has2k1/mizani/issues/71>`_.
+
 
 v0.14.6
 -------

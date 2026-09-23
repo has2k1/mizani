@@ -208,6 +208,11 @@ class label_number:
         a comma or a dot.
     decimal_mark : str
         What to use to separate the decimals digits.
+    scale_cut
+        Map magnitude thresholds to suffixes. The formatter selects a
+        threshold for each value, uses non-zero thresholds to rescale it, and
+        appends the matching suffix. Use `cut_short_scale`, `cut_long_scale`,
+        `cut_time_scale`, `cut_si`, or `cut_bytes`, or pass a custom mapping.
 
     Examples
     --------
@@ -221,6 +226,10 @@ class label_number:
     ['$5', '$24', '-$42']
     >>> label_number(suffix="s")([5, 24, -42])
     ['5s', '24s', '-42s']
+    >>> label_number(scale_cut=cut_short_scale())([500, 1500, 2000, 2500])
+    ['500', '1.5K', '2.0K', '2.5K']
+    >>> label_number(scale_cut=cut_si("m"))([1e-6, 1, 1e3])
+    ['1 µm', '1 m', '1 km']
     >>> label_number(big_mark="_")([1e3, 1e4, 1e5, 1e6])
     ['1_000', '10_000', '100_000', '1_000_000']
     >>> label_number(width=3)([1, 10, 100, 1000])

@@ -19,6 +19,7 @@ from mizani.labels import (
     label_currency,
     label_custom,
     label_date,
+    label_date_short,
     label_log,
     label_number,
     label_ordinal,
@@ -332,6 +333,100 @@ def test_label_date():
         label_date()(x)
 
 
+def test_label_date_short_omits_unchanged_components() -> None:
+    label = label_date_short()
+
+    weekly = pd.date_range("2010-01-01", periods=8, freq="7D")
+    assert label(weekly) == [
+        "01\nJan\n2010",
+        "08",
+        "15",
+        "22",
+        "29",
+        "05\nFeb",
+        "12",
+        "19",
+    ]
+
+    quarterly = pd.date_range("2010-01-01", periods=8, freq="3MS")
+    assert label(quarterly) == [
+        "Jan\n2010",
+        "Apr",
+        "Jul",
+        "Oct",
+        "Jan\n2011",
+        "Apr",
+        "Jul",
+        "Oct",
+    ]
+
+    yearly = pd.date_range("2010-01-01", periods=4, freq="YS")
+    assert label(yearly) == ["2010", "2011", "2012", "2013"]
+
+    intraday = pd.date_range("2010-01-01", periods=4, freq="3h")
+    assert label(intraday) == [
+        "00:00\n01\nJan\n2010",
+        "03:00",
+        "06:00",
+        "09:00",
+    ]
+
+
+def test_label_date_short_applies_options_and_timezone() -> None:
+    monthly = pd.date_range("2024-01-01", "2025-01-01", freq="MS")
+    label = label_date_short(
+        fmt=("%Y", "%m", "%d", "%H:%M"),
+        sep="-",
+        leading="x",
+    )
+    assert label(monthly) == [
+        "x1-2024",
+        "x2",
+        "x3",
+        "x4",
+        "x5",
+        "x6",
+        "x7",
+        "x8",
+        "x9",
+        "10",
+        "11",
+        "12",
+        "x1-2025",
+    ]
+
+    UTC = ZoneInfo("UTC")
+    values = [
+        datetime(2010, 1, 1, 20, tzinfo=UTC),
+        datetime(2010, 1, 1, 22, tzinfo=UTC),
+    ]
+    assert label_date_short(tz="Africa/Kampala")(values) == [
+        "23:00\n01\nJan\n2010",
+        "01:00\n02",
+    ]
+
+
+@pytest.mark.parametrize(
+    "fmt",
+    [
+        "%Y",
+        ("%Y", "%b", "%d"),
+        ("%Y", "%b", "%d", "%H", "%M"),
+        ("%Y", "%b", "%d", 1),
+    ],
+)
+def test_label_date_short_requires_four_format_strings(
+    fmt: object,
+) -> None:
+    with pytest.raises(ValueError, match="sequence of four strings"):
+        label_date_short(fmt=fmt)  # type: ignore[arg-type]
+
+
+def test_label_date_short_raises_for_missing_values() -> None:
+    with pytest.raises(ValueError):
+        label_date_short()([pd.NaT])
+
+
 def test_label_timedelta():
     x = [timedelta(days=7 * i) for i in range(5)]
     labels = label_timedelta()(x)
@@ -421,6 +516,7 @@ def test_empty_breaks():
     assert label_percent()(x) == []
     assert label_scientific()(x) == []
     assert label_date()(x) == []
+    assert label_date_short()(x) == []
     assert label_number()(x) == []
     assert label_log()(x) == []
     assert label_timedelta()(x) == []

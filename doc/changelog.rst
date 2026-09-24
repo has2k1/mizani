@@ -8,6 +8,11 @@ v0.15.0
 Enhancements
 ************
 
+- :class:`~mizani.labels.label_date_short` creates compact labels for ordered
+  datetimes. Each label shows the calendar components that changed and the
+  smaller components needed for context. Component formats, separators,
+  leading-zero replacements, and time zones are configurable.
+
 - :class:`~mizani.breaks.breaks_extended` accepts a ``placement`` mode
   for each end of the break sequence. Use ``"inside"`` to keep an end
   within the range, ``"flexible"`` to leave it unconstrained or

@@ -807,6 +807,10 @@ class label_date_short:
     The first label establishes the calendar context. Each later label includes
     every changed calendar component and the smaller components beneath it.
 
+    The formatter omits the time component when every value is exactly
+    midnight. It also omits the day when every value falls on the first of its
+    month, and omits the month when every value falls on 1 January.
+
     Parameters
     ----------
     fmt : Sequence[str]
@@ -826,6 +830,9 @@ class label_date_short:
     >>> x = [datetime(2010, 1, day) for day in (1, 8, 15)]
     >>> label_date_short()(x)
     ['01\\nJan\\n2010', '08', '15']
+    >>> years = [datetime(year, 1, 1) for year in (2010, 2011, 2012)]
+    >>> label_date_short()(years)
+    ['2010', '2011', '2012']
     """
 
     fmt: Sequence[str] = ("%Y", "%b", "%d", "%H:%M")
@@ -869,7 +876,13 @@ class label_date_short:
             return []
 
         formats: list[str | None] = list(self.fmt)
-        if all(value.hour == 0 and value.minute == 0 for value in values):
+        if all(
+            value.hour == 0
+            and value.minute == 0
+            and value.second == 0
+            and value.microsecond == 0
+            for value in values
+        ):
             formats[3] = None
             if all(value.day == 1 for value in values):
                 formats[2] = None

@@ -406,6 +406,19 @@ def test_label_date_short_applies_options_and_timezone() -> None:
     ]
 
 
+def test_label_date_short_includes_nonzero_seconds() -> None:
+    values = [
+        datetime(2024, 1, 1, 0, 0, 5),
+        datetime(2024, 1, 1, 0, 0, 10),
+    ]
+    label = label_date_short(fmt=("%Y", "%b", "%d", "%H:%M:%S"))
+
+    assert label(values) == [
+        "00:00:05\n01\nJan\n2024",
+        "00:00:10",
+    ]
+
+
 @pytest.mark.parametrize(
     "fmt",
     [

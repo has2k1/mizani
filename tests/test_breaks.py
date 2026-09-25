@@ -265,7 +265,7 @@ def test_breaks_date_width():
     assert [d.year for d in breaks] == [1970, 1980, 1990, 2000]
 
     # NaT
-    limits = np.datetime64("NaT"), datetime(2017, 1, 1)
+    limits = np.datetime64("NaT", "s"), datetime(2017, 1, 1)
     breaks = breaks_date_width("10 Years")(limits)  # pyright: ignore[reportArgumentType]
     assert len(breaks) == 0
 

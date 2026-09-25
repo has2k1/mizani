@@ -119,6 +119,12 @@ def test_expand_range():
     assert expand_range((1, 1), mul=2, add=2, zero_width=1) == (0.5, 1.5)
     assert expand_range((0, 0)) == (-0.5, 0.5)
 
+    limits = np.datetime64(14610, "D"), np.datetime64(14611, "D")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        result = expand_range(limits)
+    assert result == limits
+
     def diff(x):
         return x[1] - x[0]
 

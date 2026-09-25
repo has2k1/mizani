@@ -354,7 +354,7 @@ def get_null_value(x: Any) -> NullType:
     elif isinstance(x0, (datetime, timedelta)):
         return None
     elif isinstance(x0, (np.datetime64, np.timedelta64)):
-        return type(x0)("NaT")
+        return type(x0)("NaT", "s")
     elif pd.isna(x0):
         return x0
     else:

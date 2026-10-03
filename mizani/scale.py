@@ -308,6 +308,9 @@ class scale_discrete:
         n = len(limits)
         pal = np.asarray(palette(n))[match(x, limits)]
         nas = isna(x)
+        if pal.dtype.kind in "US" and np.any(nas):
+            # Fixed-width strings would truncate or stringify missing values.
+            pal = pal.astype(object)
         try:
             pal[nas] = na_value
         except TypeError:

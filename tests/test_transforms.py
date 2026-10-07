@@ -125,6 +125,10 @@ def test_exp_trans():
     exp2_trans = exp_trans(2)
     _test_trans(exp2_trans, arr * 0.1)
 
+    # Integer powers, including negative ones
+    x = np.array([-2, -1, 0, 1])
+    npt.assert_allclose(exp2_trans.transform(x), [0.25, 0.5, 1, 2])
+
 
 def test_identity_trans():
     _test_trans(identity_trans, arr)
@@ -133,6 +137,10 @@ def test_identity_trans():
 
 def test_log10_trans():
     _test_trans(log10_trans, arr)
+
+    # Integer powers, including negative ones
+    x = np.array([-2, -1, 0, 1])
+    npt.assert_allclose(log10_trans().inverse(x), [0.01, 0.1, 1, 10])
 
 
 def test_log1p_trans():

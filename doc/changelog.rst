@@ -36,6 +36,13 @@ Bug Fixes
   compute the input range. Before, a single ``NaN`` made every output value
   ``NaN`` (or ``0.5`` for :func:`~mizani.bounds.rescale_mid`).
 
+- The inverse of :class:`~mizani.transforms.log_trans` and the transform of
+  :class:`~mizani.transforms.exp_trans` no longer fail on integer arrays with
+  negative values when the base is an integer, as in
+  :class:`~mizani.transforms.log10_trans` and
+  :class:`~mizani.transforms.log2_trans`. Before, they raised
+  ``ValueError: Integers to negative integer powers are not allowed``.
+
 
 v0.14.6
 -------

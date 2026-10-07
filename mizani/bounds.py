@@ -89,7 +89,7 @@ def rescale(
     >>> rescale(x, to=(0, 2), _from=(0, 20))
     array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
     """
-    __from = (np.min(x), np.max(x)) if _from is None else _from
+    __from = (np.nanmin(x), np.nanmax(x)) if _from is None else _from
     return np.interp(x, __from, to)  # pyright: ignore[reportReturnType]
 
 
@@ -141,7 +141,7 @@ def rescale_mid(
     array([0. , 0.5, 1. ])
     """
     __from: NDArrayFloat = np.array(
-        (np.min(x), np.max(x)) if _from is None else _from
+        (np.nanmin(x), np.nanmax(x)) if _from is None else _from
     )
 
     if zero_range(__from) or zero_range(to):  # type: ignore
@@ -208,7 +208,7 @@ def rescale_max(
     """
     x = np.asarray(x)
     if _from is None:
-        _from = np.min(x), np.max(x)  # type: ignore
+        _from = np.nanmin(x), np.nanmax(x)  # type: ignore
         assert _from is not None  # type narrowing
 
     if np.any(x < 0):

@@ -219,6 +219,10 @@ def test_rescale():
     npt.assert_allclose(rescale(a, _from=(0, 10)), a * 0.1)
     npt.assert_allclose(rescale(a, to=(0, n * (n - 1))), a * n)
 
+    # Missing values are ignored when computing the range
+    a = [1, 2, np.nan, 5]
+    npt.assert_allclose(rescale(a), [0, 0.25, np.nan, 1])
+
 
 def test_rescale_max():
     a = np.arange(0, 11)
@@ -240,6 +244,9 @@ def test_rescale_max():
     result = rescale_max(x, to=(0, 5))
     assert result == approx([0, 1, 2, 3, 4, 5])
 
+    # Missing values are ignored when computing the range
+    npt.assert_allclose(rescale_max([1, 2, np.nan, 5]), [0.2, 0.4, np.nan, 1])
+
 
 def test_rescale_mid():
     a = [1, 2, 3]
@@ -250,6 +257,11 @@ def test_rescale_mid():
     npt.assert_allclose(rescale_mid(a, mid=1), [0.5, 0.75, 1])
     npt.assert_allclose(rescale_mid(a, mid=2), [0, 0.5, 1])
     npt.assert_allclose(rescale_mid(a, mid=3), [0, 0.25, 0.5])
+
+    # Missing values are ignored when computing the range
+    npt.assert_allclose(
+        rescale_mid([1, 2, np.nan, 5], mid=1), [0.5, 0.625, np.nan, 1]
+    )
 
     # branches #
     npt.assert_allclose(rescale_mid([2], _from=(2, 2), to=(2, 2), mid=2), [2])

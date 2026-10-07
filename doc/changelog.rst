@@ -28,6 +28,14 @@ Enhancements
   long-scale, time, SI, and byte mappings.
   This resolves `(#71) <https://github.com/has2k1/mizani/issues/71>`_.
 
+Bug Fixes
+*********
+
+- :func:`~mizani.bounds.rescale`, :func:`~mizani.bounds.rescale_mid` and
+  :func:`~mizani.bounds.rescale_max` now ignore missing values when they
+  compute the input range. Before, a single ``NaN`` made every output value
+  ``NaN`` (or ``0.5`` for :func:`~mizani.bounds.rescale_mid`).
+
 
 v0.14.6
 -------

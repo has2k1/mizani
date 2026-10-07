@@ -374,7 +374,7 @@ class log_trans(trans):
         return self._transform(x)
 
     def inverse(self, x):
-        return np.power(self.base, x)
+        return np.power(float(self.base), x)
 
 
 @dataclass
@@ -416,7 +416,7 @@ class exp_trans(trans):
     base: float = np.exp(1)
 
     def transform(self, x):
-        return np.power(self.base, x)
+        return np.power(float(self.base), x)
 
     def inverse(self, x):
         return np.log(x) / np.log(self.base)

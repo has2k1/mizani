@@ -653,8 +653,10 @@ class label_log:
                 assert s == "1", f"Unexpected value {s = }, instead of '1'"
                 return f"${self.base}^{{0}}$"
 
-            exp = s.split("e")[1]
-            return f"${self.base}^{{{exp}}}$"
+            mantissa, exp = s.split("e")
+            if mantissa == "1":
+                return f"${self.base}^{{{exp}}}$"
+            return f"${mantissa} \\times {self.base}^{{{exp}}}$"
 
         # If any are in exponential format, make all of
         # them expontential

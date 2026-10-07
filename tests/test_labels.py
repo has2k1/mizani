@@ -302,6 +302,12 @@ def test_label_log():
     ]
     assert label([35, 60]) == ["35", "60"]
     assert label([1, 10000]) == ["$10^{0}$", "$10^{4}$"]
+    # breaks that are not powers of the base keep their mantissa
+    assert label([1e-5, 3e-5, 1e-4]) == [
+        "$10^{-5}$",
+        "$3 \\times 10^{-5}$",
+        "$10^{-4}$",
+    ]
 
     label = label_log(base=8, mathtex=True)
     assert label([1, 4, 64]) == ["$8^{0}$", "$8^{0.667}$", "$8^{2}$"]

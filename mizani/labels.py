@@ -365,7 +365,7 @@ class label_number:
         x_rounded[finite] = (
             np.round(x_rounded[finite] / rounding[finite]) * rounding[finite]
         )
-        if self.scale_cut is not None:
+        if self.scale_cut is not None or self.scale != 0:
             x_scaled = x_rounded * scales
         digits = -np.floor(np.log10(accuracies)).astype(int)
         digits = np.minimum(np.maximum(digits, 0), 20)

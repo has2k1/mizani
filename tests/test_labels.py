@@ -115,6 +115,31 @@ def test_label_number():
         assert label_number(scale=0)([1]) == ["0"]
 
 
+@pytest.mark.parametrize("scale_cut", [None, {0: ""}])
+@pytest.mark.parametrize(
+    ("accuracy", "values", "expected"),
+    [
+        (5, [13, -13, 2, -2], ["15", "-15", "0", "0"]),
+        (10, [123, -123], ["120", "-120"]),
+        (0.5, [1.3, -1.3], ["1.5", "-1.5"]),
+    ],
+)
+def test_label_number_rounds_to_accuracy(
+    scale_cut, accuracy, values, expected
+) -> None:
+    label = label_number(accuracy=accuracy, scale_cut=scale_cut)
+    assert label(values) == expected
+
+
+def test_label_percent_rounds_to_accuracy():
+    assert label_percent(accuracy=5)([0.13, -0.13, 0.02, -0.02]) == [
+        "15%",
+        "-15%",
+        "0%",
+        "0%",
+    ]
+
+
 def test_label_number_scale_cut_uses_magnitude_thresholds() -> None:
     cuts = {0: "", 1e3: "K", 1e6: "M"}
     x = np.array([0, 250, 500, 750, 1250, 1500]) * 1e3

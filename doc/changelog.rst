@@ -31,6 +31,10 @@ Enhancements
 Bug Fixes
 *********
 
+- :class:`~mizani.labels.label_number` and its subclasses now round labels to
+  multiples of ``accuracy`` even when ``scale_cut`` is not set. For example,
+  ``label_number(accuracy=5)([13])`` now returns ``["15"]`` instead of ``["13"]``.
+
 - :func:`~mizani.bounds.rescale`, :func:`~mizani.bounds.rescale_mid` and
   :func:`~mizani.bounds.rescale_max` now ignore missing values when they
   compute the input range. Before, a single ``NaN`` made every output value

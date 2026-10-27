@@ -195,12 +195,12 @@ def precision(x: FloatArrayLike | float) -> float:
     """
 
     x = np.asarray(x)
-    x = x[~(np.isnan(x) | np.isinf(x))]
+    x = np.unique(x[~(np.isnan(x) | np.isinf(x))])
 
     if len(x) <= 1:
         return 1
 
-    smallest_diff = np.diff(np.sort(x))[0]
+    smallest_diff = np.diff(x).min()
     if smallest_diff < ROUNDING_ERROR:  # pragma: nocover
         return 1
     else:

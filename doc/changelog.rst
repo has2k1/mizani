@@ -31,6 +31,11 @@ Enhancements
 Bug Fixes
 *********
 
+- :func:`~mizani.utils.precision` now uses the smallest gap between the
+  values, not the gap between the two smallest values. Before,
+  :class:`~mizani.labels.label_number` labelled ``[0, 10, 10.5]`` as
+  ``["0", "10", "10"]``, and repeated values made it round to whole numbers.
+
 - :func:`~mizani.bounds.rescale`, :func:`~mizani.bounds.rescale_mid` and
   :func:`~mizani.bounds.rescale_max` now ignore missing values when they
   compute the input range. Before, a single ``NaN`` made every output value

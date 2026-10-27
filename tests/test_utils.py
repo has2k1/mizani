@@ -90,6 +90,12 @@ def test_precision():
     assert precision([24, 84]) == 1
     assert precision([290, 784]) == 1
     assert precision([0.0037, 0.5, 9, 24, 784]) == 0.1
+    # The smallest gap decides, not the first one
+    assert precision([0, 10, 10.5]) == 0.1
+    assert precision([10.5, 0, 10]) == 0.1
+    # Repeated values do not hide the real gaps
+    assert precision([1, 1, 1.5]) == 0.1
+    assert precision([2, 2]) == 1
 
 
 def test_same_log10_order_of_magnitude():

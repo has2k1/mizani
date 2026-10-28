@@ -31,7 +31,6 @@ from warnings import warn
 from zoneinfo import ZoneInfo
 
 import numpy as np
-import pandas as pd
 
 from ._datetime.utils import datetime_to_num, num_to_datetime
 from ._timedelta.utils import num_to_timedelta, timedelta_to_num
@@ -53,6 +52,8 @@ from .labels import (
 
 if TYPE_CHECKING:
     from typing import Any, Sequence, Type
+
+    import pandas as pd
 
     from mizani.typing import (
         BreaksFunction,
@@ -840,7 +841,11 @@ class pd_timedelta_trans(timedelta_trans):
     Pandas timedelta Transformation
     """
 
-    domain: DomainType = (pd.Timedelta.min, pd.Timedelta.max)
+    # The range of a pandas.Timedelta
+    domain: DomainType = (
+        timedelta(days=-106752, seconds=763, microseconds=145225),
+        timedelta(days=106751, seconds=85636, microseconds=854775),
+    )
 
 
 class reciprocal_trans(trans):

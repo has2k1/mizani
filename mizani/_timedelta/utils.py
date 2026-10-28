@@ -4,11 +4,14 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Sized, cast, overload
 
 import numpy as np
-import pandas as pd
 from dateutil.relativedelta import relativedelta
+
+from .._pandas import get_pandas
 
 if TYPE_CHECKING:
     from typing import Sequence
+
+    import pandas as pd
 
     from mizani.typing import (
         FloatArrayLike,
@@ -117,7 +120,7 @@ def timedelta_to_num(
     This function gives us a numeric representation a timedelta that
     we can add/subtract from the numeric representation of datetimes.
     """
-    _x = x if (sized := isinstance(x, Sized)) else pd.Series([x])
+    _x = x if (sized := isinstance(x, Sized)) else [x]
 
     if not len(_x):
         return np.array([], dtype=float)
@@ -132,9 +135,12 @@ def num_to_timedelta(x: FloatArrayLike) -> Sequence[pd.Timedelta]:
     """
     Convert any float array to numpy datetime64 array
 
-    Returns pd.Timedelta because they have a larger range than
-    datetime.timedelta.
+    Returns pd.Timedelta, if pandas is in use, because they have a
+    larger range than datetime.timedelta.
     """
+    pd = get_pandas()
+    if pd is None:
+        return tuple(timedelta(days=val) for val in x)
     return tuple(pd.Timedelta(days=val) for val in x)
 
 

@@ -5,8 +5,8 @@ from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
 
+from .._pandas import get_pandas, is_timedelta, isna
 from ..utils import round_any, trim_breaks
 from .utils import (
     SI_LOOKUP,
@@ -173,7 +173,7 @@ class Helper:
         """
         Return the numeric value representation on a timedelta
         """
-        if isinstance(td, pd.Timedelta):
+        if is_timedelta(td):
             return td.value
         else:
             return td.total_seconds()
@@ -199,8 +199,10 @@ class Helper:
         Convert sequence of numerical values to timedelta
         """
         if self.package == "pandas":
+            pd = get_pandas()
             return [
-                pd.Timedelta(int(x * self.factor), unit="ns") for x in values
+                pd.Timedelta(int(x * self.factor), unit="ns")  # pyright: ignore[reportOptionalMemberAccess]
+                for x in values
             ]
 
         else:
@@ -219,7 +221,7 @@ class Helper:
         appropriate units. The appropriate units are those
         determined with the object is initialised.
         """
-        if isinstance(td, pd.Timedelta):
+        if is_timedelta(td):
             res = td.value / NANOSECONDS[self._units]
         else:
             res = td.total_seconds() / SECONDS[self._units]
@@ -235,7 +237,7 @@ def by_n(
     """
     from mizani.breaks import breaks_extended
 
-    if any(pd.isna(x) for x in limits):
+    if any(isna(x) for x in limits):
         return []
     h = Helper(limits)
     scaled_limits = h.scaled_limits()

@@ -6,12 +6,14 @@ from typing import TYPE_CHECKING, overload
 from warnings import warn
 
 import numpy as np
-import pandas as pd
-import pandas.api.types as pdtypes
+
+from ._pandas import get_pandas, is_series, isna
 
 if TYPE_CHECKING:
     from datetime import tzinfo
     from typing import Any, Sequence, TypeGuard, TypeVar
+
+    import pandas as pd
 
     from mizani.typing import (
         AnyArrayLike,
@@ -331,8 +333,7 @@ def get_null_value(x: Any) -> NullType:
     """
     from datetime import datetime
 
-    import pandas as pd
-
+    pd = get_pandas()
     x0 = next(iter(x))
     numeric_types: Sequence[type] = (
         np.int32,
@@ -343,19 +344,20 @@ def get_null_value(x: Any) -> NullType:
         bool,
     )
 
-    if pdtypes.is_object_dtype(x):
+    dtype = getattr(x, "dtype", None)
+    if isinstance(dtype, np.dtype) and dtype.kind == "O":
         return None
     elif isinstance(x0, numeric_types):  # type: ignore
         return float("nan")
     # pandas types subclass cypthon types, so check
     # for them first
-    elif isinstance(x0, (pd.Timestamp, pd.Timedelta)):
+    elif pd is not None and isinstance(x0, (pd.Timestamp, pd.Timedelta)):
         return type(x0)("NaT")
     elif isinstance(x0, (datetime, timedelta)):
         return None
     elif isinstance(x0, (np.datetime64, np.timedelta64)):
         return type(x0)("NaT", "s")
-    elif pd.isna(x0):
+    elif isna(x0):
         return x0
     else:
         raise ValueError(
@@ -367,7 +369,7 @@ def is_vector(x: Any) -> TypeGuard[NDArrayFloat | FloatSeries]:
     """
     Return True if x is a numpy array or a pandas series
     """
-    return isinstance(x, (np.ndarray, pd.Series))
+    return isinstance(x, np.ndarray) or is_series(x)
 
 
 def has_dtype(

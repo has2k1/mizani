@@ -20,8 +20,8 @@ from itertools import product
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
 
+from ._pandas import isna
 from .utils import (
     log,
     min_max,
@@ -447,7 +447,7 @@ class breaks_date:
         from mizani._datetime.breaks import by_n
         from mizani._datetime.utils import as_datetime
 
-        if pd.isna(limits[0]) or pd.isna(limits[1]):
+        if isna(limits[0]) or isna(limits[1]):
             return []
 
         if isinstance(limits[0], np.datetime64) and isinstance(
@@ -532,7 +532,7 @@ class breaks_date_width:
         from mizani._datetime.breaks import by_width
         from mizani._datetime.utils import as_datetime
 
-        if pd.isna(limits[0]) or pd.isna(limits[1]):
+        if isna(limits[0]) or isna(limits[1]):
             return []
 
         if isinstance(limits[0], np.datetime64) and isinstance(

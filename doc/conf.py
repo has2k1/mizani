@@ -30,18 +30,6 @@ sys.path.insert(0, str(PROJECT_PATH))
 if on_rtd:
     from pprint import pprint
 
-    import mock
-
-    MOCK_MODULES = [
-        "pandas",
-        "pandas.core",
-        "pandas.core.common",
-        "pandas.core.dtypes.common",
-        "pandas.api",
-        "pandas.api.types",
-    ]
-    for mod_name in MOCK_MODULES:
-        sys.modules[mod_name] = mock.Mock()
     pprint(os.environ)
     pprint(sys.path)
 

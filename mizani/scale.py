@@ -33,8 +33,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
-import pandas as pd
 
+from ._pandas import is_categorical_dtype, isna
 from .bounds import censor, rescale
 from .utils import (
     CONTINUOUS_KINDS,
@@ -47,6 +47,8 @@ from .utils import (
 
 if TYPE_CHECKING:
     from typing import Any, Sequence, TypeVar
+
+    import pandas as pd
 
     from mizani.typing import (
         AnyArrayLike,
@@ -168,7 +170,7 @@ class scale_continuous:
         """
         x = oob(rescale(x, _from=limits))  # pyright: ignore
         pal = np.asarray(palette(x))
-        pal[pd.isna(x)] = na_value
+        pal[isna(x)] = na_value
         return pal
 
 
@@ -240,7 +242,7 @@ class scale_discrete:
         old_set = set(old)
 
         # Get the missing values (NaN & Nones) locations and remove them
-        nan_bool_idx = pd.isna(new_data)  # type: ignore
+        nan_bool_idx = isna(new_data)
         has_na = np.any(nan_bool_idx)
 
         if not has_dtype(new_data):
@@ -255,7 +257,7 @@ class scale_discrete:
 
         # 1. Train i.e. get the new values
         # 2. Update old
-        if isinstance(new_data.dtype, pd.CategoricalDtype):
+        if is_categorical_dtype(new_data.dtype):
             categories = get_categories(new_data)
             if drop:
                 present = set(new_data)
@@ -273,7 +275,7 @@ class scale_discrete:
             limits = old + [i for i in new if (i not in old_set)]
 
         # Add nan if required
-        has_na_limits = pd.isna(limits).any()
+        has_na_limits = isna(limits).any()
         if not has_na_limits and not na_rm and has_na:
             limits.append(np.nan)
         return limits
@@ -305,7 +307,7 @@ class scale_discrete:
         """
         n = len(limits)
         pal = np.asarray(palette(n))[match(x, limits)]
-        nas = pd.isna(x)  # type: ignore
+        nas = isna(x)
         try:
             pal[nas] = na_value
         except TypeError:

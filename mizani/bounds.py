@@ -27,12 +27,14 @@ from copy import copy
 from typing import TYPE_CHECKING, overload
 
 import numpy as np
-import pandas as pd
 
+from ._pandas import is_series
 from .utils import get_null_value
 
 if TYPE_CHECKING:
     from typing import Any
+
+    import pandas as pd
 
     from mizani.typing import (
         FloatArrayLike,
@@ -249,7 +251,7 @@ def squish_infinite(
     >>> squish_infinite(arr2, (-10, 9))
     array([  0.  , -10.  ,   0.5 ,   0.25,   9.  ])
     """
-    if isinstance(x, pd.Series):
+    if is_series(x):
         _x = x.to_numpy().copy().astype(float)
     else:
         _x = np.array(x, copy=True).astype(float)
@@ -288,7 +290,7 @@ def squish(
     >>> squish([-np.inf, -1.5, 0.2, 0.8, 1.0, np.inf], only_finite=False)
     array([0. , 0. , 0.2, 0.8, 1. , 1. ])
     """
-    if isinstance(x, pd.Series):
+    if is_series(x):
         _x = x.to_numpy().copy().astype(float)
     else:
         _x = np.array(x, copy=True).astype(float)
@@ -402,7 +404,7 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
         x = x[1], x[0]
 
     # datetime - pandas, cpython
-    if isinstance(x[0], (pd.Timestamp, datetime.datetime)):
+    if isinstance(x[0], datetime.datetime):
         from mizani._datetime.utils import datetime_to_num
 
         l, h = datetime_to_num(x)
@@ -411,7 +413,7 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
     elif isinstance(x[0], np.datetime64):
         return x[0] == x[1]
     # timedelta - pandas, cpython
-    elif isinstance(x[0], (pd.Timedelta, datetime.timedelta)):
+    elif isinstance(x[0], datetime.timedelta):
         return x[0].total_seconds() == x[1].total_seconds()
     elif not isinstance(x[0], (float, int, np.number)):
         raise TypeError(

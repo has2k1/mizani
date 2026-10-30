@@ -31,7 +31,6 @@ from warnings import warn
 from zoneinfo import ZoneInfo
 
 import numpy as np
-import pandas as pd
 
 from ._datetime.utils import datetime_to_num, num_to_datetime
 from ._timedelta.utils import num_to_timedelta, timedelta_to_num
@@ -819,7 +818,7 @@ class timedelta_trans(trans):
         """
         return timedelta_to_num(x)
 
-    def inverse(self, x: FloatArrayLike) -> Sequence[pd.Timedelta]:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def inverse(self, x: FloatArrayLike) -> Sequence[timedelta]:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform to Timedelta from numerical format
         """
@@ -840,7 +839,11 @@ class pd_timedelta_trans(timedelta_trans):
     Pandas timedelta Transformation
     """
 
-    domain: DomainType = (pd.Timedelta.min, pd.Timedelta.max)
+    # The range of a pandas.Timedelta
+    domain: DomainType = (
+        timedelta(days=-106752, seconds=763, microseconds=145225),
+        timedelta(days=106751, seconds=85636, microseconds=854775),
+    )
 
 
 class reciprocal_trans(trans):

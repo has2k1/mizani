@@ -5,6 +5,22 @@ v0.15.0
 -------
 (upcoming)
 
+API Changes
+***********
+
+- pandas is no longer a dependency. mizani works with numpy arrays and
+  Python values without pandas installed, and it handles pandas objects as
+  before. If you relied on mizani to install pandas, install it yourself.
+  ``python-dateutil`` is now a direct dependency.
+
+- The inverse of :class:`~mizani.transforms.timedelta_trans` returns
+  :class:`datetime.timedelta` values if pandas has not been imported, and
+  pandas ``Timedelta`` values if it has.
+
+- The domain of :class:`~mizani.transforms.pd_timedelta_trans` is a pair of
+  :class:`datetime.timedelta` values. It covers the same range as before, to
+  within a microsecond.
+
 Enhancements
 ************
 

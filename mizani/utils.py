@@ -7,7 +7,7 @@ from warnings import warn
 
 import numpy as np
 
-from ._pandas import get_pandas, is_series, isna
+from ._pandas import is_series, is_timedelta, is_timestamp, isna
 
 if TYPE_CHECKING:
     from datetime import tzinfo
@@ -333,7 +333,6 @@ def get_null_value(x: Any) -> NullType:
     """
     from datetime import datetime
 
-    pd = get_pandas()
     x0 = next(iter(x))
     numeric_types: Sequence[type] = (
         np.int32,
@@ -351,7 +350,7 @@ def get_null_value(x: Any) -> NullType:
         return float("nan")
     # pandas types subclass cypthon types, so check
     # for them first
-    elif pd is not None and isinstance(x0, (pd.Timestamp, pd.Timedelta)):
+    elif is_timestamp(x0) or is_timedelta(x0):
         return type(x0)("NaT")
     elif isinstance(x0, (datetime, timedelta)):
         return None

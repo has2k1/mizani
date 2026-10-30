@@ -131,10 +131,10 @@ def timedelta_to_num(
 
 def num_to_timedelta(x: FloatArrayLike) -> Sequence[timedelta]:
     """
-    Convert any float array to numpy datetime64 array
+    Convert numbers of days to timedeltas
 
-    Returns pd.Timedelta, if pandas is in use, because they have a
-    larger range than datetime.timedelta.
+    The timedeltas are pandas timedeltas when pandas is in use, and
+    `datetime.timedelta` otherwise.
     """
     pd = get_pandas()
     if pd is None:

@@ -108,7 +108,7 @@ class Helper:
 
     @classmethod
     def determine_package(cls, td: Timedelta) -> Literal["pandas", "cpython"]:
-        if hasattr(td, "components"):
+        if is_timedelta(td):
             package = "pandas"
         elif hasattr(td, "total_seconds"):
             package = "cpython"
@@ -200,9 +200,10 @@ class Helper:
         """
         if self.package == "pandas":
             pd = get_pandas()
+            # The limits are pandas timedeltas, so pandas is imported
+            assert pd is not None
             return [
-                pd.Timedelta(int(x * self.factor), unit="ns")  # pyright: ignore[reportOptionalMemberAccess]
-                for x in values
+                pd.Timedelta(int(x * self.factor), unit="ns") for x in values
             ]
 
         else:

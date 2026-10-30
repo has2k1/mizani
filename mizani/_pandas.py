@@ -1,30 +1,33 @@
 """
-Optional pandas support
+Checks for pandas objects that work without pandas installed
 
-pandas is not a requirement of mizani. When the values that mizani
-works with come from pandas (e.g. a pandas series), pandas has been
-imported and mizani uses it. mizani never imports pandas itself.
+mizani never imports pandas. A pandas object can only exist after
+something else has imported pandas, so these checks look for pandas in
+`sys.modules` and report `False` when it is absent.
 """
 
 from __future__ import annotations
 
 import sys
 from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, overload
 
 import numpy as np
 
 if TYPE_CHECKING:
-    from typing import TypeGuard
+    from datetime import date, timedelta
+    from typing import Sequence, TypeGuard
 
     import pandas as pd
+    from numpy.typing import NDArray
 
-    from mizani.typing import AnySeries
+    from mizani.typing import AnySeries, NDArrayAny
 
 __all__ = (
     "get_pandas",
     "is_series",
     "is_categorical_dtype",
+    "is_timestamp",
     "is_timedelta",
     "isna",
 )
@@ -32,33 +35,45 @@ __all__ = (
 
 def get_pandas() -> ModuleType | None:
     """
-    Return pandas if it has been imported, otherwise None
+    Return the pandas module if it has been imported, otherwise `None`
     """
     return sys.modules.get("pandas")
 
 
-def is_series(x: Any) -> TypeGuard[AnySeries]:
+def _isinstance(x: Any, name: str) -> bool:
     """
-    Return True if x is a pandas series
+    Return `True` if `x` is an instance of the pandas class `name`
     """
     pd = get_pandas()
-    return pd is not None and isinstance(x, pd.Series)
+    return pd is not None and isinstance(x, getattr(pd, name))
+
+
+def is_series(x: Any) -> TypeGuard[AnySeries]:
+    """
+    Return `True` if `x` is a pandas series
+    """
+    return _isinstance(x, "Series")
 
 
 def is_categorical_dtype(dtype: Any) -> bool:
     """
-    Return True if dtype is a pandas categorical dtype
+    Return `True` if `dtype` is a pandas categorical dtype
     """
-    pd = get_pandas()
-    return pd is not None and isinstance(dtype, pd.CategoricalDtype)
+    return _isinstance(dtype, "CategoricalDtype")
+
+
+def is_timestamp(x: Any) -> TypeGuard[pd.Timestamp]:
+    """
+    Return `True` if `x` is a pandas timestamp
+    """
+    return _isinstance(x, "Timestamp")
 
 
 def is_timedelta(x: Any) -> TypeGuard[pd.Timedelta]:
     """
-    Return True if x is a pandas timedelta
+    Return `True` if `x` is a pandas timedelta
     """
-    pd = get_pandas()
-    return pd is not None and isinstance(x, pd.Timedelta)
+    return _isinstance(x, "Timedelta")
 
 
 def _isna_scalar(x: Any) -> bool:
@@ -71,13 +86,25 @@ def _isna_scalar(x: Any) -> bool:
     return False
 
 
-def isna(x: Any) -> Any:
-    """
-    Detect missing values (None, NaN and NaT)
+@overload
+def isna(x: AnySeries) -> pd.Series[bool]: ...
 
-    This is equivalent to `pandas.isna`, which is used when pandas
-    is in use. For a scalar it returns a bool, otherwise a boolean
-    numpy array.
+
+@overload
+def isna(x: NDArrayAny | Sequence[Any]) -> NDArray[np.bool_]: ...
+
+
+@overload
+def isna(x: float | date | timedelta | np.generic | None) -> bool: ...
+
+
+def isna(x: Any) -> bool | NDArray[np.bool_] | pd.Series[bool]:
+    """
+    Detect missing values: `None`, `NaN` and `NaT`
+
+    When pandas is in use, this is `pandas.isna`. A series gives a
+    boolean series, any other array-like gives a boolean numpy array,
+    and a scalar gives a bool.
     """
     pd = get_pandas()
     if pd is not None:

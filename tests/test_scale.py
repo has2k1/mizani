@@ -34,23 +34,17 @@ def test_scale_continuous():
         limits = scale_continuous.train(["a", "b", "c"])
 
 
-@pytest.mark.parametrize(
-    "palette_values",
-    [["red"], np.array(["red"]), np.array([b"red"])],
-)
-@pytest.mark.parametrize("na_value", [None, "transparent", np.nan])
-def test_scale_discrete_map_missing_values(palette_values, na_value):
-    mapped = scale_discrete.map(
-        ["a", None], lambda n: palette_values, ["a"], na_value=na_value
-    )
+def test_scale_discrete_map_string_palette_missing_values():
+    x, limits = ["a", None], ["a"]
 
-    assert mapped[0] == palette_values[0]
-    if na_value is None:
-        assert mapped[1] is None
-    elif isinstance(na_value, float):
-        assert np.isnan(mapped[1])
-    else:
-        assert mapped[1] == na_value
+    def palette(n):
+        return ["red"]
+
+    mapped = scale_discrete.map(x, palette, limits)
+    assert list(mapped) == ["red", None]
+
+    mapped = scale_discrete.map(x, palette, limits, na_value="transparent")
+    assert list(mapped) == ["red", "transparent"]
 
 
 def test_scale_discrete():

@@ -53,8 +53,6 @@ from .labels import (
 if TYPE_CHECKING:
     from typing import Any, Sequence, Type
 
-    import pandas as pd
-
     from mizani.typing import (
         BreaksFunction,
         DatetimeArrayLike,
@@ -820,7 +818,7 @@ class timedelta_trans(trans):
         """
         return timedelta_to_num(x)
 
-    def inverse(self, x: FloatArrayLike) -> Sequence[pd.Timedelta]:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def inverse(self, x: FloatArrayLike) -> Sequence[timedelta]:  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Transform to Timedelta from numerical format
         """

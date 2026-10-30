@@ -242,7 +242,7 @@ class scale_discrete:
         old_set = set(old)
 
         # Get the missing values (NaN & Nones) locations and remove them
-        nan_bool_idx = isna(new_data)  # type: ignore
+        nan_bool_idx = isna(new_data)
         has_na = np.any(nan_bool_idx)
 
         if not has_dtype(new_data):
@@ -307,7 +307,7 @@ class scale_discrete:
         """
         n = len(limits)
         pal = np.asarray(palette(n))[match(x, limits)]
-        nas = isna(x)  # type: ignore
+        nas = isna(x)
         try:
             pal[nas] = na_value
         except TypeError:

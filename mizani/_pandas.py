@@ -10,9 +10,16 @@ from __future__ import annotations
 
 import sys
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from typing import TypeGuard
+
+    import pandas as pd
+
+    from mizani.typing import AnySeries
 
 __all__ = (
     "get_pandas",
@@ -30,7 +37,7 @@ def get_pandas() -> ModuleType | None:
     return sys.modules.get("pandas")
 
 
-def is_series(x: Any) -> bool:
+def is_series(x: Any) -> TypeGuard[AnySeries]:
     """
     Return True if x is a pandas series
     """
@@ -46,7 +53,7 @@ def is_categorical_dtype(dtype: Any) -> bool:
     return pd is not None and isinstance(dtype, pd.CategoricalDtype)
 
 
-def is_timedelta(x: Any) -> bool:
+def is_timedelta(x: Any) -> TypeGuard[pd.Timedelta]:
     """
     Return True if x is a pandas timedelta
     """

@@ -11,8 +11,6 @@ from .._pandas import get_pandas
 if TYPE_CHECKING:
     from typing import Sequence
 
-    import pandas as pd
-
     from mizani.typing import (
         FloatArrayLike,
         NDArrayFloat,
@@ -131,7 +129,7 @@ def timedelta_to_num(
     return res if sized else res[0]
 
 
-def num_to_timedelta(x: FloatArrayLike) -> Sequence[pd.Timedelta]:
+def num_to_timedelta(x: FloatArrayLike) -> Sequence[timedelta]:
     """
     Convert any float array to numpy datetime64 array
 

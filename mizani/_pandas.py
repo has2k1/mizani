@@ -80,6 +80,9 @@ def isna(x: Any) -> Any:
         return _isna_scalar(x)
 
     arr = np.asarray(x)
+    if arr.dtype.kind in "US" and not isinstance(x, np.ndarray):
+        # numpy turns NaN in a list of strings into the string "nan"
+        arr = np.asarray(x, dtype=object)
     kind = arr.dtype.kind
     if kind in "fc":
         return np.isnan(arr)

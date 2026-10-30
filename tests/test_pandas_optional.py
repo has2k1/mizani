@@ -38,6 +38,16 @@ CODE = textwrap.dedent(
     )
     assert mapped[2] == "grey"
 
+    # numpy turns NaN in a list of strings into the string "nan"
+    assert scale.scale_discrete.train(["b", "a", np.nan], na_rm=True) == [
+        "a",
+        "b",
+    ]
+    mapped = scale.scale_discrete.map(
+        ["a", "b", np.nan], palettes.hue_pal(), ["a", "b"], na_value="grey"
+    )
+    assert mapped[2] == "grey"
+
     dt = transforms.datetime_trans()
     values = dt.transform([datetime(2020, 1, 1), datetime(2021, 1, 1)])
     assert len(breaks.breaks_date_width("3 months")(dt.inverse(values)))

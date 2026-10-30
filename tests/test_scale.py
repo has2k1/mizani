@@ -34,6 +34,19 @@ def test_scale_continuous():
         limits = scale_continuous.train(["a", "b", "c"])
 
 
+def test_scale_discrete_map_string_palette_missing_values():
+    x, limits = ["a", None], ["a"]
+
+    def palette(n):
+        return ["red"]
+
+    mapped = scale_discrete.map(x, palette, limits)
+    assert list(mapped) == ["red", None]
+
+    mapped = scale_discrete.map(x, palette, limits, na_value="transparent")
+    assert list(mapped) == ["red", "transparent"]
+
+
 def test_scale_discrete():
     def assert_equal_with_nan(lst1, lst2):
         assert lst1[:-1] == lst2[:-1] and np.isnan(lst2[-1])

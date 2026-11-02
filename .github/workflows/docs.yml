@@ -1,0 +1,110 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - '*'
+    # release.yml calls this workflow for a final release tag once the
+    # package is on PyPI. The push of the release branch has already
+    # built the tagged commit.
+    tags-ignore:
+      - 'v[0-9]*'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Publish the site to GitHub Pages
+        type: boolean
+        default: true
+  workflow_call:
+    inputs:
+      deploy:
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # We want to run on external PRs, but not on our own internal PRs as they'll be run
+    # by the push to the branch.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+    strategy:
+      matrix:
+        python-version: [3.14]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # setuptools_scm needs the tags to compute the version on the site
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Quarto
+        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2.2.0
+
+      - name: Install Packages
+        run: uv sync --group doc
+
+      - name: Environment Information
+        run: |
+          uv pip list
+          quarto --version
+
+      - name: Check that the reference lists every export
+        run: uv run python tools/check_doc_reference.py
+
+      - name: Build Documentation
+        run: make docs
+
+      - name: Upload the site for local preview
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          # great-docs preview --run/--branch/--pr fetches the artifact by this name
+          name: docs-html
+          path: docs/_site
+          include-hidden-files: true
+
+      # This step only prints `great-docs preview --run <id>` as an annotation
+      # on the run. That command downloads the docs-html artifact of the run
+      # through the GitHub API, unpacks it into a local cache and serves it.
+      # It needs a token that can read Actions, e.g. `gh auth login` and
+      # --use-gh.
+      - name: How to preview this build locally
+        run: uv run great-docs ci notice --run ${{ github.run_id }}
+
+      - name: Upload Pages artifact
+        if: inputs.deploy
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: docs/_site
+          # The site includes .well-known/ and .great-docs-site.json
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    if: inputs.deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

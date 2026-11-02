@@ -108,6 +108,9 @@ def test_label_number():
     label = label_number(style_negative="hyphen")
     assert label([-1, 0, 1]) == ["\u22121", "0", "1"]
 
+    label = label_number(style_negative="parens")
+    assert label([-1, 0, 1]) == ["(1)", "0", "1"]
+
     with pytest.raises(ValueError):
         label_number(accuracy=0.01, precision=2)
 
@@ -328,6 +331,12 @@ def test_label_date():
     result = label_date()(x)
     assert result == ["2023-10-01", "2023-11-01"]
 
+    # Time zone given by name
+    UG = ZoneInfo("Africa/Kampala")
+    x = [datetime(2010, 1, 1, i, tzinfo=UG) for i in [8, 15]]
+    result = label_date("%Y-%m-%d %H:%M", tz="EST")(x)
+    assert result == ["2010-01-01 00:00", "2010-01-01 07:00"]
+
     # Unknown Timezone
     class myTzInfo(tzinfo):
         def __str__(self):
@@ -451,6 +460,12 @@ def test_label_timedelta():
     labels = label_timedelta()(x)
     assert labels == ["0 weeks", "1 week", "2 weeks", "3 weeks", "4 weeks"]
 
+    labels = label_timedelta(units="day", use_si_units=False)(x)
+    assert labels == ["0 days", "7 days", "14 days", "21 days", "28 days"]
+
+    labels = label_timedelta(units="day", zero_has_units=False)(x)
+    assert labels == ["0", "7 d", "14 d", "21 d", "28 d"]
+
     x = [pd.Timedelta(seconds=600 * i) for i in range(5)]
     labels = label_timedelta()(x)
     assert labels == [
@@ -523,8 +538,19 @@ def test_label_bytes():
     labels = label_bytes(symbol="MiB", fmt="{:.2f} ")(x)
     assert labels == ["0.00 MiB", "0.95 MiB", "0.38 MiB"]
 
+    labels = label_bytes(units="si")(x)
+    assert labels == ["1 kB", "1 MB", "400 kB"]
+
     with pytest.raises(ValueError):
         label_bytes(symbol="Bad")(x)
+
+
+def test_deprecated_formatters_module():
+    # The module re-exports labels under old names, so a rename in labels
+    # breaks it on import
+    from mizani import formatters
+
+    assert formatters.comma_format is label_comma
 
 
 def test_empty_breaks():

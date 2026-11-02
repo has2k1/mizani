@@ -89,3 +89,15 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
+
+  publish-docs:
+    name: Publish the documentation to GitHub Pages
+    needs: [check-semver-tag, publish]
+    if: ${{ needs.check-semver-tag.outputs.publish_on == 'pypi' }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/docs.yml
+    with:
+      deploy: true

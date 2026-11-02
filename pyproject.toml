@@ -29,16 +29,10 @@ requires-python = ">=3.11"
 
 [project.optional-dependencies]
 all = [
-    "mizani[doc]",
     "mizani[build]",
     "mizani[lint]",
     "mizani[test]",
     "mizani[dev]",
-]
-
-doc = [
-    "sphinx>=7.2.0",
-    "numpydoc>=1.7.0",
 ]
 
 build = [
@@ -68,10 +62,17 @@ typing = [
 ]
 
 [project.urls]
-homepage = "https://mizani.readthedocs.io/en/stable"
+homepage = "https://has2k1.github.io/mizani/"
 repository = "https://github.com/has2k1/mizani"
-changelog = "https://mizani.readthedocs.io/en/stable/changelog.html"
+changelog = "https://has2k1.github.io/mizani/changelog/"
 ci = "https://github.com/has2k1/mizani/actions"
+
+# Dependency groups are not part of the published metadata, so the git
+# URL does not stop the upload to PyPI
+[dependency-groups]
+doc = [
+    "great-docs @ git+https://github.com/posit-dev/great-docs.git@main",
+]
 
 ########## Build System ##########
 [build-system]
@@ -98,11 +99,9 @@ version_scheme = 'post-release'
 # https://docs.pytest.org/en/stable/reference/reference.html#ini-options-ref
 [tool.pytest.ini_options]
 testpaths = [
-    "mizani",
     "tests"
 ]
-addopts = "--pyargs --cov=mizani --cov-report=xml --doctest-modules --doctest-ignore-import-errors"
-doctest_optionflags = "ALLOW_BYTES NORMALIZE_WHITESPACE"
+addopts = "--pyargs --cov=mizani --cov-report=xml"
 
 ########## Tool - Coverage ##########
 # Coverage.py

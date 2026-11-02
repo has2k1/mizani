@@ -1,0 +1,103 @@
+---
+title: Mizani
+---
+
+Mizani provides tools for building scales in Python graphics systems. It
+is based on the R [scales](https://scales.r-lib.org) package, and
+[plotnine](https://plotnine.org) uses it for all its scales.
+
+A scale maps data values to values suitable for visual properties, such
+as coordinates, sizes or colour codes. The graphics system draws the plot
+from these mapped values. A scale also chooses which values to mark on a
+guide and how to label them.
+Mizani provides functions and classes for these tasks, which a graphics
+system can combine to build its scales.
+
+## Example
+
+Take five values that span nearly five orders of magnitude.
+
+```{python}
+import numpy as np
+
+x = np.array([12, 150, 1_800, 23_000, 410_000])
+```
+
+[](`~mizani.bounds.rescale`) maps the values to $[0, 1]$, and a palette
+maps the rescaled values to colours.
+[](`~mizani.breaks.breaks_extended`) chooses the values to mark on the
+guide, and [](`~mizani.labels.label_comma`) formats their labels.
+
+```{python}
+from mizani.bounds import rescale
+from mizani.breaks import breaks_extended
+from mizani.labels import label_comma
+from mizani.palettes import gradient_n_pal
+
+palette = gradient_n_pal(["#132B43", "#56B1F7"])
+limits = (x.min(), x.max())
+breaks = breaks_extended()(limits)
+
+palette(rescale(x))
+```
+
+```{python}
+label_comma()(breaks)
+```
+
+On a linear scale, the four smallest values map to nearly the same colour.
+Rescaling after a log transform spreads these values more evenly across
+the palette. The transform also supplies suitable breaks and labels.
+
+```{python}
+from mizani.transforms import log10_trans
+
+trans = log10_trans()
+breaks = trans.breaks(limits)
+
+palette(rescale(trans.transform(x)))
+```
+
+```{python}
+trans.format(breaks)
+```
+
+[](`~mizani.scale.scale_continuous`) and
+[](`~mizani.scale.scale_discrete`) show how to combine these operations to
+map continuous and discrete data.
+
+## Reference
+
+Browse the [API reference](reference/index.qmd) for each scale component.
+
+| Section | Contents |
+|---------|----------|
+| [Bounds](reference/index.qmd#bounds) | Rescale, censor, squish and expand ranges of values |
+| [Breaks](reference/index.qmd#breaks) | Choose the values to mark on a guide |
+| [Labels](reference/index.qmd#labels) | Format break values as text |
+| [Palettes](reference/index.qmd#palettes) | Map rescaled values to colours, sizes and other aesthetics |
+| [Transforms](reference/index.qmd#transforms) | Transform data, for example with a logarithm, and supply matching breaks and labels |
+| [Scale](reference/index.qmd#scale) | Combine scale components to map continuous and discrete data |
+
+## Installation
+
+Install the official release from PyPI.
+
+```console
+$ pip install mizani
+```
+
+Install the development version from GitHub.
+
+```console
+$ pip install git+https://github.com/has2k1/mizani.git@main
+```
+
+Clone the repository and install Mizani in editable mode to work on its
+source code.
+
+```console
+$ git clone https://github.com/has2k1/mizani.git
+$ cd mizani
+$ pip install -e .
+```

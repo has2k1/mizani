@@ -1,22 +1,5 @@
 """
-Continuous variables have values anywhere in the range minus
-infinite to plus infinite. However, when creating a visual
-representation of these values what usually matters is the
-relative difference between the values. This is where rescaling
-comes into play.
-
-The values are mapped onto a range that a scale can deal with. For
-graphical representation that range tends to be :math:`[0, 1]` or
-:math:`[0, n]`, where :math:`n` is some number that makes the
-plotted object overflow the plotting area.
-
-Although a scale may be able handle the :math:`[0, n]` range, it
-may be desirable to have a lower bound greater than zero. For
-example, if data values get mapped to zero on a scale whose
-graphical representation is the size/area/radius/length some data
-will be invisible. The solution is to restrict the lower bound
-e.g. :math:`[0.1, 1]`. Similarly you can restrict the upper bound
--- using these functions.
+Limiting data values for a palette
 """
 
 from __future__ import annotations
@@ -83,13 +66,20 @@ def rescale(
 
     Examples
     --------
-    >>> x = [0, 2, 4, 6, 8, 10]
-    >>> rescale(x)
-    array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
-    >>> rescale(x, to=(0, 2))
-    array([0. , 0.4, 0.8, 1.2, 1.6, 2. ])
-    >>> rescale(x, to=(0, 2), _from=(0, 20))
-    array([0. , 0.2, 0.4, 0.6, 0.8, 1. ])
+    ```{python}
+    from mizani.bounds import rescale
+
+    x = [0, 2, 4, 6, 8, 10]
+    rescale(x)
+    ```
+
+    ```{python}
+    rescale(x, to=(0, 2))
+    ```
+
+    ```{python}
+    rescale(x, to=(0, 2), _from=(0, 20))
+    ```
     """
     __from = (np.nanmin(x), np.nanmax(x)) if _from is None else _from
     return np.interp(x, __from, to)  # pyright: ignore[reportReturnType]
@@ -124,23 +114,31 @@ def rescale_mid(
 
     Examples
     --------
-    >>> rescale_mid([1, 2, 3], mid=1)
-    array([0.5 , 0.75, 1.  ])
-    >>> rescale_mid([1, 2, 3], mid=2)
-    array([0. , 0.5, 1. ])
+    ```{python}
+    from mizani.bounds import rescale_mid
+
+    rescale_mid([1, 2, 3], mid=1)
+    ```
+
+    ```{python}
+    rescale_mid([1, 2, 3], mid=2)
+    ```
 
     `rescale_mid` does have the same signature as `rescale` and
     `rescale_max`. In cases where we need a compatible function with
     the same signature, we use a closure around the extra `mid` argument.
 
-    >>> def rescale_mid_compat(mid):
-    ...     def _rescale(x, to=(0, 1), _from=None):
-    ...         return rescale_mid(x, to, _from, mid=mid)
-    ...     return _rescale
+    ```{python}
+    def rescale_mid_compat(mid):
+        def _rescale(x, to=(0, 1), _from=None):
+            return rescale_mid(x, to, _from, mid=mid)
+        return _rescale
+    ```
 
-    >>> rescale_mid2 = rescale_mid_compat(mid=2)
-    >>> rescale_mid2([1, 2, 3])
-    array([0. , 0.5, 1. ])
+    ```{python}
+    rescale_mid2 = rescale_mid_compat(mid=2)
+    rescale_mid2([1, 2, 3])
+    ```
     """
     __from: NDArrayFloat = np.array(
         (np.nanmin(x), np.nanmax(x)) if _from is None else _from
@@ -182,31 +180,43 @@ def rescale_max(
 
     Examples
     --------
-    >>> x = np.array([0, 2, 4, 6, 8, 10])
-    >>> rescale_max(x, (0, 3))
-    array([0. , 0.6, 1.2, 1.8, 2.4, 3. ])
+    ```{python}
+    import numpy as np
 
-    Only the 2nd (max) element of the parameters ``to``
-    and ``_from`` are essential to the output.
+    from mizani.bounds import rescale_max
 
-    >>> rescale_max(x, (1, 3))
-    array([0. , 0.6, 1.2, 1.8, 2.4, 3. ])
-    >>> rescale_max(x, (0, 20))
-    array([ 0.,  4.,  8., 12., 16., 20.])
+    x = np.array([0, 2, 4, 6, 8, 10])
+    rescale_max(x, (0, 3))
+    ```
 
-    If :python:`max(x) < _from[1]` then values will be
-    scaled beyond the requested maximum (:python:`to[1]`).
+    Only the 2nd (max) element of the parameters `to`
+    and `_from` are essential to the output.
 
-    >>> rescale_max(x, to=(1, 3), _from=(-1, 6))
-    array([0., 1., 2., 3., 4., 5.])
+    ```{python}
+    rescale_max(x, (1, 3))
+    ```
+
+    ```{python}
+    rescale_max(x, (0, 20))
+    ```
+
+    If `max(x) < _from[1]` then values will be
+    scaled beyond the requested maximum (`to[1]`).
+
+    ```{python}
+    rescale_max(x, to=(1, 3), _from=(-1, 6))
+    ```
 
     If the values are the same, they taken on the requested maximum.
     This includes an array of all zeros.
 
-    >>> rescale_max(np.array([5, 5, 5]))
-    array([1., 1., 1.])
-    >>> rescale_max(np.array([0, 0, 0]))
-    array([1, 1, 1])
+    ```{python}
+    rescale_max(np.array([5, 5, 5]))
+    ```
+
+    ```{python}
+    rescale_max(np.array([0, 0, 0]))
+    ```
     """
     x = np.asarray(x)
     if _from is None:
@@ -244,12 +254,19 @@ def squish_infinite(
 
     Examples
     --------
-    >>> arr1 = np.array([0, .5, .25, np.inf, .44])
-    >>> arr2 = np.array([0, -np.inf, .5, .25, np.inf])
-    >>> squish_infinite(arr1)
-    array([0.  , 0.5 , 0.25, 1.  , 0.44])
-    >>> squish_infinite(arr2, (-10, 9))
-    array([  0.  , -10.  ,   0.5 ,   0.25,   9.  ])
+    ```{python}
+    import numpy as np
+
+    from mizani.bounds import squish_infinite
+
+    arr1 = np.array([0, .5, .25, np.inf, .44])
+    arr2 = np.array([0, -np.inf, .5, .25, np.inf])
+    squish_infinite(arr1)
+    ```
+
+    ```{python}
+    squish_infinite(arr2, (-10, 9))
+    ```
     """
     if is_series(x):
         _x = x.to_numpy().copy().astype(float)
@@ -284,11 +301,17 @@ def squish(
 
     Examples
     --------
-    >>> squish([-1.5, 0.2, 0.8, 1.0, 1.2])
-    array([0. , 0.2, 0.8, 1. , 1. ])
+    ```{python}
+    import numpy as np
 
-    >>> squish([-np.inf, -1.5, 0.2, 0.8, 1.0, np.inf], only_finite=False)
-    array([0. , 0. , 0.2, 0.8, 1. , 1. ])
+    from mizani.bounds import squish
+
+    squish([-1.5, 0.2, 0.8, 1.0, 1.2])
+    ```
+
+    ```{python}
+    squish([-np.inf, -1.5, 0.2, 0.8, 1.0, np.inf], only_finite=False)
+    ```
     """
     if is_series(x):
         _x = x.to_numpy().copy().astype(float)
@@ -323,28 +346,36 @@ def censor(
     x : array_like
         Censored array
 
-    Examples
-    --------
-    >>> a = np.array([1, 2, np.inf, 3, 4, -np.inf, 5])
-    >>> censor(a, (0, 10))
-    array([  1.,   2.,  inf,   3.,   4., -inf,   5.])
-    >>> censor(a, (0, 10), False)
-    array([ 1.,  2., nan,  3.,  4., nan,  5.])
-    >>> censor(a, (2, 4))
-    array([ nan,   2.,  inf,   3.,   4., -inf,  nan])
-
     Notes
     -----
-    All values in ``x`` should be of the same type. ``only_finite`` parameter
+    All values in `x` should be of the same type. `only_finite` parameter
     is not considered for Datetime and Timedelta types.
 
     The **NULL** type object depends on the type of values in **x**.
 
-    - :class:`float` - :py:`float('nan')`
-    - :class:`int` - :py:`float('nan')`
-    - :class:`datetime.datetime` : :py:`np.datetime64(NaT)`
-    - :class:`datetime.timedelta` : :py:`np.timedelta64(NaT)`
+    - [](`float`) - `float('nan')`
+    - [](`int`) - `float('nan')`
+    - [](`datetime.datetime`) : `np.datetime64(NaT)`
+    - [](`datetime.timedelta`) : `np.timedelta64(NaT)`
 
+    Examples
+    --------
+    ```{python}
+    import numpy as np
+
+    from mizani.bounds import censor
+
+    a = np.array([1, 2, np.inf, 3, 4, -np.inf, 5])
+    censor(a, (0, 10))
+    ```
+
+    ```{python}
+    censor(a, (0, 10), False)
+    ```
+
+    ```{python}
+    censor(a, (2, 4))
+    ```
     """
     res = copy(x)
     if not len(x):
@@ -381,24 +412,30 @@ def zero_range(x: tuple[Any, Any], tol: float = EPSILON * 100) -> bool:
         Value(s) to check. If it is an array_like, it
         should be of length 2.
     tol : float
-        Tolerance. Default tolerance is the `machine epsilon`_
-        times :math:`10^2`.
+        Tolerance. Default tolerance is the
+        [machine epsilon](https://en.wikipedia.org/wiki/Machine_epsilon)
+        times $10^2$.
 
     Returns
     -------
     out : bool
-        Whether ``x`` has zero range.
+        Whether `x` has zero range.
 
     Examples
     --------
-    >>> zero_range([1, 1])
-    True
-    >>> zero_range([1, 2])
-    False
-    >>> zero_range([1, 2], tol=2)
-    True
+    ```{python}
+    from mizani.bounds import zero_range
 
-    .. _machine epsilon: https://en.wikipedia.org/wiki/Machine_epsilon
+    zero_range([1, 1])
+    ```
+
+    ```{python}
+    zero_range([1, 2])
+    ```
+
+    ```{python}
+    zero_range([1, 2], tol=2)
+    ```
     """
     if x[0] > x[1]:
         x = x[1], x[0]
@@ -528,30 +565,42 @@ def expand_range(
     out : tuple
         Expanded range
 
-    Examples
-    --------
-    >>> expand_range((3, 8))
-    (3, 8)
-    >>> expand_range((0, 10), mul=0.1)
-    (-1.0, 11.0)
-    >>> expand_range((0, 10), add=2)
-    (-2, 12)
-    >>> expand_range((0, 10), mul=.1, add=2)
-    (-3.0, 13.0)
-    >>> expand_range((0, 1))
-    (0, 1)
-
-    When the range has zero width
-
-    >>> expand_range((5, 5))
-    (4.5, 5.5)
-
     Notes
     -----
     If expanding *datetime* or *timedelta* types, **add** and
     **zero_width** must be suitable *timedeltas* i.e. You should
     not mix types between **Numpy**, **Pandas** and the
-    :mod:`datetime` module.
+    [](`datetime`) module.
+
+    Examples
+    --------
+    ```{python}
+    from mizani.bounds import expand_range
+
+    expand_range((3, 8))
+    ```
+
+    ```{python}
+    expand_range((0, 10), mul=0.1)
+    ```
+
+    ```{python}
+    expand_range((0, 10), add=2)
+    ```
+
+    ```{python}
+    expand_range((0, 10), mul=.1, add=2)
+    ```
+
+    ```{python}
+    expand_range((0, 1))
+    ```
+
+    When the range has zero width
+
+    ```{python}
+    expand_range((5, 5))
+    ```
     """
     x = range
     low, high = x
@@ -581,7 +630,7 @@ def expand_range_distinct(
     """
     Expand a range with a multiplicative or additive constants
 
-    Similar to :func:`expand_range` but both sides of the range
+    Similar to [](`~mizani.bounds.expand_range`) but both sides of the range
     expanded using different constants
 
     Parameters
@@ -604,26 +653,47 @@ def expand_range_distinct(
 
     Examples
     --------
-    >>> expand_range_distinct((3, 8))
-    (3, 8)
-    >>> expand_range_distinct((0, 10), (0.1, 0))
-    (-1.0, 11.0)
-    >>> expand_range_distinct((0, 10), (0.1, 0, 0.1, 0))
-    (-1.0, 11.0)
-    >>> expand_range_distinct((0, 10), (0.1, 0, 0, 0))
-    (-1.0, 10)
-    >>> expand_range_distinct((0, 10), (0, 2))
-    (-2, 12)
-    >>> expand_range_distinct((0, 10), (0, 2, 0, 2))
-    (-2, 12)
-    >>> expand_range_distinct((0, 10), (0, 0, 0, 2))
-    (0, 12)
-    >>> expand_range_distinct((0, 10), (.1, 2))
-    (-3.0, 13.0)
-    >>> expand_range_distinct((0, 10), (.1, 2, .1, 2))
-    (-3.0, 13.0)
-    >>> expand_range_distinct((0, 10), (0, 0, .1, 2))
-    (0, 13.0)
+    ```{python}
+    from mizani.bounds import expand_range_distinct
+
+    expand_range_distinct((3, 8))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0.1, 0))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0.1, 0, 0.1, 0))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0.1, 0, 0, 0))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0, 2))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0, 2, 0, 2))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0, 0, 0, 2))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (.1, 2))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (.1, 2, .1, 2))
+    ```
+
+    ```{python}
+    expand_range_distinct((0, 10), (0, 0, .1, 2))
+    ```
     """
 
     if len(expand) == 2:

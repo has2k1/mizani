@@ -13,6 +13,7 @@ from mizani.breaks import (
     breaks_log,
     breaks_timedelta,
     breaks_timedelta_width,
+    breaks_width,
     minor_breaks,
     minor_breaks_trans,
 )
@@ -268,6 +269,13 @@ def test_breaks_date_width():
     limits = np.datetime64("NaT", "s"), datetime(2017, 1, 1)
     breaks = breaks_date_width("10 Years")(limits)  # pyright: ignore[reportArgumentType]
     assert len(breaks) == 0
+
+
+def test_breaks_width():
+    npt.assert_array_equal(breaks_width(4)([3, 14]), [0, 4, 8, 12, 16])
+    npt.assert_array_equal(
+        breaks_width(4, offset=1)([3, 14]), [1, 5, 9, 13, 17]
+    )
 
 
 def test_date_type_breaks():

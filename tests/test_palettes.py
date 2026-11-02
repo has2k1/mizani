@@ -19,6 +19,7 @@ from mizani.palettes import (
     hue_pal,
     identity_pal,
     manual_pal,
+    none_pal,
     rescale_pal,
     xkcd_palette,
 )
@@ -278,6 +279,10 @@ def test_cubehelix_pal():
     values = palette(5)
     assert len(values) == 5
     assert_hex_colors(values)
+
+
+def test_none_pal():
+    assert none_pal()(3) == [None, None, None]
 
 
 def test_identity_pal():

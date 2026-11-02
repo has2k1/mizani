@@ -1,17 +1,5 @@
 """
-Palettes are the link between data values and the values along
-the dimension of a scale. Before a collection of values can be
-represented on a scale, they are transformed by a palette. This
-transformation is knowing as mapping. Values are mapped onto a
-scale by a palette.
-
-Scales tend to have restrictions on the magnitude of quantities
-that they can intelligibly represent. For example, the size of
-a point should be significantly smaller than the plot panel
-onto which it is plotted or else it would be hard to compare
-two or more points. Therefore palettes must be created that
-enforce such restrictions. This is the reason for the ``*_pal``
-functions that create and return the actual palette functions.
+Mapping values onto the domain of a scale
 """
 
 from __future__ import annotations
@@ -140,10 +128,15 @@ def hls_palette(
 
     Examples
     --------
-    >>> len(hls_palette(2))
-    2
-    >>> len(hls_palette(9))
-    9
+    ```{python}
+    from mizani.palettes import hls_palette
+
+    len(hls_palette(2))
+    ```
+
+    ```{python}
+    len(hls_palette(9))
+    ```
     """
     hues = np.linspace(0, 1, n_colors + 1)[:-1]
     hues += h
@@ -185,10 +178,15 @@ def hsluv_palette(
 
     Examples
     --------
-    >>> len(hsluv_palette(3))
-    3
-    >>> len(hsluv_palette(11))
-    11
+    ```{python}
+    from mizani.palettes import hsluv_palette
+
+    len(hsluv_palette(3))
+    ```
+
+    ```{python}
+    len(hsluv_palette(11))
+    ```
     """
     hues = np.linspace(0, 1, n_colors + 1)[:-1]
     hues += h
@@ -216,21 +214,25 @@ class rescale_pal(_continuous_pal):
     -------
     out : function
         Palette function that takes a sequence of values
-        in the range ``[0, 1]`` and returns values in
+        in the range `[0, 1]` and returns values in
         the specified range.
 
     Examples
     --------
-    >>> palette = rescale_pal()
-    >>> palette([0, .2, .4, .6, .8, 1])
-    array([0.1 , 0.28, 0.46, 0.64, 0.82, 1.  ])
+    ```{python}
+    from mizani.palettes import rescale_pal
 
-    The returned palette expects inputs in the ``[0, 1]``
+    palette = rescale_pal()
+    palette([0, .2, .4, .6, .8, 1])
+    ```
+
+    The returned palette expects inputs in the `[0, 1]`
     range. Any value outside those limits is clipped to
-    ``range[0]`` or ``range[1]``.
+    `range[0]` or `range[1]`.
 
-    >>> palette([-2, -1, 0.2, .4, .8, 2, 3])
-    array([0.1 , 0.1 , 0.28, 0.46, 0.82, 1.  , 1.  ])
+    ```{python}
+    palette([-2, -1, 0.2, .4, .8, 2, 3])
+    ```
     """
 
     range: tuple[float, float] = (0.1, 1)
@@ -254,17 +256,22 @@ class area_pal(_continuous_pal):
     -------
     out : function
         Palette function that takes a sequence of values
-        in the range ``[0, 1]`` and returns values in
+        in the range `[0, 1]` and returns values in
         the specified range.
 
     Examples
     --------
-    >>> x = np.arange(0, .6, .1)**2
-    >>> palette = area_pal()
-    >>> palette(x)
-    array([1. , 1.5, 2. , 2.5, 3. , 3.5])
+    ```{python}
+    import numpy as np
 
-    The results are equidistant because the input ``x`` is in
+    from mizani.palettes import area_pal
+
+    x = np.arange(0, .6, .1)**2
+    palette = area_pal()
+    palette(x)
+    ```
+
+    The results are equidistant because the input `x` is in
     area space, i.e it is squared.
     """
 
@@ -288,18 +295,24 @@ class abs_area(_continuous_pal):
     -------
     out : function
         Palette function that takes a sequence of values
-        in the range ``[0, 1]`` and returns values in the range
-        ``[0, max]``.
+        in the range `[0, 1]` and returns values in the range
+        `[0, max]`.
 
     Examples
     --------
-    >>> x = np.arange(0, .8, .1)**2
-    >>> palette = abs_area(5)
-    >>> palette(x)
-    array([0. , 0.5, 1. , 1.5, 2. , 2.5, 3. , 3.5])
+    ```{python}
+    import numpy as np
 
-    Compared to :func:`area_pal`, :func:`abs_area` will handle values
-    in the range ``[-1, 0]`` without returning ``np.nan``. And values
+    from mizani.palettes import abs_area
+
+    x = np.arange(0, .8, .1)**2
+    palette = abs_area(5)
+    palette(x)
+    ```
+
+    Compared to [](`~mizani.palettes.area_pal`),
+    [](`~mizani.palettes.abs_area`) will handle values
+    in the range `[-1, 0]` without returning `np.nan`. And values
     whose absolute value is greater than 1 will be clipped to the
     maximum.
     """
@@ -326,14 +339,17 @@ class grey_pal(_discrete_pal):
     -------
     out : function
         Continuous color palette that takes a single
-        :class:`int` parameter ``n`` and returns ``n``
+        [](`int`) parameter `n` and returns `n`
         equally spaced colors.
 
     Examples
     --------
-    >>> palette = grey_pal()
-    >>> palette(5)
-    ['#333333', '#737373', '#989898', '#b4b4b4', '#cccccc']
+    ```{python}
+    from mizani.palettes import grey_pal
+
+    palette = grey_pal()
+    palette(5)
+    ```
     """
 
     start: float = 0.2
@@ -382,10 +398,15 @@ class hue_pal(_discrete_pal):
 
     Examples
     --------
-    >>> hue_pal()(5)
-    ['#f8766d', '#a3a500', '#00bf7d', '#00b0f6', '#e76bf3']
-    >>> hue_pal((100, 300))(5)
-    ['#88ac00', '#00be67', '#00becd', '#3fa1ff', '#e36ef6']
+    ```{python}
+    from mizani.palettes import hue_pal
+
+    hue_pal()(5)
+    ```
+
+    ```{python}
+    hue_pal((100, 300))(5)
+    ```
     """
 
     h: float | tuple[float, float] = 15
@@ -426,18 +447,23 @@ class hls_pal(_discrete_pal):
     -------
     out : function
         A discrete color palette that takes a single
-        :class:`int` parameter ``n`` and returns ``n``
+        [](`int`) parameter `n` and returns `n`
         equally spaced colors. Though the palette
         is continuous, since it is varies the hue it
-        is good for categorical data. However if ``n``
+        is good for categorical data. However if `n`
         is large enough the colors show continuity.
 
     Examples
     --------
-    >>> hls_pal()(5)
-    ['#db5f57', '#b9db57', '#57db94', '#5784db', '#c957db']
-    >>> hls_pal(color_space='hsluv')(5)
-    ['#e0697e', '#9b9054', '#569d79', '#5b98ab', '#b675d7']
+    ```{python}
+    from mizani.palettes import hls_pal
+
+    hls_pal()(5)
+    ```
+
+    ```{python}
+    hls_pal(color_space='hsluv')(5)
+    ```
     """
 
     h: float = 0.01
@@ -493,37 +519,51 @@ class brewer_pal(_discrete_pal):
     -------
     out : function
         A color palette that takes a single
-        :class:`int` parameter ``n`` and returns ``n``
-        colors. The maximum value of ``n`` varies
+        [](`int`) parameter `n` and returns `n`
+        colors. The maximum value of `n` varies
         depending on the parameters.
 
     Examples
     --------
-    >>> brewer_pal()(5)
-    ['#EFF3FF', '#BDD7E7', '#6BAED6', '#3182BD', '#08519C']
-    >>> brewer_pal('qual')(5)
-    ['#7FC97F', '#BEAED4', '#FDC086', '#FFFF99', '#386CB0']
-    >>> brewer_pal('qual', 2)(5)
-    ['#1B9E77', '#D95F02', '#7570B3', '#E7298A', '#66A61E']
-    >>> brewer_pal('seq', 'PuBuGn')(5)
-    ['#F6EFF7', '#BDC9E1', '#67A9CF', '#1C9099', '#016C59']
+    ```{python}
+    from mizani.palettes import brewer_pal
+
+    brewer_pal()(5)
+    ```
+
+    ```{python}
+    brewer_pal('qual')(5)
+    ```
+
+    ```{python}
+    brewer_pal('qual', 2)(5)
+    ```
+
+    ```{python}
+    brewer_pal('seq', 'PuBuGn')(5)
+    ```
 
     A named palette does not need a matching `type`.
 
-    >>> pal = brewer_pal(palette='Set2')
-    >>> pal(3)
-    ['#66C2A5', '#FC8D62', '#8DA0CB']
-    >>> pal.type
-    'qualitative'
+    ```{python}
+    pal = brewer_pal(palette='Set2')
+    pal(3)
+    ```
+
+    ```{python}
+    pal.type
+    ```
 
     The available color names for each palette type can be
-    obtained using the following code::
+    obtained using the following code:
 
-        from mizani._colors._palettes.brewer import get_palette_names
+    ```python
+    from mizani._colors._palettes.brewer import get_palette_names
 
-        print(get_palette_names("sequential"))
-        print(get_palette_names("qualitative"))
-        print(get_palette_names("diverging"))
+    print(get_palette_names("sequential"))
+    print(get_palette_names("qualitative"))
+    print(get_palette_names("diverging"))
+    ```
     """
 
     type: ColorScheme | ColorSchemeShort = "seq"
@@ -575,18 +615,25 @@ class gradient_n_pal(_continuous_color_pal):
     -------
     out : function
         Continuous color palette that takes a single
-        parameter either a :class:`float` or a sequence
+        parameter either a [](`float`) or a sequence
         of floats maps those value(s) onto the palette
         and returns color(s). The float(s) must be
         in the range [0, 1].
 
     Examples
     --------
-    >>> palette = gradient_n_pal(['red', 'blue'])
-    >>> palette([0, .25, .5, .75, 1])
-    ['#ff0000', '#bf0040', '#7f0080', '#4000bf', '#0000ff']
-    >>> palette([-np.inf, 0, np.nan, 1, np.inf])
-    [None, '#ff0000', None, '#0000ff', None]
+    ```{python}
+    import numpy as np
+
+    from mizani.palettes import gradient_n_pal
+
+    palette = gradient_n_pal(['red', 'blue'])
+    palette([0, .25, .5, .75, 1])
+    ```
+
+    ```{python}
+    palette([-np.inf, 0, np.nan, 1, np.inf])
+    ```
     """
 
     colors: Sequence[str]
@@ -613,16 +660,19 @@ class cmap_pal(_continuous_color_pal):
     -------
     out : function
         Continuous color palette that takes a single
-        parameter either a :class:`float` or a sequence
+        parameter either a [](`float`) or a sequence
         of floats maps those value(s) onto the palette
         and returns color(s). The float(s) must be
         in the range [0, 1].
 
     Examples
     --------
-    >>> palette = cmap_pal('viridis')
-    >>> palette([.1, .2, .3, .4, .5])
-    ['#482475', '#414487', '#355f8d', '#2a788e', '#21918c']
+    ```{python}
+    from mizani.palettes import cmap_pal
+
+    palette = cmap_pal('viridis')
+    palette([.1, .2, .3, .4, .5])
+    ```
     """
 
     name: str
@@ -656,15 +706,18 @@ class cmap_d_pal(_discrete_pal):
     -------
     out : function
         A discrete color palette that takes a single
-        :class:`int` parameter ``n`` and returns ``n``
-        colors. The maximum value of ``n`` varies
+        [](`int`) parameter `n` and returns `n`
+        colors. The maximum value of `n` varies
         depending on the parameters.
 
     Examples
     --------
-    >>> palette = cmap_d_pal('viridis')
-    >>> palette(5)
-    ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']
+    ```{python}
+    from mizani.palettes import cmap_d_pal
+
+    palette = cmap_d_pal('viridis')
+    palette(5)
+    ```
     """
 
     name: str
@@ -700,16 +753,19 @@ class desaturate_pal(gradient_n_pal):
     -------
     out : function
         Continuous color palette that takes a single
-        parameter either a :class:`float` or a sequence
+        parameter either a [](`float`) or a sequence
         of floats maps those value(s) onto the palette
         and returns color(s). The float(s) must be
         in the range [0, 1].
 
     Examples
     --------
-    >>> palette = desaturate_pal('red', .1)
-    >>> palette([0, .25, .5, .75, 1])
-    ['#ff0000', '#e21d1d', '#c53a3a', '#a95656', '#8c7373']
+    ```{python}
+    from mizani.palettes import desaturate_pal
+
+    palette = desaturate_pal('red', .1)
+    palette([0, .25, .5, .75, 1])
+    ```
     """
 
     def __init__(self, color: str, prop: float, reverse: bool = False):
@@ -744,13 +800,16 @@ class manual_pal(_discrete_pal):
     -------
     out : function
         A function palette that takes a single
-        :class:`int` parameter ``n`` and returns ``n`` values.
+        [](`int`) parameter `n` and returns `n` values.
 
     Examples
     --------
-    >>> palette = manual_pal(['a', 'b', 'c', 'd', 'e'])
-    >>> palette(3)
-    ['a', 'b', 'c']
+    ```{python}
+    from mizani.palettes import manual_pal
+
+    palette = manual_pal(['a', 'b', 'c', 'd', 'e'])
+    palette(3)
+    ```
     """
 
     values: Sequence[Any]
@@ -776,7 +835,7 @@ def xkcd_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
     Parameters
     ----------
     colors : list of strings
-        List of keys in the ``mizani.colors.xkcd_rgb`` dictionary.
+        List of keys in the `mizani.colors.xkcd_rgb` dictionary.
 
     Returns
     -------
@@ -785,13 +844,18 @@ def xkcd_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
 
     Examples
     --------
-    >>> palette = xkcd_palette(['red', 'green', 'blue'])
-    >>> palette
-    ['#E50000', '#15B01A', '#0343DF']
+    ```{python}
+    from mizani.palettes import xkcd_palette
 
-    >>> from mizani._colors.named_colors import XKCD
-    >>> list(sorted(XKCD.keys()))[:4]
-    ['xkcd:acid green', 'xkcd:adobe', 'xkcd:algae', 'xkcd:algae green']
+    palette = xkcd_palette(['red', 'green', 'blue'])
+    palette
+    ```
+
+    ```{python}
+    from mizani._colors.named_colors import XKCD
+
+    list(sorted(XKCD.keys()))[:4]
+    ```
     """
     return [get_named_color(f"xkcd:{name}") for name in colors]
 
@@ -806,7 +870,7 @@ def crayon_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
     Parameters
     ----------
     colors : list of strings
-        List of keys in the ``mizani.colors.crayloax_rgb`` dictionary.
+        List of keys in the `mizani.colors.crayloax_rgb` dictionary.
 
     Returns
     -------
@@ -815,13 +879,18 @@ def crayon_palette(colors: Sequence[str]) -> Sequence[RGBHexColor]:
 
     Examples
     --------
-    >>> palette = crayon_palette(['almond', 'silver', 'yellow'])
-    >>> palette
-    ['#EED9C4', '#C9C0BB', '#FBE870']
+    ```{python}
+    from mizani.palettes import crayon_palette
 
-    >>> from mizani._colors.named_colors import CRAYON
-    >>> list(sorted(CRAYON.keys()))[:3]
-    ['crayon:almond', 'crayon:antique brass', 'crayon:apricot']
+    palette = crayon_palette(['almond', 'silver', 'yellow'])
+    palette
+    ```
+
+    ```{python}
+    from mizani._colors.named_colors import CRAYON
+
+    list(sorted(CRAYON.keys()))[:3]
+    ```
     """
     return [get_named_color(f"crayon:{name}") for name in colors]
 
@@ -839,7 +908,7 @@ class cubehelix_pal(_discrete_pal):
     ----------
     start : float (0 <= start <= 3)
         The hue at the start of the helix.
-    rot : float
+    rotation : float
         Rotations around the hue wheel over the range of the palette.
     gamma : float (0 <= gamma)
         Gamma factor to emphasize darker (gamma < 1) or lighter (gamma > 1)
@@ -857,7 +926,7 @@ class cubehelix_pal(_discrete_pal):
     -------
     out : function
         Continuous color palette that takes a single
-        :class:`int` parameter ``n`` and returns ``n``
+        [](`int`) parameter `n` and returns `n`
         equally spaced colors.
 
 
@@ -869,9 +938,12 @@ class cubehelix_pal(_discrete_pal):
 
     Examples
     --------
-    >>> palette = cubehelix_pal()
-    >>> palette(5)
-    ['#edd1cb', '#d499a7', '#aa678f', '#6e4071', '#2d1e3e']
+    ```{python}
+    from mizani.palettes import cubehelix_pal
+
+    palette = cubehelix_pal()
+    palette(5)
+    ```
     """
 
     start: int = 0
@@ -909,11 +981,16 @@ def identity_pal() -> Callable[[T], T]:
 
     Examples
     --------
-    >>> palette = identity_pal()
-    >>> palette(9)
-    9
-    >>> palette([2, 4, 6])
-    [2, 4, 6]
+    ```{python}
+    from mizani.palettes import identity_pal
+
+    palette = identity_pal()
+    palette(9)
+    ```
+
+    ```{python}
+    palette([2, 4, 6])
+    ```
     """
     return identity
 
@@ -923,11 +1000,14 @@ class none_pal(_discrete_pal):
     """
     Discrete palette that returns only None values
 
-    Example
-    -------
-    >>> palette = none_pal()
-    >>> palette(5)
-    [None, None, None, None, None]
+    Examples
+    --------
+    ```{python}
+    from mizani.palettes import none_pal
+
+    palette = none_pal()
+    palette(5)
+    ```
     """
 
     def __call__(self, n: int) -> Sequence[None]:

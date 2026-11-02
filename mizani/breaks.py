@@ -1,14 +1,5 @@
 """
-All scales have a means by which the values that are mapped
-onto the scale are interpreted. Numeric digital scales put
-out numbers for direct interpretation, but most scales
-cannot do this. What they offer is named markers/ticks that
-aid in assessing the values e.g. the common odometer will
-have ticks and values to help gauge the speed of the vehicle.
-
-The named markers are what we call breaks. Properly calculated
-breaks make interpretation straight forward. These functions
-provide ways to calculate good(hopefully) breaks.
+Partitioning a scale for readability
 """
 
 from __future__ import annotations
@@ -71,14 +62,23 @@ class breaks_log:
 
     Examples
     --------
-    >>> x = np.logspace(3, 6)
-    >>> limits = min(x), max(x)
-    >>> breaks_log()(limits)
-    array([     1000,    10000,   100000,  1000000])
-    >>> breaks_log(2)(limits)
-    array([  1000, 100000])
-    >>> breaks_log()([0.1, 1])
-    array([0.1, 0.3, 1. , 3. ])
+    ```{python}
+    import numpy as np
+
+    from mizani.breaks import breaks_log
+
+    x = np.logspace(3, 6)
+    limits = min(x), max(x)
+    breaks_log()(limits)
+    ```
+
+    ```{python}
+    breaks_log(2)(limits)
+    ```
+
+    ```{python}
+    breaks_log()([0.1, 1])
+    ```
     """
 
     n: int = 5
@@ -224,19 +224,27 @@ class minor_breaks:
 
     Examples
     --------
-    >>> major = [1, 2, 3, 4]
-    >>> limits = [0, 5]
-    >>> minor_breaks()(major, limits)
-    array([0.5, 1.5, 2.5, 3.5, 4.5])
-    >>> minor_breaks()([1, 2], (1, 2))
-    array([1.5])
+    ```{python}
+    from mizani.breaks import minor_breaks
+
+    major = [1, 2, 3, 4]
+    limits = [0, 5]
+    minor_breaks()(major, limits)
+    ```
+
+    ```{python}
+    minor_breaks()([1, 2], (1, 2))
+    ```
 
     More than 1 minor break.
 
-    >>> minor_breaks(3)([1, 2], (1, 2))
-    array([1.25, 1.5 , 1.75])
-    >>> minor_breaks()([1, 2], (1, 2), 3)
-    array([1.25, 1.5 , 1.75])
+    ```{python}
+    minor_breaks(3)([1, 2], (1, 2))
+    ```
+
+    ```{python}
+    minor_breaks()([1, 2], (1, 2), 3)
+    ```
     """
 
     n: int = 1
@@ -306,7 +314,8 @@ class minor_breaks_trans:
     This together with major breaks computed in
     transform space reveals the non linearity of
     of a scale. See the log transforms created
-    with :func:`log_trans` like :class:`log10_trans`.
+    with [](`~mizani.transforms.log_trans`) like
+    [](`~mizani.transforms.log10_trans`).
 
     Parameters
     ----------
@@ -318,26 +327,31 @@ class minor_breaks_trans:
 
     Examples
     --------
-    >>> from mizani.transforms import sqrt_trans
-    >>> major = [1, 2, 3, 4]
-    >>> limits = [0, 5]
-    >>> t1 = sqrt_trans()
-    >>> t1.minor_breaks(major, limits)
-    array([1.58113883, 2.54950976, 3.53553391])
+    ```{python}
+    from mizani.breaks import minor_breaks
+    from mizani.transforms import sqrt_trans
 
-    # Changing the regular `minor_breaks` method
+    major = [1, 2, 3, 4]
+    limits = [0, 5]
+    t1 = sqrt_trans()
+    t1.minor_breaks(major, limits)
+    ```
 
-    >>> t2 = sqrt_trans()
-    >>> t2.minor_breaks = minor_breaks()
-    >>> t2.minor_breaks(major, limits)
-    array([0.5, 1.5, 2.5, 3.5, 4.5])
+    Changing the regular `minor_breaks` method
+
+    ```{python}
+    t2 = sqrt_trans()
+    t2.minor_breaks = minor_breaks()
+    t2.minor_breaks(major, limits)
+    ```
 
     More than 1 minor break
 
-    >>> major = [1, 10]
-    >>> limits = [1, 10]
-    >>> t2.minor_breaks(major, limits, 4)
-    array([2.8, 4.6, 6.4, 8.2])
+    ```{python}
+    major = [1, 10]
+    limits = [1, 10]
+    t2.minor_breaks(major, limits, 4)
+    ```
     """
 
     trans: Trans
@@ -386,7 +400,7 @@ class minor_breaks_trans:
         Append 2 extra breaks at either end of major
 
         If breaks of transform space are non-equidistant,
-        :func:`minor_breaks` add minor breaks beyond the first
+        [](`~mizani.breaks.minor_breaks`) add minor breaks beyond the first
         and last major breaks. The solutions is to extend those
         breaks (in transformed space) before the minor break call
         is made. How the breaks depends on the type of transform.
@@ -415,15 +429,21 @@ class breaks_date:
 
     Examples
     --------
-    >>> from datetime import datetime
-    >>> limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
+    ```{python}
+    from datetime import datetime
+
+    from mizani.breaks import breaks_date
+
+    limits = (datetime(2010, 1, 1), datetime(2026, 1, 1))
+    ```
 
     Default breaks will be regularly spaced but the spacing
     is automatically determined
 
-    >>> breaks = breaks_date(9)
-    >>> [d.year for d in breaks(limits)]
-    [2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
+    ```{python}
+    breaks = breaks_date(9)
+    [d.year for d in breaks(limits)]
+    ```
     """
 
     n: int = 5
@@ -437,7 +457,7 @@ class breaks_date:
         Parameters
         ----------
         limits : tuple
-            Minimum and maximum :class:`datetime.datetime` values.
+            Minimum and maximum [](`datetime.datetime`) values.
 
         Returns
         -------
@@ -501,13 +521,20 @@ class breaks_date_width:
     --------
     Breaks at 4 year intervals
 
-    >>> limits = [datetime(2010, 1, 1), datetime(2025, 1, 1)]
-    >>> breaks = breaks_date_width("4 years")
-    >>> [d.year for d in breaks(limits)]
-    [2010, 2014, 2018, 2022, 2026]
-    >>> breaks = breaks_date_width("4 years", offset=1)
-    >>> [d.year for d in breaks(limits)]
-    [2011, 2015, 2019, 2023, 2027]
+    ```{python}
+    from datetime import datetime
+
+    from mizani.breaks import breaks_date_width
+
+    limits = [datetime(2010, 1, 1), datetime(2025, 1, 1)]
+    breaks = breaks_date_width("4 years")
+    [d.year for d in breaks(limits)]
+    ```
+
+    ```{python}
+    breaks = breaks_date_width("4 years", offset=1)
+    [d.year for d in breaks(limits)]
+    ```
     """
 
     width: str
@@ -522,7 +549,7 @@ class breaks_date_width:
         Parameters
         ----------
         limits :
-            Minimum and maximum :class:`datetime.datetime` values.
+            Minimum and maximum [](`datetime.datetime`) values.
 
         Returns
         -------
@@ -551,19 +578,23 @@ class breaks_timedelta:
 
     Returns
     -------
-    out : callable ``f(limits)``
+    out : callable `f(limits)`
         A function that takes a sequence of two
-        :class:`datetime.timedelta` values and returns
+        [](`datetime.timedelta`) values and returns
         a sequence of break points.
 
     Examples
     --------
-    >>> from datetime import timedelta
-    >>> breaks = breaks_timedelta()
-    >>> limits = (timedelta(days=0), timedelta(days=345))
-    >>> major = breaks(limits)
-    >>> [b.days for b in major]
-    [0, 70, 140, 210, 280, 350]
+    ```{python}
+    from datetime import timedelta
+
+    from mizani.breaks import breaks_timedelta
+
+    breaks = breaks_timedelta()
+    limits = (timedelta(days=0), timedelta(days=345))
+    major = breaks(limits)
+    [b.days for b in major]
+    ```
     """
 
     n: int = 5
@@ -577,7 +608,7 @@ class breaks_timedelta:
         Parameters
         ----------
         limits : tuple
-            Minimum and maximum :class:`datetime.timedelta` values.
+            Minimum and maximum [](`datetime.timedelta`) values.
 
         Returns
         -------
@@ -633,7 +664,7 @@ class breaks_timedelta_width:
         Parameters
         ----------
         limits :
-            Minimum and maximum :class:`datetime.timedelta` values.
+            Minimum and maximum [](`datetime.timedelta`) values.
 
         Returns
         -------
@@ -658,17 +689,17 @@ class breaks_extended:
         List of nice numbers
     only_inside : bool | tuple[bool, bool]
         Whether to keep the breaks at the extreme ends within the
-        given range. A pair ``(lower, upper)`` controls each end
-        independently. For example, ``(True, False)`` keeps the first
+        given range. A pair `(lower, upper)` controls each end
+        independently. For example, `(True, False)` keeps the first
         break at or above the lower limit and leaves the last break
-        unconstrained. Prefer ``placement`` for new code because it
-        also supports loose placement. An explicit ``placement``
+        unconstrained. Prefer `placement` for new code because it
+        also supports loose placement. An explicit `placement`
         takes precedence.
     placement : "inside" | "flexible" | "loose" | tuple
         Constraint on the breaks at the extreme ends. A pair
-        ``(lower, upper)`` controls each end independently.
-        ``"inside"`` keeps an end within the range, ``"flexible"``
-        applies no constraint and ``"loose"`` places an end at or
+        `(lower, upper)` controls each end independently.
+        `"inside"` keeps an end within the range, `"flexible"`
+        applies no constraint and `"loose"` places an end at or
         beyond its limit.
     w : list
         Weights applied to the four optimization components
@@ -676,18 +707,6 @@ class breaks_extended:
         should add up to 1. The first three must be positive;
         a zero (or negative) value disables pruning and the
         search does not terminate.
-
-    Examples
-    --------
-    >>> limits = (0, 9)
-    >>> breaks_extended()(limits)
-    array([  0. ,   2.5,   5. ,   7.5,  10. ])
-    >>> breaks_extended(n=6)(limits)
-    array([  0.,   2.,   4.,   6.,   8.,  10.])
-    >>> breaks_extended(n=3, only_inside=(True, False))((-7.7, 196.9))
-    array([  0., 100., 200.])
-    >>> breaks_extended(n=5, placement="loose")((1.6, 5.1))
-    array([1.5, 2.5, 3.5, 4.5, 5.5])
 
     References
     ----------
@@ -697,6 +716,27 @@ class breaks_extended:
 
     Additional Credit to Justin Talbot on whose code this
     implementation is almost entirely based.
+
+    Examples
+    --------
+    ```{python}
+    from mizani.breaks import breaks_extended
+
+    limits = (0, 9)
+    breaks_extended()(limits)
+    ```
+
+    ```{python}
+    breaks_extended(n=6)(limits)
+    ```
+
+    ```{python}
+    breaks_extended(n=3, only_inside=(True, False))((-7.7, 196.9))
+    ```
+
+    ```{python}
+    breaks_extended(n=5, placement="loose")((1.6, 5.1))
+    ```
     """
 
     n: int = 5
@@ -915,9 +955,12 @@ class breaks_symlog:
 
     Examples
     --------
-    >>> limits = (-100, 100)
-    >>> breaks_symlog()(limits)
-    array([-100,  -10,    0,   10,  100])
+    ```{python}
+    from mizani.breaks import breaks_symlog
+
+    limits = (-100, 100)
+    breaks_symlog()(limits)
+    ```
     """
 
     def __call__(self, limits: tuple[float, float]) -> NDArrayFloat:
@@ -932,7 +975,7 @@ class breaks_symlog:
 @dataclass
 class breaks_width:
     """
-    Regularly spaced dates by width
+    Regularly spaced breaks by width
 
     Parameters
     ----------
@@ -946,10 +989,13 @@ class breaks_width:
     --------
     Breaks at 4 year intervals
 
-    >>> limits = [3, 14]
-    >>> breaks = breaks_width(width=4)
-    >>> breaks(limits)
-    array([ 0,  4,  8, 12, 16])
+    ```{python}
+    from mizani.breaks import breaks_width
+
+    limits = [3, 14]
+    breaks = breaks_width(width=4)
+    breaks(limits)
+    ```
     """
 
     width: float

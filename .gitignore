@@ -60,9 +60,9 @@ coverage.xml
 # Django stuff:
 *.log
 
-# Sphinx documentation
-doc/_build/
-doc/generated/
+# great-docs build output
+docs/_quarto/
+docs/_site/
 
 # PyBuilder
 target/

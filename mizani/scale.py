@@ -1,31 +1,5 @@
 """
-According to *On the theory of scales of measurement* by **S.S. Stevens**,
-scales can be classified in four ways -- *nominal*, *ordinal*,
-*interval* and *ratio*. Using current(2016) terminology, *nominal* data
-is made up of unordered categories, *ordinal* data is made up of ordered
-categories and the two can be classified as *discrete*. On the other hand
-both *interval* and *ratio* data are *continuous*.
-
-The scale classes below show how the rest of the Mizani package can be
-used to implement the two categories of scales. The key tasks are
-*training* and *mapping* and these correspond to the **train** and
-**map** methods.
-
-To train a scale on data means, to make the scale learn the limits of
-the data. This is elaborate (or worthy of a dedicated method) for two
-reasons:
-
-    - *Practical* -- data may be split up across more than one object,
-      yet all will be represented by a single scale.
-    - *Conceptual* -- training is a key action that may need to be inserted
-      into multiple locations of the data processing pipeline before a
-      graphic can be created.
-
-To map data onto a scale means, to associate data values with
-values(potential readings) on a scale. This is perhaps the most important
-concept unpinning a scale.
-
-The **apply** methods are simple examples of how to put it all together.
+Implementing a scale
 """
 
 from __future__ import annotations
@@ -87,13 +61,13 @@ class scale_continuous:
         ----------
         x : array_like
             Continuous values to scale
-        palette : callable ``f(x)``
+        palette : callable `f(x)`
             Palette to use
         na_value : object
             Value to use for missing values.
         trans : trans
             How to transform the data before scaling. If
-            ``None``, no transformation is done.
+            `None`, no transformation is done.
 
         Returns
         -------
@@ -155,11 +129,11 @@ class scale_continuous:
         ----------
         x : array_like
             Continuous values to scale
-        palette : callable ``f(x)``
+        palette : callable `f(x)`
             palette to use
         na_value : object
             Value to use for missing values.
-        oob : callable ``f(x)``
+        oob : callable `f(x)`
             Function to deal with values that are
             beyond the limits
 
@@ -193,7 +167,7 @@ class scale_discrete:
         ----------
         x : array_like
             Discrete values to scale
-        palette : callable ``f(x)``
+        palette : callable `f(x)`
             Palette to use
         na_value : object
             Value to use for missing values.
@@ -226,8 +200,8 @@ class scale_discrete:
         drop : bool
             Whether to drop(not include) unused categories
         na_rm : bool
-            If ``True``, remove missing values. Missing values
-            are either ``NaN`` or ``None``.
+            If `True`, remove missing values. Missing values
+            are either `NaN` or `None`.
 
         Returns
         -------
@@ -293,7 +267,7 @@ class scale_discrete:
 
         Parameters
         ----------
-        palette : callable ``f(x)``
+        palette : callable `f(x)`
             palette to use
         x : array_like
             Continuous values to scale

@@ -81,17 +81,17 @@ class Helper:
        routine. The scaled limits are in numerical format.
     3. Convert the computed breaks from numeric into timedelta.
 
-    See, :class:`breaks_timedelta`
+    See, [](`~mizani.breaks.breaks_timedelta`)
 
     How to use - formating?
 
-    1. Call :meth:`format_info` with the timedelta values to be
+    1. Call `format_info` with the timedelta values to be
        formatted and get back a tuple of numeric values and
        the units for those values.
     2. Format the values with a general purpose formatting
        routing.
 
-    See, :class:`~mizani.labels.label_timedelta`
+    See, [](`~mizani.labels.label_timedelta`)
     """
 
     x: TimedeltaArrayLike

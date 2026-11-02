@@ -247,6 +247,10 @@ def test_rescale_max():
     # Missing values are ignored when computing the range
     npt.assert_allclose(rescale_max([1, 2, np.nan, 5]), [0.2, 0.4, np.nan, 1])
 
+    # A zero maximum cannot scale the values, so all-zero input maps to
+    # the top of the output range
+    npt.assert_array_equal(rescale_max(np.array([0, 0, 0])), [1, 1, 1])
+
 
 def test_rescale_mid():
     a = [1, 2, 3]

@@ -1,0 +1,324 @@
+# Great Docs configuration
+# https://posit-dev.github.io/great-docs/user-guide/configuration.html
+# https://github.com/posit-dev/great-docs/blob/main/great_docs/assets/great-docs.default.yml
+
+# Display Name
+# ------------
+# Display name for your package in the site navbar/title. Use this for a
+# marketing/presentation name (e.g. 'My Package').
+# : null - (default) the actual package name (e.g. 'my_package' or 'my-package')
+# : type(str) - the name to display
+display_name: Mizani
+
+# Docstring Parser
+# ----------------
+# The docstring format used in your package. Auto-detected during
+# initialization, but can be overridden here.
+# : numpy - (default) numpydoc style
+# : google - Google style
+# : sphinx - Sphinx/reStructuredText style
+parser: numpy
+
+## Freeze (Execution Caching)
+# --------------------------
+# Whether computational documents re-run during builds. A scalar shorthand
+# sets `mode` (e.g. `freeze: false`).
+# mode:
+#   : auto - (default) re-render only when the source changes
+#   : true - never re-render during project render
+#   : false - execute every document on every build
+#   : null - as false
+# pre_render: script(s) to run before render (e.g. copy _freeze/ into the build dir)
+freeze: false
+
+# Author Information
+# ------------------
+# Author metadata for display in the landing page sidebar and page attribution
+authors:
+  - name: Hassan Kibirige
+    role: Author
+    affiliation: Posit, PBC
+    github: has2k1
+    email: has2k1@gmail.com
+
+# Interlinks
+# ----------
+# Other documentation sites your prose can link to. Each entry under `sources`
+# names a project, where its documentation lives, and optionally the module
+# aliases your prose uses for it. The inventory is read from
+# `<url>/objects.inv`, where every project publishes it, and links are written
+# against `<url>`. A url may name a directory on disk, which works when that
+# path is also the path the project is served from.
+interlinks:
+  sources:
+    python:
+      url: https://docs.python.org/3/
+    numpy:
+      url: https://numpy.org/doc/stable/
+      aliases: [np]
+    scipy:
+      url: https://docs.scipy.org/doc/scipy/
+    pandas:
+      url: https://pandas.pydata.org/docs/
+      aliases: [pd]
+
+# Dynamic Introspection
+# ---------------------
+# How the renderer inspects your package. Auto-detected during initialization
+# based on what works for your package, but can be overridden here.
+# : true - (default) runtime introspection; more accurate for complex packages
+# : false - static analysis only; better for packages with cyclic aliases
+dynamic: false
+
+# Site URL
+# --------
+# Canonical address of the deployed docs site. Used for skills-page install
+# commands, .well-known/ discovery, sitemaps, and subdirectory deployments;
+# also sets website.site-url in _quarto.yml.
+site_url: https://has2k1.github.io/mizani/
+
+# Changelog (GitHub Releases)
+# ---------------------------
+# Auto-generate a Changelog page from GitHub Releases.
+changelog:
+  enabled: false
+
+# Custom Sections
+# ---------------
+# Add custom page groups (examples, tutorials, blog, etc.) to the site.
+# Each section gets a navbar link and a sidebar. An auto-generated
+# card-based index page is created only when `index: true` is set;
+# otherwise the navbar links directly to the first page in the section.
+# If you provide your own index.qmd in the directory it is always used.
+sections:
+  - title: Changelog
+    dir: changelog
+
+# Navbar Order
+# ------------
+# Explicit ordering of navbar items by their display text. Items not listed
+# are appended after the listed ones, preserving their original order.
+navbar_order:
+  - Reference
+  - Changelog
+
+# Navigation Icons
+# ----------------
+# Lucide icons prepended to sidebar/navbar entries.
+nav_icons:
+  navbar:
+    Reference: code
+    Changelog: clock
+
+# API Reference Structure
+# -----------------------
+# Explicit control over API reference sections. If not provided, sections are
+# auto-generated from discovered exports. Each section has a title, description,
+# and list of contents.
+#
+# For classes, use `members: true` (default) to document methods inline on the
+# class page, or `members: false` to exclude methods (you can place them
+# explicitly elsewhere in the reference if needed).
+reference:
+  sections:
+    - title: Bounds
+      desc: |
+        Continuous variables have values anywhere in the range minus
+        infinite to plus infinite. However, when creating a visual
+        representation of these values what usually matters is the
+        relative difference between the values. This is where rescaling
+        comes into play.
+
+        The values are mapped onto a range that a scale can deal with. For
+        graphical representation that range tends to be $[0, 1]$ or
+        $[0, n]$, where $n$ is some number that makes the
+        plotted object overflow the plotting area.
+
+        Although a scale may be able handle the $[0, n]$ range, it
+        may be desirable to have a lower bound greater than zero. For
+        example, if data values get mapped to zero on a scale whose
+        graphical representation is the size/area/radius/length some data
+        will be invisible. The solution is to restrict the lower bound
+        e.g. $[0.1, 1]$. Similarly you can restrict the upper bound
+        -- using these functions.
+      contents:
+        - bounds.censor
+        - bounds.expand_range
+        - bounds.rescale
+        - bounds.rescale_max
+        - bounds.rescale_mid
+        - bounds.squish_infinite
+        - bounds.zero_range
+        - bounds.expand_range_distinct
+        - bounds.squish
+
+    - title: Breaks
+      desc: |
+        All scales have a means by which the values that are mapped
+        onto the scale are interpreted. Numeric digital scales put
+        out numbers for direct interpretation, but most scales
+        cannot do this. What they offer is named markers/ticks that
+        aid in assessing the values e.g. the common odometer will
+        have ticks and values to help gauge the speed of the vehicle.
+
+        The named markers are what we call breaks. Properly calculated
+        breaks make interpretation straight forward. These functions
+        provide ways to calculate good(hopefully) breaks.
+      members: false
+      contents:
+        - breaks.breaks_log
+        - breaks.breaks_symlog
+        - breaks.minor_breaks
+        - breaks.minor_breaks_trans
+        - breaks.breaks_date
+        - breaks.breaks_date_width
+        - breaks.breaks_width
+        - breaks.breaks_timedelta
+        - breaks.breaks_timedelta_width
+        - breaks.breaks_extended
+
+    - title: Labels
+      desc: |
+        Scales have guides and these are what help users make sense of
+        the data mapped onto the scale. Common examples of guides include
+        the x-axis, the y-axis, the keyed legend and a colorbar legend.
+        The guides have demarcations(breaks), some of which must be labelled.
+
+        The `label_*` functions below create functions that convert data
+        values as understood by a specific scale and return string
+        representations of those values. Manipulating the string
+        representation of a value helps improve readability of the guide.
+      members: false
+      contents:
+        - labels.cut_bytes
+        - labels.cut_long_scale
+        - labels.cut_short_scale
+        - labels.cut_si
+        - labels.cut_time_scale
+        - labels.label_comma
+        - labels.label_custom
+        - labels.label_currency
+        - labels.label_dollar
+        - labels.label_percent
+        - labels.label_scientific
+        - labels.label_date
+        - labels.label_date_short
+        - labels.label_number
+        - labels.label_log
+        - labels.label_timedelta
+        - labels.label_pvalue
+        - labels.label_ordinal
+        - labels.label_bytes
+
+    - title: Palettes
+      desc: |
+        Palettes are the link between data values and the values along
+        the dimension of a scale. Before a collection of values can be
+        represented on a scale, they are transformed by a palette. This
+        transformation is knowing as mapping. Values are mapped onto a
+        scale by a palette.
+
+        Scales tend to have restrictions on the magnitude of quantities
+        that they can intelligibly represent. For example, the size of
+        a point should be significantly smaller than the plot panel
+        onto which it is plotted or else it would be hard to compare
+        two or more points. Therefore palettes must be created that
+        enforce such restrictions. This is the reason for the `*_pal`
+        functions that create and return the actual palette functions.
+      contents:
+        - palettes.hls_palette
+        - palettes.hsluv_palette
+        - palettes.rescale_pal
+        - palettes.area_pal
+        - palettes.abs_area
+        - palettes.grey_pal
+        - palettes.hue_pal
+        - palettes.brewer_pal
+        - palettes.gradient_n_pal
+        - palettes.cmap_pal
+        - palettes.cmap_d_pal
+        - palettes.desaturate_pal
+        - palettes.manual_pal
+        - palettes.xkcd_palette
+        - palettes.crayon_palette
+        - palettes.cubehelix_pal
+        - palettes.identity_pal
+        - palettes.none_pal
+
+    - title: Transforms
+      desc: |
+        *"The Grammar of Graphics (2005)"* by **Wilkinson**, **Anand** and
+        **Grossman** describes three types of transformations.
+
+        * *Variable transformations* - Used to make statistical operations on
+          variables appropriate and meaningful. They are also used to new
+          variables.
+        * *Scale transformations* - Used to make statistical objects displayed
+          on dimensions appropriate and meaningful.
+        * *Coordinate transformations* - Used to manipulate the geometry of
+          graphics to help perceive relationships and find meaningful structures
+          for representing variations.
+
+        *Variable* and *scale* transformations are similar in-that they lead to
+        plotted objects that are indistinguishable. Typically, *variable*
+        transformation is done outside the graphics system and so the system
+        cannot provide transformation specific guides & decorations for the
+        plot. The [](`~mizani.transforms.trans`) class is aimed at being useful for *scale* and
+        *coordinate* transformations.
+      contents:
+        - transforms.asn_trans
+        - transforms.atanh_trans
+        - transforms.boxcox_trans
+        - transforms.modulus_trans
+        - transforms.datetime_trans
+        - transforms.exp_trans
+        - transforms.identity_trans
+        - transforms.log10_trans
+        - transforms.log1p_trans
+        - transforms.log2_trans
+        - transforms.log_trans
+        - transforms.logit_trans
+        - transforms.probability_trans
+        - transforms.probit_trans
+        - transforms.reverse_trans
+        - transforms.sqrt_trans
+        - transforms.symlog_trans
+        - transforms.timedelta_trans
+        - transforms.pd_timedelta_trans
+        - transforms.pseudo_log_trans
+        - transforms.reciprocal_trans
+        - transforms.trans
+        - transforms.gettrans
+
+    - title: Scale
+      desc: |
+        According to *On the theory of scales of measurement* by **S.S. Stevens**,
+        scales can be classified in four ways -- *nominal*, *ordinal*,
+        *interval* and *ratio*. Using current(2016) terminology, *nominal* data
+        is made up of unordered categories, *ordinal* data is made up of ordered
+        categories and the two can be classified as *discrete*. On the other hand
+        both *interval* and *ratio* data are *continuous*.
+
+        The scale classes below show how the rest of the Mizani package can be
+        used to implement the two categories of scales. The key tasks are
+        *training* and *mapping* and these correspond to the **train** and
+        **map** methods.
+
+        To train a scale on data means, to make the scale learn the limits of
+        the data. This is elaborate (or worthy of a dedicated method) for two
+        reasons:
+
+        - *Practical* -- data may be split up across more than one object,
+          yet all will be represented by a single scale.
+        - *Conceptual* -- training is a key action that may need to be inserted
+          into multiple locations of the data processing pipeline before a
+          graphic can be created.
+
+        To map data onto a scale means, to associate data values with
+        values(potential readings) on a scale. This is perhaps the most important
+        concept unpinning a scale.
+
+        The **apply** methods are simple examples of how to put it all together.
+      contents:
+        - scale.scale_continuous
+        - scale.scale_discrete

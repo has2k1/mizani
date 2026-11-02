@@ -1,4 +1,4 @@
-.PHONY: clean-pyc clean-build doc clean build
+.PHONY: clean-pyc clean-build docs docs-preview clean build
 
 # NOTE: Take care not to use tabs in any programming flow outside the
 # make target
@@ -34,7 +34,8 @@ help:
 	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
 	@echo "coverage - check code coverage quickly with the default Python"
-	@echo "doc - generate Sphinx HTML documentation, including API docs"
+	@echo "docs - build the documentation website with great-docs"
+	@echo "docs-preview - serve the documentation website locally"
 	@echo "release - package and upload a release"
 	@echo "dist - package"
 	@echo "install - install the package to the active Python's site-packages"
@@ -86,11 +87,11 @@ coverage:
 	$(UVRUN) coverage html
 	$(BROWSER) htmlcov/index.html
 
+docs:
+	$(UVRUN) great-docs build
 
-doc:
-	$(MAKE) -C doc clean
-	$(MAKE) -C doc html
-	$(BROWSER) doc/_build/html/index.html
+docs-preview:
+	$(UVRUN) great-docs preview
 
 release-major:
 	@$(PYTHON) ./tools/release-checklist.py major
@@ -112,8 +113,8 @@ install: clean
 	$(PIP) install .
 
 develop: clean-cache
-	$(PIP) install -e ".[all]"
+	$(PIP) install -e ".[all]" --group doc
 
 develop-update: clean-cache
-	$(PIP) install --upgrade -e ".[all]"
+	$(PIP) install --upgrade -e ".[all]" --group doc
 	$(UVRUN) pre-commit autoupdate

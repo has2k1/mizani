@@ -1,22 +1,5 @@
 """
-*"The Grammar of Graphics (2005)"* by **Wilkinson**, **Anand** and
-**Grossman** describes three types of transformations.
-
-* *Variable transformations* - Used to make statistical operations on
-  variables appropriate and meaningful. They are also used to new
-  variables.
-* *Scale transformations* - Used to make statistical objects displayed
-  on dimensions appropriate and meaningful.
-* *Coordinate transformations* - Used to manipulate the geometry of
-  graphics to help perceive relationships and find meaningful structures
-  for representing variations.
-
-`Variable` and `scale` transformations are similar in-that they lead to
-plotted objects that are indistinguishable. Typically, *variable*
-transformation is done outside the graphics system and so the system
-cannot provide transformation specific guides & decorations for the
-plot. The :class:`trans` is aimed at being useful for *scale* and
-*coordinate* transformations.
+Transforming variables, scales and coordinates
 """
 
 from __future__ import annotations
@@ -175,21 +158,17 @@ class trans(ABC):
 
     def breaks(self, limits: DomainType) -> NDArrayFloat:
         """
-        Calculate breaks in data space and return them
-        in transformed space.
+        Calculate breaks in data space and return them in transformed space.
 
-        Expects limits to be in *transform space*, this
-        is the same space as that where the domain is
-        specified.
+        Expects limits to be in *transform space*, this is the same space
+        as that where the domain is specified.
 
-        This method wraps around :meth:`breaks_` to ensure
-        that the calculated breaks are within the domain
-        the transform. This is helpful in cases where an
-        aesthetic requests breaks with limits expanded for
-        some padding, yet the expansion goes beyond the
-        domain of the transform. e.g for a probability
-        transform the breaks will be in the domain
-        ``[0, 1]`` despite any outward limits.
+        This method wraps around `breaks_func` to ensure that the calculated
+        breaks are within the domain the transform. This is helpful in cases
+        where an aesthetic requests breaks with limits expanded for some
+        padding, yet the expansion goes beyond the domain of the transform.
+        e.g for a probability transform the breaks will be in the domain
+        `[0, 1]` despite any outward limits.
 
         Parameters
         ----------
@@ -265,21 +244,21 @@ def trans_new(
     ----------
     name : str
         Name of the transformation
-    transform : callable ``f(x)``
+    transform : callable `f(x)`
         A function (preferably a `ufunc`) that computes
         the transformation.
-    inverse : callable ``f(x)``
+    inverse : callable `f(x)`
         A function (preferably a `ufunc`) that computes
         the inverse of the transformation.
-    breaks : callable ``f(limits)``
+    breaks : callable `f(limits)`
         Function to compute the breaks for this transform.
         If None, then a default good enough for a linear
         domain is used.
-    minor_breaks : callable ``f(major, limits)``
+    minor_breaks : callable `f(major, limits)`
         Function to compute the minor breaks for this
         transform. If None, then a default good enough for
         a linear domain is used.
-    _format : callable ``f(breaks)``
+    _format : callable `f(breaks)`
         Function to format the generated breaks.
     domain : array_like
         Domain over which the transformation is valid.
@@ -444,16 +423,21 @@ class identity_trans(trans):
     The default trans returns one minor break between every pair
     of major break
 
-    >>> major = [0, 1, 2]
-    >>> t = identity_trans()
-    >>> t.minor_breaks(major)
-    array([0.5, 1.5])
+    ```{python}
+    from mizani.breaks import minor_breaks
+    from mizani.transforms import identity_trans
+
+    major = [0, 1, 2]
+    t = identity_trans()
+    t.minor_breaks(major)
+    ```
 
     Create a trans that returns 4 minor breaks
 
-    >>> t = identity_trans(minor_breaks_func=minor_breaks(4))
-    >>> t.minor_breaks(major)
-    array([0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8])
+    ```{python}
+    t = identity_trans(minor_breaks_func=minor_breaks(4))
+    t.minor_breaks(major)
+    ```
     """
 
     transform_is_linear: bool = True
@@ -535,36 +519,36 @@ class boxcox_trans(trans):
     used to transform data towards normality.
 
     The Box-Cox power transformation (type 1) requires strictly positive
-    values and takes the following form for :math:`y \gt 0`:
+    values and takes the following form for $y \gt 0$:
 
-    .. math::
+    $$
+    y^{(\lambda)} = \frac{y^\lambda - 1}{\lambda}
+    $$
 
-        y^{(\lambda)} = \frac{y^\lambda - 1}{\lambda}
-
-    When :math:`y = 0`, the natural log transform is used.
+    When $y = 0$, the natural log transform is used.
 
     Parameters
     ----------
     p : float
-        Transformation exponent :math:`\lambda`.
+        Transformation exponent $\lambda$.
     offset : int
         Constant offset. 0 for Box-Cox type 1, otherwise any
         non-negative constant (Box-Cox type 2).
-        The default is 0. :func:`~mizani.transforms.modulus_trans`
+        The default is 0. [](`~mizani.transforms.modulus_trans`)
         sets the default to 1.
 
     References
     ----------
     - Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
       Journal of the Royal Statistical Society. Series B (Methodological),
-      211-252. `<https://www.jstor.org/stable/2984418>`_
+      211-252. <https://www.jstor.org/stable/2984418>
     - John, J. A., & Draper, N. R. (1980). An alternative family of
       transformations. Applied Statistics, 190-197.
-      `<http://www.jstor.org/stable/2986305>`_
+      <http://www.jstor.org/stable/2986305>
 
     See Also
     --------
-    :func:`~mizani.transforms.modulus_trans`
+    mizani.transforms.modulus_trans
 
     """
 
@@ -599,40 +583,40 @@ class modulus_trans(trans):
     The modulus transformation generalises Box-Cox to work with
     both positive and negative values.
 
-    When :math:`y \neq 0`
+    When $y \neq 0$
 
-    .. math::
+    $$
+    y^{(\lambda)} = sign(y) * \frac{(|y| + 1)^\lambda - 1}{\lambda}
+    $$
 
-        y^{(\lambda)} = sign(y) * \frac{(|y| + 1)^\lambda - 1}{\lambda}
+    and when $y = 0$
 
-    and when :math:`y = 0`
-
-    .. math::
-
-        y^{(\lambda)} =  sign(y) * \ln{(|y| + 1)}
+    $$
+    y^{(\lambda)} =  sign(y) * \ln{(|y| + 1)}
+    $$
 
     Parameters
     ----------
     p : float
-        Transformation exponent :math:`\lambda`.
+        Transformation exponent $\lambda$.
     offset : int
         Constant offset. 0 for Box-Cox type 1, otherwise any
         non-negative constant (Box-Cox type 2).
-        The default is 1. :func:`~mizani.transforms.boxcox_trans`
+        The default is 1. [](`~mizani.transforms.boxcox_trans`)
         sets the default to 0.
 
     References
     ----------
     - Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
       Journal of the Royal Statistical Society. Series B (Methodological),
-      211-252. `<https://www.jstor.org/stable/2984418>`_
+      211-252. <https://www.jstor.org/stable/2984418>
     - John, J. A., & Draper, N. R. (1980). An alternative family of
       transformations. Applied Statistics, 190-197.
-      `<http://www.jstor.org/stable/2986305>`_
+      <http://www.jstor.org/stable/2986305>
 
     See Also
     --------
-    :func:`~mizani.transforms.boxcox_trans`
+    mizani.transforms.boxcox_trans
     """
 
     p: float
@@ -666,7 +650,7 @@ class probability_trans(trans):
     ----------
     distribution : str
         Name of the distribution. Valid distributions are
-        listed at :mod:`scipy.stats`. Any of the continuous
+        listed at [](`scipy.stats`). Any of the continuous
         or discrete distributions.
     args : tuple
         Arguments passed to the distribution functions.
@@ -729,20 +713,31 @@ class datetime_trans(trans):
 
     Examples
     --------
-    >>> from zoneinfo import ZoneInfo
-    >>> UTC = ZoneInfo("UTC")
-    >>> EST = ZoneInfo("EST")
-    >>> t = datetime_trans(EST)
-    >>> x = [datetime(2022, 1, 20, tzinfo=UTC)]
-    >>> x2 = t.inverse(t.transform(x))
-    >>> list(x) == list(x2)
-    True
-    >>> x[0].tzinfo == x2[0].tzinfo
-    False
-    >>> x[0].tzinfo.key
-    'UTC'
-    >>> x2[0].tzinfo.key
-    'EST'
+    ```{python}
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from mizani.transforms import datetime_trans
+
+    UTC = ZoneInfo("UTC")
+    EST = ZoneInfo("EST")
+    t = datetime_trans(EST)
+    x = [datetime(2022, 1, 20, tzinfo=UTC)]
+    x2 = t.inverse(t.transform(x))
+    list(x) == list(x2)
+    ```
+
+    ```{python}
+    x[0].tzinfo == x2[0].tzinfo
+    ```
+
+    ```{python}
+    x[0].tzinfo.key
+    ```
+
+    ```{python}
+    x2[0].tzinfo.key
+    ```
     """
 
     tz: tzinfo | str | None = None
@@ -898,15 +893,18 @@ class pseudo_log_trans(trans):
 
 @dataclass(kw_only=True)
 class symlog_trans(trans):
-    """
+    r"""
     Symmetric Log Transformation
 
     They symmetric logarithmic transformation is defined as
 
-    ::
-
-        f(x) = log(x+1) for x >= 0
-               -log(-x+1) for x < 0
+    $$
+    f(x) =
+    \begin{cases}
+        \log(x + 1) & x \ge 0 \\
+        -\log(-x + 1) & x < 0
+    \end{cases}
+    $$
 
     It can be useful for data that has a wide range of both positive
     and negative values (including zero).

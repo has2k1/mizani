@@ -85,7 +85,7 @@ def min_max(
     x : array_like
         Sequence
     na_rm : bool
-        Whether to remove ``nan`` values.
+        Whether to remove `nan` values.
     finite : bool
         Whether to consider only finite values.
 
@@ -170,7 +170,7 @@ def precision(x: FloatArrayLike | float) -> float:
     Returns
     -------
     out : numeric
-        The precision of ``x`` or that the values in ``x``.
+        The precision of `x` or that the values in `x`.
 
     Notes
     -----
@@ -178,22 +178,31 @@ def precision(x: FloatArrayLike | float) -> float:
 
     Examples
     --------
-    >>> precision([0.08, 0.09])
-    0.01
+    ```{python}
+    from mizani.utils import precision
+
+    precision([0.08, 0.09])
+    ```
 
     Maximum precision is 1
 
-    >>> precision([9, 8])
-    1
-    >>> precision([16, 78])
-    1
+    ```{python}
+    precision([9, 8])
+    ```
+
+    ```{python}
+    precision([16, 78])
+    ```
 
     A single values have a precision of 1
 
-    >>> precision(0.08)
-    1
-    >>> precision([325])
-    1
+    ```{python}
+    precision(0.08)
+    ```
+
+    ```{python}
+    precision([325])
+    ```
     """
 
     x = np.asarray(x)
@@ -234,7 +243,7 @@ def same_log10_order_of_magnitude(x, delta=0.1):
     ----------
     x : array-like
          Values in base 10. Must be size 2 and
-        ``rng[0] <= rng[1]``.
+        `rng[0] <= rng[1]`.
     delta : float
         Fuzz factor for approximation. It is multiplicative.
     """

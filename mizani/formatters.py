@@ -1,5 +1,5 @@
 """
-This module has been deprecated in favour of :mod:`~mizani.labels`
+This module has been deprecated in favour of `mizani.labels`
 """
 
 from .labels import (

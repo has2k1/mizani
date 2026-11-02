@@ -20,8 +20,6 @@ Release: mizani-<VERSION>
   - [ ] The tests pass
   - [ ] The coverage is acceptable
 
-- [ ] The latest [online documentation](https://mizani.readthedocs.io/en/latest/) builds, be sure to browse
-
 - [ ] Create a release branch
 
   ```sh
@@ -37,11 +35,17 @@ Release: mizani-<VERSION>
   - [ ] GHA [release job](https://github.com/has2k1/mizani/actions/workflows/release.yml) passes
   - [ ] Mizani test release is on [TestPyPi](https://test.pypi.org/project/mizani)
 
+- [ ] Browse the documentation that the [GHA docs job](https://github.com/has2k1/mizani/actions/workflows/docs.yml) built for the release branch
+
+  ```sh
+  great-docs preview --branch release-v<VERSION> --use-gh
+  ```
+
 
 - [ ] Update changelog
 
   ```sh
-  nvim doc/changelog.rst
+  nvim docs/changelog/index.qmd
   git commit -am "Update changelog for release"
   git push
   ```
@@ -58,6 +62,7 @@ Release: mizani-<VERSION>
 
   - [ ] The [GHA Release](https://github.com/has2k1/mizani/actions/workflows/release.yml) job passes
   - [ ] [PyPi](https://pypi.org/project/mizani) shows the new release
+  - [ ] The `publish-docs` job of the GHA Release passes and the [documentation](https://has2k1.github.io/mizani/) shows the new release
 
 - [ ] Update `main` branch
 

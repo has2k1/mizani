@@ -1,0 +1,817 @@
+---
+title: Changelog
+description: Changes in each release of mizani, newest first.
+---
+
+## v0.15.0
+
+(upcoming)
+
+### API Changes
+
+- pandas is no longer a dependency. mizani works with numpy arrays and
+  Python values without pandas installed, and it handles pandas objects as
+  before. If you relied on mizani to install pandas, install it yourself.
+  `python-dateutil` is now a direct dependency.
+- The inverse of [](`~mizani.transforms.timedelta_trans`) returns
+  [](`datetime.timedelta`) values if pandas has not been imported, and
+  pandas `Timedelta` values if it has.
+- The domain of [](`~mizani.transforms.pd_timedelta_trans`) is a pair of
+  [](`datetime.timedelta`) values. It covers the same range as before, to
+  within a microsecond.
+
+### Enhancements
+
+- [](`~mizani.labels.label_date_short`) creates compact labels for ordered
+  datetimes. Each label shows the calendar components that changed and the
+  smaller components needed for context. Component formats, separators,
+  leading-zero replacements, and time zones are configurable.
+- [](`~mizani.breaks.breaks_extended`) accepts a `placement` mode
+  for each end of the break sequence. Use `"inside"` to keep an end
+  within the range, `"flexible"` to leave it unconstrained or
+  `"loose"` to place it at or beyond the range.
+  This resolves [(#80)](https://github.com/has2k1/mizani/issues/80).
+- [](`~mizani.labels.label_number`) can rescale each value by magnitude and
+  append the corresponding suffix from a `scale_cut` mapping. The new
+  [](`~mizani.labels.cut_short_scale`),
+  [](`~mizani.labels.cut_long_scale`),
+  [](`~mizani.labels.cut_time_scale`), [](`~mizani.labels.cut_si`), and
+  [](`~mizani.labels.cut_bytes`) helpers provide standard short-scale,
+  long-scale, time, SI, and byte mappings.
+  This resolves [(#71)](https://github.com/has2k1/mizani/issues/71).
+
+### Bug Fixes
+
+- [](`~mizani.utils.precision`) now uses the smallest gap between the
+  values, not the gap between the two smallest values. Before,
+  [](`~mizani.labels.label_number`) labelled `[0, 10, 10.5]` as
+  `["0", "10", "10"]`, and repeated values made it round to whole numbers.
+- [](`~mizani.bounds.rescale`), [](`~mizani.bounds.rescale_mid`) and
+  [](`~mizani.bounds.rescale_max`) now ignore missing values when they
+  compute the input range. Before, a single `NaN` made every output value
+  `NaN` (or `0.5` for [](`~mizani.bounds.rescale_mid`)).
+- The inverse of [](`~mizani.transforms.log_trans`) and the transform of
+  [](`~mizani.transforms.exp_trans`) no longer fail on integer arrays with
+  negative values when the base is an integer, as in
+  [](`~mizani.transforms.log10_trans`) and
+  [](`~mizani.transforms.log2_trans`). Before, they raised
+  `ValueError: Integers to negative integer powers are not allowed`.
+
+## v0.14.6
+
+2026-09-07
+
+### Enhancements
+
+- [](`~mizani.breaks.breaks_extended`) accepts a pair for
+  `only_inside`, one flag per end, so a break sequence can be held
+  inside the limits at one end and allowed past them at the other.
+
+## v0.14.5
+
+2026-09-04
+
+### Bug Fixes
+
+- [](`~mizani.palettes.brewer_pal`) now resolves a named palette to its own
+  type, so the name no longer has to match the `type` argument.
+  `brewer_pal(palette="Set2")` now works even though `type` defaults to
+  sequential and `Set2` is qualitative. An unknown name raises a
+  `ValueError` listing the valid names. This resolves [(plotnine \#1048)](https://github.com/has2k1/plotnine/issues/1048).
+
+## v0.14.4
+
+2026-01-28
+
+### Bug Fixes
+
+- Fixed handling of null types so that we can recognise as null whatever pandas
+  sees as null. This resolves
+  [(plotnine \#1021)](https://github.com/has2k1/plotnine/issues/1021).
+
+## v0.14.3
+
+2025-10-30
+
+### Bug Fixes
+
+- Fixed bug in [](`~mizani.palettes.hue_pal`) where drawing 24 or more colors
+  broke the palette and you got colors from a very narrow hue band close to
+  the first color.
+
+## v0.14.2
+
+2025-06-30
+
+### Enhancements
+
+Fixed test cases that were failing for the upcoming python 3.14 release.
+
+## v0.14.1
+
+2025-06-24
+
+### Bug Fixes
+
+- Fixed but in [](`~mizani._colors.to_rgba`) used by plotnine to recognise
+  numpy integers and floats as alpha values. And also to recognise `None` and
+  and an empty string to also mean `"none"`, which is recognised by Matplotlib.
+
+## v0.14.0
+
+2025-06-18
+
+### API Changes
+
+- Changed [](`~mizani.palettes.hue_pal`) to use HCL color space
+  from HSL (or HSLuv) space. The previous functionality is now available
+  with [](`~mizani.palettes.hls_pal`).
+- [](`~mizani.breaks.breaks_date`) now only accepts parameter `n`, the
+  desired number of breaks. To generate breaks by the `width`, use
+  [](`~mizani.breaks.breaks_date_width`).
+
+### New
+
+- Added tableau color in the "tab:\*" colorname space. e.g. "tab:red".
+- [](`~mizani.breaks.breaks_width`) to generate numeric breaks by
+  specifying the width (interval between the breaks).
+- [](`~mizani.breaks.breaks_timedelta_width`) to generate timedelta
+  breaks by specifying the width (interval between the breaks).
+
+### Enhancements
+
+- Added name "gray" aliases to all XKCD colors partially named "grey".
+- New algorithms to calculate datetime breaks by either `n` the desired
+  number of breaks or `width` the interval between the breaks.
+  When using the new [](`~mizani.breaks.breaks_date_width`), you can
+  align the dates by using an `offset`. ([\#58](https://github.com/has2k1/mizani/issues/58))
+
+## v0.13.5
+
+*2025-05-02*
+
+### Bug Fixes
+
+- Fixed using a discrete palette and requesting less colours than
+  than the smallest swatch in the palette. Among the affected
+  palettes are `category10`, `category20`, `category20b`,
+  `category20c`.
+
+## v0.13.4
+
+*2025-05-02*
+
+### Enhancements
+
+- Added aliases to the vega colormaps for the names used in matplotlib.
+  plotnine issue [\[#938\]](https://github.com/has2k1/plotnine/issues/938)
+
+## v0.13.3
+
+*2025-04-11*
+
+### Enhancements
+
+- Make it possible to train discrete data that is a sequence of tuples.
+  plotnine issue [\[#933\]](https://github.com/has2k1/plotnine/issues/933)
+
+## v0.13.2
+
+*2025-04-03*
+
+### Enhancements
+
+- For python \>=3.13 `~mizani.bounds.squish_infinite` and `~mizani.bounds.squish`
+  do not warning about invalid values when passed arrays with `dtype=uint64`
+  and a range with negative values.
+
+## v0.13.1
+
+*2024-12-10*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.14364079.svg)](https://doi.org/10.5281/zenodo.14364079)
+
+### Enhancements
+
+- Type checking pass with numpy 2.2.
+
+## v0.13.0
+
+*2024-10-24*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.13986997.svg)](https://doi.org/10.5281/zenodo.13986997)
+
+### API Changes
+
+- Support for numpy `timedelta64` has been removed. It was not well supported
+  in the first place, so removing it should be of consequence.
+- `mizani.transforms.trans_new` function has been deprecated.
+
+### Enhancements
+
+- `~mizani.breaks.breaks_date` has been slightly improved for the case when it
+  generates monthly breaks.
+
+### New
+
+- [](`~mizani.transforms.trans`) gained new method `diff_type_to_num` that
+  should be helpful with some arithmetic operations for non-numeric domains.
+
+## v0.12.2
+
+*2024-09-04*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.13688455.svg)](https://doi.org/10.5281/zenodo.13688455)
+
+### Bug Fixes
+
+- Fixed [](`~mizani.bounds.squish`) and
+  [](`~mizani.bounds.squish_infinite`) to work for non writeable pandas
+  series. This is broken for numpy 2.1.0.
+
+## v0.12.1
+
+*2024-08-19*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.13346177.svg)](https://doi.org/10.5281/zenodo.13346177)
+
+### Enhancements
+
+- Renamed "husl" color palette type to "hsluv". "husl" is the old name but
+  we still work although not part of the API.
+
+## v0.12.0
+
+*2024-07-30*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.13143647.svg)](https://doi.org/10.5281/zenodo.13143647)
+
+### API Changes
+
+- mizani now requires python 3.9 and above.
+
+### Bug Fixes
+
+- Fixed bug where a date with a timezone could lose the timezone. [\#45](https://github.com/has2k1/mizani/issues/45).
+
+## v0.11.4
+
+*2024-05-24*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.11281421.svg)](https://doi.org/10.5281/zenodo.11281421)
+
+### Bug Fixes
+
+- Fixed [](`~mizani.bounds.squish`) and
+  [](`~mizani.bounds.squish_infinite`) so that they do not reuse
+  numpy arrays. The users object is not modified.
+
+  This also prevents exceptions where the numpy array backs a pandas
+  object and it is protected by copy-on-write.
+
+## v0.11.3
+
+*2024-05-09*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.11167016.svg)](https://doi.org/10.5281/zenodo.11167016)
+
+### Bug Fixes
+
+- Fixed bug when calculating monthly breaks where when the limits are narrow
+  and do not align with the start and end of the month, there were no
+  dates returned. ([\#42](https://github.com/has2k1/mizani/issues/42))
+
+## v0.11.2
+
+*2024-04-26*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.11074548.svg)](https://doi.org/10.5281/zenodo.11074548)
+
+### Bug Fixes
+
+- Added the ability to create reversed colormap for
+  [](`~mizani.palettes.cmap_pal`) and
+  [](`~mizani.palettes.cmap_d_pal`) using the matplotlib convention
+  of `name_r`.
+
+## v0.11.1
+
+*2024-03-27*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.10893760.svg)](https://doi.org/10.5281/zenodo.10893760)
+
+### Bug Fixes
+
+- Fix [](`mizani.palettes.brewer_pal`) to return exact colors in the when
+  the requested colors are less than or equal to those in the palette.
+- Add all matplotlib colormap and make them avalaible from
+  [](`~mizani.palettes.cmap_pal`) and
+  [](`~mizani.palettes.cmap_d_pal`) ([\#39](https://github.com/has2k1/mizani/issues/39)).
+
+### New
+
+- Added [](`~mizani.breaks.breaks_symlog`) to calculate
+  breaks for the symmetric logarithm transformation.
+
+### Changes
+
+- The default `big_mark` for [](`~mizani.labels.label_number`)
+  has been changed from a comma to nothing.
+
+## v0.11.0
+
+*2024-02-12*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.10650549.svg)](https://doi.org/10.5281/zenodo.10650549)
+
+### Enhancements
+
+- Removed FutureWarnings when using pandas 2.1.0
+
+### New
+
+- Added [](`~mizani.breaks.breaks_symlog`) to calculate
+  breaks for the symmetric logarithm transformation.
+
+### Changes
+
+- The default `big_mark` for [](`~mizani.labels.label_number`)
+  has been changed from a comma to nothing.
+
+## v0.10.0
+
+*2023-07-28*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.8193394.svg)](https://doi.org/10.5281/zenodo.8193394)
+
+### API Changes
+
+- [](`~mizani.formatters.mpl_format`) has been removed,
+  [](`~mizani.formatters.number_format`) takes its place.
+- [](`~mizani.breaks.mpl_breaks`) has been removed,
+  [](`~mizani.breaks.extended_breaks`) has always been the default
+  and it is sufficient.
+- matplotlib has been removed as a dependency of mizani.
+- mizani now requires python 3.9 and above.
+- The units parameter for of [](`~mizani.formatters.timedelta_format`)
+  now accepts the values `"min", "day", "week", "month"`,
+  instead of `"m", "d", "w", "M"`.
+- The naming convention for break formatting methods has changed from
+  `\*\_format` to `label\_\*`. Specifically these methods have been renamed.
+  - `comma_format` is now [](`~mizani.formatters.label_comma`)
+  - `custom_format` is now [](`~mizani.formatters.label_custom`)
+  - `currency_format` is now [](`~mizani.formatters.label_currency`)
+  - `label_dollar` is now [](`~mizani.formatters.label_dollar`)
+  - `percent_format` is now [](`~mizani.formatters.label_percent`)
+  - `scientific_format` is now [](`~mizani.formatters.label_scientific`)
+  - `date_format` is now [](`~mizani.formatters.label_date`)
+  - `number_format` is now [](`~mizani.formatters.label_number`)
+  - `log_format` is now [](`~mizani.formatters.label_log`)
+  - `timedelta_format` is now [](`~mizani.formatters.label_timedelta`)
+  - `pvalue_format` is now [](`~mizani.formatters.label_pvalue`)
+  - `ordinal_format` is now [](`~mizani.formatters.label_ordinal`)
+  - `number_bytes_format` is now [](`~mizani.formatters.label_bytes`)
+- The naming convention for break calculating methods has changed from
+  `\*\_breaks` to `breaks\_\*`. Specifically these methods have been renamed.
+  - `log_breaks` is now [](`~mizani.breaks.breaks_log`)
+  - `trans_minor_breaks` is now [](`~mizani.breaks.minor_breaks_trans`)
+  - `date_breaks` is now [](`~mizani.breaks. breaks_date`)
+  - `timedelta_breaks` is now [](`~mizani.breaks. breaks_timedelta`)
+  - `extended_breaks` is now [](`~mizani.breaks. breaks_extended`)
+- [](`~mizani.transforms.trans.dataspace_is_numerical`) has changed
+  to [](`~mizani.transforms.trans.domain_is_numerical`) and it is now
+  determined dynamically.
+- The default `minor_breaks` for all transforms that are not linear
+  are now calculated in dataspace. But only if the dataspace is
+  numerical.
+
+### New
+
+- [](`~mizani.transforms.symlog_trans`) for symmetric log transformation
+
+## v0.9.2
+
+*2023-05-25*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.7971866.svg)](https://doi.org/10.5281/zenodo.7971866)
+
+### Bug Fixes
+
+- Fixed regression in but in [](`~mizani.formatters.date_format`) where
+  it cannot deal with UTC timezone from [](`~datetime.timezone`)
+  [\#30](https://github.com/has2k1/mizani/issues/30).
+
+## v0.9.1
+
+*2023-05-19*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.7951172.svg)](https://doi.org/10.5281/zenodo.7951172)
+
+### Bug Fixes
+
+- Fixed but in [](`~mizani.formatters.date_format`) to handle datetime
+  sequences within the same timezone but a mixed daylight saving state.
+  [(plotnine \#687)](https://github.com/has2k1/plotnine/issues/687)
+
+## v0.9.0
+
+*2023-04-15*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.7951171.svg)](https://doi.org/10.5281/zenodo.7951171)
+
+### API Changes
+
+- `palettable` dropped as a dependency.
+
+### Bug Fixes
+
+- Fixed bug in [](`~mizani.transforms.datetime_trans`) where
+  a pandas series with an index that did not start at 0 could not
+  be transformed.
+- Install tzdata on pyiodide/emscripten. [\#27](https://github.com/has2k1/mizani/issues/27)
+
+## v0.8.1
+
+*2022-09-28*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.7120121.svg)](https://doi.org/10.5281/zenodo.7120121)
+
+### Bug Fixes
+
+- Fixed regression bug in [](`~mizani.formatters.log_format`) for
+  where formatting for bases 2, 8 and 16 would fail if the values were
+  float-integers.
+
+### Enhancements
+
+- [](`~mizani.formatters.log_format`) now uses exponent notation
+  for bases other than base 10.
+
+## v0.8.0
+
+*2022-09-26*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.7113103.svg)](https://doi.org/10.5281/zenodo.7113103)
+
+### API Changes
+
+- The `lut` parameter of [](`~mizani.palettes.cmap_pal`) and
+  [](`~mizani.palettes.cmap_d_pal`) has been deprecated and will
+  removed in a future version.
+- [](`~mizani.transforms.datetime_trans`) gained parameter `tz`
+  that controls the timezone of the transformation.
+- [](`~mizani.formatters.log_format`) gained boolean parameter
+  `mathtex` for TeX values as understood matplotlib instead of
+  values in scientific notation.
+
+### Bug Fixes
+
+- Fixed bug in [](`~mizani.bounds.zero_range`) where `uint64`
+  values would cause a RuntimeError.
+
+## v0.7.4
+
+*2022-04-02*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.6408007.svg)](https://doi.org/10.5281/zenodo.6408007)
+
+### API Changes
+
+- [](`~mizani.formatters.comma_format`) is now imported
+  automatically when using `*`.
+- Fixed issue with [](`~mizani.scales.scale_discrete`) so that if
+  you train on data with `Nan` and specify and old range that also
+  has `NaN`, the result range does not include two `NaN` values.
+
+## v0.7.3
+
+*(2020-10-29)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.4633364.svg)](https://doi.org/10.5281/zenodo.4633364)
+
+### Bug Fixes
+
+- Fixed log_breaks for narrow range if base=2 ([\#76](https://github.com/has2k1/mizani/issues/76)).
+
+## v0.7.2
+
+*(2020-10-29)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.4633357.svg)](https://doi.org/10.5281/zenodo.4633357)
+
+### Bug Fixes
+
+- Fixed bug in [](`~mizani.bounds.rescale_max`) to properly handle
+  values whose maximum is zero ([\#16](https://github.com/has2k1/mizani/issues/16)).
+
+## v0.7.1
+
+*(2020-06-05)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.3877546.svg)](https://doi.org/10.5281/zenodo.3877546)
+
+### Bug Fixes
+
+- Fixed regression in [](`mizani.scales.scale_discrete.train`) when
+  trainning on values with some categoricals that have common elements.
+
+## v0.7.0
+
+*(2020-06-04)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.3876327.svg)](https://doi.org/10.5281/zenodo.3876327)
+
+### Bug Fixes
+
+- Fixed issue with [](`mizani.formatters.log_breaks`) where non-linear
+  breaks could not be generated if the limits where greater than the
+  largest integer `sys.maxsize`.
+- Fixed [](`mizani.palettes.gradient_n_pal`) to return `nan` for
+  `nan` values.
+- Fixed [](`mizani.scales.scale_discrete.train`) when training categoricals
+  to maintain the order.
+  [(plotnine \#381)](https://github.com/has2k1/plotnine/issues/381)
+
+## v0.6.0
+
+*(2019-08-15)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.3369191.svg)](https://doi.org/10.5281/zenodo.3369191)
+
+### New
+
+- Added [](`~mizani.formatters.pvalue_format`)
+- Added [](`~mizani.formatters.ordinal_format`)
+- Added [](`~mizani.formatters.number_bytes_format`)
+- Added [](`~mizani.transforms.pseudo_log_trans`)
+- Added [](`~mizani.transforms.reciprocal_trans`)
+- Added [](`~mizani.transforms.modulus_trans`)
+
+### Enhancements
+
+- [](`mizani.breaks.date_breaks`) now supports intervals in the  
+  order of seconds.
+
+- [](`mizani.palettes.brewer_pal`) now supports a direction argument
+  to control the order of the returned colors.
+
+### API Changes
+
+- [](`~mizani.transforms.boxcox_trans`) now only accepts positive
+  values. For both positive and negative values,
+  [](`~mizani.transforms.modulus_trans`) has been added.
+
+## v0.5.4
+
+*(2019-03-26)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.62319878.svg)](https://doi.org/10.5281/zenodo.62319878)
+
+### Enhancements
+
+- [](`mizani.formatters.log_format`) now does a better job of
+  approximating labels for numbers like `3.000000000000001e-05`.
+
+### API Changes
+
+- `exponent_threshold` parameter of [](`mizani.formatters.log_format`) has
+  been deprecated.
+
+## v0.5.3
+
+*(2018-12-24)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.2526010.svg)](https://doi.org/10.5281/zenodo.2526010)
+
+### API Changes
+
+- Log transforms now default to `base - 2` minor breaks.
+  So base 10 has 8 minor breaks and 9 partitions,
+  base 8 has 6 minor breaks and 7 partitions, ...,
+  base 2 has 0 minor breaks and a single partition.
+
+## v0.5.2
+
+*(2018-10-17)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.2525577.svg)](https://doi.org/10.5281/zenodo.2525577)
+
+### Bug Fixes
+
+- Fixed issue where some functions that took pandas series
+  would return output where the index did not match that of the input.
+
+## v0.5.1
+
+*(2018-10-15)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1464266.svg)](https://doi.org/10.5281/zenodo.1464266)
+
+### Bug Fixes
+
+- Fixed issue with [](`~mizani.breaks.log_breaks`), so that it does
+  not fail needlessly when the limits in the (0, 1) range.
+
+### Enhancements
+
+- Changed [](`~mizani.formatters.log_format`) to return better
+  formatted breaks.
+
+## v0.5.0
+
+*(2018-11-10)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1461621.svg)](https://doi.org/10.5281/zenodo.1461621)
+
+### API Changes
+
+- Support for python 2 has been removed.
+
+- [](`~mizani.breaks.minor_breaks.call`) and  
+  meth:\`~mizani.breaks.trans_minor_breaks.call\` now accept optional
+  parameter `n` which is the number of minor breaks between any two
+  major breaks.
+
+- The parameter `nan_value` has be renamed to `na_value`.
+
+- The parameter `nan_rm` has be renamed to `na_rm`.
+
+### Enhancements
+
+- Better support for handling missing values when training discrete
+  scales.
+- Changed the algorithm for [](`~mizani.breaks.log_breaks`), it can
+  now return breaks that do not fall on the integer powers of the base.
+
+## v0.4.6
+
+*(2018-03-20)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1204282.svg)](https://doi.org/10.5281/zenodo.1204282)
+
+- Added [](`~mizani.bounds.squish`)
+
+## v0.4.5
+
+*(2018-03-09)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1204222.svg)](https://doi.org/10.5281/zenodo.1204222)
+
+- Added [](`~mizani.palettes.identity_pal`)
+- Added [](`~mizani.palettes.cmap_d_pal`)
+
+## v0.4.4
+
+*(2017-12-13)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1115676.svg)](https://doi.org/10.5281/zenodo.1115676)
+
+- Fixed [](`~mizani.formatters.date_format`) to respect the timezones
+  of the dates ([\#8](https://github.com/has2k1/mizani/issues/8)).
+
+## v0.4.3
+
+*(2017-12-01)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1069571.svg)](https://doi.org/10.5281/zenodo.1069571)
+
+- Changed [](`~mizani.breaks.date_breaks`) to have more variety
+  in the spacing between the breaks.
+- Fixed [](`~mizani.formatters.date_format`) to respect time part
+  of the date ([\#7](https://github.com/has2k1/mizani/issues/7)).
+
+## v0.4.2
+
+*(2017-11-06)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1042715.svg)](https://doi.org/10.5281/zenodo.1042715)
+
+- Fixed (regression) break calculation for the non ordinal transforms.
+
+## v0.4.1
+
+*(2017-11-04)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1041981.svg)](https://doi.org/10.5281/zenodo.1041981)
+
+- [](`~mizani.transforms.trans`) objects can now be instantiated
+  with parameter to override attributes of the instance. And the
+  default methods for computing breaks and minor breaks on the
+  transform instance are not class attributes, so they can be
+  modified without global repercussions.
+
+## v0.4.0
+
+*(2017-10-24)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1035809.svg)](https://doi.org/10.5281/zenodo.1035809)
+
+### API Changes
+
+- Breaks and formatter generating functions have been converted to
+  classes, with a `__call__` method. How they are used has not
+  changed, but this makes them move flexible.
+- `ExtendedWilkson` class has been removed.
+  [](`~mizani.breaks.extended_breaks`) now contains the implementation
+  of the break calculating algorithm.
+
+## v0.3.4
+
+*(2017-09-12)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.890135.svg)](https://doi.org/10.5281/zenodo.890135)
+
+- Fixed issue where some formatters methods failed if passed empty
+  `breaks` argument.
+
+- Fixed issue with [](`~mizani.breaks.log_breaks`) where if the
+  limits were with in the same order of magnitude the calculated
+  breaks were always the ends of the order of magnitude.
+
+  Now `log_breaks()((35, 50))` returns `[35,  40,  45,  50]`
+  as breaks instead of `[1, 100]`.
+
+## v0.3.3
+
+*(2017-08-30)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.854777.svg)](https://doi.org/10.5281/zenodo.854777)
+
+- Fixed *SettingWithCopyWarnings* in [](`~mizani.bounds.squish_infinite`).
+- Added [](`~mizani.formatters.log_format`).
+
+### API Changes
+
+- Added [](`~mizani.transforms.log_trans`) now uses
+  [](`~mizani.formatters.log_format`) as the formatting method.
+
+## v0.3.2
+
+*(2017-07-14)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.827406.svg)](https://doi.org/10.5281/zenodo.827406)
+
+- Added [](`~mizani.bounds.expand_range_distinct`)
+
+## v0.3.1
+
+*(2017-06-22)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.815721.svg)](https://doi.org/10.5281/zenodo.815721)
+
+- Fixed bug where using [](`~mizani.breaks.log_breaks`) with
+  Numpy 1.13.0 led to a `ValueError`.
+
+## v0.3.0
+
+*(2017-04-24)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.557096.svg)](https://doi.org/10.5281/zenodo.557096)
+
+- Added [](`~mizani.palettes.xkcd_palette`), a palette that
+  selects from 954 named colors.
+- Added [](`~mizani.palettes.crayon_palette`), a palette that
+  selects from 163 named colors.
+- Added [](`cubehelix_pal`), a function that creates a continuous
+  palette from the cubehelix system.
+- Fixed bug where a color palette would raise an exception when
+  passed a single scalar value instead of a list-like.
+- [](`~mizani.breaks.extended_breaks`) and
+  [](`~mizani.breaks.mpl_breaks`) now return a single break if
+  the limits are equal. Previous, one run into an *Overflow* and
+  the other returned a sequence filled with *n* of the same limit.
+
+### API Changes
+
+- [](`~mizani.breaks.mpl_breaks`) now returns a function
+  that (strictly) expects a tuple with the minimum and maximum values.
+
+## v0.2.0
+
+*(2017-01-27)*
+
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.260331.svg)](https://doi.org/10.5281/zenodo.260331)
+
+- Fixed bug in [](`~mizani.bounds.censor`) where a sequence of
+  values with an irregular index would lead to an exception.
+- Fixed boundary issues due internal loss of precision in ported
+  function [](`~mizani.utils.seq`).
+- Added [](`mizani.breaks.extended_breaks`) which computes breaks
+  using a modified version of Wilkinson's tick algorithm.
+- Changed the default function [](`mizani.transforms.trans.breaks_`)
+  used by [](`mizani.transforms.trans`) to compute breaks from
+  [](`mizani.breaks.mpl_breaks`) to
+  [](`mizani.breaks.extended_breaks`).
+- [](`mizani.breaks.timedelta_breaks`) now uses
+  [](`mizani.breaks.extended_breaks`) internally instead of
+  [](`mizani.breaks.mpl_breaks`).
+- Added manual palette function [](`mizani.palettes.manual_pal`).
+- Requires `pandas` version 0.19.0 or higher.
+
+## v0.1.0
+
+*(2016-06-30)*
+
+[![image](https://zenodo.org/badge/doi/10.5281/zenodo.57030.svg)](http://dx.doi.org/10.5281/zenodo.57030)
+
+First public release

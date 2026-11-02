@@ -1,13 +1,5 @@
 """
-Scales have guides and these are what help users make sense of
-the data mapped onto the scale. Common examples of guides include
-the x-axis, the y-axis, the keyed legend and a colorbar legend.
-The guides have demarcations(breaks), some of which must be labelled.
-
-The `label_*` functions below create functions that convert data
-values as understood by a specific scale and return string
-representations of those values. Manipulating the string
-representation of a value helps improve readability of the guide.
+Labelling breaks
 """
 
 from __future__ import annotations
@@ -217,32 +209,59 @@ class label_number:
 
     Examples
     --------
-    >>> label_number()([.654, .8963, .1])
-    ['0.65', '0.90', '0.10']
-    >>> label_number(accuracy=0.0001)([.654, .8963, .1])
-    ['0.6540', '0.8963', '0.1000']
-    >>> label_number(precision=4)([.654, .8963, .1])
-    ['0.6540', '0.8963', '0.1000']
-    >>> label_number(prefix="$")([5, 24, -42])
-    ['$5', '$24', '-$42']
-    >>> label_number(suffix="s")([5, 24, -42])
-    ['5s', '24s', '-42s']
-    >>> label_number(scale_cut=cut_short_scale())([500, 1500, 2000, 2500])
-    ['500', '1.5K', '2.0K', '2.5K']
-    >>> label_number(scale_cut=cut_si("m"))([1e-6, 1, 1e3])
-    ['1 µm', '1 m', '1 km']
-    >>> label_number(big_mark="_")([1e3, 1e4, 1e5, 1e6])
-    ['1_000', '10_000', '100_000', '1_000_000']
-    >>> label_number(width=3)([1, 10, 100, 1000])
-    ['  1', ' 10', '100', '1000']
-    >>> label_number(align="^", width=5)([1, 10, 100, 1000])
-    ['  1  ', ' 10  ', ' 100 ', '1000 ']
-    >>> label_number(style_positive=" ")([5, 24, -42])
-    [' 5', ' 24', '-42']
-    >>> label_number(style_positive="+")([5, 24, -42])
-    ['+5', '+24', '-42']
-    >>> label_number(prefix="$", style_negative="braces")([5, 24, -42])
-    ['$5', '$24', '($42)']
+    ```{python}
+    from mizani.labels import cut_short_scale, cut_si, label_number
+
+    label_number()([.654, .8963, .1])
+    ```
+
+    ```{python}
+    label_number(accuracy=0.0001)([.654, .8963, .1])
+    ```
+
+    ```{python}
+    label_number(precision=4)([.654, .8963, .1])
+    ```
+
+    ```{python}
+    label_number(prefix="$")([5, 24, -42])
+    ```
+
+    ```{python}
+    label_number(suffix="s")([5, 24, -42])
+    ```
+
+    ```{python}
+    label_number(scale_cut=cut_short_scale())([500, 1500, 2000, 2500])
+    ```
+
+    ```{python}
+    label_number(scale_cut=cut_si("m"))([1e-6, 1, 1e3])
+    ```
+
+    ```{python}
+    label_number(big_mark="_")([1e3, 1e4, 1e5, 1e6])
+    ```
+
+    ```{python}
+    label_number(width=3)([1, 10, 100, 1000])
+    ```
+
+    ```{python}
+    label_number(align="^", width=5)([1, 10, 100, 1000])
+    ```
+
+    ```{python}
+    label_number(style_positive=" ")([5, 24, -42])
+    ```
+
+    ```{python}
+    label_number(style_positive="+")([5, 24, -42])
+    ```
+
+    ```{python}
+    label_number(prefix="$", style_negative="parens")([5, 24, -42])
+    ```
     """
 
     accuracy: float | None = None
@@ -410,18 +429,21 @@ class label_custom:
     ----------
     fmt : str, optional
         Format string. Default is the generic new style
-        format braces, ``{}``.
+        format braces, `{}`.
     style : 'new' | 'old'
         Whether to use new style or old style formatting.
-        New style uses the :meth:`str.format` while old
-        style uses ``%``. The format string must be written
+        New style uses the [](`str.format`) while old
+        style uses `%`. The format string must be written
         accordingly.
 
     Examples
     --------
-    >>> label = label_custom('{:.2f} USD')
-    >>> label([3.987, 2, 42.42])
-    ['3.99 USD', '2.00 USD', '42.42 USD']
+    ```{python}
+    from mizani.labels import label_custom
+
+    label = label_custom('{:.2f} USD')
+    label([3.987, 2, 42.42])
+    ```
     """
 
     fmt: str = "{}"
@@ -462,11 +484,16 @@ class label_currency(label_number):
 
     Examples
     --------
-    >>> x = [1.232, 99.2334, 4.6, 9, 4500]
-    >>> label_currency()(x)
-    ['$1.23', '$99.23', '$4.60', '$9.00', '$4500.00']
-    >>> label_currency(prefix='C$', precision=0, big_mark=',')(x)
-    ['C$1', 'C$99', 'C$5', 'C$9', 'C$4,500']
+    ```{python}
+    from mizani.labels import label_currency
+
+    x = [1.232, 99.2334, 4.6, 9, 4500]
+    label_currency()(x)
+    ```
+
+    ```{python}
+    label_currency(prefix='C$', precision=0, big_mark=',')(x)
+    ```
     """
 
     prefix: str = "$"
@@ -493,8 +520,11 @@ class label_comma(label_currency):
 
     Examples
     --------
-    >>> label_comma()([1000, 2, 33000, 400])
-    ['1,000', '2', '33,000', '400']
+    ```{python}
+    from mizani.labels import label_comma
+
+    label_comma()([1000, 2, 33000, 400])
+    ```
     """
 
     prefix: str = ""
@@ -511,11 +541,16 @@ class label_percent(label_number):
 
     Examples
     --------
-    >>> label = label_percent()
-    >>> label([.45, 9.515, .01])
-    ['45%', '952%', '1%']
-    >>> label([.654, .8963, .1])
-    ['65%', '90%', '10%']
+    ```{python}
+    from mizani.labels import label_percent
+
+    label = label_percent()
+    label([.45, 9.515, .01])
+    ```
+
+    ```{python}
+    label([.654, .8963, .1])
+    ```
     """
 
     scale: float = 100
@@ -535,18 +570,20 @@ class label_scientific:
     digits : int
         Significant digits.
 
-    Examples
-    --------
-    >>> x = [.12, .23, .34, 45]
-    >>> label_scientific()(x)
-    ['1.2e-01', '2.3e-01', '3.4e-01', '4.5e+01']
-
     Notes
     -----
     Be careful when using many digits (15+ on a 64
-    bit computer). Consider of the `machine epsilon`_.
+    bit computer). Consider of the
+    [machine epsilon](https://en.wikipedia.org/wiki/Machine_epsilon).
 
-    .. _machine epsilon: https://en.wikipedia.org/wiki/Machine_epsilon
+    Examples
+    --------
+    ```{python}
+    from mizani.labels import label_scientific
+
+    x = [.12, .23, .34, 45]
+    label_scientific()(x)
+    ```
     """
 
     digits: int = 3
@@ -597,14 +634,19 @@ class label_log:
 
     Examples
     --------
-    >>> label_log()([0.001, 0.1, 100])
-    ['0.001', '0.1', '100']
+    ```{python}
+    from mizani.labels import label_log
 
-    >>> label_log()([0.0001, 0.1, 10000])
-    ['1e-4', '1e-1', '1e4']
+    label_log()([0.001, 0.1, 100])
+    ```
 
-    >>> label_log(mathtex=True)([0.0001, 0.1, 10000])
-    ['$10^{-4}$', '$10^{-1}$', '$10^{4}$']
+    ```{python}
+    label_log()([0.0001, 0.1, 10000])
+    ```
+
+    ```{python}
+    label_log(mathtex=True)([0.0001, 0.1, 10000])
+    ```
     """
 
     base: float = 10
@@ -734,7 +776,7 @@ class label_date:
     ----------
     fmt : str
         Format string. See
-        :ref:`strftime <strftime-strptime-behavior>`.
+        [strftime](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior).
     tz : datetime.tzinfo, optional
         Time zone information. If none is specified, the
         time zone will be that of the first date. If the
@@ -743,36 +785,50 @@ class label_date:
 
     Examples
     --------
-    >>> from datetime import datetime
-    >>> x = [datetime(x, 1, 1) for x in [2010, 2014, 2018, 2022]]
-    >>> label_date()(x)
-    ['2010-01-01', '2014-01-01', '2018-01-01', '2022-01-01']
-    >>> label_date('%Y')(x)
-    ['2010', '2014', '2018', '2022']
+    ```{python}
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from mizani.labels import label_date
+
+    x = [datetime(x, 1, 1) for x in [2010, 2014, 2018, 2022]]
+    label_date()(x)
+    ```
+
+    ```{python}
+    label_date('%Y')(x)
+    ```
 
     Can format time
 
-    >>> x = [datetime(2017, 12, 1, 16, 5, 7)]
-    >>> label_date("%Y-%m-%d %H:%M:%S")(x)
-    ['2017-12-01 16:05:07']
+    ```{python}
+    x = [datetime(2017, 12, 1, 16, 5, 7)]
+    label_date("%Y-%m-%d %H:%M:%S")(x)
+    ```
 
     Time zones are respected
 
-    >>> UTC = ZoneInfo('UTC')
-    >>> UG = ZoneInfo('Africa/Kampala')
-    >>> x = [datetime(2010, 1, 1, i) for i in [8, 15]]
-    >>> x_tz = [datetime(2010, 1, 1, i, tzinfo=UG) for i in [8, 15]]
-    >>> label_date('%Y-%m-%d %H:%M')(x)
-    ['2010-01-01 08:00', '2010-01-01 15:00']
-    >>> label_date('%Y-%m-%d %H:%M')(x_tz)
-    ['2010-01-01 08:00', '2010-01-01 15:00']
+    ```{python}
+    UTC = ZoneInfo('UTC')
+    UG = ZoneInfo('Africa/Kampala')
+    x = [datetime(2010, 1, 1, i) for i in [8, 15]]
+    x_tz = [datetime(2010, 1, 1, i, tzinfo=UG) for i in [8, 15]]
+    label_date('%Y-%m-%d %H:%M')(x)
+    ```
+
+    ```{python}
+    label_date('%Y-%m-%d %H:%M')(x_tz)
+    ```
 
     Format with a specific time zone
 
-    >>> label_date('%Y-%m-%d %H:%M', tz=UTC)(x_tz)
-    ['2010-01-01 05:00', '2010-01-01 12:00']
-    >>> label_date('%Y-%m-%d %H:%M', tz='EST')(x_tz)
-    ['2010-01-01 00:00', '2010-01-01 07:00']
+    ```{python}
+    label_date('%Y-%m-%d %H:%M', tz=UTC)(x_tz)
+    ```
+
+    ```{python}
+    label_date('%Y-%m-%d %H:%M', tz='EST')(x_tz)
+    ```
     """
 
     fmt: str = "%Y-%m-%d"
@@ -828,13 +884,19 @@ class label_date_short:
 
     Examples
     --------
-    >>> from datetime import datetime
-    >>> x = [datetime(2010, 1, day) for day in (1, 8, 15)]
-    >>> label_date_short()(x)
-    ['01\\nJan\\n2010', '08', '15']
-    >>> years = [datetime(year, 1, 1) for year in (2010, 2011, 2012)]
-    >>> label_date_short()(years)
-    ['2010', '2011', '2012']
+    ```{python}
+    from datetime import datetime
+
+    from mizani.labels import label_date_short
+
+    x = [datetime(2010, 1, day) for day in (1, 8, 15)]
+    label_date_short()(x)
+    ```
+
+    ```{python}
+    years = [datetime(year, 1, 1) for year in (2010, 2011, 2012)]
+    label_date_short()(years)
+    ```
     """
 
     fmt: Sequence[str] = ("%Y", "%b", "%d", "%H:%M")
@@ -935,27 +997,11 @@ class label_timedelta:
     units : str, optional
         The units in which the breaks will be computed.
         If None, they are decided automatically. Otherwise,
-        the value should be one of::
-
-            'nanoseconds'
-            'microseconds'
-            'milliseconds'
-            'seconds'
-            'minutes'
-            'hours'
-            'days'
-            'weeks'
-
-        Or the SI form::
-
-            'ns'
-            'us'
-            'ms'
-            's'
-            'min'
-            'h'
-            'd'
-            'week'
+        the value should be one of `'nanoseconds'`,
+        `'microseconds'`, `'milliseconds'`, `'seconds'`,
+        `'minutes'`, `'hours'`, `'days'` or `'weeks'`, or one
+        of the SI forms `'ns'`, `'us'`, `'ms'`, `'s'`, `'min'`,
+        `'h'`, `'d'` or `'week'`.
 
     show_units : bool
         Whether to append the units symbol to the values.
@@ -975,18 +1021,30 @@ class label_timedelta:
 
     Examples
     --------
-    >>> from datetime import timedelta
-    >>> x = [timedelta(days=7*i) for i in range(5)]
-    >>> label_timedelta()(x)
-    ['0 weeks', '1 week', '2 weeks', '3 weeks', '4 weeks']
-    >>> label_timedelta(units='day')(x)
-    ['0 d', '7 d', '14 d', '21 d', '28 d']
-    >>> label_timedelta(units='day', use_si_units=False)(x)
-    ['0 days', '7 days', '14 days', '21 days', '28 days']
-    >>> label_timedelta(units='day', zero_has_units=False)(x)
-    ['0', '7 d', '14 d', '21 d', '28 d']
-    >>> label_timedelta(units='day', show_units=False)(x)
-    ['0', '7', '14', '21', '28']
+    ```{python}
+    from datetime import timedelta
+
+    from mizani.labels import label_timedelta
+
+    x = [timedelta(days=7*i) for i in range(5)]
+    label_timedelta()(x)
+    ```
+
+    ```{python}
+    label_timedelta(units='day')(x)
+    ```
+
+    ```{python}
+    label_timedelta(units='day', use_si_units=False)(x)
+    ```
+
+    ```{python}
+    label_timedelta(units='day', zero_has_units=False)(x)
+    ```
+
+    ```{python}
+    label_timedelta(units='day', show_units=False)(x)
+    ```
     """
 
     units: TimeIntervalUnits | TimeIntervalSIUnits | None = None
@@ -1048,13 +1106,20 @@ class label_pvalue:
 
     Examples
     --------
-    >>> x = [.90, .15, .015, .009, 0.0005]
-    >>> label_pvalue()(x)
-    ['0.9', '0.15', '0.015', '0.009', '<0.001']
-    >>> label_pvalue(0.1)(x)
-    ['0.9', '0.1', '<0.1', '<0.1', '<0.1']
-    >>> label_pvalue(0.1, True)(x)
-    ['p=0.9', 'p=0.1', 'p<0.1', 'p<0.1', 'p<0.1']
+    ```{python}
+    from mizani.labels import label_pvalue
+
+    x = [.90, .15, .015, .009, 0.0005]
+    label_pvalue()(x)
+    ```
+
+    ```{python}
+    label_pvalue(0.1)(x)
+    ```
+
+    ```{python}
+    label_pvalue(0.1, True)(x)
+    ```
     """
 
     accuracy: float = 0.001
@@ -1124,10 +1189,15 @@ class label_ordinal:
 
     Examples
     --------
-    >>> label_ordinal()(range(8))
-    ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th']
-    >>> label_ordinal(suffix=' Number')(range(11, 15))
-    ['11th Number', '12th Number', '13th Number', '14th Number']
+    ```{python}
+    from mizani.labels import label_ordinal
+
+    label_ordinal()(range(8))
+    ```
+
+    ```{python}
+    label_ordinal(suffix=' Number')(range(11, 15))
+    ```
     """
 
     prefix: str = ""
@@ -1156,15 +1226,20 @@ class label_bytes:
     units : "binary" | "si"
         Which unit base to use, 1024 for "binary" or 1000 for "si".
     fmt : str, optional
-        Format sting. Default is ``{:.0f}``.
+        Format sting. Default is `{:.0f}`.
 
     Examples
     --------
-    >>> x = [1000, 1000000, 4e5]
-    >>> label_bytes()(x)
-    ['1000 B', '977 KiB', '391 KiB']
-    >>> label_bytes(units='si')(x)
-    ['1 kB', '1 MB', '400 kB']
+    ```{python}
+    from mizani.labels import label_bytes
+
+    x = [1000, 1000000, 4e5]
+    label_bytes()(x)
+    ```
+
+    ```{python}
+    label_bytes(units='si')(x)
+    ```
     """
 
     symbol: Literal["auto"] | BytesSymbol = "auto"

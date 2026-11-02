@@ -41,6 +41,16 @@ authors:
     github: has2k1
     email: has2k1@gmail.com
 
+# Funding / Copyright Holder
+# --------------------------
+# Credit the organization that funds or holds copyright for this package.
+funding:
+  name: Posit Software, PBC
+  roles:
+    - funder
+  homepage: https://posit.co
+  ror: https://ror.org/03wc8by49
+
 # Interlinks
 # ----------
 # Other documentation sites your prose can link to. Each entry under `sources`
@@ -94,16 +104,21 @@ sections:
   - title: Changelog
     dir: changelog
 
-# Navbar Order
-# ------------
+# Colors & Navbar
+# ---------------
+
+# Navbar gradient preset.
+# : null - (default) no gradient
+# : type(str) - a preset name, e.g. sky, peach, lilac
+navbar_style: dusk
+content_style: prism
+
 # Explicit ordering of navbar items by their display text. Items not listed
 # are appended after the listed ones, preserving their original order.
 navbar_order:
   - Reference
   - Changelog
 
-# Navigation Icons
-# ----------------
 # Lucide icons prepended to sidebar/navbar entries.
 nav_icons:
   navbar:

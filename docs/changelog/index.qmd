@@ -56,6 +56,9 @@ description: Changes in each release of mizani, newest first.
   [](`~mizani.transforms.log10_trans`) and
   [](`~mizani.transforms.log2_trans`). Before, they raised
   `ValueError: Integers to negative integer powers are not allowed`.
+- [](`~mizani.labels.label_ordinal`) now gives negative numbers the same
+  suffix as positive ones. Before, it labelled `[-1, -2, -3]` as
+  `["-1th", "-2th", "-3th"]`; now they are `["-1st", "-2nd", "-3rd"]`.
 
 ## v0.14.6
 

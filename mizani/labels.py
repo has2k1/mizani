@@ -1157,9 +1157,11 @@ def ordinal(n: float, prefix="", suffix="", big_mark=""):
     # General Case: 0th, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th
     # Special Case: 10th, 11th, 12th, 13th
     n = int(n)
-    idx = np.min((n % 10, 4))
+    # The suffix depends on the digits, not the sign: -1st, -2nd, -11th
+    m = abs(n)
+    idx = np.min((m % 10, 4))
     _suffix = ("th", "st", "nd", "rd", "th")[idx]
-    if 11 <= (n % 100) <= 13:
+    if 11 <= (m % 100) <= 13:
         _suffix = "th"
 
     if big_mark:

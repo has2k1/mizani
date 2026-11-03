@@ -529,6 +529,18 @@ def test_label_ordinal():
     labels = label_ordinal(big_mark=".")(range(1200, 1205))
     assert labels == ["1.200th", "1.201st", "1.202nd", "1.203rd", "1.204th"]
 
+    labels = label_ordinal()([-1, -2, -3, -4, -11, -12, -13, -21])
+    assert labels == [
+        "-1st",
+        "-2nd",
+        "-3rd",
+        "-4th",
+        "-11th",
+        "-12th",
+        "-13th",
+        "-21st",
+    ]
+
 
 def test_label_bytes():
     x = [1000, 1000000, 4e5]

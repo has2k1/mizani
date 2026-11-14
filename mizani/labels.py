@@ -4,6 +4,7 @@ Labelling breaks
 
 from __future__ import annotations
 
+import math
 import re
 from bisect import bisect_right
 from collections.abc import Mapping
@@ -1283,7 +1284,16 @@ class label_bytes:
         _all_symbols = self._all_symbols
         symbol = self.symbol
         if symbol == "auto":
-            power = [bisect_right(self._powers, val) for val in x]
+            # Pick the symbol from the size of the value, so negative
+            # values get the same symbol as positive ones. Values past the
+            # largest symbol keep that symbol, and missing values get "B".
+            largest = len(_all_symbols) - 1
+            power = [
+                0
+                if math.isnan(val)
+                else min(bisect_right(self._powers, abs(val)), largest)
+                for val in x
+            ]
             symbols = [_all_symbols[p] for p in power]
         else:
             power = np.array(match([symbol], _all_symbols))

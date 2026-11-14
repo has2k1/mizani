@@ -545,6 +545,18 @@ def test_label_bytes():
         label_bytes(symbol="Bad")(x)
 
 
+def test_label_bytes_auto_symbol_edge_cases():
+    # Negative values get the same symbol as positive ones
+    assert label_bytes()([-2048, 2048]) == ["-2 KiB", "2 KiB"]
+
+    # Values past the largest symbol keep that symbol instead of failing
+    assert label_bytes()([1024.0**9]) == ["1024 YiB"]
+    assert label_bytes(units="si")([1e27]) == ["1000 YB"]
+
+    # A missing value does not fail
+    assert label_bytes()([1024, np.nan]) == ["1 KiB", "nan B"]
+
+
 def test_deprecated_formatters_module():
     # The module re-exports labels under old names, so a rename in labels
     # breaks it on import
